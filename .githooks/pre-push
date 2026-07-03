@@ -29,8 +29,10 @@ if [ -f "$VALIDATE_SCRIPT" ]; then
     echo "🏗  Validating architecture before push..."
     if ! "$VALIDATE_SCRIPT"; then
         echo ""
-        echo "[❌ Error] 아키텍처 검증에 실패하여 Push가 차단되었습니다."
-        echo "다이어그램 또는 모듈 구조의 오류를 수정 후 다시 커밋해주세요."
+        echo "[❌ Error] 아키텍처 다이어그램 검증 실패로 Push가 차단되었습니다."
+        echo "자세한 원인은 위쪽의 로그([⚠️ Warning] 또는 error:)를 확인해주세요."
+        echo " - [자동 갱신 발생 시]: git add docs/graph.* && git commit --amend 후 다시 푸시"
+        echo " - [구조 위반 에러 시]: 코드의 의존성 위반 사항 수정 후 다시 커밋"
         exit 1
     fi
 else
