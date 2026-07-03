@@ -17,7 +17,7 @@
 - **아키텍처 검증 필수**: `Projects/App`, `Projects/Feature`, `Projects/Core`, `Tuist`, `Project.swift`, `docs/graph.dot` 중 하나라도 수정했다면 최종 보고 전 `./scripts/validate-architecture.sh`를 실행하고 결과를 보고한다.
 
 > **참조**: 아키텍처 다이어그램(Mermaid)은 프로젝트 루트의 [`README.md`](./README.md) 내 **Project Structure** 섹션을 확인하라.
-> **참고**: 실제 빌드 상의 물리적 의존성 연결 실체는 [`docs/graph.dot`](./docs/graph.dot) (2026-07-03 기준, DOT 텍스트 포맷)을 읽고 분석하라.
+> **참고**: 실제 빌드 상의 물리적 의존성 연결 실체는 [`docs/graph.dot`](./docs/graph.dot) (DOT 텍스트 포맷)을 읽고 분석하라.
 > 또한 `Tuist`의 `makeFeature` 템플릿을 사용하면 Feature 레이어의 타겟에 `Core Layer` 및 `ComposableArchitecture`가 **자동으로 의존성 주입**된다. 
 
 ### Architecture Guardrail

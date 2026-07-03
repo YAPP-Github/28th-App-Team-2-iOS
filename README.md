@@ -131,7 +131,7 @@ tuist generate
 # 테스트 타겟 및 외부 의존성을 제외하고 코어/피처 아키텍처 및 데모 앱 타겟을 시각화 (png 형식으로 docs/graph.png 저장)
 tuist graph --skip-test-targets --skip-external-dependencies --format png --no-open -o docs
 ```
-*(실제 추출된 아키텍처 구조도 - 2026-07-03 기준)*
+*(실제 추출된 아키텍처 구조도)*
 <br>
 <img src="./docs/graph.png" width="600">
 
