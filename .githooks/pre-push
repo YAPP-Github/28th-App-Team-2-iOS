@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# pre-push hook
+# 1. 절대적 Force Push 금지 (Non-fast-forward 푸시 차단)
+# 2. 아키텍처 다이어그램 동기화 및 검증 실행
+
+echo "========================================"
+echo "🛡  Running pre-push hooks..."
+echo "========================================"
+
+# Force push (Non-fast-forward) 검사
+while read local_ref local_sha remote_ref remote_sha; do
+    # 삭제 푸시가 아니고, 리모트와 로컬 모두 커밋이 존재할 때
+    if [ "$remote_sha" != "0000000000000000000000000000000000000000" ] && [ "$local_sha" != "0000000000000000000000000000000000000000" ]; then
+        # remote_sha가 local_sha의 조상인지 확인 (fast-forward 여부)
+        if ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+            echo "[❌ Error] Force push 방지 규정에 의해 Push가 차단되었습니다."
+            echo "리모트 브랜치의 커밋 내역이 로컬 커밋 내역에 포함되어 있지 않습니다."
+            echo "충돌을 해결하고 다시 커밋한 후 일반 푸시를 진행해주세요."
+            exit 1
+        fi
+    fi
+done
+
+# 아키텍처 검증 실행
+VALIDATE_SCRIPT="./scripts/sync-and-validate.sh"
+
+if [ -f "$VALIDATE_SCRIPT" ]; then
+    echo "🏗  Validating architecture before push..."
+    if ! "$VALIDATE_SCRIPT"; then
+        echo ""
+        echo "[❌ Error] 아키텍처 검증에 실패하여 Push가 차단되었습니다."
+        echo "다이어그램 또는 모듈 구조의 오류를 수정 후 다시 커밋해주세요."
+        exit 1
+    fi
+else
+    echo "[⚠️ Warning] $VALIDATE_SCRIPT 파일을 찾을 수 없어 아키텍처 검증을 건너뜁니다."
+fi
+
+echo "✅ All pre-push checks passed!"
+exit 0

@@ -106,6 +106,13 @@ mise install
 ```
 
 ### 2. Setup & Run
+프로젝트 레포지토리를 클론한 후, **최초 1회** Git Hooks를 설정하여 아키텍처 검증 및 Git 컨벤션 룰을 활성화해야 합니다.
+
+```bash
+# Git Hooks 설정 (필수)
+./scripts/setup-hooks.sh
+```
+
 의존성 패키지를 가져온 뒤, Xcode 프로젝트(.xcworkspace)를 생성하여 실행합니다.
 
 *(※ `mise`가 셸에 활성화(`mise activate`)되어 있다면 `mise exec --` 접두사 없이 바로 `tuist` 명령어를 사용할 수 있습니다.)*
