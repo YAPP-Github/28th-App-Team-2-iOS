@@ -14,7 +14,7 @@ public extension Project {
         hasDemo: Bool = false
     ) -> Project {
         
-        let targetBundleId = bundleId ?? "com.kkikkidan.todakun.\(name)"
+        let targetBundleId = bundleId ?? "com.kikidan.todakun.\(name)"
         var targets: [Target] = []
         
         // Main Target
@@ -77,7 +77,7 @@ public extension Project {
     
     public static func makeApp(
         name: String,
-        bundleId: String = "com.kkikkidan.todakun",
+        bundleId: String = "com.kikidan.todakun",
         dependencies: [TargetDependency] = [],
         resources: ResourceFileElements? = ["Resources/**"]
     ) -> Project {
@@ -98,7 +98,7 @@ public extension Project {
         hasInterface: Bool = true,
         hasDemo: Bool = true
     ) -> Project {
-        let targetBundleId = "com.kkikkidan.todakun.\(name)"
+        let targetBundleId = "com.kikidan.todakun.\(name)"
         var targets: [Target] = []
         
         // 1. Interface Target
