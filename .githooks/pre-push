@@ -36,7 +36,8 @@ if [ -f "$VALIDATE_SCRIPT" ]; then
         exit 1
     fi
 else
-    echo "[⚠️ Warning] $VALIDATE_SCRIPT 파일을 찾을 수 없어 아키텍처 검증을 건너뜁니다."
+    echo "[❌ Error] $VALIDATE_SCRIPT 파일을 찾을 수 없어 Push를 차단합니다."
+    exit 1
 fi
 
 echo "✅ All pre-push checks passed!"

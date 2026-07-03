@@ -18,9 +18,17 @@ fi
 
 printf 'Generating temporary dependency graph...\n'
 if command -v mise >/dev/null 2>&1; then
-  mise exec -- tuist graph --skip-test-targets --skip-external-dependencies --format dot --no-open -o docs >/dev/null 2>&1
+  if ! mise exec -- tuist graph --skip-test-targets --skip-external-dependencies --format dot --no-open -o docs; then
+    printf 'error: tuist graph (dot) 명령 실행에 실패했습니다.\n' >&2
+    [ -f "$ORIG_BACKUP" ] && mv "$ORIG_BACKUP" "docs/graph.dot"
+    exit 1
+  fi
 else
-  tuist graph --skip-test-targets --skip-external-dependencies --format dot --no-open -o docs >/dev/null 2>&1
+  if ! tuist graph --skip-test-targets --skip-external-dependencies --format dot --no-open -o docs; then
+    printf 'error: tuist graph (dot) 명령 실행에 실패했습니다.\n' >&2
+    [ -f "$ORIG_BACKUP" ] && mv "$ORIG_BACKUP" "docs/graph.dot"
+    exit 1
+  fi
 fi
 
 if [ -f "docs/graph.dot" ]; then
@@ -57,9 +65,19 @@ if [ $CHANGES_DETECTED -eq 1 ]; then
   mv "$TEMP_SORTED" "docs/graph.dot"
   
   if command -v mise >/dev/null 2>&1; then
-    mise exec -- tuist graph --skip-test-targets --skip-external-dependencies --format png --no-open -o docs >/dev/null 2>&1
+    if ! mise exec -- tuist graph --skip-test-targets --skip-external-dependencies --format png --no-open -o docs; then
+      printf 'error: tuist graph (png) 명령 실행에 실패했습니다.\n' >&2
+      rm -f "$TEMP_DOT" "$TEMP_SORTED"
+      [ -f "$ORIG_BACKUP" ] && mv "$ORIG_BACKUP" "docs/graph.dot"
+      exit 1
+    fi
   else
-    tuist graph --skip-test-targets --skip-external-dependencies --format png --no-open -o docs >/dev/null 2>&1
+    if ! tuist graph --skip-test-targets --skip-external-dependencies --format png --no-open -o docs; then
+      printf 'error: tuist graph (png) 명령 실행에 실패했습니다.\n' >&2
+      rm -f "$TEMP_DOT" "$TEMP_SORTED"
+      [ -f "$ORIG_BACKUP" ] && mv "$ORIG_BACKUP" "docs/graph.dot"
+      exit 1
+    fi
   fi
 
   printf '\n[⚠️ Warning] 아키텍처 다이어그램이 실제 프로젝트 구조(코드)와 일치하지 않아 최신 상태로 갱신되었습니다.\n' >&2

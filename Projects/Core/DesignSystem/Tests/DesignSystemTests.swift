@@ -1,5 +1,5 @@
 import XCTest
-@testable import CoreDesignSystem
+@testable import DesignSystem
 
 final class DesignSystemTests: XCTestCase {
     func testExample() {

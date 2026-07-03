@@ -133,7 +133,7 @@ tuist graph --skip-test-targets --skip-external-dependencies --format png --no-o
 ```
 *(실제 추출된 아키텍처 구조도)*
 <br>
-<img src="./docs/graph.png" width="600">
+<img src="./docs/graph.png" alt="Architecture Graph" width="600">
 
 ### 4. Architecture Validation
 App / Feature / Core 계층 규칙과 물리 의존성 위반 여부를 빠르게 확인하려면 아래 명령어를 실행합니다. (스크립트 내부에서 자동으로 `tuist graph`를 실행하여 최신 상태의 `docs/graph.dot`를 검증합니다.)

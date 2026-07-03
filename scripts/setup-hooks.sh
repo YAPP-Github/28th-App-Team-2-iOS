@@ -10,7 +10,7 @@ if [ -z "$ROOT_DIR" ]; then
     exit 1
 fi
 
-cd "$ROOT_DIR"
+cd "$ROOT_DIR" || exit 1
 
 # .githooks 디렉토리가 존재하는지 확인
 if [ ! -d ".githooks" ]; then

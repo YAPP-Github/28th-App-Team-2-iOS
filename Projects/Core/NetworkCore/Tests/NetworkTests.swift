@@ -1,5 +1,5 @@
 import XCTest
-@testable import CoreNetwork
+@testable import NetworkCore
 
 final class NetworkTests: XCTestCase {
     func testExample() {
