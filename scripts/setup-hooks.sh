@@ -19,11 +19,11 @@ if [ ! -d ".githooks" ]; then
 fi
 
 # 모든 훅 스크립트에 실행 권한 부여
-chmod +x .githooks/*
+chmod +x .githooks/* || exit 1
 echo "✅ Granted execution permissions to hook scripts."
 
 # git config를 통해 hooksPath 설정
-git config core.hooksPath .githooks
+git config core.hooksPath .githooks || exit 1
 echo "✅ Set core.hooksPath to .githooks."
 
 echo ""

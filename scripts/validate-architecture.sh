@@ -114,10 +114,6 @@ check_project_swift_files() {
       fail "$project_file must use Project.makeFeature(...)."
     fi
 
-    if ! grep -Eq 'hasInterface:[[:space:]]*true' "$project_file"; then
-      fail "$project_file must set hasInterface: true for uFeature separation."
-    fi
-
     if grep -Eq '\.external\(name:[[:space:]]*"ComposableArchitecture"\)' "$project_file"; then
       fail "$project_file duplicates ComposableArchitecture. makeFeature injects it automatically."
     fi

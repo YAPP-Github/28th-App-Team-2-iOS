@@ -2,6 +2,5 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project.makeFeature(
-    name: "MyFeature",
-    hasInterface: true
+    name: "MyFeature"
 )
