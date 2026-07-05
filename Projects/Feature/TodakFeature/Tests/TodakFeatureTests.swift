@@ -1,8 +1,8 @@
 import XCTest
 import ComposableArchitecture
-@testable import MyFeature
+@testable import TodakFeature
 
-final class MyFeatureTests: XCTestCase {
+final class TodakFeatureTests: XCTestCase {
     func testExample() {
         XCTAssertTrue(true)
     }

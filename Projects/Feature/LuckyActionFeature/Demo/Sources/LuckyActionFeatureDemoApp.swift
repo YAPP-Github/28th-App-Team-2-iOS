@@ -1,8 +1,8 @@
 import SwiftUI
-import AssistantFeature
+import LuckyActionFeature
 
 @main
-struct AssistantFeatureDemoApp: App {
+struct LuckyActionFeatureDemoApp: App {
     var body: some Scene {
         WindowGroup {
             DemoContentView()

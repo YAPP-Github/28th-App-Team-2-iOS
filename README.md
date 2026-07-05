@@ -28,18 +28,18 @@ graph TD
         OnboardingIF[OnboardingFeatureInterface]
         Fortune[FortuneFeature]
         FortuneIF[FortuneFeatureInterface]
-        Assistant[AssistantFeature]
-        AssistantIF[AssistantFeatureInterface]
-        Action[ActionFeature]
-        ActionIF[ActionFeatureInterface]
-        My[MyFeature]
-        MyIF[MyFeatureInterface]
+        Todak[TodakFeature]
+        TodakIF[TodakFeatureInterface]
+        LuckyAction[LuckyActionFeature]
+        LuckyActionIF[LuckyActionFeatureInterface]
+        MyPage[MyPageFeature]
+        MyPageIF[MyPageFeatureInterface]
 
         Onboarding -.-> OnboardingIF
         Fortune -.-> FortuneIF
-        Assistant -.-> AssistantIF
-        Action -.-> ActionIF
-        My -.-> MyIF
+        Todak -.-> TodakIF
+        LuckyAction -.-> LuckyActionIF
+        MyPage -.-> MyPageIF
     end
 
     subgraph CoreLayer [Core Layer Common Infrastructure]
@@ -52,19 +52,19 @@ graph TD
     %% App Layer imports features
     TodakunApp --> Onboarding
     TodakunApp --> Fortune
-    TodakunApp --> Assistant
-    TodakunApp --> Action
-    TodakunApp --> My
+    TodakunApp --> Todak
+    TodakunApp --> LuckyAction
+    TodakunApp --> MyPage
     
     %% Example of Feature Navigation via Interface
-    Action -. "Routing (Example/Planned)" .-> FortuneIF
+    LuckyAction -. "Routing (Example/Planned)" .-> FortuneIF
     
     %% Features depend on Core
     Onboarding --> CoreLayer_Nodes[Core Modules]
     Fortune --> CoreLayer_Nodes
-    Assistant --> CoreLayer_Nodes
-    Action --> CoreLayer_Nodes
-    My --> CoreLayer_Nodes
+    Todak --> CoreLayer_Nodes
+    LuckyAction --> CoreLayer_Nodes
+    MyPage --> CoreLayer_Nodes
 
     %% Styling
     classDef app fill:#ff9999,stroke:#333,stroke-width:2px;
@@ -73,8 +73,8 @@ graph TD
     classDef core fill:#99ff99,stroke:#333,stroke-width:2px;
     
     class TodakunApp app;
-    class Onboarding,Fortune,Assistant,Action,My feature;
-    class OnboardingIF,FortuneIF,AssistantIF,ActionIF,MyIF interface;
+    class Onboarding,Fortune,Todak,LuckyAction,MyPage feature;
+    class OnboardingIF,FortuneIF,TodakIF,LuckyActionIF,MyPageIF interface;
     class DesignSystem,NetworkCore,Model,Utils core;
 ```
 
@@ -82,9 +82,9 @@ graph TD
 - **Projects/Feature**: 서로 완벽히 격리된 독립적인 비즈니스 로직 및 화면 단위
   - `OnboardingFeature`: 최초 설정 (닉네임, 생년월일, 성별, 관심 주제 선택)
   - `FortuneFeature`: 운세 리포트, 행운 액션 (운세 탭)
-  - `AssistantFeature`: 고민 결정 도우미 (토닥이 탭)
-  - `ActionFeature`: 오늘의 행동 추천 및 실행 (행운 액션 탭)
-  - `MyFeature`: 설정 및 프로필 (마이 탭)
+  - `TodakFeature`: 고민 결정 도우미 (토닥이 탭)
+  - `LuckyActionFeature`: 오늘의 행동 추천 및 실행 (행운 액션 탭)
+  - `MyPageFeature`: 설정 및 프로필 (마이 탭)
 - **Projects/Core**: 앱 전반에 걸쳐 사용되는 공통 모듈
   - `DesignSystem`: 컬러, 폰트, 공통 UI 컴포넌트 및 에셋
   - `NetworkCore`: 네트워크 API 클라이언트

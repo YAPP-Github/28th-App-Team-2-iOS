@@ -7,8 +7,8 @@ let project = Project.makeApp(
         .external(name: "ComposableArchitecture"),
         .project(target: "OnboardingFeature", path: .relativeToRoot("Projects/Feature/OnboardingFeature")),
         .project(target: "FortuneFeature", path: .relativeToRoot("Projects/Feature/FortuneFeature")),
-        .project(target: "AssistantFeature", path: .relativeToRoot("Projects/Feature/AssistantFeature")),
-        .project(target: "ActionFeature", path: .relativeToRoot("Projects/Feature/ActionFeature")),
-        .project(target: "MyFeature", path: .relativeToRoot("Projects/Feature/MyFeature"))
+        .project(target: "TodakFeature", path: .relativeToRoot("Projects/Feature/TodakFeature")),
+        .project(target: "LuckyActionFeature", path: .relativeToRoot("Projects/Feature/LuckyActionFeature")),
+        .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPageFeature"))
     ]
 )

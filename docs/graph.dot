@@ -1,22 +1,4 @@
 digraph {
-  ActionFeature -> ActionFeatureInterface
-  ActionFeature -> DesignSystem
-  ActionFeature -> Model
-  ActionFeature -> NetworkCore
-  ActionFeature -> Utils
-  ActionFeature [fillcolor=coral1 shape=cylinder style=filled]
-  ActionFeatureDemo -> ActionFeature
-  ActionFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
-  ActionFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
-  AssistantFeature -> AssistantFeatureInterface
-  AssistantFeature -> DesignSystem
-  AssistantFeature -> Model
-  AssistantFeature -> NetworkCore
-  AssistantFeature -> Utils
-  AssistantFeature [fillcolor=coral1 shape=cylinder style=filled]
-  AssistantFeatureDemo -> AssistantFeature
-  AssistantFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
-  AssistantFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   DesignSystem [fillcolor=coral1 shape=cylinder style=filled]
   FortuneFeature -> DesignSystem
   FortuneFeature -> FortuneFeatureInterface
@@ -27,16 +9,25 @@ digraph {
   FortuneFeatureDemo -> FortuneFeature
   FortuneFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   FortuneFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
+  LuckyActionFeature -> DesignSystem
+  LuckyActionFeature -> LuckyActionFeatureInterface
+  LuckyActionFeature -> Model
+  LuckyActionFeature -> NetworkCore
+  LuckyActionFeature -> Utils
+  LuckyActionFeature [fillcolor=coral1 shape=cylinder style=filled]
+  LuckyActionFeatureDemo -> LuckyActionFeature
+  LuckyActionFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  LuckyActionFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   Model [fillcolor=coral1 shape=cylinder style=filled]
-  MyFeature -> DesignSystem
-  MyFeature -> Model
-  MyFeature -> MyFeatureInterface
-  MyFeature -> NetworkCore
-  MyFeature -> Utils
-  MyFeature [fillcolor=coral1 shape=cylinder style=filled]
-  MyFeatureDemo -> MyFeature
-  MyFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
-  MyFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
+  MyPageFeature -> DesignSystem
+  MyPageFeature -> Model
+  MyPageFeature -> MyPageFeatureInterface
+  MyPageFeature -> NetworkCore
+  MyPageFeature -> Utils
+  MyPageFeature [fillcolor=coral1 shape=cylinder style=filled]
+  MyPageFeatureDemo -> MyPageFeature
+  MyPageFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  MyPageFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   NetworkCore [fillcolor=coral1 shape=cylinder style=filled]
   OnboardingFeature -> DesignSystem
   OnboardingFeature -> Model
@@ -47,11 +38,20 @@ digraph {
   OnboardingFeatureDemo -> OnboardingFeature
   OnboardingFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   OnboardingFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
-  Todakun -> ActionFeature
-  Todakun -> AssistantFeature
+  TodakFeature -> DesignSystem
+  TodakFeature -> Model
+  TodakFeature -> NetworkCore
+  TodakFeature -> TodakFeatureInterface
+  TodakFeature -> Utils
+  TodakFeature [fillcolor=coral1 shape=cylinder style=filled]
+  TodakFeatureDemo -> TodakFeature
+  TodakFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  TodakFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   Todakun -> FortuneFeature
-  Todakun -> MyFeature
+  Todakun -> LuckyActionFeature
+  Todakun -> MyPageFeature
   Todakun -> OnboardingFeature
+  Todakun -> TodakFeature
   Todakun [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   Utils [fillcolor=coral1 shape=cylinder style=filled]
 }

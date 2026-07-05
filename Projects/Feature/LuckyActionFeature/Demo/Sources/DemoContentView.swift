@@ -1,11 +1,11 @@
 import SwiftUI
-import AssistantFeature
+import LuckyActionFeature
 
 struct DemoContentView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("AssistantFeature Demo")
+                Text("LuckyActionFeature Demo")
                     .font(.largeTitle)
                     .bold()
                 Spacer()
@@ -13,7 +13,7 @@ struct DemoContentView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("AssistantFeature")
+            .navigationTitle("LuckyActionFeature")
         }
     }
 }

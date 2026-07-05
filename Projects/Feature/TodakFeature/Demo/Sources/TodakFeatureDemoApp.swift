@@ -1,8 +1,8 @@
 import SwiftUI
-import ActionFeature
+import TodakFeature
 
 @main
-struct ActionFeatureDemoApp: App {
+struct TodakFeatureDemoApp: App {
     var body: some Scene {
         WindowGroup {
             DemoContentView()

@@ -1,8 +1,8 @@
 import XCTest
 import ComposableArchitecture
-@testable import ActionFeature
+@testable import LuckyActionFeature
 
-final class ActionFeatureTests: XCTestCase {
+final class LuckyActionFeatureTests: XCTestCase {
     func testExample() {
         XCTAssertTrue(true)
     }

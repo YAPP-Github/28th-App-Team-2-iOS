@@ -1,8 +1,8 @@
 import SwiftUI
-import MyFeature
+import MyPageFeature
 
 @main
-struct MyFeatureDemoApp: App {
+struct MyPageFeatureDemoApp: App {
     var body: some Scene {
         WindowGroup {
             DemoContentView()

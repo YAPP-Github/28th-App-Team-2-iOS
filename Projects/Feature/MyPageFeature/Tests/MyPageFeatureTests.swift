@@ -1,8 +1,8 @@
 import XCTest
 import ComposableArchitecture
-@testable import AssistantFeature
+@testable import MyPageFeature
 
-final class AssistantFeatureTests: XCTestCase {
+final class MyPageFeatureTests: XCTestCase {
     func testExample() {
         XCTAssertTrue(true)
     }
