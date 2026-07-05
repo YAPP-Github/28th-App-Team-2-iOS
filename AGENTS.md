@@ -1,0 +1,36 @@
+# Todakun Project — AI Context Harness
+
+토닥운 프로젝트(YAPP 28기)의 AI 코딩 어시스턴트를 위한 중앙 인덱스 문서다.
+
+## 프로젝트 개요
+- **기술 스택**: SwiftUI, TCA (The Composable Architecture) 1.25.5, Tuist
+- **아키텍처**: App - Feature - Core 의 3계층 멀티 모듈 아키텍처
+
+### 🏗️ 전역 아키텍처 및 의존성 구조 (Dependency Graph)
+에이전트는 코드 수정 전 아래의 구조를 반드시 숙지할 것. 
+- **조립은 오직 App 레이어에서**: 화면 전환 및 탭바 뼈대(`MainTabView`, `RootView`)는 최상위 `App` 모듈 내부에 위치하며, 모든 피처를 직접 임포트하여 조립한다.
+- **Feature 레이어 (uFeature 패턴 도입)**:
+  - 각 피처는 `Interface` 타겟과 구체적인 본체 `Implementation` 타겟으로 분리된다.
+  - 피처 본체끼리는 절대 서로 참조하거나 의존하지 않는다. 다른 피처로의 이동이 필요할 때는 상대 피처의 `Interface` 타겟만 의존하여 사이클을 끊는다.
+- **Core 레이어 내부**: Core 모듈끼리도 원칙적으로 서로 의존/참조하지 않는다 (`Projects/Core/*`).
+- **정적 프레임워크 우선 원칙**: 모든 내부 모듈은 기본적으로 **정적 프레임워크(`.staticFramework`)** 형식으로 설계한다. 예외적인 빌드 이슈 시에만 다이나믹 전환을 고려한다.
+- **아키텍처 검증 필수**: `Projects/App`, `Projects/Feature`, `Projects/Core`, `Tuist`, `Project.swift`, `docs/graph.dot` 중 하나라도 수정했다면 최종 보고 전 `./scripts/validate-architecture.sh`를 실행하고 결과를 보고한다.
+
+> **참조**: 아키텍처 다이어그램(Mermaid)은 프로젝트 루트의 [`README.md`](./README.md) 내 **Project Structure** 섹션을 확인하라.
+> **참고**: 실제 빌드 상의 물리적 의존성 연결 실체는 [`docs/graph.dot`](./docs/graph.dot) (DOT 텍스트 포맷)을 읽고 분석하라.
+> 또한 `Tuist`의 `makeFeature` 템플릿을 사용하면 Feature 레이어의 타겟에 `Core Layer` 및 `ComposableArchitecture`가 **자동으로 의존성 주입**된다. 
+
+### Architecture Guardrail
+AI가 구조 변경 또는 기능 구현을 수행할 때는 다음 순서를 따른다.
+
+1. 변경 전 `.agents/skills/project-structure/SKILL.md`, `README.md`의 Project Structure, `docs/graph.dot`를 확인한다.
+2. 구현 중 Feature 구현체 간 import, Core 간 import, Core → Feature/App import를 만들지 않는다.
+3. 최종 응답 전 `./scripts/sync-and-validate.sh`를 실행한다. (스크립트가 자동으로 `docs/graph.dot` 검증과 함께 시각화 자료인 `docs/graph.png`도 알아서 최신화해 줌)
+
+## 세부 규칙 (Skills & Rules)
+이 프로젝트는 AI의 컨텍스트를 절약하고 정확성을 높이기 위해 **모듈형 하이브리드 규칙(Hybrid Modular Rules)**을 사용한다. 특정 폴더의 파일을 수정하거나 관련 작업을 수행할 때, 다음의 스킬/규칙이 자동으로 로드되거나 트리거된다.
+
+- `project-structure`: 모듈 생성, 구조 변경, 파일 수정 시 트리거됨 (3계층 구조 강제, Feature/Core 결합 금지 등)
+- `git-harness`: 커밋 메시지 작성, 브랜치 생성, 푸시(push) 작업 등 Git 관련 행동 시 트리거됨 (Conventional Commits, Force Push 차단 등)
+
+> ⚠️ **AI 지시사항**: 모듈 설정이나 파일 구조 변경 시, `.agents/skills/`의 스킬 규칙을 직접 참조할 것.

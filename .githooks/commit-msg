@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# commit-msg hook
+# Conventional Commits 컨벤션 강제
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# 커밋 메시지 첫 번째 줄 추출 (빈 줄 제거)
+FIRST_LINE=$(echo "$COMMIT_MSG" | grep -v '^#' | sed '/^$/d' | head -n 1)
+
+# 유효성 검사 정규식:
+# (feat|fix|chore|refactor|docs|style|test|build|ci)(스코프)?: 커밋메시지
+REGEX="^(feat|fix|chore|refactor|docs|style|test|build|ci)(\([a-zA-Z0-9_-]+\))?: .+"
+
+if [[ ! $FIRST_LINE =~ $REGEX ]]; then
+    echo ""
+    echo "[❌ Error] 커밋 메시지 컨벤션 위반!"
+    echo "커밋 메시지의 첫 번째 줄은 다음 규칙을 따라야 합니다:"
+    echo "<타입>[선택적 스코프]: <메시지>"
+    echo ""
+    echo "허용되는 타입: feat, fix, chore, refactor, docs, style, test, build, ci"
+    echo "예시: feat: 메인 홈 화면 UI 구현"
+    echo "예시: chore(tuist): 의존성 버전 업데이트"
+    echo ""
+    echo "작성한 메시지:"
+    echo "$FIRST_LINE"
+    echo ""
+    exit 1
+fi
+
+exit 0

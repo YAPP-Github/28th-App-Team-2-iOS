@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# pre-commit hook
+# Git Flow 브랜치 명명 규칙 강제
+
+echo "🔍 Running pre-commit branch name check..."
+
+# 현재 체크아웃된 브랜치 이름 가져오기
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+# 머지 상태이거나 브랜치를 가져올 수 없으면 통과
+if [ "$BRANCH_NAME" = "HEAD" ] || [ -z "$BRANCH_NAME" ]; then
+    exit 0
+fi
+
+# 브랜치 명명 규칙 (Git Flow + private)
+# main, develop, feature/*, release/*, hotfix/*, bugfix/*, private/*
+if [[ "$BRANCH_NAME" != "main" && "$BRANCH_NAME" != "develop" && ! "$BRANCH_NAME" =~ ^(feature|release|hotfix|bugfix|private)/ ]]; then
+    echo ""
+    echo "[❌ Error] 브랜치 이름 규칙 위반!"
+    echo "현재 브랜치: $BRANCH_NAME"
+    echo "Git Flow 규칙에 따라 브랜치 이름은 다음 중 하나로 시작해야 합니다:"
+    echo "  - main"
+    echo "  - develop"
+    echo "  - feature/"
+    echo "  - release/"
+    echo "  - hotfix/"
+    echo "  - bugfix/"
+    echo "  - private/"
+    echo ""
+    echo "브랜치 이름을 변경한 후 다시 커밋해주세요. (git branch -m <새-이름>)"
+    exit 1
+fi
+
+exit 0
