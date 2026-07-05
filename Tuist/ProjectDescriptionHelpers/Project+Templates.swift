@@ -13,7 +13,9 @@ public extension Project {
         sources: SourceFilesList = ["Sources/**"],
         resources: ResourceFileElements? = nil,
         hasTests: Bool = true,
-        hasExample: Bool = false
+        testDependencies: [TargetDependency] = [],
+        hasExample: Bool = false,
+        exampleDependencies: [TargetDependency] = []
     ) -> [Target] {
         var targets: [Target] = []
         
@@ -45,7 +47,7 @@ public extension Project {
                     sources: ["Tests/**"],
                     dependencies: [
                         .target(name: name)
-                    ]
+                    ] + testDependencies
                 )
             )
         }
@@ -64,7 +66,7 @@ public extension Project {
                     resources: ["Example/Resources/**"],
                     dependencies: [
                         .target(name: name)
-                    ]
+                    ] + exampleDependencies
                 )
             )
         }
@@ -92,9 +94,11 @@ public extension Project {
     static func makeFeature(
         name: String,
         dependencies: [TargetDependency] = [],
+        hasTesting: Bool = true,
         hasExample: Bool = true
     ) -> Project {
         let targetBundleId = "\(bundleIdPrefix).\(name)"
+        var projectTargets: [Target] = []
         
         // 1. Interface Target
         let interfaceName = "\(name)Interface"
@@ -106,8 +110,34 @@ public extension Project {
             hasTests: false,
             hasExample: false
         )
+        projectTargets.append(contentsOf: interfaceTargets)
         
-        // 2. Implementation + Tests + Example
+        // 2. Testing Target (Optional)
+        var testDependencies: [TargetDependency] = []
+        var exampleDependencies: [TargetDependency] = []
+        
+        if hasTesting {
+            let testingName = "\(name)Testing"
+            let testingTargets = makeTargets(
+                name: testingName,
+                product: .staticFramework,
+                bundleId: "\(targetBundleId)Testing",
+                dependencies: [
+                    .target(name: interfaceName),
+                    .project(target: "Model", path: .relativeToRoot("Projects/Core/Model")),
+                    .project(target: "Utils", path: .relativeToRoot("Projects/Core/Utils")),
+                    .external(name: "ComposableArchitecture")
+                ],
+                sources: ["Testing/Sources/**"],
+                hasTests: false,
+                hasExample: false
+            )
+            projectTargets.append(contentsOf: testingTargets)
+            testDependencies.append(.target(name: testingName))
+            exampleDependencies.append(.target(name: testingName))
+        }
+        
+        // 3. Implementation + Tests + Example
         let defaultDependencies: [TargetDependency] = [
             .target(name: interfaceName),
             .project(target: "DesignSystem", path: .relativeToRoot("Projects/Core/DesignSystem")),
@@ -122,10 +152,14 @@ public extension Project {
             product: .staticFramework,
             bundleId: targetBundleId,
             dependencies: defaultDependencies + dependencies,
-            hasExample: hasExample
+            hasTests: true,
+            testDependencies: testDependencies,
+            hasExample: hasExample,
+            exampleDependencies: exampleDependencies
         )
+        projectTargets.append(contentsOf: implementationTargets)
         
-        return Project(name: name, targets: interfaceTargets + implementationTargets)
+        return Project(name: name, targets: projectTargets)
     }
 
     static func makeCore(

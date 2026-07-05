@@ -97,6 +97,26 @@ check_feature_imports() {
         done < <(swift_imports "$file")
       done < <(find "Projects/Feature/$feature/Interface/Sources" -name '*.swift' -type f -print)
     fi
+
+    if [[ -d "Projects/Feature/$feature/Testing/Sources" ]]; then
+      while IFS= read -r file; do
+        while IFS= read -r import; do
+          if [[ "$import" == "$feature" ]]; then
+            fail "$file imports Feature implementation '$import'. Testing targets must not depend on concrete implementations."
+          fi
+
+          for other in "${feature_names[@]}"; do
+            if [[ "$import" == "$other" ]]; then
+              fail "$file imports Feature implementation '$import'. Testing targets must depend on Feature Interface, not concrete implementation."
+            fi
+          done
+
+          if [[ "$import" == "$app_name" ]]; then
+            fail "$file imports App module '$import'. Testing targets must not depend on App."
+          fi
+        done < <(swift_imports "$file")
+      done < <(find "Projects/Feature/$feature/Testing/Sources" -name '*.swift' -type f -print)
+    fi
   done
 }
 
@@ -189,12 +209,23 @@ check_graph_edge() {
     return
   fi
 
-  if [[ "$from" == *FeatureExample && "$to" == "${from%Example}" ]]; then
+  if [[ "$from" == *FeatureExample && ( "$to" == "${from%Example}" || "$to" == "${from%Example}Testing" ) ]]; then
     return
   fi
 
   if [[ "$from" == *FeatureExample ]]; then
     fail "docs/graph.dot has unexpected Example edge: $from -> $to"
+    return
+  fi
+
+  if [[ "$from" == *FeatureTesting ]]; then
+    if contains_name "$to" "${feature_interface_names[@]}"; then
+      return
+    fi
+    if contains_name "$to" "${core_names[@]}"; then
+      return
+    fi
+    fail "docs/graph.dot has forbidden Testing outgoing edge: $from -> $to"
     return
   fi
 
