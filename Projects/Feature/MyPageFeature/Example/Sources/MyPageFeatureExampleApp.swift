@@ -2,10 +2,10 @@ import SwiftUI
 import MyPageFeature
 
 @main
-struct MyPageFeatureDemoApp: App {
+struct MyPageFeatureExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            DemoContentView()
+            ExampleContentView()
         }
     }
 }

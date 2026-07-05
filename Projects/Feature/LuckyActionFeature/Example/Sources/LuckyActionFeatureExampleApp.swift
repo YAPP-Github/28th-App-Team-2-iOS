@@ -2,10 +2,10 @@ import SwiftUI
 import LuckyActionFeature
 
 @main
-struct LuckyActionFeatureDemoApp: App {
+struct LuckyActionFeatureExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            DemoContentView()
+            ExampleContentView()
         }
     }
 }

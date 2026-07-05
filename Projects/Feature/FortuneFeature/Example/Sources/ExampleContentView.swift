@@ -1,11 +1,11 @@
 import SwiftUI
-import TodakFeature
+import FortuneFeature
 
-struct DemoContentView: View {
+struct ExampleContentView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("TodakFeature Demo")
+                Text("FortuneFeature Example")
                     .font(.largeTitle)
                     .bold()
                 Spacer()
@@ -13,7 +13,7 @@ struct DemoContentView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("TodakFeature")
+            .navigationTitle("FortuneFeature")
         }
     }
 }

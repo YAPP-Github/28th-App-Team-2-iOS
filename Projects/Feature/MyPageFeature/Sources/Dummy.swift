@@ -1,1 +1,1 @@
-// Dummy file for MyFeature
+// Dummy file for MyPageFeature

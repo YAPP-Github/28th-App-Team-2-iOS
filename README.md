@@ -128,7 +128,7 @@ tuist generate
 ### 3. Dependency Graph
 프로젝트의 아키텍처 및 모듈 의존성 그래프를 시각화하여 확인하려면 아래 명령어를 사용합니다.
 ```bash
-# 테스트 타겟 및 외부 의존성을 제외하고 코어/피처 아키텍처 및 데모 앱 타겟을 시각화 (png 형식으로 docs/graph.png 저장)
+# 테스트 타겟 및 외부 의존성을 제외하고 코어/피처 아키텍처 및 Example 앱 타겟을 시각화 (png 형식으로 docs/graph.png 저장)
 tuist graph --skip-test-targets --skip-external-dependencies --format png --no-open -o docs
 ```
 *(실제 추출된 아키텍처 구조도)*

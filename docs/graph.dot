@@ -6,8 +6,8 @@ digraph {
   FortuneFeature -> NetworkCore
   FortuneFeature -> Utils
   FortuneFeature [fillcolor=coral1 shape=cylinder style=filled]
-  FortuneFeatureDemo -> FortuneFeature
-  FortuneFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  FortuneFeatureExample -> FortuneFeature
+  FortuneFeatureExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   FortuneFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   LuckyActionFeature -> DesignSystem
   LuckyActionFeature -> LuckyActionFeatureInterface
@@ -15,8 +15,8 @@ digraph {
   LuckyActionFeature -> NetworkCore
   LuckyActionFeature -> Utils
   LuckyActionFeature [fillcolor=coral1 shape=cylinder style=filled]
-  LuckyActionFeatureDemo -> LuckyActionFeature
-  LuckyActionFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  LuckyActionFeatureExample -> LuckyActionFeature
+  LuckyActionFeatureExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   LuckyActionFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   Model [fillcolor=coral1 shape=cylinder style=filled]
   MyPageFeature -> DesignSystem
@@ -25,8 +25,8 @@ digraph {
   MyPageFeature -> NetworkCore
   MyPageFeature -> Utils
   MyPageFeature [fillcolor=coral1 shape=cylinder style=filled]
-  MyPageFeatureDemo -> MyPageFeature
-  MyPageFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  MyPageFeatureExample -> MyPageFeature
+  MyPageFeatureExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   MyPageFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   NetworkCore [fillcolor=coral1 shape=cylinder style=filled]
   OnboardingFeature -> DesignSystem
@@ -35,8 +35,8 @@ digraph {
   OnboardingFeature -> OnboardingFeatureInterface
   OnboardingFeature -> Utils
   OnboardingFeature [fillcolor=coral1 shape=cylinder style=filled]
-  OnboardingFeatureDemo -> OnboardingFeature
-  OnboardingFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  OnboardingFeatureExample -> OnboardingFeature
+  OnboardingFeatureExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   OnboardingFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   TodakFeature -> DesignSystem
   TodakFeature -> Model
@@ -44,8 +44,8 @@ digraph {
   TodakFeature -> TodakFeatureInterface
   TodakFeature -> Utils
   TodakFeature [fillcolor=coral1 shape=cylinder style=filled]
-  TodakFeatureDemo -> TodakFeature
-  TodakFeatureDemo [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  TodakFeatureExample -> TodakFeature
+  TodakFeatureExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   TodakFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
   Todakun -> FortuneFeature
   Todakun -> LuckyActionFeature

@@ -2,10 +2,10 @@ import SwiftUI
 import OnboardingFeature
 
 @main
-struct OnboardingFeatureDemoApp: App {
+struct OnboardingFeatureExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            DemoContentView()
+            ExampleContentView()
         }
     }
 }

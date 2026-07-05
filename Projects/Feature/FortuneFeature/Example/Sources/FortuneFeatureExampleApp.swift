@@ -2,10 +2,10 @@ import SwiftUI
 import FortuneFeature
 
 @main
-struct FortuneFeatureDemoApp: App {
+struct FortuneFeatureExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            DemoContentView()
+            ExampleContentView()
         }
     }
 }

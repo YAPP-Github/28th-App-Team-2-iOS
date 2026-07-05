@@ -2,10 +2,10 @@ import SwiftUI
 import TodakFeature
 
 @main
-struct TodakFeatureDemoApp: App {
+struct TodakFeatureExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            DemoContentView()
+            ExampleContentView()
         }
     }
 }

@@ -13,7 +13,7 @@ public extension Project {
         sources: SourceFilesList = ["Sources/**"],
         resources: ResourceFileElements? = nil,
         hasTests: Bool = true,
-        hasDemo: Bool = false
+        hasExample: Bool = false
     ) -> [Target] {
         var targets: [Target] = []
         
@@ -50,18 +50,18 @@ public extension Project {
             )
         }
         
-        // Demo App Target
-        if hasDemo {
+        // Example App Target
+        if hasExample {
             targets.append(
                 .target(
-                    name: "\(name)Demo",
+                    name: "\(name)Example",
                     destinations: destinations,
                     product: .app,
-                    bundleId: "\(bundleId)Demo",
+                    bundleId: "\(bundleId)Example",
                     deploymentTargets: deploymentTargets,
                     infoPlist: .default,
-                    sources: ["Demo/Sources/**"],
-                    resources: ["Demo/Resources/**"],
+                    sources: ["Example/Sources/**"],
+                    resources: ["Example/Resources/**"],
                     dependencies: [
                         .target(name: name)
                     ]
@@ -84,7 +84,7 @@ public extension Project {
             dependencies: dependencies,
             resources: resources,
             hasTests: false,
-            hasDemo: false
+            hasExample: false
         )
         return Project(name: name, targets: targets)
     }
@@ -92,7 +92,7 @@ public extension Project {
     static func makeFeature(
         name: String,
         dependencies: [TargetDependency] = [],
-        hasDemo: Bool = true
+        hasExample: Bool = true
     ) -> Project {
         let targetBundleId = "\(bundleIdPrefix).\(name)"
         
@@ -104,10 +104,10 @@ public extension Project {
             bundleId: "\(targetBundleId)Interface",
             sources: ["Interface/Sources/**"],
             hasTests: false,
-            hasDemo: false
+            hasExample: false
         )
         
-        // 2. Implementation + Tests + Demo
+        // 2. Implementation + Tests + Example
         let defaultDependencies: [TargetDependency] = [
             .target(name: interfaceName),
             .project(target: "DesignSystem", path: .relativeToRoot("Projects/Core/DesignSystem")),
@@ -122,7 +122,7 @@ public extension Project {
             product: .staticFramework,
             bundleId: targetBundleId,
             dependencies: defaultDependencies + dependencies,
-            hasDemo: hasDemo
+            hasExample: hasExample
         )
         
         return Project(name: name, targets: interfaceTargets + implementationTargets)

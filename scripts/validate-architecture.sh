@@ -189,12 +189,12 @@ check_graph_edge() {
     return
   fi
 
-  if [[ "$from" == *FeatureDemo && "$to" == "${from%Demo}" ]]; then
+  if [[ "$from" == *FeatureExample && "$to" == "${from%Example}" ]]; then
     return
   fi
 
-  if [[ "$from" == *FeatureDemo ]]; then
-    fail "docs/graph.dot has unexpected Demo edge: $from -> $to"
+  if [[ "$from" == *FeatureExample ]]; then
+    fail "docs/graph.dot has unexpected Example edge: $from -> $to"
     return
   fi
 
