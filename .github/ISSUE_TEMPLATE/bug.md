@@ -1,5 +1,5 @@
 ---
-name: 버그
+name: 버그 리포트
 about: 별도 티켓으로 정리된 버그 수정 작업을 GitHub Issue로 연결합니다.
 title: "[Bug] "
 labels: bug

@@ -1,5 +1,5 @@
 ---
-name: 작업
+name: 일반 작업
 about: 별도 티켓으로 정리된 작업을 GitHub Issue로 연결합니다.
 title: "[Task] "
 labels: ""
