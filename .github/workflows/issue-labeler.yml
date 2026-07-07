@@ -8,13 +8,18 @@ on:
 
 jobs:
   label-and-sync:
+    # 처음 열렸을 때(opened), 또는 수정(edited)되었는데 '제목(title)'이 변경되었을 때만 실행
+    if: github.event.action == 'opened' || (github.event.action == 'edited' && github.event.changes.title)
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       issues: write
       pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Auto Labeling and Page Sync
         uses: actions/github-script@v7
@@ -68,7 +73,13 @@ jobs:
             // ==========================================
             // [Part B] Project Board Sync (Add Item & Update Page Field)
             // ==========================================
-            if (!issueNodeId || !process.env.ACTIONS_USE_PAT) {
+            
+            // PR은 보드에 추가하지 않음 (이슈와 섞여 보드가 지저분해지는 것 방지)
+            if (context.payload.pull_request) {
+              console.log("This is a PR. Skipping project board sync.");
+              return;
+            }
+            if (!issueNodeId || process.env.ACTIONS_USE_PAT !== "true") {
               console.log("PROJECT_PAT is missing. Project field sync skipped.");
               return;
             }
