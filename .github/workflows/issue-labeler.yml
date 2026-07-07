@@ -68,10 +68,9 @@ jobs:
             }
 
       # -----------------------------------------------------------------------------
-      # Step 2: Project Sync (조직 프로젝트 권한이 부여된 PROJECT_PAT가 존재할 때만 실행)
+      # Step 2: Project Sync (조직 프로젝트 권한이 부여된 PROJECT_PAT 사용)
       # -----------------------------------------------------------------------------
       - name: Project Board Sync
-        if: ${{ secrets.PROJECT_PAT }}
         uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.PROJECT_PAT }}
