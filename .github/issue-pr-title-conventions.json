@@ -1,0 +1,42 @@
+{
+  "allowed_types": {
+    "Epic": {
+      "label": "enhancement",
+      "description": "대형 기능 및 기획 단위 작업"
+    },
+    "Feat": {
+      "label": "enhancement",
+      "description": "신규 기능 개발 작업"
+    },
+    "Refactor": {
+      "label": "enhancement",
+      "description": "코드 리팩토링 및 구조 개선"
+    },
+    "Chore": {
+      "label": "enhancement",
+      "description": "설정, 빌드, 단순 기타 작업"
+    },
+    "Bug": {
+      "label": "bug",
+      "description": "버그 제보 및 수정 작업"
+    },
+    "Docs": {
+      "label": "documentation",
+      "description": "문서 추가 및 개선 작업"
+    }
+  },
+  "allowed_domains": {
+    "screen": [
+      "온보딩",
+      "운세",
+      "행운액션",
+      "토닥이",
+      "마이페이지"
+    ],
+    "common": [
+      "Core",
+      "App",
+      "Tuist"
+    ]
+  }
+}
