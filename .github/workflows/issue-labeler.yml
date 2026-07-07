@@ -21,19 +21,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Auto Labeling and Page Sync
+      # -----------------------------------------------------------------------------
+      # Step 1: Auto Labeling (보안을 위해 기본 GITHUB_TOKEN을 디폴트로 사용)
+      # -----------------------------------------------------------------------------
+      - name: Auto Labeling
         uses: actions/github-script@v9
         with:
-          github-token: ${{ secrets.PROJECT_PAT != '' && secrets.PROJECT_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const title = context.payload.issue 
               ? context.payload.issue.title 
               : context.payload.pull_request.title;
             const issueNumber = context.issue.number;
-            const issueNodeId = context.payload.issue 
-              ? context.payload.issue.node_id 
-              : context.payload.pull_request.node_id;
 
             // 1. Load JSON Config
             if (!fs.existsSync('.github/issue-pr-title-conventions.json')) {
@@ -49,9 +48,7 @@ jobs:
               return;
             }
 
-            // ==========================================
-            // [Part A] Auto Labeling (3 Categories)
-            // ==========================================
+            // 3. Match and Add Labels
             const labelsToAdd = [];
             for (const match of matches) {
               if (rules.allowed_types && rules.allowed_types[match]) {
@@ -70,21 +67,44 @@ jobs:
               console.log(`Successfully added labels: ${uniqueLabels.join(', ')}`);
             }
 
-            // ==========================================
-            // [Part B] Project Board Sync (Add Item & Update Page Field)
-            // ==========================================
-            
+      # -----------------------------------------------------------------------------
+      # Step 2: Project Sync (조직 프로젝트 권한이 부여된 PROJECT_PAT가 존재할 때만 실행)
+      # -----------------------------------------------------------------------------
+      - name: Project Board Sync
+        if: ${{ secrets.PROJECT_PAT }}
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.PROJECT_PAT }}
+          script: |
+            const fs = require('fs');
+            const title = context.payload.issue 
+              ? context.payload.issue.title 
+              : context.payload.pull_request.title;
+            const issueNodeId = context.payload.issue 
+              ? context.payload.issue.node_id 
+              : context.payload.pull_request.node_id;
+
             // PR은 보드에 추가하지 않음 (이슈와 섞여 보드가 지저분해지는 것 방지)
             if (context.payload.pull_request) {
               console.log("This is a PR. Skipping project board sync.");
               return;
             }
-            if (!issueNodeId || process.env.ACTIONS_USE_PAT !== "true") {
-              console.log("PROJECT_PAT is missing. Project field sync skipped.");
+
+            // 1. Load JSON Config
+            if (!fs.existsSync('.github/issue-pr-title-conventions.json')) {
+              console.log('issue-pr-title-conventions.json does not exist. Skipping.');
+              return;
+            }
+            const rules = JSON.parse(fs.readFileSync('.github/issue-pr-title-conventions.json', 'utf8'));
+
+            // 2. Extract bracket prefixes
+            const matches = [...title.matchAll(/\[(.*?)\]/g)].map(m => m[1].trim());
+            if (matches.length === 0) {
+              console.log('No bracket prefixes found in title.');
               return;
             }
 
-            // [B-1] Fetch Project 34 Metadata from Organization
+            // 3. Fetch Project 34 Metadata
             const projectQuery = `
               query($owner: String!, $projectNumber: Int!) {
                 organization(login: $owner) {
@@ -126,8 +146,7 @@ jobs:
               return;
             }
 
-            // [B-2] Actively ADD issue/PR to Project 34
-            // (Prevents race condition when item is not yet in board just after creation)
+            // 4. ADD issue/PR to Project 34
             const addMutation = `
               mutation($projectId: ID!, $contentId: ID!) {
                 addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
@@ -148,7 +167,7 @@ jobs:
               return;
             }
 
-            // [B-3] Extract domain keyword & Update Page Field
+            // 5. Extract domain keyword & Update Page Field
             const allAllowedDomains = [
               ...(rules.allowed_domains?.screen || []),
               ...(rules.allowed_domains?.common || [])
@@ -192,5 +211,3 @@ jobs:
             } catch (error) {
               console.log("Failed to update Page field:", error.message);
             }
-        env:
-          ACTIONS_USE_PAT: ${{ secrets.PROJECT_PAT != '' }}
