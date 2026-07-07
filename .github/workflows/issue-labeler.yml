@@ -17,12 +17,12 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
       - name: Auto Labeling and Page Sync
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.PROJECT_PAT != '' && secrets.PROJECT_PAT || secrets.GITHUB_TOKEN }}
           script: |
