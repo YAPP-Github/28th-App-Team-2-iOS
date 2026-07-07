@@ -1,0 +1,106 @@
+# CodeRabbit Configuration (코드래빗 봇 환경 설정)
+# 이 파일은 AI 리뷰어인 CodeRabbit의 행동 방식, 리뷰 기준, 검사 도구 등을 정의합니다.
+
+language: "ko-KR" # 리뷰 언어 고정 (영어/한국어 널뛰기 방지)
+
+# -----------------------------------------------------------------------------
+# 1. AI 리뷰어 성격 및 중점 검토 사항 프롬프트 (핵심 가이드라인)
+# -----------------------------------------------------------------------------
+tone_instructions: >
+  시니어 iOS 엔지니어의 관점에서 리뷰해 주세요.
+  버그 가능성, 크래시 위험, 메모리 관리, 동시성, API 설계, 아키텍처를 우선적으로 검토해 주세요.
+  이 프로젝트는 TCA(The Composable Architecture)와 SwiftUI를 사용하며,
+  App / Feature / Core의 3계층 Tuist 멀티 모듈 구조로 설계되어 있습니다.
+  Feature 구현체 간 직접 import, Core 모듈 간 순환 의존, Core→Feature 방향의 의존은 절대 허용되지 않으며,
+  이러한 계층 간 의존성 위반이 있을 경우 반드시 지적해 주세요.
+  TCA Reducer의 Effect 누수, State 과잉 설계, 불필요한 Action 세분화, Side Effect의 Reducer 직접 처리도 검토해 주세요.
+  변경 사항에 AI 에이전트 가이드, SKILL 문서, AGENTS.md 등 개발 문서가 포함된 경우에는
+  지시문의 명확성, 규칙 간 충돌 여부, 누락된 예외 케이스, 다른 문서와의 일관성을 검토하고 개선 사항을 제안해 주세요.
+  단순한 스타일이나 개인 취향에 대한 지적은 피하고, 실제 품질과 유지보수성에 영향을 주는 사항에 집중해 주세요.
+
+# -----------------------------------------------------------------------------
+# 2. PR 리뷰 세부 설정 (Pull Request Review)
+# -----------------------------------------------------------------------------
+reviews:
+  # PR 본문을 분석하여 우리가 허용한 3대장 라벨 중 하나를 '사후 보완'으로 달아주는 기능
+  auto_apply_labels: true
+  labeling_instructions:
+    - label: "enhancement"
+      instructions: "새로운 기능 추가, 로직 개선, 성능 최적화 등 긍정적인 코드 변경 시"
+    - label: "bug"
+      instructions: "오류 수정, 크래시 방지, 예외 처리 등 버그 수정 시"
+    - label: "documentation"
+      instructions: "README, 주석, SKILL.md 등 문서나 가이드라인이 추가/수정되었을 때"
+        
+  profile: "assertive" # 깐깐한 모드 (위의 tone_instructions로 잔소리는 막고 아키텍처 위주로 깐깐하게)
+  review_status: true # 리뷰 진행 상태(Reviewing... / Completed)를 GitHub 하단 Check 영역에 표시
+  assess_linked_issues: true # PR이 해결하려는 원본 이슈(#번호)의 요구사항을 100% 충족했는지 검증
+  high_level_summary: true # PR 본문 최상단에 마크다운 형태의 '릴리즈 노트(변경점 요약)' 자동 생성
+  collapse_walkthrough: true # 파일별 상세 변경점(Walkthrough) 설명은 기본적으로 접어두어 스크롤 낭비 방지
+  sequence_diagrams: true # 코드 로직이 복잡하게 변경된 경우, 봇이 Mermaid 시퀀스 다이어그램(순서도) 자동 생성
+  poem: false # 리뷰 코멘트 맨 마지막에 시(Poem)를 지어주는 감성 기능 끄기 (실무 핏팅)
+  
+  # 자동 리뷰 트리거 설정
+  auto_review:
+    enabled: true
+    drafts: false # Draft(초안) 상태인 PR에는 리뷰 요금을 낭비하지 않도록 대기
+    auto_incremental_review: true # 지적받은 코드를 고쳐서 다시 푸시(Push)할 때마다 변경점 팔로업 리뷰 수행
+
+  # -----------------------------------------------------------------------------
+  # 4. 정적 분석기 (Linter) 자동 연동
+  # -----------------------------------------------------------------------------
+  tools:
+    swiftlint:
+      enabled: true # iOS 프로젝트 맞춤 문법 검사 (기본적으로 루트의 .swiftlint.yml 참조)
+    gitleaks:
+      enabled: true # 하드코딩된 API Key, 토큰, 비밀번호 등 치명적 보안 시크릿 유출 방지 스캐너
+    shellcheck:
+      enabled: true # scripts/ 하위의 쉘 스크립트(.sh) 버그 및 안티패턴 검사
+    markdownlint:
+      enabled: true # SKILL.md 등 마크다운(.md) 문서의 띄어쓰기, 헤더 규격 및 일관성 검사
+    actionlint:
+      enabled: true # .github/workflows/ 내의 깃허브 액션(.yml) 문법 및 오류 검사기
+    yamllint:
+      enabled: true # 일반 YAML 파일 기본 포맷 검사기
+
+# -----------------------------------------------------------------------------
+# 3. 챗봇 토론 기능 설정 (Chat)
+# -----------------------------------------------------------------------------
+chat:
+  auto_reply: true # 봇이 남긴 코멘트에 대댓글을 달면, 굳이 @멘션 하지 않아도 챗봇처럼 토론 및 질문 답변 수행
+
+# -----------------------------------------------------------------------------
+# 5. 이슈 제보 시 AI 비서 기능 (Issues)
+# -----------------------------------------------------------------------------
+issue_enrichment:
+  # 이슈 본문을 분석하여 우리가 허용한 3대장 라벨 중 하나를 달아주는 기능
+  labeling:
+    auto_apply_labels: true
+    labeling_instructions:
+      - label: "enhancement"
+        instructions: "새로운 기능 요청, 로직 개선, 성능 최적화 등 긍정적인 제안 시"
+      - label: "bug"
+        instructions: "오류 제보, 크래시 리포트, 예외 상황 등 버그 제보 시"
+      - label: "documentation"
+        instructions: "README, 주석, SKILL.md 등 문서나 가이드라인 관련 요청 시"
+
+  # 이슈 본문을 읽고, AI가 해결책 및 길잡이를 제시해주는 기능
+  auto_enrich:
+    enabled: true # "이 버그는 A 파일 10번째 줄 문제일 듯하며, 난이도는 Low입니다" 라고 예측 댓글 달기
+
+  # 코딩 시작 전, 이슈 해결을 위해 "어떻게 구현할 것인가" 단계별 To-Do(계획서) 초안 제안 기능
+  planning:
+    enabled: true # 플래닝 기능 메인 스위치 켜기
+    auto_planning:
+      enabled: false # 무지성 자동 생성 끄기 (대신 필요할 때만 @coderabbitai plan 멘션으로 수동 호출)
+
+# -----------------------------------------------------------------------------
+# 6. 지식 베이스 (Knowledge Base) - 팀 고유 컨벤션 학습
+# -----------------------------------------------------------------------------
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "README.md" # 프로젝트 전체 3계층 구조 및 아키텍처 다이어그램 참조용
+      - "**/AGENTS.md" # 글로벌 AI 지시사항 및 룰북 참조
+      - ".agents/skills/**/*.md" # 우리 팀의 고유한 하네스 규칙(커밋 룰, 아키텍처 룰 등)을 봇에게 달달 외우게 주입
