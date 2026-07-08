@@ -58,9 +58,13 @@ if [[ "$#" -gt 0 ]]; then
     validate_skill "$dir"
   done
 else
-  while IFS= read -r dir; do
-    validate_skill "$dir"
-  done < <(find .agents/skills -mindepth 1 -maxdepth 1 -type d | sort)
+  if [[ ! -d ".agents/skills" || ! -r ".agents/skills" || ! -x ".agents/skills" ]]; then
+    fail ".agents/skills directory is missing or unreadable."
+  else
+    while IFS= read -r dir; do
+      validate_skill "$dir"
+    done < <(find .agents/skills -mindepth 1 -maxdepth 1 -type d | sort)
+  fi
 fi
 
 if [[ "$failures" -eq 0 ]]; then
