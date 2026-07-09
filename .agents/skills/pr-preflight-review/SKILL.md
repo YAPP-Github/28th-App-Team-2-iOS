@@ -40,6 +40,7 @@ description: Draft PR 생성 직후 또는 Ready for review 전환 전에 AI 서
 - `git status --short`로 staged, unstaged, untracked 파일 확인
 - `git diff --stat`과 주요 변경 파일
 - 필요 시 `git diff --cached --stat`과 untracked 파일 목록 확인
+- 이미 커밋/푸시되어 로컬 작업트리가 clean한 경우, `gh pr diff <PR번호>` 또는 PR 파일 목록으로 Draft PR/원격 브랜치 기준 변경사항을 수집
 - 변경 범위: `Projects/App`, `Projects/Feature`, `Projects/Core`, `Tuist`, `.github`, `scripts`, `docs`, `.agents` 중 어디인지
 - 이미 실행한 검증 명령과 결과
 - 특히 의심되는 위험 영역
