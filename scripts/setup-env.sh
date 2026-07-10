@@ -23,7 +23,7 @@ else
 fi
 
 # 2. mise.toml에 명시된 도구 설치 (tuist 등)
-echo -e "📦 'mise.toml'에 설정된 개발 도구 설치 중..."
+echo -e "📦 '.mise.toml'에 설정된 개발 도구 설치 중..."
 if mise install; then
     echo -e "${GREEN}✅ 'mise install' 완료.${NC}"
 else
