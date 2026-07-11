@@ -167,6 +167,7 @@ public extension Project {
         dependencies: [TargetDependency] = [],
         resources: ResourceFileElements? = nil,
         hasTests: Bool = true,
+        testDependencies: [TargetDependency] = [],
         hasExample: Bool = false,
         exampleDependencies: [TargetDependency] = []
     ) -> Project {
@@ -177,6 +178,7 @@ public extension Project {
             dependencies: dependencies,
             resources: resources,
             hasTests: hasTests,
+            testDependencies: testDependencies,
             hasExample: hasExample,
             exampleDependencies: exampleDependencies
         )
