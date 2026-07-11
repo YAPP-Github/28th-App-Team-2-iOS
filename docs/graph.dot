@@ -1,5 +1,7 @@
 digraph {
   DesignSystem [fillcolor=coral1 shape=cylinder style=filled]
+  DesignSystemExample -> DesignSystem
+  DesignSystemExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
   FortuneFeature -> DesignSystem
   FortuneFeature -> FortuneFeatureInterface
   FortuneFeature -> Model
