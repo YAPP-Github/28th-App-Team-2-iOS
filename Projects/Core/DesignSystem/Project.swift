@@ -3,5 +3,6 @@ import ProjectDescriptionHelpers
 
 let project = Project.makeCore(
     name: "DesignSystem",
-    resources: ["Resources/**"]
+    resources: ["Resources/**"],
+    hasExample: true
 )

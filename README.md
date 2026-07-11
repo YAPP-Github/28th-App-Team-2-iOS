@@ -46,10 +46,17 @@ graph TD
     end
 
     subgraph CoreLayer [Core Layer Common Infrastructure]
-        DesignSystem[DesignSystem]
-        NetworkCore[NetworkCore]
-        Model[Model]
-        Utils[Utils]
+        subgraph UpperCore [Upper Core]
+            DesignSystem[DesignSystem]
+            NetworkCore[NetworkCore]
+        end
+        subgraph LowerCore [Lower Core]
+            Model[Model]
+            Utils[Utils]
+        end
+        
+        DesignSystem --> LowerCore
+        NetworkCore --> LowerCore
     end
 
     %% App Layer imports features
@@ -63,11 +70,16 @@ graph TD
     LuckyAction -. "Routing (Example/Planned)" .-> FortuneIF
     
     %% Features depend on Core
-    Onboarding --> CoreLayer_Nodes[Core Modules]
-    Fortune --> CoreLayer_Nodes
-    Todak --> CoreLayer_Nodes
-    LuckyAction --> CoreLayer_Nodes
-    MyPage --> CoreLayer_Nodes
+    Onboarding --> UpperCore
+    Onboarding --> LowerCore
+    Fortune --> UpperCore
+    Fortune --> LowerCore
+    Todak --> UpperCore
+    Todak --> LowerCore
+    LuckyAction --> UpperCore
+    LuckyAction --> LowerCore
+    MyPage --> UpperCore
+    MyPage --> LowerCore
 
     %% Styling
     classDef app fill:#ff9999,stroke:#333,stroke-width:2px;
@@ -88,11 +100,11 @@ graph TD
   - `TodakFeature`: 고민 결정 도우미 (토닥이 탭)
   - `LuckyActionFeature`: 오늘의 행동 추천 및 실행 (행운 액션 탭)
   - `MyPageFeature`: 설정 및 프로필 (마이 탭)
-- **Projects/Core**: 앱 전반에 걸쳐 사용되는 공통 모듈
-  - `DesignSystem`: 컬러, 폰트, 공통 UI 컴포넌트 및 에셋
-  - `NetworkCore`: 네트워크 API 클라이언트
-  - `Model`: 공통 데이터 객체
-  - `Utils`: 각종 헬퍼 및 확장 파일
+- **Projects/Core**: 앱 전반에 걸쳐 사용되는 공통 모듈 (상위 Core가 하위 Core를 단방향으로 참조 가능)
+  - `DesignSystem` (상위 Core): 컬러, 폰트, 공통 UI 컴포넌트 및 에셋 (단독 실행 데모용 Example 앱 포함)
+  - `NetworkCore` (상위 Core): 네트워크 API 클라이언트
+  - `Model` (하위 Core): 공통 데이터 객체 (타 모듈 의존성 없음)
+  - `Utils` (하위 Core): 각종 헬퍼 및 확장 파일 (타 모듈 의존성 없음)
 
 ---
 
