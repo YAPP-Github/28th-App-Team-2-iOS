@@ -33,6 +33,12 @@ struct ContentView: View {
                         Label("Opacities", systemImage: "square.stack.3d.down.right")
                     }
                     .tag(2)
+                
+                ComponentsCatalogView()
+                    .tabItem {
+                        Label("Components", systemImage: "square.grid.2x2")
+                    }
+                    .tag(3)
             }
             .navigationTitle(navigationTitle(for: selectedTab))
             .navigationBarTitleDisplayMode(.inline)
@@ -44,6 +50,7 @@ struct ContentView: View {
         case 0: return "Color Palette"
         case 1: return "Typography"
         case 2: return "Opacity"
+        case 3: return "Components"
         default: return "Catalog"
         }
     }
@@ -51,61 +58,61 @@ struct ContentView: View {
 
 // MARK: - Color Catalog
 struct ColorCatalogView: View {
-    private let grayScale: [(String, Color)] = [
-        ("Gray25", .ds.gray25), ("Gray50", .ds.gray50), ("Gray100", .ds.gray100),
-        ("Gray200", .ds.gray200), ("Gray300", .ds.gray300), ("Gray400", .ds.gray400),
-        ("Gray500", .ds.gray500), ("Gray600", .ds.gray600), ("Gray700", .ds.gray700),
-        ("Gray800", .ds.gray800), ("Gray900", .ds.gray900), ("Gray925", .ds.gray925),
-        ("Gray950", .ds.gray950), ("Gray975", .ds.gray975)
+    private let grayScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.gray25, DesignSystemAsset.Colors.gray50, DesignSystemAsset.Colors.gray100,
+        DesignSystemAsset.Colors.gray200, DesignSystemAsset.Colors.gray300, DesignSystemAsset.Colors.gray400,
+        DesignSystemAsset.Colors.gray500, DesignSystemAsset.Colors.gray600, DesignSystemAsset.Colors.gray700,
+        DesignSystemAsset.Colors.gray800, DesignSystemAsset.Colors.gray900, DesignSystemAsset.Colors.gray925,
+        DesignSystemAsset.Colors.gray950, DesignSystemAsset.Colors.gray975
     ]
     
-    private let primaryScale: [(String, Color)] = [
-        ("Primary50", .ds.primary50), ("Primary100", .ds.primary100), ("Primary200", .ds.primary200),
-        ("Primary300", .ds.primary300), ("Primary400", .ds.primary400), ("Primary500", .ds.primary500),
-        ("Primary600", .ds.primary600), ("Primary700", .ds.primary700), ("Primary800", .ds.primary800),
-        ("Primary900", .ds.primary900)
+    private let primaryScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.primary50, DesignSystemAsset.Colors.primary100, DesignSystemAsset.Colors.primary200,
+        DesignSystemAsset.Colors.primary300, DesignSystemAsset.Colors.primary400, DesignSystemAsset.Colors.primary500,
+        DesignSystemAsset.Colors.primary600, DesignSystemAsset.Colors.primary700, DesignSystemAsset.Colors.primary800,
+        DesignSystemAsset.Colors.primary900
     ]
     
-    private let coolGrayScale: [(String, Color)] = [
-        ("CoolGray50", .ds.coolGray50), ("CoolGray100", .ds.coolGray100), ("CoolGray200", .ds.coolGray200),
-        ("CoolGray300", .ds.coolGray300), ("CoolGray400", .ds.coolGray400), ("CoolGray500", .ds.coolGray500),
-        ("CoolGray600", .ds.coolGray600), ("CoolGray700", .ds.coolGray700), ("CoolGray800", .ds.coolGray800),
-        ("CoolGray900", .ds.coolGray900)
+    private let coolGrayScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.coolGray50, DesignSystemAsset.Colors.coolGray100, DesignSystemAsset.Colors.coolGray200,
+        DesignSystemAsset.Colors.coolGray300, DesignSystemAsset.Colors.coolGray400, DesignSystemAsset.Colors.coolGray500,
+        DesignSystemAsset.Colors.coolGray600, DesignSystemAsset.Colors.coolGray700, DesignSystemAsset.Colors.coolGray800,
+        DesignSystemAsset.Colors.coolGray900
     ]
     
-    private let skyScale: [(String, Color)] = [
-        ("Sky50", .ds.sky50), ("Sky100", .ds.sky100), ("Sky200", .ds.sky200),
-        ("Sky300", .ds.sky300), ("Sky400", .ds.sky400), ("Sky500", .ds.sky500),
-        ("Sky600", .ds.sky600), ("Sky700", .ds.sky700), ("Sky800", .ds.sky800),
-        ("Sky900", .ds.sky900)
+    private let skyScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.sky50, DesignSystemAsset.Colors.sky100, DesignSystemAsset.Colors.sky200,
+        DesignSystemAsset.Colors.sky300, DesignSystemAsset.Colors.sky400, DesignSystemAsset.Colors.sky500,
+        DesignSystemAsset.Colors.sky600, DesignSystemAsset.Colors.sky700, DesignSystemAsset.Colors.sky800,
+        DesignSystemAsset.Colors.sky900
     ]
     
-    private let pinkScale: [(String, Color)] = [
-        ("Pink50", .ds.pink50), ("Pink100", .ds.pink100), ("Pink200", .ds.pink200),
-        ("Pink300", .ds.pink300), ("Pink400", .ds.pink400), ("Pink500", .ds.pink500),
-        ("Pink600", .ds.pink600), ("Pink700", .ds.pink700), ("Pink800", .ds.pink800),
-        ("Pink900", .ds.pink900)
+    private let pinkScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.pink50, DesignSystemAsset.Colors.pink100, DesignSystemAsset.Colors.pink200,
+        DesignSystemAsset.Colors.pink300, DesignSystemAsset.Colors.pink400, DesignSystemAsset.Colors.pink500,
+        DesignSystemAsset.Colors.pink600, DesignSystemAsset.Colors.pink700, DesignSystemAsset.Colors.pink800,
+        DesignSystemAsset.Colors.pink900
     ]
-
-    private let redScale: [(String, Color)] = [
-        ("Red50", .ds.red50), ("Red100", .ds.red100), ("Red200", .ds.red200),
-        ("Red300", .ds.red300), ("Red400", .ds.red400), ("Red500", .ds.red500),
-        ("Red600", .ds.red600), ("Red700", .ds.red700), ("Red800", .ds.red800),
-        ("Red900", .ds.red900)
+    
+    private let redScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.red50, DesignSystemAsset.Colors.red100, DesignSystemAsset.Colors.red200,
+        DesignSystemAsset.Colors.red300, DesignSystemAsset.Colors.red400, DesignSystemAsset.Colors.red500,
+        DesignSystemAsset.Colors.red600, DesignSystemAsset.Colors.red700, DesignSystemAsset.Colors.red800,
+        DesignSystemAsset.Colors.red900
     ]
-
-    private let orangeScale: [(String, Color)] = [
-        ("Orange50", .ds.orange50), ("Orange100", .ds.orange100), ("Orange200", .ds.orange200),
-        ("Orange300", .ds.orange300), ("Orange400", .ds.orange400), ("Orange500", .ds.orange500),
-        ("Orange600", .ds.orange600), ("Orange700", .ds.orange700), ("Orange800", .ds.orange800),
-        ("Orange900", .ds.orange900)
+    
+    private let orangeScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.orange50, DesignSystemAsset.Colors.orange100, DesignSystemAsset.Colors.orange200,
+        DesignSystemAsset.Colors.orange300, DesignSystemAsset.Colors.orange400, DesignSystemAsset.Colors.orange500,
+        DesignSystemAsset.Colors.orange600, DesignSystemAsset.Colors.orange700, DesignSystemAsset.Colors.orange800,
+        DesignSystemAsset.Colors.orange900
     ]
-
-    private let tealScale: [(String, Color)] = [
-        ("Teal50", .ds.teal50), ("Teal100", .ds.teal100), ("Teal200", .ds.teal200),
-        ("Teal300", .ds.teal300), ("Teal400", .ds.teal400), ("Teal500", .ds.teal500),
-        ("Teal600", .ds.teal600), ("Teal700", .ds.teal700), ("Teal800", .ds.teal800),
-        ("Teal900", .ds.teal900)
+    
+    private let tealScale: [DesignSystemColors] = [
+        DesignSystemAsset.Colors.teal50, DesignSystemAsset.Colors.teal100, DesignSystemAsset.Colors.teal200,
+        DesignSystemAsset.Colors.teal300, DesignSystemAsset.Colors.teal400, DesignSystemAsset.Colors.teal500,
+        DesignSystemAsset.Colors.teal600, DesignSystemAsset.Colors.teal700, DesignSystemAsset.Colors.teal800,
+        DesignSystemAsset.Colors.teal900
     ]
 
     var body: some View {
@@ -114,8 +121,8 @@ struct ColorCatalogView: View {
                 Group {
                     Text("Common Colors").font(.headline)
                     HStack {
-                        colorBlock(name: "White", color: .ds.white)
-                        colorBlock(name: "Black", color: .ds.black)
+                        colorBlock(asset: DesignSystemAsset.Colors.white)
+                        colorBlock(asset: DesignSystemAsset.Colors.black)
                     }
                 }
                 
@@ -132,33 +139,37 @@ struct ColorCatalogView: View {
         }
     }
     
-    private func colorSection(title: String, scale: [(String, Color)]) -> some View {
+    private func colorSection(title: String, scale: [DesignSystemColors]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title).font(.headline)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(scale, id: \.0) { item in
-                        colorBlock(name: item.0, color: item.1)
+                    ForEach(scale, id: \.name) { item in
+                        colorBlock(asset: item)
                     }
                 }
             }
         }
     }
     
-    private func colorBlock(name: String, color: Color) -> some View {
+    private func colorBlock(asset: DesignSystemColors) -> some View {
         VStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(color)
-                .frame(width: 80, height: 80)
+                .fill(asset.swiftUIColor)
+                .frame(width: 115, height: 115)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                 )
-            Text(name)
-                .font(.caption2)
+            Text(asset.displayName)
+                .font(.system(size: 14, weight: .bold))
+                .lineLimit(1)
+            Text(asset.color.hexString)
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundColor(.gray)
                 .lineLimit(1)
         }
-        .frame(width: 80)
+        .frame(width: 115)
     }
 }
 
@@ -334,5 +345,261 @@ struct OpacityCatalogView: View {
                     .stroke(Color.gray.opacity(0.2), lineWidth: 1)
             )
         }
+    }
+}
+
+// MARK: - Components Catalog List
+struct ComponentsCatalogView: View {
+    var body: some View {
+        List {
+            NavigationLink(destination: ButtonPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "rectangle.and.hand.point.up.left.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Button")
+                            .font(.headline)
+                        Text("Primary, Secondary / Large, Medium, Small 규격 버튼")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            
+            // 향후 컴포넌트 추가 대기선
+            HStack(spacing: 12) {
+                Image(systemName: "tag.fill")
+                    .foregroundColor(.ds.gray400)
+                    .imageScale(.large)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Chip & Badge (대기)")
+                        .font(.headline)
+                        .foregroundColor(.ds.gray400)
+                    Text("카테고리 태그 및 상태 정보 표시 요소")
+                        .font(.caption)
+                        .foregroundColor(.ds.gray400)
+                }
+            }
+            .padding(.vertical, 4)
+            .opacity(0.5)
+        }
+    }
+}
+
+// MARK: - Button Playground Sandbox
+struct ButtonPlaygroundView: View {
+    @State private var buttonText: String = "다음 단계"
+    @State private var selectedVariant: DSButtonVariant = .primary
+    @State private var selectedSize: DSButtonSize = .large
+    @State private var isEnabled: Bool = true
+    @State private var showLeftIcon: Bool = false
+    @State private var showRightIcon: Bool = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // 🔍 1. 상단 실시간 프리뷰 영역
+            VStack {
+                Spacer()
+                
+                let currentButton = makeButton(title: buttonText)
+                
+                Text(String(describing: type(of: currentButton)))
+                    .font(.system(.caption2, design: .monospaced))
+                    .bold()
+                    .foregroundColor(Color.ds.primary700)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.ds.primary50)
+                    .cornerRadius(6)
+                    .padding(.bottom, 12)
+                
+                if let buttonView = currentButton as? any View {
+                    AnyView(buttonView)
+                        .disabled(!isEnabled)
+                        .id("\(selectedVariant)-\(selectedSize)-\(isEnabled)-\(showLeftIcon)-\(showRightIcon)-\(buttonText)") // SwiftUI 렌더링 강제 리프레시 팁
+                }
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 220)
+            .background(Color.ds.gray25)
+            .overlay(
+                Rectangle()
+                    .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+            )
+            
+            // 🛠️ 2. 하단 컨트롤러 영역
+            Form {
+                Section(header: Text("Button Text")) {
+                    TextField("Enter button text...", text: $buttonText)
+                        .autocorrectionDisabled()
+                }
+                
+                Section(header: Text("Style Properties")) {
+                    Picker("Variant", selection: $selectedVariant) {
+                        Text("Primary").tag(DSButtonVariant.primary)
+                        Text("Secondary").tag(DSButtonVariant.secondary)
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    Picker("Size", selection: $selectedSize) {
+                        Text("Large").tag(DSButtonSize.large)
+                        Text("Medium").tag(DSButtonSize.medium)
+                        Text("Small").tag(DSButtonSize.small)
+                    }
+                    .pickerStyle(.menu)
+                }
+                
+                Section(header: Text("Interactive State")) {
+                    Toggle("Is Enabled (활성 상태)", isOn: $isEnabled)
+                    Toggle("Show Left Icon (왼쪽 아이콘)", isOn: $showLeftIcon)
+                    Toggle("Show Right Icon (오른쪽 아이콘)", isOn: $showRightIcon)
+                }
+                
+                Section(header: Text("Figma Specification Check")) {
+                    specificationRow(title: "Height", value: "\(Int(selectedSize.height))pt")
+                    specificationRow(title: "Corner Radius", value: "\(Int(DSButtonStyle.cornerRadius))pt")
+                    specificationRow(title: "Typography", value: fontDescription)
+                    specificationRow(title: "Icon Size", value: iconSizeDescription)
+                    specificationRow(title: "Bg Color", value: bgColorDescription)
+                    specificationRow(title: "Text Color", value: textColorDescription)
+                }
+            }
+        }
+        .navigationTitle("Button Playground")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private func specificationRow(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(.gray)
+            Spacer()
+            Text(value)
+                .bold()
+        }
+        .font(.footnote)
+    }
+    
+    private func makeButton(title: String) -> Any {
+        let left = showLeftIcon ? Image(systemName: "pencil") : nil
+        let right = showRightIcon ? Image(systemName: "arrow.right") : nil
+        
+        switch (selectedVariant, selectedSize) {
+        case (.primary, .large):
+            return DSPrimaryLargeButton(title, leftIcon: left, rightIcon: right) {}
+        case (.primary, .medium):
+            return DSPrimaryMediumButton(title, leftIcon: left, rightIcon: right) {}
+        case (.primary, .small):
+            return DSPrimarySmallButton(title, leftIcon: left, rightIcon: right) {}
+        case (.secondary, .large):
+            return DSSecondaryLargeButton(title, leftIcon: left, rightIcon: right) {}
+        case (.secondary, .medium):
+            return DSSecondaryMediumButton(title, leftIcon: left, rightIcon: right) {}
+        case (.secondary, .small):
+            return DSSecondarySmallButton(title, leftIcon: left, rightIcon: right) {}
+        }
+    }
+    
+    private var iconSizeDescription: String {
+        guard showLeftIcon || showRightIcon else { return "None" }
+        let sizeInt = Int(selectedSize.iconSize)
+        return "\(sizeInt)x\(sizeInt)pt"
+    }
+    
+    private var fontDescription: String {
+        selectedSize.specFontName(isEnabled: isEnabled)
+    }
+    
+    private var bgColorDescription: String {
+        selectedVariant.specBgColorName(isEnabled: isEnabled)
+    }
+    
+    private var textColorDescription: String {
+        selectedVariant.specTextColorName(isEnabled: isEnabled)
+    }
+}
+
+// MARK: - 디자인 QA용 예제 앱 전용 디버그 확장 (프로덕션 SDK 오염 방지 격리 수용)
+import UIKit
+
+extension DSButtonVariant {
+    func specBgColorName(isEnabled: Bool) -> String {
+        let asset = bgAsset(isEnabled: isEnabled)
+        return "\(asset.displayName) (\(asset.color.hexString))"
+    }
+    
+    func specTextColorName(isEnabled: Bool) -> String {
+        let asset = textAsset(isEnabled: isEnabled)
+        return "\(asset.displayName) (\(asset.color.hexString))"
+    }
+}
+
+extension DSButtonSize {
+    func specFontName(isEnabled: Bool) -> String {
+        fontStyle(isEnabled: isEnabled).specName
+    }
+}
+
+extension FontStyle {
+    var weightName: String {
+        switch self {
+        case .heading1ExtraBold, .heading2ExtraBold: return "ExtraBold"
+        case .heading1Bold, .heading2Bold, .heading3Bold, .heading4Bold, .body1Bold: return "Bold"
+        case .heading1SemiBold, .heading2SemiBold, .body2SemiBold, .body3SemiBold, .caption1SemiBold, .caption2SemiBold, .caption3SemiBold: return "Semibold"
+        case .heading3Medium, .heading4Medium, .body1Medium, .body2Medium, .body3Medium, .caption1Medium, .caption2Medium, .caption3Medium: return "Medium"
+        case .heading3Regular, .heading4Regular, .body1Regular, .body2Regular, .body3Regular, .caption1Regular, .caption2Regular, .caption3Regular: return "Regular"
+        }
+    }
+    
+    var specName: String {
+        let caseName = String(describing: self)
+        let category: String
+        
+        if caseName.hasPrefix("heading") {
+            let num = caseName.replacingOccurrences(of: "heading", with: "")
+            category = "Heading" + (num.first.map(String.init) ?? "")
+        } else if caseName.hasPrefix("body") {
+            let num = caseName.replacingOccurrences(of: "body", with: "")
+            category = "Body" + (num.first.map(String.init) ?? "")
+        } else if caseName.hasPrefix("caption") {
+            let num = caseName.replacingOccurrences(of: "caption", with: "")
+            category = "Caption" + (num.first.map(String.init) ?? "")
+        } else {
+            category = "Font"
+        }
+        
+        return "\(category)/\(weightName) (\(Int(size))pt)"
+    }
+}
+
+extension DesignSystemColors {
+    var displayName: String {
+        name.replacingOccurrences(of: "Colors/", with: "")
+    }
+}
+
+extension UIColor {
+    var hexString: String {
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+        
+        if self.getRed(&r, green: &g, blue: &b, alpha: &a) {
+            return String(format: "#%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
+        } else {
+            var white: CGFloat = 0
+            if self.getWhite(&white, alpha: &a) {
+                let val = Int(white * 255)
+                return String(format: "#%02X%02X%02X", val, val, val)
+            }
+        }
+        return "#FFFFFF"
     }
 }
