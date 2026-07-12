@@ -19,6 +19,11 @@ public extension Project {
     ) -> [Target] {
         var targets: [Target] = []
         
+        // Product가 .app일 때는 전체 화면 구동을 위해 UILaunchScreen 키 주입
+        let mainInfoPlist: InfoPlist = (product == .app) ? .extendingDefault(with: [
+            "UILaunchScreen": [:]
+        ]) : .default
+        
         // Main Target
         targets.append(
             .target(
@@ -27,7 +32,7 @@ public extension Project {
                 product: product,
                 bundleId: bundleId,
                 deploymentTargets: deploymentTargets,
-                infoPlist: .default,
+                infoPlist: mainInfoPlist,
                 sources: sources,
                 resources: resources,
                 dependencies: dependencies
@@ -61,7 +66,9 @@ public extension Project {
                     product: .app,
                     bundleId: "\(bundleId)Example",
                     deploymentTargets: deploymentTargets,
-                    infoPlist: .default,
+                    infoPlist: .extendingDefault(with: [
+                        "UILaunchScreen": [:]
+                    ]),
                     sources: ["Example/Sources/**"],
                     resources: ["Example/Resources/**"],
                     dependencies: [
@@ -159,7 +166,32 @@ public extension Project {
         )
         projectTargets.append(contentsOf: implementationTargets)
         
-        return Project(name: name, targets: projectTargets)
+        var schemes: [Scheme] = [
+            .scheme(
+                name: name,
+                shared: true,
+                buildAction: .buildAction(targets: [.target(name)]),
+                testAction: .targets([.testableTarget(target: .target("\(name)Tests"))])
+            )
+        ]
+        
+        if hasExample {
+            schemes.append(
+                .scheme(
+                    name: "\(name)Example",
+                    shared: true,
+                    buildAction: .buildAction(targets: [.target("\(name)Example")]),
+                    runAction: .runAction(executable: .target("\(name)Example"))
+                )
+            )
+        }
+        
+        return Project(
+            name: name,
+            options: .options(automaticSchemesOptions: .disabled),
+            targets: projectTargets,
+            schemes: schemes
+        )
     }
 
     static func makeCore(
@@ -182,6 +214,32 @@ public extension Project {
             hasExample: hasExample,
             exampleDependencies: exampleDependencies
         )
-        return Project(name: name, targets: targets)
+        
+        var schemes: [Scheme] = [
+            .scheme(
+                name: name,
+                shared: true,
+                buildAction: .buildAction(targets: [.target(name)]),
+                testAction: hasTests ? .targets([.testableTarget(target: .target("\(name)Tests"))]) : nil
+            )
+        ]
+        
+        if hasExample {
+            schemes.append(
+                .scheme(
+                    name: "\(name)Example",
+                    shared: true,
+                    buildAction: .buildAction(targets: [.target("\(name)Example")]),
+                    runAction: .runAction(executable: .target("\(name)Example"))
+                )
+            )
+        }
+        
+        return Project(
+            name: name,
+            options: .options(automaticSchemesOptions: .disabled),
+            targets: targets,
+            schemes: schemes
+        )
     }
 }
