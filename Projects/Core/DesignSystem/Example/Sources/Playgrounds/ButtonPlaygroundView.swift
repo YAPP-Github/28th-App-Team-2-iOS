@@ -9,40 +9,23 @@ struct ButtonPlaygroundView: View {
     @State private var isEnabled: Bool = true
     @State private var showLeftIcon: Bool = false
     @State private var showRightIcon: Bool = false
+    @State private var isDarkBackground: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
             // 🔍 1. 상단 실시간 프리뷰 영역
-            VStack {
-                Spacer()
-                
-                let currentButton = makeButton(title: buttonText)
-                
-                Text(String(describing: type(of: currentButton)))
-                    .font(.system(.caption2, design: .monospaced))
-                    .bold()
-                    .foregroundColor(Color.ds.primary700)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.ds.primary50)
-                    .cornerRadius(6)
-                    .padding(.bottom, 12)
-                
+            let currentButton = makeButton(title: buttonText)
+            
+            DSPlaygroundPreviewCard(
+                title: String(describing: type(of: currentButton)),
+                isDarkBackground: $isDarkBackground
+            ) {
                 if let buttonView = currentButton as? any View {
                     AnyView(buttonView)
                         .disabled(!isEnabled)
-                        .id("\(selectedVariant)-\(selectedSize)-\(isEnabled)-\(showLeftIcon)-\(showRightIcon)-\(buttonText)") // SwiftUI 렌더링 강제 리프레시 팁
+                        .id("\(selectedVariant)-\(selectedSize)-\(isEnabled)-\(showLeftIcon)-\(showRightIcon)-\(buttonText)")
                 }
-                
-                Spacer()
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 220)
-            .background(Color.ds.gray25)
-            .overlay(
-                Rectangle()
-                    .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-            )
             
             // 🛠️ 2. 하단 컨트롤러 영역
             Form {
@@ -73,14 +56,14 @@ struct ButtonPlaygroundView: View {
                 }
                 
                 Section(header: Text("Figma Specification Check")) {
-                    specificationRow(title: "Height", value: "\(Int(selectedSize.height))pt")
-                    specificationRow(title: "Corner Radius", value: "\(Int(DSButton.Layout.cornerRadius))pt")
-                    specificationRow(title: "Padding (Horizontal)", value: "\(Int(DSButton.Layout.horizontalPadding))pt")
-                    specificationRow(title: "Gap (Icon-Text)", value: "\(Int(DSButton.Layout.contentGap))pt")
-                    specificationRow(title: "Typography", value: fontDescription)
-                    specificationRow(title: "Icon Size", value: iconSizeDescription)
-                    specificationRow(title: "Bg Color", value: bgColorDescription)
-                    specificationRow(title: "Text Color", value: textColorDescription)
+                    DSSpecificationRow(title: "Height", value: "\(Int(selectedSize.height))pt")
+                    DSSpecificationRow(title: "Corner Radius", value: "\(Int(DSButton.Layout.cornerRadius))pt")
+                    DSSpecificationRow(title: "Padding (Horizontal)", value: "\(Int(DSButton.Layout.horizontalPadding))pt")
+                    DSSpecificationRow(title: "Gap (Icon-Text)", value: "\(Int(DSButton.Layout.contentGap))pt")
+                    DSSpecificationRow(title: "Typography", value: fontDescription)
+                    DSSpecificationRow(title: "Icon Size", value: iconSizeDescription)
+                    DSSpecificationRow(title: "Bg Color", value: bgColorDescription)
+                    DSSpecificationRow(title: "Text Color", value: textColorDescription)
                 }
             }
         }
@@ -88,20 +71,9 @@ struct ButtonPlaygroundView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     
-    private func specificationRow(title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-                .foregroundColor(.gray)
-            Spacer()
-            Text(value)
-                .bold()
-        }
-        .font(.footnote)
-    }
-    
     private func makeButton(title: String) -> Any {
-        let left = showLeftIcon ? Image(systemName: "pencil") : nil
-        let right = showRightIcon ? Image(systemName: "arrow.right") : nil
+        let left = showLeftIcon ? DesignSystemAsset.Icons.edit.swiftUIImage : nil
+        let right = showRightIcon ? DesignSystemAsset.Icons.edit.swiftUIImage : nil
         
         switch (selectedVariant, selectedSize) {
         case (.primary, .large):

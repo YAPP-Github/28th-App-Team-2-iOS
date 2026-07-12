@@ -11,25 +11,18 @@ struct ChipPlaygroundView: View {
     @State private var chipType: ChipType = .chip1
     @State private var chipText: String = "학생"
     @State private var isSelected: Bool = false
+    @State private var isDarkBackground: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
             // 🔍 1. 상단 실시간 프리뷰 영역
-            VStack(spacing: 24) {
-                Spacer()
-                
-                // 단일 칩 인스턴스를 하나 확보하여 타입명 추출
-                let currentChip = makeChip(title: chipText, isSelected: isSelected)
-                
-                Text(String(describing: type(of: currentChip)))
-                    .font(.system(.caption2, design: .monospaced))
-                    .bold()
-                    .foregroundColor(Color.ds.primary700)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.ds.primary50)
-                    .cornerRadius(6)
-                
+            let currentChip = makeChip(title: chipText, isSelected: isSelected)
+            
+            DSPlaygroundPreviewCard(
+                title: String(describing: type(of: currentChip)),
+                height: 260,
+                isDarkBackground: $isDarkBackground
+            ) {
                 // 피그마 gap: 10px 칩간 레이아웃 나열 실증 검증 (실시간 반영 2개 연속 배치)
                 HStack(spacing: 10) { // 칩 간 Spacing 10pt 반영
                     if chipType == .chip1 {
@@ -41,16 +34,7 @@ struct ChipPlaygroundView: View {
                     }
                 }
                 .id("\(chipType)-\(isSelected)-\(chipText)") // 강제 리프레시 ID 체인
-                
-                Spacer()
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 260)
-            .background(Color.ds.gray100) // gray25 미선택 칩의 경계가 또렷하게 드러나도록 gray100 대비 적용
-            .overlay(
-                Rectangle()
-                    .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-            )
             
             // 🛠️ 2. 하단 컨트롤러 영역
             Form {
@@ -74,13 +58,13 @@ struct ChipPlaygroundView: View {
                 }
                 
                 Section(header: Text("Figma Specification Check")) {
-                    specificationRow(title: "Corner Radius", value: "Capsule (Radius \(Int(cornerRadiusSpec))px)")
-                    specificationRow(title: "Padding (Vertical)", value: "\(Int(verticalPaddingSpec))px")
-                    specificationRow(title: "Padding (Horizontal)", value: "\(Int(horizontalPaddingSpec))px")
-                    specificationRow(title: "Gap / Spacing (칩 간격)", value: "\(Int(gapSpec))px")
-                    specificationRow(title: "Typography", value: fontDescription)
-                    specificationRow(title: "Bg Color", value: bgColorDescription)
-                    specificationRow(title: "Text Color", value: textColorDescription)
+                    DSSpecificationRow(title: "Corner Radius", value: "Capsule (Radius \(Int(cornerRadiusSpec))px)")
+                    DSSpecificationRow(title: "Padding (Vertical)", value: "\(Int(verticalPaddingSpec))px")
+                    DSSpecificationRow(title: "Padding (Horizontal)", value: "\(Int(horizontalPaddingSpec))px")
+                    DSSpecificationRow(title: "Gap / Spacing (칩 간격)", value: "\(Int(gapSpec))px")
+                    DSSpecificationRow(title: "Typography", value: fontDescription)
+                    DSSpecificationRow(title: "Bg Color", value: bgColorDescription)
+                    DSSpecificationRow(title: "Text Color", value: textColorDescription)
                 }
             }
         }
@@ -106,17 +90,6 @@ struct ChipPlaygroundView: View {
     private var fontDescription: String {
         let style = chipType == .chip1 ? DSChip.Theme.fontStyle(isSelected: isSelected) : DSChip2.Theme.fontStyle
         return style.specName
-    }
-    
-    private func specificationRow(title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-                .foregroundColor(.gray)
-            Spacer()
-            Text(value)
-                .bold()
-        }
-        .font(.footnote)
     }
     
     private func makeChip(title: String, isSelected: Bool) -> Any {

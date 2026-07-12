@@ -55,6 +55,23 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+            
+            NavigationLink(destination: CheckboxPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.square.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Checkbox")
+                            .font(.headline)
+                        Text("단일 선택 여부를 토글하는 체크박스 컴포넌트")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }
