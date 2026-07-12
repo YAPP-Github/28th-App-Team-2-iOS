@@ -26,8 +26,12 @@ struct ChipPlaygroundView: View {
                 // 피그마 gap: 10px 칩간 레이아웃 나열 실증 검증 (실시간 반영 2개 연속 배치)
                 HStack(spacing: 10) { // 칩 간 Spacing 10pt 반영
                     if chipType == .chip1 {
-                        DSChip(chipText, isSelected: isSelected) {}
-                        DSChip(chipText, isSelected: isSelected) {}
+                        DSChip(chipText, isSelected: isSelected) {
+                            isSelected.toggle()
+                        }
+                        DSChip(chipText, isSelected: isSelected) {
+                            isSelected.toggle()
+                        }
                     } else {
                         DSChip2(chipText) {}
                         DSChip2(chipText) {}
