@@ -38,6 +38,23 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+            
+            NavigationLink(destination: BadgePlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "app.badge.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Badge")
+                            .font(.headline)
+                        Text("상태나 카테고리를 표시하는 정적 라벨 뱃지")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }
