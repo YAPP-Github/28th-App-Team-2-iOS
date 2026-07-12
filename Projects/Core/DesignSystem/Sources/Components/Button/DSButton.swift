@@ -1,7 +1,13 @@
 import SwiftUI
 
 // MARK: - Core Button Component
-struct DSButton: View {
+public struct DSButton: View {
+    public enum Layout {
+        public static let horizontalPadding: CGFloat = 20
+        public static let cornerRadius: CGFloat = 12
+        public static let contentGap: CGFloat = 8
+    }
+
     private let title: String
     private let leftIcon: Image?
     private let rightIcon: Image?
@@ -9,7 +15,7 @@ struct DSButton: View {
     private let size: DSButtonSize
     private let action: () -> Void
     
-    init(
+    public init(
         _ title: String,
         leftIcon: Image? = nil,
         rightIcon: Image? = nil,
@@ -25,9 +31,9 @@ struct DSButton: View {
         self.action = action
     }
     
-    var body: some View {
+    public var body: some View {
         Button(action: action) {
-            HStack(alignment: .center, spacing: 8) { // 피그마 규격 align-items: center 및 gap: 8px 수호
+            HStack(alignment: .center, spacing: DSButton.Layout.contentGap) { // 피그마 규격 align-items: center 및 gap: 8px 수호
                 if let leftIcon {
                     leftIcon
                         .renderingMode(.template)

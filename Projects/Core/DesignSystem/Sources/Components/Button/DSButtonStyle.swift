@@ -62,9 +62,7 @@ public enum DSButtonSize {
     }
 }
 
-public struct DSButtonStyle: ButtonStyle {
-    public static let cornerRadius: CGFloat = 12
-    
+public struct DSButtonStyle: ButtonStyle {    
     let variant: DSButtonVariant
     let size: DSButtonSize
     
@@ -80,9 +78,9 @@ public struct DSButtonStyle: ButtonStyle {
         applyFont(to: configuration.label)
             .foregroundColor(foregroundColor())
             .frame(height: size.height)
-            .padding(.horizontal, 20) // 글자 길이에 따라 유연하게 늘어나도록 좌우 패딩만 제공
+            .padding(.horizontal, DSButton.Layout.horizontalPadding) // 글자 길이에 따라 유연하게 늘어나도록 좌우 패딩만 제공
             .background(backgroundColor())
-            .cornerRadius(Self.cornerRadius) // 정의한 공용 상수 적용
+            .cornerRadius(DSButton.Layout.cornerRadius) // 정의한 공용 상수 적용
     }
     
     // 피그마 디자인 명세에 명시된 폰트 스타일을 30종 연산 프로퍼티로 1:1 보정 적용
