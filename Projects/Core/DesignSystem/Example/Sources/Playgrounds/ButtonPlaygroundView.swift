@@ -72,8 +72,8 @@ struct ButtonPlaygroundView: View {
     }
     
     private func makeButton(title: String) -> Any {
-        let left = showLeftIcon ? DesignSystemAsset.Icons.edit.swiftUIImage : nil
-        let right = showRightIcon ? DesignSystemAsset.Icons.edit.swiftUIImage : nil
+        let left = showLeftIcon ? Image.ds.edit : nil
+        let right = showRightIcon ? Image.ds.edit : nil
         
         switch (selectedVariant, selectedSize) {
         case (.primary, .large):

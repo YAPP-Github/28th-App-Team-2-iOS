@@ -28,9 +28,10 @@ struct ContentView: View {
                     }
                     .tag(1)
                 
-                OpacityCatalogView()
+
+                IconCatalogView()
                     .tabItem {
-                        Label("Opacities", systemImage: "square.stack.3d.down.right")
+                        Label("Icons", systemImage: "star")
                     }
                     .tag(2)
                 
@@ -49,7 +50,7 @@ struct ContentView: View {
         switch tab {
         case 0: return "Color Palette"
         case 1: return "Typography"
-        case 2: return "Opacity"
+        case 2: return "Icons"
         case 3: return "Components"
         default: return "Catalog"
         }

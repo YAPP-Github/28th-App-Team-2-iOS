@@ -21,7 +21,7 @@ public struct DSCheckboxStyle: ToggleStyle {
                 
                 // Checkmark Icon
                 if configuration.isOn {
-                    DesignSystemAsset.Icons.checkLine.swiftUIImage
+                    Image.ds.checkLine
                         .resizable()
                         .renderingMode(.template)
                         .foregroundColor(DesignSystemAsset.Colors.white.swiftUIColor)

@@ -60,6 +60,17 @@ extension DesignSystemColors {
     }
 }
 
+extension DesignSystemImages {
+    var displayName: String {
+        let rawName = name.replacingOccurrences(of: "Icons/", with: "")
+        let parts = rawName.split(separator: "_")
+        guard parts.count > 1 else { return rawName }
+        let first = String(parts[0])
+        let rest = parts.dropFirst().map { $0.capitalized }.joined()
+        return first + rest
+    }
+}
+
 extension UIColor {
     var hexString: String {
         var r: CGFloat = 0

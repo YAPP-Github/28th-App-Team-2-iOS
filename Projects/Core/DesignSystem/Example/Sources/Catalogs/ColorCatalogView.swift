@@ -59,6 +59,27 @@ struct ColorCatalogView: View {
         DesignSystemAsset.Colors.teal600, DesignSystemAsset.Colors.teal700, DesignSystemAsset.Colors.teal800,
         DesignSystemAsset.Colors.teal900
     ]
+    
+    private let blackOpacities: [(DesignSystemColors, String)] = [
+        (DesignSystemAsset.Colors.opacity05, "States/Hover (light)"),
+        (DesignSystemAsset.Colors.opacity10, "States/Pressed (light)"),
+        (DesignSystemAsset.Colors.opacity20, "Scrim light"),
+        (DesignSystemAsset.Colors.opacity30, "Scrim"),
+        (DesignSystemAsset.Colors.opacity50, "Modal backdrop"),
+        (DesignSystemAsset.Colors.opacity60, "Strong scrim"),
+        (DesignSystemAsset.Colors.opacity80, "Heavy scrim")
+    ]
+    
+    private let whiteOpacities: [(DesignSystemColors, String)] = [
+        (DesignSystemAsset.Colors.whiteOpacity05, "다크 배경 위 최연한 레이어"),
+        (DesignSystemAsset.Colors.whiteOpacity10, "Hover (dark)"),
+        (DesignSystemAsset.Colors.whiteOpacity20, "Pressed (dark) · Border Inverse"),
+        (DesignSystemAsset.Colors.whiteOpacity30, "다크 배경 구분"),
+        (DesignSystemAsset.Colors.whiteOpacity50, "Inverse Tertiary Text"),
+        (DesignSystemAsset.Colors.whiteOpacity60, "Inverse Secondary Text"),
+        (DesignSystemAsset.Colors.whiteOpacity80, "다크 배경 위 강한 텍스트"),
+        (DesignSystemAsset.Colors.whiteOpacity90, "다크 배경 거의 불투명")
+    ]
 
     var body: some View {
         ScrollView {
@@ -79,6 +100,22 @@ struct ColorCatalogView: View {
                 colorSection(title: "Red Scale", scale: redScale)
                 colorSection(title: "Orange Scale", scale: orangeScale)
                 colorSection(title: "Teal Scale", scale: tealScale)
+                
+                opacitySection(
+                    title: "Black Alpha Opacity (Base: #1B1B1B)",
+                    description: "주로 밝은 모드 배경 위에 얹혀 어두운 위계(Hover/Pressed/Scrim)를 표현합니다.",
+                    list: blackOpacities,
+                    backgroundColor: Color.ds.gray50,
+                    textColor: Color.ds.gray950
+                )
+                
+                opacitySection(
+                    title: "White Alpha Opacity (Base: #FFFFFF)",
+                    description: "어두운 밤하늘/다크 배경 위에 얹혀 뽀얗고 세련된 반투명 요소를 표현합니다.",
+                    list: whiteOpacities,
+                    backgroundColor: Color.ds.gray950,
+                    textColor: Color.ds.white
+                )
             }
             .padding()
         }
@@ -115,5 +152,64 @@ struct ColorCatalogView: View {
                 .lineLimit(1)
         }
         .frame(width: 115)
+    }
+    
+    private func opacitySection(
+        title: String,
+        description: String,
+        list: [(DesignSystemColors, String)],
+        backgroundColor: Color,
+        textColor: Color
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            VStack(spacing: 0) {
+                ForEach(list, id: \.0.name) { item in
+                    let asset = item.0
+                    let desc = item.1
+                    
+                    HStack(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(asset.displayName)
+                                .font(.subheadline)
+                                .bold()
+                                .foregroundColor(textColor)
+                            Text(desc)
+                                .font(.caption2)
+                                .foregroundColor(textColor.opacity(0.6))
+                        }
+                        
+                        Spacer()
+                        
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(asset.swiftUIColor)
+                            .frame(width: 100, height: 44)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            )
+                    }
+                    .padding()
+                    if asset.name != list.last?.0.name {
+                        Divider()
+                            .background(Color.gray.opacity(0.15))
+                    }
+                }
+            }
+            .background(backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+            )
+        }
     }
 }
