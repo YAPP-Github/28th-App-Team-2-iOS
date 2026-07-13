@@ -2,35 +2,42 @@ import SwiftUI
 
 // MARK: - Core Chip2 Component
 public struct DSChip2: View {
-    public enum Layout {
-        public static let verticalPadding: CGFloat = 5
-        public static let horizontalPadding: CGFloat = 10
-        public static let cornerRadius: CGFloat = 100
-        public static let defaultGap: CGFloat = 10
+    public struct Specification: Sendable {
+        public let verticalPadding: CGFloat
+        public let horizontalPadding: CGFloat
+        public let shape: DSComponentShape
+        public let fontStyle: FontStyle
+        public let backgroundAsset: DesignSystemColors
+        public let foregroundAsset: DesignSystemColors
     }
-    
-    public enum Theme {
-        public static let bgAsset: DesignSystemColors = DesignSystemAsset.Colors.primary700
-        public static let textAsset: DesignSystemColors = DesignSystemAsset.Colors.white
-        public static let fontStyle: FontStyle = .body3Medium
+
+    public static var specification: Specification {
+        Specification(
+            verticalPadding: 5,
+            horizontalPadding: 10,
+            shape: .capsule,
+            fontStyle: .body3Medium,
+            backgroundAsset: DesignSystemAsset.Colors.primary700,
+            foregroundAsset: DesignSystemAsset.Colors.white
+        )
     }
 
     private let title: String
-    private let action: () -> Void
-    
-    public init(
-        _ title: String,
-        action: @escaping () -> Void = {}
-    ) {
+
+    public init(_ title: String) {
         self.title = title
-        self.action = action
     }
-    
+
     public var body: some View {
-        Button(action: action) {
-            Text(title)
-                .dsFont(Theme.fontStyle)
-        }
-        .buttonStyle(DSChip2Style())
+        let specification = Self.specification
+
+        Text(title)
+            .dsFont(specification.fontStyle)
+            .lineLimit(1)
+            .padding(.vertical, specification.verticalPadding)
+            .padding(.horizontal, specification.horizontalPadding)
+            .foregroundColor(specification.foregroundAsset.swiftUIColor)
+            .background(specification.backgroundAsset.swiftUIColor)
+            .clipShape(specification.shape.swiftUIShape)
     }
 }

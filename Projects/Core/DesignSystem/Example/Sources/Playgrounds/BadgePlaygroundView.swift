@@ -6,22 +6,20 @@ struct BadgePlaygroundView: View {
     @State private var badgeText: String = "관계"
     @State private var selectedVariant: DSBadgeVariant = .purple
     @State private var isDarkBackground: Bool = false
+
+    private var specification: DSBadge.Specification {
+        DSBadge.specification(variant: selectedVariant)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
-            // 🔍 1. 상단 실시간 프리뷰 영역
             DSPlaygroundPreviewCard(
                 title: String(describing: DSBadge.self),
                 isDarkBackground: $isDarkBackground
             ) {
-                HStack(spacing: DSBadge.Layout.defaultGap) {
-                    DSBadge(badgeText, variant: selectedVariant)
-                    DSBadge(badgeText, variant: selectedVariant)
-                }
-                .id("\(selectedVariant)-\(badgeText)")
+                DSBadge(badgeText, variant: selectedVariant)
             }
-            
-            // 🛠️ 2. 하단 컨트롤러 영역
+
             Form {
                 Section(header: Text("Badge Text")) {
                     TextField("Enter badge text...", text: $badgeText)
@@ -38,13 +36,12 @@ struct BadgePlaygroundView: View {
                 }
                 
                 Section(header: Text("Figma Specification Check")) {
-                    DSSpecificationRow(title: "Corner Radius", value: "\(Int(DSBadge.Layout.cornerRadius))px")
-                    DSSpecificationRow(title: "Padding (Vertical)", value: "\(Int(DSBadge.Layout.verticalPadding))px")
-                    DSSpecificationRow(title: "Padding (Horizontal)", value: "\(Int(DSBadge.Layout.horizontalPadding))px")
-                    DSSpecificationRow(title: "Gap / Spacing", value: "\(Int(DSBadge.Layout.defaultGap))px")
-                    DSSpecificationRow(title: "Typography", value: DSBadge.Theme.fontStyle.specName)
-                    DSSpecificationRow(title: "Bg Color", value: "\(selectedVariant.bgAsset.displayName) (\(selectedVariant.bgAsset.color.hexString))")
-                    DSSpecificationRow(title: "Text Color", value: "\(selectedVariant.textAsset.displayName) (\(selectedVariant.textAsset.color.hexString))")
+                    DSSpecificationRow(title: "Shape", value: specification.shape.specName)
+                    DSSpecificationRow(title: "Padding (Vertical)", value: specification.verticalPadding.ptDescription)
+                    DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+                    DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
+                    DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
+                    DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
                 }
             }
         }

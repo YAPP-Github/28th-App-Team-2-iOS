@@ -1,15 +1,15 @@
 import SwiftUI
 
-public struct DSSpecificationRow: View {
-    let title: String
-    let value: String
+struct DSSpecificationRow: View {
+    private let title: String
+    private let value: String
     
-    public init(title: String, value: String) {
+    init(title: String, value: String) {
         self.title = title
         self.value = value
     }
     
-    public var body: some View {
+    var body: some View {
         HStack {
             Text(title)
                 .foregroundColor(.gray)

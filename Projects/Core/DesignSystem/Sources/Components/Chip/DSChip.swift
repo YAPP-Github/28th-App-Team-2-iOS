@@ -2,25 +2,28 @@ import SwiftUI
 
 // MARK: - Core Chip Component
 public struct DSChip: View {
-    public enum Layout {
-        public static let verticalPadding: CGFloat = 12
-        public static let horizontalPadding: CGFloat = 20
-        public static let cornerRadius: CGFloat = 100
-        public static let defaultGap: CGFloat = 10
+    public struct Specification: Sendable {
+        public let verticalPadding: CGFloat
+        public let horizontalPadding: CGFloat
+        public let shape: DSComponentShape
+        public let fontStyle: FontStyle
+        public let backgroundAsset: DesignSystemColors
+        public let foregroundAsset: DesignSystemColors
     }
-    
-    public enum Theme {
-        public static func bgAsset(isSelected: Bool) -> DesignSystemColors {
-            return isSelected ? DesignSystemAsset.Colors.primary500 : DesignSystemAsset.Colors.gray25
-        }
-        
-        public static func textAsset(isSelected: Bool) -> DesignSystemColors {
-            return isSelected ? DesignSystemAsset.Colors.white : DesignSystemAsset.Colors.coolGray700
-        }
-        
-        public static func fontStyle(isSelected: Bool) -> FontStyle {
-            return isSelected ? .body2SemiBold : .body2Medium
-        }
+
+    public static func specification(isSelected: Bool) -> Specification {
+        Specification(
+            verticalPadding: 12,
+            horizontalPadding: 20,
+            shape: .capsule,
+            fontStyle: isSelected ? .body2SemiBold : .body2Medium,
+            backgroundAsset: isSelected
+                ? DesignSystemAsset.Colors.primary500
+                : DesignSystemAsset.Colors.gray25,
+            foregroundAsset: isSelected
+                ? DesignSystemAsset.Colors.white
+                : DesignSystemAsset.Colors.coolGray700
+        )
     }
 
     private let title: String
@@ -38,10 +41,12 @@ public struct DSChip: View {
     }
     
     public var body: some View {
+        let specification = Self.specification(isSelected: isSelected)
+
         Button(action: action) {
             Text(title)
-                .dsFont(Theme.fontStyle(isSelected: isSelected))
+                .dsFont(specification.fontStyle)
         }
-        .buttonStyle(DSChipButtonStyle(isSelected: isSelected))
+        .buttonStyle(DSChipButtonStyle(specification: specification))
     }
 }

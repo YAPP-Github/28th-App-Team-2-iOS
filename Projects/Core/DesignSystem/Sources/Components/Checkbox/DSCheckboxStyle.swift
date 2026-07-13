@@ -1,31 +1,37 @@
 import SwiftUI
 
-// MARK: - Checkbox Toggle Style
-public struct DSCheckboxStyle: ToggleStyle {
-    public func makeBody(configuration: Configuration) -> some View {
+struct DSCheckboxStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        let specification = DSCheckbox.specification(isOn: configuration.isOn)
+
         Button {
             configuration.isOn.toggle()
         } label: {
             ZStack {
-                // Background & Border
-                RoundedRectangle(cornerRadius: DSCheckbox.Layout.cornerRadius)
-                    .fill(configuration.isOn ? DesignSystemAsset.Colors.primary600.swiftUIColor : DesignSystemAsset.Colors.white.swiftUIColor)
-                    .frame(width: DSCheckbox.Layout.size, height: DSCheckbox.Layout.size)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DSCheckbox.Layout.cornerRadius)
-                            .strokeBorder(
-                                configuration.isOn ? Color.clear : DesignSystemAsset.Colors.coolGray300.swiftUIColor,
-                                lineWidth: DSCheckbox.Layout.borderWidth
+                specification.shape.swiftUIShape
+                    .fill(specification.backgroundAsset.swiftUIColor)
+                    .frame(width: specification.size, height: specification.size)
+                    .overlay {
+                        if let borderAsset = specification.borderAsset,
+                           let borderWidth = specification.borderWidth {
+                            specification.shape.strokeBorder(
+                                borderAsset.swiftUIColor,
+                                lineWidth: borderWidth
                             )
-                    )
-                
-                // Checkmark Icon
-                if configuration.isOn {
-                    Image.ds.checkLine
+                        }
+                    }
+
+                if let iconAsset = specification.iconAsset,
+                   let iconTintAsset = specification.iconTintAsset,
+                   let iconSize = specification.iconSize {
+                    iconAsset.swiftUIImage
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundColor(DesignSystemAsset.Colors.white.swiftUIColor)
-                        .frame(width: DSCheckbox.Layout.iconSize, height: DSCheckbox.Layout.iconSize)
+                        .foregroundColor(iconTintAsset.swiftUIColor)
+                        .frame(
+                            width: iconSize,
+                            height: iconSize
+                        )
                 }
             }
         }

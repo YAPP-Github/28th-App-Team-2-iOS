@@ -12,40 +12,22 @@ struct ChipPlaygroundView: View {
     @State private var chipText: String = "학생"
     @State private var isSelected: Bool = false
     @State private var isDarkBackground: Bool = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // 🔍 1. 상단 실시간 프리뷰 영역
-            let currentChip = makeChip(title: chipText, isSelected: isSelected)
-            
             DSPlaygroundPreviewCard(
-                title: String(describing: type(of: currentChip)),
+                title: chipType.rawValue,
                 height: 260,
                 isDarkBackground: $isDarkBackground
             ) {
-                // 피그마 gap: 10px 칩간 레이아웃 나열 실증 검증 (실시간 반영 2개 연속 배치)
-                HStack(spacing: 10) { // 칩 간 Spacing 10pt 반영
-                    if chipType == .chip1 {
-                        DSChip(chipText, isSelected: isSelected) {
-                            isSelected.toggle()
-                        }
-                        DSChip(chipText, isSelected: isSelected) {
-                            isSelected.toggle()
-                        }
-                    } else {
-                        DSChip2(chipText) {}
-                        DSChip2(chipText) {}
-                    }
-                }
-                .id("\(chipType)-\(isSelected)-\(chipText)") // 강제 리프레시 ID 체인
+                makeChip(title: chipText)
             }
-            
-            // 🛠️ 2. 하단 컨트롤러 영역
+
             Form {
                 Section(header: Text("Chip Type")) {
                     Picker("Type", selection: $chipType) {
                         Text("DSChip (Interactive)").tag(ChipType.chip1)
-                        Text("DSChip2 (Badge)").tag(ChipType.chip2)
+                        Text("DSChip2 (Static)").tag(ChipType.chip2)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -62,45 +44,46 @@ struct ChipPlaygroundView: View {
                 }
                 
                 Section(header: Text("Figma Specification Check")) {
-                    DSSpecificationRow(title: "Corner Radius", value: "Capsule (Radius \(Int(cornerRadiusSpec))px)")
-                    DSSpecificationRow(title: "Padding (Vertical)", value: "\(Int(verticalPaddingSpec))px")
-                    DSSpecificationRow(title: "Padding (Horizontal)", value: "\(Int(horizontalPaddingSpec))px")
-                    DSSpecificationRow(title: "Gap / Spacing (칩 간격)", value: "\(Int(gapSpec))px")
-                    DSSpecificationRow(title: "Typography", value: fontDescription)
-                    DSSpecificationRow(title: "Bg Color", value: bgColorDescription)
-                    DSSpecificationRow(title: "Text Color", value: textColorDescription)
+                    specificationRows
                 }
             }
         }
         .navigationTitle("Chip Playground")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
-    private var cornerRadiusSpec: CGFloat { chipType == .chip1 ? DSChip.Layout.cornerRadius : DSChip2.Layout.cornerRadius }
-    private var verticalPaddingSpec: CGFloat { chipType == .chip1 ? DSChip.Layout.verticalPadding : DSChip2.Layout.verticalPadding }
-    private var horizontalPaddingSpec: CGFloat { chipType == .chip1 ? DSChip.Layout.horizontalPadding : DSChip2.Layout.horizontalPadding }
-    private var gapSpec: CGFloat { chipType == .chip1 ? DSChip.Layout.defaultGap : DSChip2.Layout.defaultGap }
-    
-    private var bgColorDescription: String {
-        let asset = chipType == .chip1 ? DSChip.Theme.bgAsset(isSelected: isSelected) : DSChip2.Theme.bgAsset
-        return "\(asset.displayName) (\(asset.color.hexString))"
+
+    @ViewBuilder
+    private var specificationRows: some View {
+        switch chipType {
+        case .chip1:
+            let specification = DSChip.specification(isSelected: isSelected)
+            DSSpecificationRow(title: "Shape", value: specification.shape.specName)
+            DSSpecificationRow(title: "Padding (Vertical)", value: specification.verticalPadding.ptDescription)
+            DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+            DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
+            DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
+            DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
+
+        case .chip2:
+            let specification = DSChip2.specification
+            DSSpecificationRow(title: "Shape", value: specification.shape.specName)
+            DSSpecificationRow(title: "Padding (Vertical)", value: specification.verticalPadding.ptDescription)
+            DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+            DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
+            DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
+            DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
+        }
     }
     
-    private var textColorDescription: String {
-        let asset = chipType == .chip1 ? DSChip.Theme.textAsset(isSelected: isSelected) : DSChip2.Theme.textAsset
-        return "\(asset.displayName) (\(asset.color.hexString))"
-    }
-    
-    private var fontDescription: String {
-        let style = chipType == .chip1 ? DSChip.Theme.fontStyle(isSelected: isSelected) : DSChip2.Theme.fontStyle
-        return style.specName
-    }
-    
-    private func makeChip(title: String, isSelected: Bool) -> Any {
-        if chipType == .chip1 {
-            return DSChip(title, isSelected: isSelected) {}
-        } else {
-            return DSChip2(title) {}
+    @ViewBuilder
+    private func makeChip(title: String) -> some View {
+        switch chipType {
+        case .chip1:
+            DSChip(title, isSelected: isSelected) {
+                isSelected.toggle()
+            }
+        case .chip2:
+            DSChip2(title)
         }
     }
 }

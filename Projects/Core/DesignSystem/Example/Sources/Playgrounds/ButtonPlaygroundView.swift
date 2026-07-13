@@ -10,24 +10,19 @@ struct ButtonPlaygroundView: View {
     @State private var showLeftIcon: Bool = false
     @State private var showRightIcon: Bool = false
     @State private var isDarkBackground: Bool = false
+
+    private var specification: DSButton.Specification {
+        DSButton.specification(
+            variant: selectedVariant,
+            size: selectedSize,
+            isEnabled: isEnabled
+        )
+    }
     
     var body: some View {
         VStack(spacing: 0) {
-            // 🔍 1. 상단 실시간 프리뷰 영역
-            let currentButton = makeButton(title: buttonText)
-            
-            DSPlaygroundPreviewCard(
-                title: String(describing: type(of: currentButton)),
-                isDarkBackground: $isDarkBackground
-            ) {
-                if let buttonView = currentButton as? any View {
-                    AnyView(buttonView)
-                        .disabled(!isEnabled)
-                        .id("\(selectedVariant)-\(selectedSize)-\(isEnabled)-\(showLeftIcon)-\(showRightIcon)-\(buttonText)")
-                }
-            }
-            
-            // 🛠️ 2. 하단 컨트롤러 영역
+            buttonPreview
+
             Form {
                 Section(header: Text("Button Text")) {
                     TextField("Enter button text...", text: $buttonText)
@@ -56,56 +51,55 @@ struct ButtonPlaygroundView: View {
                 }
                 
                 Section(header: Text("Figma Specification Check")) {
-                    DSSpecificationRow(title: "Height", value: "\(Int(selectedSize.height))pt")
-                    DSSpecificationRow(title: "Corner Radius", value: "\(Int(DSButton.Layout.cornerRadius))pt")
-                    DSSpecificationRow(title: "Padding (Horizontal)", value: "\(Int(DSButton.Layout.horizontalPadding))pt")
-                    DSSpecificationRow(title: "Gap (Icon-Text)", value: "\(Int(DSButton.Layout.contentGap))pt")
-                    DSSpecificationRow(title: "Typography", value: fontDescription)
+                    DSSpecificationRow(title: "Height", value: specification.height.ptDescription)
+                    DSSpecificationRow(title: "Shape", value: specification.shape.specName)
+                    DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+                    DSSpecificationRow(title: "Gap (Icon-Text)", value: specification.contentGap.ptDescription)
+                    DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
                     DSSpecificationRow(title: "Icon Size", value: iconSizeDescription)
-                    DSSpecificationRow(title: "Bg Color", value: bgColorDescription)
-                    DSSpecificationRow(title: "Text Color", value: textColorDescription)
+                    DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
+                    DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
                 }
             }
         }
         .navigationTitle("Button Playground")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
-    private func makeButton(title: String) -> Any {
+
+    @ViewBuilder
+    private var buttonPreview: some View {
         let left = showLeftIcon ? Image.ds.edit : nil
         let right = showRightIcon ? Image.ds.edit : nil
         
         switch (selectedVariant, selectedSize) {
         case (.primary, .large):
-            return DSPrimaryLargeButton(title, leftIcon: left, rightIcon: right) {}
+            preview(DSPrimaryLargeButton(buttonText, leftIcon: left, rightIcon: right) {})
         case (.primary, .medium):
-            return DSPrimaryMediumButton(title, leftIcon: left, rightIcon: right) {}
+            preview(DSPrimaryMediumButton(buttonText, leftIcon: left, rightIcon: right) {})
         case (.primary, .small):
-            return DSPrimarySmallButton(title, leftIcon: left, rightIcon: right) {}
+            preview(DSPrimarySmallButton(buttonText, leftIcon: left, rightIcon: right) {})
         case (.secondary, .large):
-            return DSSecondaryLargeButton(title, leftIcon: left, rightIcon: right) {}
+            preview(DSSecondaryLargeButton(buttonText, leftIcon: left, rightIcon: right) {})
         case (.secondary, .medium):
-            return DSSecondaryMediumButton(title, leftIcon: left, rightIcon: right) {}
+            preview(DSSecondaryMediumButton(buttonText, leftIcon: left, rightIcon: right) {})
         case (.secondary, .small):
-            return DSSecondarySmallButton(title, leftIcon: left, rightIcon: right) {}
+            preview(DSSecondarySmallButton(buttonText, leftIcon: left, rightIcon: right) {})
+        }
+    }
+
+    private func preview<Component: View>(_ component: Component) -> some View {
+        DSPlaygroundPreviewCard(
+            title: String(describing: Component.self),
+            isDarkBackground: $isDarkBackground
+        ) {
+            component
+                .disabled(!isEnabled)
         }
     }
     
     private var iconSizeDescription: String {
         guard showLeftIcon || showRightIcon else { return "None" }
-        let sizeInt = Int(selectedSize.iconSize)
-        return "\(sizeInt)x\(sizeInt)pt"
-    }
-    
-    private var fontDescription: String {
-        selectedSize.specFontName(isEnabled: isEnabled)
-    }
-    
-    private var bgColorDescription: String {
-        selectedVariant.specBgColorName(isEnabled: isEnabled)
-    }
-    
-    private var textColorDescription: String {
-        selectedVariant.specTextColorName(isEnabled: isEnabled)
+        let size = specification.iconSize.ptDescription
+        return "\(size) × \(size)"
     }
 }

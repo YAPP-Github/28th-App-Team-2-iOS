@@ -1,13 +1,13 @@
 import SwiftUI
 import DesignSystem
 
-public struct DSPlaygroundPreviewCard<Content: View>: View {
-    let title: String
-    let height: CGFloat
-    @Binding var isDarkBackground: Bool
-    @ViewBuilder let content: () -> Content
+struct DSPlaygroundPreviewCard<Content: View>: View {
+    private let title: String
+    private let height: CGFloat
+    @Binding private var isDarkBackground: Bool
+    @ViewBuilder private let content: () -> Content
     
-    public init(
+    init(
         title: String,
         height: CGFloat = 220,
         isDarkBackground: Binding<Bool>,
@@ -19,7 +19,7 @@ public struct DSPlaygroundPreviewCard<Content: View>: View {
         self.content = content
     }
     
-    public var body: some View {
+    var body: some View {
         VStack {
             Spacer()
             

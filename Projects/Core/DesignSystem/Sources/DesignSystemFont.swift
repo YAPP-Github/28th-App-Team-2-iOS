@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-public enum FontStyle {
+public enum FontStyle: Equatable, Sendable {
     // Heading
     case heading1ExtraBold, heading1Bold, heading1SemiBold
     case heading2ExtraBold, heading2Bold, heading2SemiBold

@@ -2,15 +2,41 @@ import SwiftUI
 
 // MARK: - Core Badge Component
 public struct DSBadge: View {
-    public enum Layout {
-        public static let verticalPadding: CGFloat = 3
-        public static let horizontalPadding: CGFloat = 6
-        public static let cornerRadius: CGFloat = 6
-        public static let defaultGap: CGFloat = 10
+    public struct Specification: Sendable {
+        public let verticalPadding: CGFloat
+        public let horizontalPadding: CGFloat
+        public let shape: DSComponentShape
+        public let fontStyle: FontStyle
+        public let backgroundAsset: DesignSystemColors
+        public let foregroundAsset: DesignSystemColors
     }
-    
-    public enum Theme {
-        public static let fontStyle: FontStyle = .caption2SemiBold
+
+    public static func specification(variant: DSBadgeVariant) -> Specification {
+        let assets: (background: DesignSystemColors, foreground: DesignSystemColors)
+
+        switch variant {
+        case .purple:
+            assets = (DesignSystemAsset.Colors.primary100, DesignSystemAsset.Colors.primary800)
+        case .pink:
+            assets = (DesignSystemAsset.Colors.pink100, DesignSystemAsset.Colors.pink800)
+        case .green:
+            assets = (DesignSystemAsset.Colors.teal100, DesignSystemAsset.Colors.teal800)
+        case .yellow:
+            assets = (DesignSystemAsset.Colors.orange100, DesignSystemAsset.Colors.orange800)
+        case .blue:
+            assets = (DesignSystemAsset.Colors.sky100, DesignSystemAsset.Colors.sky800)
+        case .gray:
+            assets = (DesignSystemAsset.Colors.coolGray100, DesignSystemAsset.Colors.coolGray500)
+        }
+
+        return Specification(
+            verticalPadding: 3,
+            horizontalPadding: 6,
+            shape: .roundedRectangle(cornerRadius: 6),
+            fontStyle: .caption2SemiBold,
+            backgroundAsset: assets.background,
+            foregroundAsset: assets.foreground
+        )
     }
 
     private let title: String
@@ -22,13 +48,15 @@ public struct DSBadge: View {
     }
     
     public var body: some View {
+        let specification = Self.specification(variant: variant)
+
         Text(title)
-            .dsFont(Theme.fontStyle)
+            .dsFont(specification.fontStyle)
             .lineLimit(1)
-            .padding(.vertical, Layout.verticalPadding)
-            .padding(.horizontal, Layout.horizontalPadding)
-            .foregroundColor(variant.textAsset.swiftUIColor)
-            .background(variant.bgAsset.swiftUIColor)
-            .cornerRadius(Layout.cornerRadius)
+            .padding(.vertical, specification.verticalPadding)
+            .padding(.horizontal, specification.horizontalPadding)
+            .foregroundColor(specification.foregroundAsset.swiftUIColor)
+            .background(specification.backgroundAsset.swiftUIColor)
+            .clipShape(specification.shape.swiftUIShape)
     }
 }

@@ -2,10 +2,64 @@ import SwiftUI
 
 // MARK: - Core Button Component
 public struct DSButton: View {
-    public enum Layout {
-        public static let horizontalPadding: CGFloat = 20
-        public static let cornerRadius: CGFloat = 12
-        public static let contentGap: CGFloat = 8
+    public struct Specification: Sendable {
+        public let height: CGFloat
+        public let horizontalPadding: CGFloat
+        public let contentGap: CGFloat
+        public let iconSize: CGFloat
+        public let shape: DSComponentShape
+        public let fontStyle: FontStyle
+        public let backgroundAsset: DesignSystemColors
+        public let foregroundAsset: DesignSystemColors
+    }
+
+    public static func specification(
+        variant: DSButtonVariant,
+        size: DSButtonSize,
+        isEnabled: Bool
+    ) -> Specification {
+        let height: CGFloat
+        let iconSize: CGFloat
+        let fontStyle: FontStyle
+
+        switch size {
+        case .large:
+            height = 52
+            iconSize = 20
+            fontStyle = isEnabled ? .body2SemiBold : .body2Medium
+        case .medium:
+            height = 44
+            iconSize = 16
+            fontStyle = .body3Medium
+        case .small:
+            height = 32
+            iconSize = 14
+            fontStyle = isEnabled ? .caption1SemiBold : .caption1Medium
+        }
+
+        let assets: (background: DesignSystemColors, foreground: DesignSystemColors)
+
+        if isEnabled {
+            switch variant {
+            case .primary:
+                assets = (DesignSystemAsset.Colors.primary600, DesignSystemAsset.Colors.white)
+            case .secondary:
+                assets = (DesignSystemAsset.Colors.primary50, DesignSystemAsset.Colors.primary700)
+            }
+        } else {
+            assets = (DesignSystemAsset.Colors.gray100, DesignSystemAsset.Colors.gray400)
+        }
+
+        return Specification(
+            height: height,
+            horizontalPadding: 20,
+            contentGap: 8,
+            iconSize: iconSize,
+            shape: .roundedRectangle(cornerRadius: 12),
+            fontStyle: fontStyle,
+            backgroundAsset: assets.background,
+            foregroundAsset: assets.foreground
+        )
     }
 
     private let title: String
@@ -14,6 +68,8 @@ public struct DSButton: View {
     private let variant: DSButtonVariant
     private let size: DSButtonSize
     private let action: () -> Void
+
+    @Environment(\.isEnabled) private var isEnabled
     
     public init(
         _ title: String,
@@ -32,14 +88,20 @@ public struct DSButton: View {
     }
     
     public var body: some View {
+        let specification = Self.specification(
+            variant: variant,
+            size: size,
+            isEnabled: isEnabled
+        )
+
         Button(action: action) {
-            HStack(alignment: .center, spacing: DSButton.Layout.contentGap) { // 피그마 규격 align-items: center 및 gap: 8px 수호
+            HStack(alignment: .center, spacing: specification.contentGap) {
                 if let leftIcon {
                     leftIcon
                         .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: specification.iconSize, height: specification.iconSize)
                 }
                 
                 Text(title)
@@ -49,7 +111,7 @@ public struct DSButton: View {
                         .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: size.iconSize, height: size.iconSize)
+                        .frame(width: specification.iconSize, height: specification.iconSize)
                 }
             }
         }

@@ -1,43 +1,34 @@
 import SwiftUI
 import DesignSystem
 
-public struct CheckboxPlaygroundView: View {
+struct CheckboxPlaygroundView: View {
     @State private var isOn: Bool = false
     @State private var isDarkBackground: Bool = false
-    
-    public init() {}
-    
-    public var body: some View {
+
+    private var specification: DSCheckbox.Specification {
+        DSCheckbox.specification(isOn: isOn)
+    }
+
+    var body: some View {
         VStack(spacing: 0) {
-            // 1. Preview Area
             DSPlaygroundPreviewCard(title: String(describing: DSCheckbox.self), isDarkBackground: $isDarkBackground) {
                 DSCheckbox(isOn: $isOn)
-                
-                Text(isOn ? "상태: Checked" : "상태: Unchecked")
-                    .font(.caption)
-                    .foregroundColor(DesignSystemAsset.Colors.coolGray500.swiftUIColor)
-                    .padding(.top, 10)
             }
-            
-            // 2. Specification Area
+
             Form {
                 Section(header: Text("Interactive State")) {
                     Toggle("Is On (선택 상태)", isOn: $isOn)
                 }
                 
                 Section(header: Text("Figma Specification Check")) {
-                            DSSpecificationRow(title: "Size (W x H)", value: "\(Int(DSCheckbox.Layout.size))px")
-                            DSSpecificationRow(title: "Corner Radius", value: "\(Int(DSCheckbox.Layout.cornerRadius))px")
-                            DSSpecificationRow(title: "Border Width", value: "\(Int(DSCheckbox.Layout.borderWidth))px")
-                            
-                            DSSpecificationRow(title: "Background", value: isOn ? "primary600" : "white")
-                            if !isOn {
-                                DSSpecificationRow(title: "Border Width", value: "1px")
-                                DSSpecificationRow(title: "Border Color", value: "coolGray300")
-                            }
-                            if isOn {
-                                DSSpecificationRow(title: "Icon Color", value: "white")
-                            }
+                    DSSpecificationRow(title: "Size (W × H)", value: specification.size.squarePtDescription)
+                    DSSpecificationRow(title: "Shape", value: specification.shape.specName)
+                    DSSpecificationRow(title: "Border Width", value: specification.borderWidth?.ptDescription ?? "None")
+                    DSSpecificationRow(title: "Icon Size", value: specification.iconSize?.squarePtDescription ?? "None")
+                    DSSpecificationRow(title: "Background", value: specification.backgroundAsset.specDescription)
+                    DSSpecificationRow(title: "Border Color", value: specification.borderAsset?.specDescription ?? "None")
+                    DSSpecificationRow(title: "Icon", value: specification.iconAsset?.displayName ?? "None")
+                    DSSpecificationRow(title: "Icon Color", value: specification.iconTintAsset?.specDescription ?? "None")
                 }
             }
         }
@@ -47,7 +38,7 @@ public struct CheckboxPlaygroundView: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         CheckboxPlaygroundView()
     }
 }

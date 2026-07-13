@@ -2,23 +2,24 @@ import UIKit
 import SwiftUI
 import DesignSystem
 
-// MARK: - 디자인 QA용 예제 앱 전용 디버그 확장 (프로덕션 SDK 오염 방지 격리 수용)
-
-extension DSButtonVariant {
-    func specBgColorName(isEnabled: Bool) -> String {
-        let asset = bgAsset(isEnabled: isEnabled)
-        return "\(asset.displayName) (\(asset.color.hexString))"
+extension CGFloat {
+    var ptDescription: String {
+        "\(Int(self))pt"
     }
-    
-    func specTextColorName(isEnabled: Bool) -> String {
-        let asset = textAsset(isEnabled: isEnabled)
-        return "\(asset.displayName) (\(asset.color.hexString))"
+
+    var squarePtDescription: String {
+        "\(ptDescription) × \(ptDescription)"
     }
 }
 
-extension DSButtonSize {
-    func specFontName(isEnabled: Bool) -> String {
-        fontStyle(isEnabled: isEnabled).specName
+extension DSComponentShape {
+    var specName: String {
+        switch self {
+        case let .roundedRectangle(cornerRadius):
+            "Rounded Rectangle (\(cornerRadius.ptDescription))"
+        case .capsule:
+            "Capsule"
+        }
     }
 }
 
@@ -58,6 +59,10 @@ extension DesignSystemColors {
     var displayName: String {
         name.replacingOccurrences(of: "Colors/", with: "")
     }
+
+    var specDescription: String {
+        "\(displayName) (\(color.hexString))"
+    }
 }
 
 extension DesignSystemImages {
@@ -79,15 +84,19 @@ extension UIColor {
         var a: CGFloat = 0
         
         if self.getRed(&r, green: &g, blue: &b, alpha: &a) {
-            return String(format: "#%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
+            return String(
+                format: "#%02X%02X%02X",
+                Int((r * 255).rounded()),
+                Int((g * 255).rounded()),
+                Int((b * 255).rounded())
+            )
         } else {
             var white: CGFloat = 0
             if self.getWhite(&white, alpha: &a) {
-                let val = Int(white * 255)
+                let val = Int((white * 255).rounded())
                 return String(format: "#%02X%02X%02X", val, val, val)
             }
         }
-        return "#FFFFFF"
+        return "Unavailable"
     }
 }
-
