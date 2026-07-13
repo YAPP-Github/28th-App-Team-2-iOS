@@ -29,4 +29,13 @@ if [[ ! $FIRST_LINE =~ $REGEX ]]; then
     exit 1
 fi
 
+# 이슈 번호 매핑 검사 (Non-blocking Warning)
+ISSUE_REGEX="\(\#[0-9]+\)"
+if [[ ! $FIRST_LINE =~ $ISSUE_REGEX ]]; then
+    YELLOW='\033[0;33m'
+    NC='\033[0;m'
+    echo -e "\n${YELLOW}⚠️  경고: 커밋 메시지에 이슈 번호(예: (#12))가 없습니다.${NC}"
+    echo -e "   이슈와 연동된 작업이라면 메시지 끝에 (#번호)를 추가해 주세요.\n"
+fi
+
 exit 0
