@@ -32,13 +32,12 @@ else
 fi
 
 # 3. tuist 동작성 테스트
-if ! mise exec -- tuist version &> /dev/null; then
+if TUIST_VER=$(mise exec -- tuist version 2>/dev/null); then
+    echo -e "${GREEN}✅ 'tuist' 사용 가능 (버전: ${TUIST_VER}).${NC}"
+else
     echo -e "${RED}❌ 에러: mise를 통해 'tuist'를 실행할 수 없습니다.${NC}"
     echo -e "   .mise.toml 설정을 확인해 주세요."
     exit 1
-else
-    TUIST_VER=$(mise exec -- tuist version)
-    echo -e "${GREEN}✅ 'tuist' 사용 가능 (버전: ${TUIST_VER}).${NC}"
 fi
 
 # 4. GitHub CLI (gh) 설치 및 권한 검사 (Non-blocking)
@@ -87,7 +86,10 @@ echo -e "\n🎨 Git Hooks 설정 중..."
 SCRIPT_DIR=$(dirname "$0")
 if [ -f "${SCRIPT_DIR}/setup-hooks.sh" ]; then
     chmod +x "${SCRIPT_DIR}/setup-hooks.sh"
-    "${SCRIPT_DIR}/setup-hooks.sh"
+    if ! "${SCRIPT_DIR}/setup-hooks.sh"; then
+        echo -e "${RED}❌ 에러: Git Hooks 설정에 실패했습니다.${NC}"
+        exit 1
+    fi
 else
     echo -e "${RED}❌ 에러: ${SCRIPT_DIR} 경로에서 setup-hooks.sh를 찾을 수 없습니다.${NC}"
     exit 1
