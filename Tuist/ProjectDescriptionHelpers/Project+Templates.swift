@@ -200,8 +200,7 @@ public extension Project {
         resources: ResourceFileElements? = nil,
         hasTests: Bool = true,
         testDependencies: [TargetDependency] = [],
-        hasExample: Bool = false,
-        exampleDependencies: [TargetDependency] = []
+        hasExample: Bool = false
     ) -> Project {
         let targets = makeTargets(
             name: name,
@@ -211,8 +210,7 @@ public extension Project {
             resources: resources,
             hasTests: hasTests,
             testDependencies: testDependencies,
-            hasExample: hasExample,
-            exampleDependencies: exampleDependencies
+            hasExample: hasExample
         )
         
         var schemes: [Scheme] = [
