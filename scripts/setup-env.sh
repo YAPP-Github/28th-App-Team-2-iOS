@@ -51,16 +51,23 @@ if ! command -v gh &> /dev/null; then
 else
     echo -e "${GREEN}✅ GitHub CLI ('gh')가 설치되어 있습니다.${NC}"
     
-    # gh 토큰의 project 권한 스코프 유무 진단
-    GH_STATUS=$(gh auth status 2>&1)
-    if [[ "$GH_STATUS" != *"project"* ]]; then
-        echo -e "${YELLOW}⚠️  경고: GitHub CLI에 'project' 권한(Scope)이 누락되어 있습니다.${NC}"
-        echo -e "   AI 에이전트가 GitHub Projects 보드에 이슈를 등록하고 연동하려면 프로젝트 권한이 필요합니다."
-        echo -e "   아래 명령어를 실행하여 권한을 승인해 주세요:"
-        echo -e "   ${YELLOW}gh auth refresh -s project${NC}"
-        WARNING_COUNT=$((WARNING_COUNT + 1))
+    # gh 로그인 및 토큰의 project 권한 스코프 유무 진단
+    if GH_STATUS=$(gh auth status 2>&1); then
+        if [[ "$GH_STATUS" != *"project"* ]]; then
+            echo -e "${YELLOW}⚠️  경고: GitHub CLI에 'project' 권한(Scope)이 누락되어 있습니다.${NC}"
+            echo -e "   AI 에이전트가 GitHub Projects 보드에 이슈를 등록하고 연동하려면 프로젝트 권한이 필요합니다."
+            echo -e "   아래 명령어를 실행하여 권한을 승인해 주세요:"
+            echo -e "   ${YELLOW}gh auth refresh -s project${NC}"
+            WARNING_COUNT=$((WARNING_COUNT + 1))
+        else
+            echo -e "${GREEN}✅ GitHub CLI 'project' 권한이 정상 활성화되어 있습니다.${NC}"
+        fi
     else
-        echo -e "${GREEN}✅ GitHub CLI 'project' 권한이 정상 활성화되어 있습니다.${NC}"
+        echo -e "${YELLOW}⚠️  경고: GitHub CLI가 설치되어 있으나 로그인되어 있지 않거나 인증 확인에 실패했습니다.${NC}"
+        echo -e "   AI 에이전트와의 이슈/PR 등 자동화 협업 기능을 원활히 사용하려면 로그인이 필요합니다."
+        echo -e "   아래 명령어를 실행하여 로그인해 주세요:"
+        echo -e "   ${YELLOW}gh auth login${NC}"
+        WARNING_COUNT=$((WARNING_COUNT + 1))
     fi
 fi
 
