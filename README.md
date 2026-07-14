@@ -99,12 +99,12 @@ graph TD
 ## 🚀 Getting Started
 
 ### 1. Requirements
-본 프로젝트는 **Mise**를 통해 Tuist 버전을 관리합니다. 로컬 컴퓨터에 `mise`가 설치되어 있어야 합니다.
+본 프로젝트는 **Mise**를 통해 Tuist와 SwiftLint 버전을 관리합니다. 로컬 컴퓨터에 `mise`가 설치되어 있어야 합니다.
 ```bash
 # mise 설치 (미설치 상태인 경우)
 brew install mise
 
-# 설정된 도구들(Tuist 등) 한번에 설치
+# 설정된 도구들(Tuist, SwiftLint 등) 한번에 설치
 mise install
 ```
 
@@ -138,7 +138,22 @@ tuist graph --skip-test-targets --skip-external-dependencies --format png --no-o
 <br>
 <img src="./docs/graph.png" alt="Architecture Graph" width="600">
 
-### 4. Architecture Validation
+### 4. Code Convention Validation
+SwiftLint를 사용해 프로젝트의 Swift 코드 컨벤션을 검사합니다. 검사 대상과 제외 경로, 활성화 규칙은 루트의 `.swiftlint.yml`에서 관리합니다.
+
+```bash
+# 코드 컨벤션 검사
+./scripts/lint.sh
+
+# 자동 수정 가능한 위반 사항 수정
+mise exec -- swiftlint lint --fix --config .swiftlint.yml
+```
+
+초기 도입 단계에서는 SwiftLint 기본 규칙을 사용하되, 구조 변경에 대한 팀 합의가 필요한 일부 규칙은 비활성화되어 있습니다. 새 규칙은 팀 합의 후 점진적으로 활성화합니다.
+
+Git Hooks가 설정되어 있으면 push 전에 SwiftLint와 아키텍처 검증이 순서대로 실행됩니다.
+
+### 5. Architecture Validation
 App / Feature / Core 계층 규칙과 물리 의존성 위반 여부를 빠르게 확인하려면 아래 명령어를 실행합니다. (스크립트 내부에서 자동으로 `tuist graph`를 실행하여 최신 상태의 `docs/graph.dot`를 검증합니다.)
 ```bash
 ./scripts/sync-and-validate.sh
