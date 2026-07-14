@@ -98,25 +98,17 @@ graph TD
 
 ## 🚀 Getting Started
 
-### 1. Requirements
-본 프로젝트는 **Mise**를 통해 Tuist 버전을 관리합니다. 로컬 컴퓨터에 `mise`가 설치되어 있어야 합니다.
-```bash
-# mise 설치 (미설치 상태인 경우)
-brew install mise
-
-# 설정된 도구들(Tuist 등) 한번에 설치
-mise install
-```
-
-### 2. Setup & Run
-프로젝트 레포지토리를 클론한 후, **최초 1회** Git Hooks를 설정하여 아키텍처 검증 및 Git 컨벤션 룰을 활성화해야 합니다.
+### 1. Setup & Run
+프로젝트 레포지토리를 클론한 후(또는 개발 도구 설정이 변경되었을 때) 다음 명령을 실행하여 필요한 도구 진단, `mise install` 연동 및 Git Hooks 설정을 일괄 자동 완료합니다.
 
 ```bash
-# Git Hooks 설정 (필수)
-./scripts/setup-hooks.sh
+# 개발 환경 자동 진단 및 필수 도구/훅 셋업 (필수)
+make setup
 ```
 
-의존성 패키지를 가져온 뒤, Xcode 프로젝트(.xcworkspace)를 생성하여 실행합니다.
+이 스크립트는 개발에 필요한 필수 도구 상태를 진단하고 Git Hooks 설정을 일괄적으로 자동 처리합니다.
+
+이후 의존성 패키지를 가져오고 Xcode 프로젝트(.xcworkspace)를 생성하여 작업을 시작합니다.
 
 *(※ `mise`가 셸에 활성화(`mise activate`)되어 있다면 `mise exec --` 접두사 없이 바로 `tuist` 명령어를 사용할 수 있습니다.)*
 
