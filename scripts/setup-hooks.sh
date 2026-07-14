@@ -28,6 +28,6 @@ echo "✅ Set core.hooksPath to .githooks."
 
 echo ""
 echo "🎉 Git hooks have been successfully configured!"
-echo "   - pre-push: Blocks force push and validates architecture."
+echo "   - pre-push: Blocks force push and validates SwiftLint/architecture."
 echo "   - pre-commit: Enforces Git Flow branch naming conventions."
 echo "   - commit-msg: Enforces Conventional Commits format."
