@@ -15,4 +15,9 @@ if ! mise which swiftlint >/dev/null 2>&1; then
 fi
 
 printf 'Running SwiftLint...\n'
-mise exec -- swiftlint lint --config "$ROOT_DIR/.swiftlint.yml" --strict --no-cache
+if ! mise exec -- swiftlint lint --config "$ROOT_DIR/.swiftlint.yml" --strict --no-cache; then
+  printf '❌ SwiftLint 검증에 실패했습니다.\n' >&2
+  printf '💡 자동 수정 가능한 항목은 다음 명령으로 수정할 수 있습니다.\n' >&2
+  printf '   mise exec -- swiftlint --fix --config .swiftlint.yml\n' >&2
+  exit 1
+fi

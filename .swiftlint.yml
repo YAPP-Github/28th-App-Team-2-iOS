@@ -16,7 +16,6 @@ excluded:
 # 초기 도입 단계에서는 코드 구조 변경에 대한 팀 합의가 필요한 규칙을 유예합니다.
 # 규칙은 팀 합의 후 후속 PR에서 점진적으로 활성화합니다.
 disabled_rules:
-  - class_delegate_protocol
   - function_body_length
   - nesting
 
