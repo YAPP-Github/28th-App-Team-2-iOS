@@ -116,6 +116,8 @@ mise install
 ./scripts/setup-hooks.sh
 ```
 
+설정 스크립트는 현재 Mise 실행 경로를 저장소의 로컬 Git 설정에 기록합니다. Mise 설치 경로가 변경된 경우 스크립트를 다시 실행해주세요.
+
 의존성 패키지를 가져온 뒤, Xcode 프로젝트(.xcworkspace)를 생성하여 실행합니다.
 
 *(※ `mise`가 셸에 활성화(`mise activate`)되어 있다면 `mise exec --` 접두사 없이 바로 `tuist` 명령어를 사용할 수 있습니다.)*

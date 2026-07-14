@@ -18,6 +18,14 @@ if [ ! -d ".githooks" ]; then
     exit 1
 fi
 
+# 현재 환경의 Mise 실행 경로 확인
+MISE_PATH=$(command -v mise 2>/dev/null)
+
+if [ -z "$MISE_PATH" ] || [ ! -x "$MISE_PATH" ]; then
+    echo "Error: Mise executable not found. Install Mise and try again."
+    exit 1
+fi
+
 # 모든 훅 스크립트에 실행 권한 부여
 chmod +x .githooks/* || exit 1
 echo "✅ Granted execution permissions to hook scripts."
@@ -25,6 +33,10 @@ echo "✅ Granted execution permissions to hook scripts."
 # git config를 통해 hooksPath 설정
 git config core.hooksPath .githooks || exit 1
 echo "✅ Set core.hooksPath to .githooks."
+
+# GUI Git 환경에서도 동일한 Mise를 사용하도록 로컬 저장소에 실제 경로 저장
+git config --local hooks.misePath "$MISE_PATH" || exit 1
+echo "✅ Saved Mise path for Git Hooks: $MISE_PATH"
 
 echo ""
 echo "🎉 Git hooks have been successfully configured!"
