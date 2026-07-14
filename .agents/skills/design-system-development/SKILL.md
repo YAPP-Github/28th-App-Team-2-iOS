@@ -59,12 +59,22 @@ Figma를 디자인 값의 원본으로 사용하고, 승인된 값을 해석한 
 
 ## 6. 검증
 
-전체 workspace를 먼저 생성하고, 이후 테스트와 Example 빌드는 workspace를 다시 생성하지 않는 `tuist xcodebuild`로 실행한다. 테스트 destination은 현재 실행 환경에서 사용 가능한 iOS Simulator로 설정한다.
+전체 workspace를 먼저 생성하고, 이후 테스트와 Example 빌드는 workspace를 다시 생성하지 않는 `tuist xcodebuild`로 실행한다.
+
+테스트 실행 전 `xcrun simctl list devices available`로 사용 가능한 기기를 확인한다. `Booted` 상태의 iOS Simulator를 우선 선택하고, 없으면 사용 가능한 iOS Simulator를 선택한다. 선택한 실제 UDID를 현재 셸의 `SIMULATOR_ID`에 설정하며 placeholder 문자열을 값으로 사용하지 않는다.
 
 ```bash
 mise exec -- tuist generate --no-open
 ./scripts/validate-design-system-assets.sh # 컬러·아이콘 리소스 또는 브릿지·Catalog 변경 시
-mise exec -- tuist xcodebuild test -workspace todakun.xcworkspace -scheme DesignSystem -destination '<사용 가능한 iOS Simulator>' CODE_SIGNING_ALLOWED=NO
+xcrun simctl list devices available
+```
+
+실제 UDID를 `SIMULATOR_ID`에 설정한 현재 셸에서 다음 검증을 실행한다.
+
+```bash
+: "${SIMULATOR_ID:?실제 iOS Simulator UDID를 설정하세요.}"
+DESTINATION="platform=iOS Simulator,id=$SIMULATOR_ID"
+mise exec -- tuist xcodebuild test -workspace todakun.xcworkspace -scheme DesignSystem -destination "$DESTINATION" CODE_SIGNING_ALLOWED=NO
 mise exec -- tuist xcodebuild build -workspace todakun.xcworkspace -scheme DesignSystemExample -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ./scripts/sync-and-validate.sh
 ```

@@ -52,7 +52,6 @@ public struct DSBadge: View {
 
         Text(title)
             .dsFont(specification.fontStyle)
-            .lineLimit(1)
             .padding(.vertical, specification.verticalPadding)
             .padding(.horizontal, specification.horizontalPadding)
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)

@@ -75,7 +75,13 @@ if [[ "$failures" -gt 0 ]]; then
   exit 1
 fi
 
-TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/validate-design-system-assets.XXXXXX")"
+TEMP_DIR=""
+if ! TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/validate-design-system-assets.XXXXXX")" \
+  || [[ -z "$TEMP_DIR" || ! -d "$TEMP_DIR" ]]; then
+  printf '오류: 임시 디렉터리 생성에 실패했습니다.\n' >&2
+  exit 1
+fi
+
 trap 'rm -rf "$TEMP_DIR"' EXIT
 
 if ! find "$ASSET_CATALOG/Colors" -type d -name '*.colorset' \
