@@ -6,4 +6,3 @@ let project = Project.makeCore(
     resources: ["Resources/**"],
     hasExample: true
 )
-

@@ -7,7 +7,7 @@ struct ChipPlaygroundView: View {
         case chip1 = "DSChip"
         case chip2 = "DSChip2"
     }
-    
+
     @State private var chipType: ChipType = .chip1
     @State private var chipText: String = "학생"
     @State private var isSelected: Bool = false
@@ -31,18 +31,18 @@ struct ChipPlaygroundView: View {
                     }
                     .pickerStyle(.segmented)
                 }
-                
+
                 Section(header: Text("Chip Text")) {
                     TextField("Enter chip text...", text: $chipText)
                         .autocorrectionDisabled()
                 }
-                
+
                 if chipType == .chip1 {
                     Section(header: Text("Interactive State")) {
                         Toggle("Is Selected (선택 상태)", isOn: $isSelected)
                     }
                 }
-                
+
                 Section(header: Text("Figma Specification Check")) {
                     specificationRows
                 }
@@ -74,7 +74,7 @@ struct ChipPlaygroundView: View {
             DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
         }
     }
-    
+
     @ViewBuilder
     private func makeChip(title: String) -> some View {
         switch chipType {

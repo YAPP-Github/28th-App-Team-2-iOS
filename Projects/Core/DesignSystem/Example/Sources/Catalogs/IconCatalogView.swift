@@ -3,16 +3,16 @@ import DesignSystem
 
 struct IconCatalogView: View {
     @State private var isDarkBackground = false
-    
+
     private let icons: [DesignSystemImages] = [
         DesignSystemAsset.Icons.checkLine,
         DesignSystemAsset.Icons.edit
     ]
-    
+
     let columns = [
         GridItem(.adaptive(minimum: 100))
     ]
-    
+
     var body: some View {
         ScrollView {
             HStack {
@@ -28,7 +28,7 @@ struct IconCatalogView: View {
                 }
             }
             .padding(.horizontal)
-            
+
             LazyVGrid(columns: columns, spacing: 20) {
                 ForEach(icons, id: \.name) { icon in
                     VStack {
@@ -40,7 +40,7 @@ struct IconCatalogView: View {
                             .padding()
                             .background(isDarkBackground ? Color.ds.coolGray900 : Color.ds.gray50)
                             .cornerRadius(12)
-                        
+
                         Text(icon.displayName)
                             .font(.system(.caption, design: .monospaced))
                             .foregroundColor(isDarkBackground ? Color.ds.gray300 : Color.ds.gray600)

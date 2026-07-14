@@ -10,7 +10,7 @@ struct BadgePlaygroundView: View {
     private var specification: DSBadge.Specification {
         DSBadge.specification(variant: selectedVariant)
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             DSPlaygroundPreviewCard(
@@ -25,7 +25,7 @@ struct BadgePlaygroundView: View {
                     TextField("Enter badge text...", text: $badgeText)
                         .autocorrectionDisabled()
                 }
-                
+
                 Section(header: Text("Variant")) {
                     Picker("Variant", selection: $selectedVariant) {
                         ForEach(DSBadgeVariant.allCases, id: \.self) { variant in
@@ -34,11 +34,14 @@ struct BadgePlaygroundView: View {
                     }
                     .pickerStyle(.segmented)
                 }
-                
+
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Shape", value: specification.shape.specName)
                     DSSpecificationRow(title: "Padding (Vertical)", value: specification.verticalPadding.ptDescription)
-                    DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+                    DSSpecificationRow(
+                        title: "Padding (Horizontal)",
+                        value: specification.horizontalPadding.ptDescription
+                    )
                     DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
                     DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
                     DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)

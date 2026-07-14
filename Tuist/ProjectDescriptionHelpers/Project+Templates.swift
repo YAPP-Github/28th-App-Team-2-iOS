@@ -18,12 +18,12 @@ public extension Project {
         exampleDependencies: [TargetDependency] = []
     ) -> [Target] {
         var targets: [Target] = []
-        
+
         // Product가 .app일 때는 전체 화면 구동을 위해 UILaunchScreen 키 주입
         let mainInfoPlist: InfoPlist = (product == .app) ? .extendingDefault(with: [
             "UILaunchScreen": [:]
         ]) : .default
-        
+
         // Main Target
         targets.append(
             .target(
@@ -165,7 +165,7 @@ public extension Project {
             exampleDependencies: exampleDependencies
         )
         projectTargets.append(contentsOf: implementationTargets)
-        
+
         var schemes: [Scheme] = [
             .scheme(
                 name: name,
@@ -174,7 +174,7 @@ public extension Project {
                 testAction: .targets([.testableTarget(target: .target("\(name)Tests"))])
             )
         ]
-        
+
         if hasExample {
             schemes.append(
                 .scheme(
@@ -185,7 +185,7 @@ public extension Project {
                 )
             )
         }
-        
+
         return Project(
             name: name,
             options: .options(automaticSchemesOptions: .disabled),
@@ -212,7 +212,7 @@ public extension Project {
             testDependencies: testDependencies,
             hasExample: hasExample
         )
-        
+
         var schemes: [Scheme] = [
             .scheme(
                 name: name,
@@ -221,7 +221,7 @@ public extension Project {
                 testAction: hasTests ? .targets([.testableTarget(target: .target("\(name)Tests"))]) : nil
             )
         ]
-        
+
         if hasExample {
             schemes.append(
                 .scheme(
@@ -232,7 +232,7 @@ public extension Project {
                 )
             )
         }
-        
+
         return Project(
             name: name,
             options: .options(automaticSchemesOptions: .disabled),

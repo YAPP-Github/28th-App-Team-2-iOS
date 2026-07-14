@@ -6,7 +6,7 @@ struct DSPlaygroundPreviewCard<Content: View>: View {
     private let height: CGFloat
     @Binding private var isDarkBackground: Bool
     @ViewBuilder private let content: () -> Content
-    
+
     init(
         title: String,
         height: CGFloat = 220,
@@ -18,11 +18,11 @@ struct DSPlaygroundPreviewCard<Content: View>: View {
         self._isDarkBackground = isDarkBackground
         self.content = content
     }
-    
+
     var body: some View {
         VStack {
             Spacer()
-            
+
             Text(title)
                 .font(.system(.caption2, design: .monospaced))
                 .bold()
@@ -32,9 +32,9 @@ struct DSPlaygroundPreviewCard<Content: View>: View {
                 .background(Color.ds.primary50)
                 .cornerRadius(6)
                 .padding(.bottom, 12)
-            
+
             content()
-            
+
             Spacer()
         }
         .frame(maxWidth: .infinity)

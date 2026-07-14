@@ -28,16 +28,22 @@ extension FontStyle {
         switch self {
         case .heading1ExtraBold, .heading2ExtraBold: return "ExtraBold"
         case .heading1Bold, .heading2Bold, .heading3Bold, .heading4Bold, .body1Bold: return "Bold"
-        case .heading1SemiBold, .heading2SemiBold, .body2SemiBold, .body3SemiBold, .caption1SemiBold, .caption2SemiBold, .caption3SemiBold: return "Semibold"
-        case .heading3Medium, .heading4Medium, .body1Medium, .body2Medium, .body3Medium, .caption1Medium, .caption2Medium, .caption3Medium: return "Medium"
-        case .heading3Regular, .heading4Regular, .body1Regular, .body2Regular, .body3Regular, .caption1Regular, .caption2Regular, .caption3Regular: return "Regular"
+        case .heading1SemiBold, .heading2SemiBold, .body2SemiBold, .body3SemiBold,
+             .caption1SemiBold, .caption2SemiBold, .caption3SemiBold:
+            return "Semibold"
+        case .heading3Medium, .heading4Medium, .body1Medium, .body2Medium,
+             .body3Medium, .caption1Medium, .caption2Medium, .caption3Medium:
+            return "Medium"
+        case .heading3Regular, .heading4Regular, .body1Regular, .body2Regular,
+             .body3Regular, .caption1Regular, .caption2Regular, .caption3Regular:
+            return "Regular"
         }
     }
-    
+
     var specName: String {
         let caseName = String(describing: self)
         let category: String
-        
+
         if caseName.hasPrefix("heading") {
             let num = caseName.replacingOccurrences(of: "heading", with: "")
             category = "Heading" + String(num.prefix(while: \.isNumber))
@@ -50,7 +56,7 @@ extension FontStyle {
         } else {
             category = "Font"
         }
-        
+
         return "\(category)/\(weightName) (\(Int(size))pt)"
     }
 }
@@ -78,21 +84,21 @@ extension DesignSystemImages {
 
 extension UIColor {
     var hexString: String {
-        var r: CGFloat = 0
-        var g: CGFloat = 0
-        var b: CGFloat = 0
-        var a: CGFloat = 0
-        
-        if self.getRed(&r, green: &g, blue: &b, alpha: &a) {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        if self.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
             return String(
                 format: "#%02X%02X%02X",
-                Int((r * 255).rounded()),
-                Int((g * 255).rounded()),
-                Int((b * 255).rounded())
+                Int((red * 255).rounded()),
+                Int((green * 255).rounded()),
+                Int((blue * 255).rounded())
             )
         } else {
             var white: CGFloat = 0
-            if self.getWhite(&white, alpha: &a) {
+            if self.getWhite(&white, alpha: &alpha) {
                 let val = Int((white * 255).rounded())
                 return String(format: "#%02X%02X%02X", val, val, val)
             }

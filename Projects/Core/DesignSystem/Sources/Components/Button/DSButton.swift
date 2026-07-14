@@ -70,7 +70,7 @@ public struct DSButton: View {
     private let action: () -> Void
 
     @Environment(\.isEnabled) private var isEnabled
-    
+
     public init(
         _ title: String,
         leftIcon: Image? = nil,
@@ -86,7 +86,7 @@ public struct DSButton: View {
         self.size = size
         self.action = action
     }
-    
+
     public var body: some View {
         let specification = Self.specification(
             variant: variant,
@@ -103,9 +103,9 @@ public struct DSButton: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: specification.iconSize, height: specification.iconSize)
                 }
-                
+
                 Text(title)
-                
+
                 if let rightIcon {
                     rightIcon
                         .renderingMode(.template)
@@ -127,7 +127,7 @@ public struct DSPrimaryLargeButton: View {
     private let leftIcon: Image?
     private let rightIcon: Image?
     private let action: () -> Void
-    
+
     public init(
         _ title: String,
         leftIcon: Image? = nil,
@@ -139,7 +139,7 @@ public struct DSPrimaryLargeButton: View {
         self.rightIcon = rightIcon
         self.action = action
     }
-    
+
     public var body: some View {
         DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .primary, size: .large, action: action)
     }
@@ -150,7 +150,7 @@ public struct DSPrimaryMediumButton: View {
     private let leftIcon: Image?
     private let rightIcon: Image?
     private let action: () -> Void
-    
+
     public init(
         _ title: String,
         leftIcon: Image? = nil,
@@ -162,7 +162,7 @@ public struct DSPrimaryMediumButton: View {
         self.rightIcon = rightIcon
         self.action = action
     }
-    
+
     public var body: some View {
         DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .primary, size: .medium, action: action)
     }
@@ -173,7 +173,7 @@ public struct DSPrimarySmallButton: View {
     private let leftIcon: Image?
     private let rightIcon: Image?
     private let action: () -> Void
-    
+
     public init(
         _ title: String,
         leftIcon: Image? = nil,
@@ -185,7 +185,7 @@ public struct DSPrimarySmallButton: View {
         self.rightIcon = rightIcon
         self.action = action
     }
-    
+
     public var body: some View {
         DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .primary, size: .small, action: action)
     }
@@ -197,7 +197,7 @@ public struct DSSecondaryLargeButton: View {
     private let leftIcon: Image?
     private let rightIcon: Image?
     private let action: () -> Void
-    
+
     public init(
         _ title: String,
         leftIcon: Image? = nil,
@@ -209,7 +209,7 @@ public struct DSSecondaryLargeButton: View {
         self.rightIcon = rightIcon
         self.action = action
     }
-    
+
     public var body: some View {
         DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .secondary, size: .large, action: action)
     }
@@ -220,7 +220,7 @@ public struct DSSecondaryMediumButton: View {
     private let leftIcon: Image?
     private let rightIcon: Image?
     private let action: () -> Void
-    
+
     public init(
         _ title: String,
         leftIcon: Image? = nil,
@@ -232,7 +232,7 @@ public struct DSSecondaryMediumButton: View {
         self.rightIcon = rightIcon
         self.action = action
     }
-    
+
     public var body: some View {
         DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .secondary, size: .medium, action: action)
     }
@@ -243,7 +243,7 @@ public struct DSSecondarySmallButton: View {
     private let leftIcon: Image?
     private let rightIcon: Image?
     private let action: () -> Void
-    
+
     public init(
         _ title: String,
         leftIcon: Image? = nil,
@@ -255,7 +255,7 @@ public struct DSSecondarySmallButton: View {
         self.rightIcon = rightIcon
         self.action = action
     }
-    
+
     public var body: some View {
         DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .secondary, size: .small, action: action)
     }

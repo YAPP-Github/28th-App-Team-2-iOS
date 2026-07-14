@@ -10,56 +10,62 @@ struct ColorCatalogView: View {
         DesignSystemAsset.Colors.gray800, DesignSystemAsset.Colors.gray900, DesignSystemAsset.Colors.gray925,
         DesignSystemAsset.Colors.gray950, DesignSystemAsset.Colors.gray975
     ]
-    
+
     private let primaryScale: [DesignSystemColors] = [
         DesignSystemAsset.Colors.primary50, DesignSystemAsset.Colors.primary100, DesignSystemAsset.Colors.primary200,
         DesignSystemAsset.Colors.primary300, DesignSystemAsset.Colors.primary400, DesignSystemAsset.Colors.primary500,
         DesignSystemAsset.Colors.primary600, DesignSystemAsset.Colors.primary700, DesignSystemAsset.Colors.primary800,
         DesignSystemAsset.Colors.primary900
     ]
-    
+
     private let coolGrayScale: [DesignSystemColors] = [
-        DesignSystemAsset.Colors.coolGray50, DesignSystemAsset.Colors.coolGray100, DesignSystemAsset.Colors.coolGray200,
-        DesignSystemAsset.Colors.coolGray300, DesignSystemAsset.Colors.coolGray400, DesignSystemAsset.Colors.coolGray500,
-        DesignSystemAsset.Colors.coolGray600, DesignSystemAsset.Colors.coolGray700, DesignSystemAsset.Colors.coolGray800,
+        DesignSystemAsset.Colors.coolGray50,
+        DesignSystemAsset.Colors.coolGray100,
+        DesignSystemAsset.Colors.coolGray200,
+        DesignSystemAsset.Colors.coolGray300,
+        DesignSystemAsset.Colors.coolGray400,
+        DesignSystemAsset.Colors.coolGray500,
+        DesignSystemAsset.Colors.coolGray600,
+        DesignSystemAsset.Colors.coolGray700,
+        DesignSystemAsset.Colors.coolGray800,
         DesignSystemAsset.Colors.coolGray900
     ]
-    
+
     private let skyScale: [DesignSystemColors] = [
         DesignSystemAsset.Colors.sky50, DesignSystemAsset.Colors.sky100, DesignSystemAsset.Colors.sky200,
         DesignSystemAsset.Colors.sky300, DesignSystemAsset.Colors.sky400, DesignSystemAsset.Colors.sky500,
         DesignSystemAsset.Colors.sky600, DesignSystemAsset.Colors.sky700, DesignSystemAsset.Colors.sky800,
         DesignSystemAsset.Colors.sky900
     ]
-    
+
     private let pinkScale: [DesignSystemColors] = [
         DesignSystemAsset.Colors.pink50, DesignSystemAsset.Colors.pink100, DesignSystemAsset.Colors.pink200,
         DesignSystemAsset.Colors.pink300, DesignSystemAsset.Colors.pink400, DesignSystemAsset.Colors.pink500,
         DesignSystemAsset.Colors.pink600, DesignSystemAsset.Colors.pink700, DesignSystemAsset.Colors.pink800,
         DesignSystemAsset.Colors.pink900
     ]
-    
+
     private let redScale: [DesignSystemColors] = [
         DesignSystemAsset.Colors.red50, DesignSystemAsset.Colors.red100, DesignSystemAsset.Colors.red200,
         DesignSystemAsset.Colors.red300, DesignSystemAsset.Colors.red400, DesignSystemAsset.Colors.red500,
         DesignSystemAsset.Colors.red600, DesignSystemAsset.Colors.red700, DesignSystemAsset.Colors.red800,
         DesignSystemAsset.Colors.red900
     ]
-    
+
     private let orangeScale: [DesignSystemColors] = [
         DesignSystemAsset.Colors.orange50, DesignSystemAsset.Colors.orange100, DesignSystemAsset.Colors.orange200,
         DesignSystemAsset.Colors.orange300, DesignSystemAsset.Colors.orange400, DesignSystemAsset.Colors.orange500,
         DesignSystemAsset.Colors.orange600, DesignSystemAsset.Colors.orange700, DesignSystemAsset.Colors.orange800,
         DesignSystemAsset.Colors.orange900
     ]
-    
+
     private let tealScale: [DesignSystemColors] = [
         DesignSystemAsset.Colors.teal50, DesignSystemAsset.Colors.teal100, DesignSystemAsset.Colors.teal200,
         DesignSystemAsset.Colors.teal300, DesignSystemAsset.Colors.teal400, DesignSystemAsset.Colors.teal500,
         DesignSystemAsset.Colors.teal600, DesignSystemAsset.Colors.teal700, DesignSystemAsset.Colors.teal800,
         DesignSystemAsset.Colors.teal900
     ]
-    
+
     private let blackOpacities: [(DesignSystemColors, String)] = [
         (DesignSystemAsset.Colors.opacity05, "States/Hover (light)"),
         (DesignSystemAsset.Colors.opacity10, "States/Pressed (light)"),
@@ -69,7 +75,7 @@ struct ColorCatalogView: View {
         (DesignSystemAsset.Colors.opacity60, "Strong scrim"),
         (DesignSystemAsset.Colors.opacity80, "Heavy scrim")
     ]
-    
+
     private let whiteOpacities: [(DesignSystemColors, String)] = [
         (DesignSystemAsset.Colors.whiteOpacity05, "다크 배경 위 최연한 레이어"),
         (DesignSystemAsset.Colors.whiteOpacity10, "Hover (dark)"),
@@ -91,7 +97,7 @@ struct ColorCatalogView: View {
                         colorBlock(asset: DesignSystemAsset.Colors.black)
                     }
                 }
-                
+
                 colorSection(title: "Gray Scale", scale: grayScale)
                 colorSection(title: "Primary Scale", scale: primaryScale)
                 colorSection(title: "CoolGray Scale", scale: coolGrayScale)
@@ -100,7 +106,7 @@ struct ColorCatalogView: View {
                 colorSection(title: "Red Scale", scale: redScale)
                 colorSection(title: "Orange Scale", scale: orangeScale)
                 colorSection(title: "Teal Scale", scale: tealScale)
-                
+
                 opacitySection(
                     title: "Black Alpha Opacity (Base: #1B1B1B)",
                     description: "주로 밝은 모드 배경 위에 얹혀 어두운 위계(Hover/Pressed/Scrim)를 표현합니다.",
@@ -108,7 +114,7 @@ struct ColorCatalogView: View {
                     backgroundColor: Color.ds.gray50,
                     textColor: Color.ds.gray950
                 )
-                
+
                 opacitySection(
                     title: "White Alpha Opacity (Base: #FFFFFF)",
                     description: "어두운 밤하늘/다크 배경 위에 얹혀 뽀얗고 세련된 반투명 요소를 표현합니다.",
@@ -120,7 +126,7 @@ struct ColorCatalogView: View {
             .padding()
         }
     }
-    
+
     private func colorSection(title: String, scale: [DesignSystemColors]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title).font(.headline)
@@ -133,7 +139,7 @@ struct ColorCatalogView: View {
             }
         }
     }
-    
+
     private func colorBlock(asset: DesignSystemColors) -> some View {
         VStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 8)
@@ -153,7 +159,7 @@ struct ColorCatalogView: View {
         }
         .frame(width: 115)
     }
-    
+
     private func opacitySection(
         title: String,
         description: String,
@@ -170,12 +176,12 @@ struct ColorCatalogView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
+
             VStack(spacing: 0) {
                 ForEach(list, id: \.0.name) { item in
                     let asset = item.0
                     let desc = item.1
-                    
+
                     HStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(asset.displayName)
@@ -186,9 +192,9 @@ struct ColorCatalogView: View {
                                 .font(.caption2)
                                 .foregroundColor(textColor.opacity(0.6))
                         }
-                        
+
                         Spacer()
-                        
+
                         RoundedRectangle(cornerRadius: 8)
                             .fill(asset.swiftUIColor)
                             .frame(width: 100, height: 44)

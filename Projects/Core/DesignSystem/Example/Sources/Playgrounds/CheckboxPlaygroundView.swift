@@ -19,16 +19,22 @@ struct CheckboxPlaygroundView: View {
                 Section(header: Text("Interactive State")) {
                     Toggle("Is On (선택 상태)", isOn: $isOn)
                 }
-                
+
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Size (W × H)", value: specification.size.squarePtDescription)
                     DSSpecificationRow(title: "Shape", value: specification.shape.specName)
                     DSSpecificationRow(title: "Border Width", value: specification.borderWidth?.ptDescription ?? "None")
                     DSSpecificationRow(title: "Icon Size", value: specification.iconSize?.squarePtDescription ?? "None")
                     DSSpecificationRow(title: "Background", value: specification.backgroundAsset.specDescription)
-                    DSSpecificationRow(title: "Border Color", value: specification.borderAsset?.specDescription ?? "None")
+                    DSSpecificationRow(
+                        title: "Border Color",
+                        value: specification.borderAsset?.specDescription ?? "None"
+                    )
                     DSSpecificationRow(title: "Icon", value: specification.iconAsset?.displayName ?? "None")
-                    DSSpecificationRow(title: "Icon Color", value: specification.iconTintAsset?.specDescription ?? "None")
+                    DSSpecificationRow(
+                        title: "Icon Color",
+                        value: specification.iconTintAsset?.specDescription ?? "None"
+                    )
                 }
             }
         }

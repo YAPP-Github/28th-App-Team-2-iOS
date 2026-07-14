@@ -18,7 +18,7 @@ struct ButtonPlaygroundView: View {
             isEnabled: isEnabled
         )
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             buttonPreview
@@ -28,14 +28,14 @@ struct ButtonPlaygroundView: View {
                     TextField("Enter button text...", text: $buttonText)
                         .autocorrectionDisabled()
                 }
-                
+
                 Section(header: Text("Style Properties")) {
                     Picker("Variant", selection: $selectedVariant) {
                         Text("Primary").tag(DSButtonVariant.primary)
                         Text("Secondary").tag(DSButtonVariant.secondary)
                     }
                     .pickerStyle(.segmented)
-                    
+
                     Picker("Size", selection: $selectedSize) {
                         Text("Large").tag(DSButtonSize.large)
                         Text("Medium").tag(DSButtonSize.medium)
@@ -43,17 +43,20 @@ struct ButtonPlaygroundView: View {
                     }
                     .pickerStyle(.menu)
                 }
-                
+
                 Section(header: Text("Interactive State")) {
                     Toggle("Is Enabled (활성 상태)", isOn: $isEnabled)
                     Toggle("Show Left Icon (왼쪽 아이콘)", isOn: $showLeftIcon)
                     Toggle("Show Right Icon (오른쪽 아이콘)", isOn: $showRightIcon)
                 }
-                
+
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Height", value: specification.height.ptDescription)
                     DSSpecificationRow(title: "Shape", value: specification.shape.specName)
-                    DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+                    DSSpecificationRow(
+                        title: "Padding (Horizontal)",
+                        value: specification.horizontalPadding.ptDescription
+                    )
                     DSSpecificationRow(title: "Gap (Icon-Text)", value: specification.contentGap.ptDescription)
                     DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
                     DSSpecificationRow(title: "Icon Size", value: iconSizeDescription)
@@ -70,7 +73,7 @@ struct ButtonPlaygroundView: View {
     private var buttonPreview: some View {
         let left = showLeftIcon ? Image.ds.edit : nil
         let right = showRightIcon ? Image.ds.edit : nil
-        
+
         switch (selectedVariant, selectedSize) {
         case (.primary, .large):
             preview(DSPrimaryLargeButton(buttonText, leftIcon: left, rightIcon: right) {})
@@ -96,7 +99,7 @@ struct ButtonPlaygroundView: View {
                 .disabled(!isEnabled)
         }
     }
-    
+
     private var iconSizeDescription: String {
         guard showLeftIcon || showRightIcon else { return "None" }
         let size = specification.iconSize.ptDescription

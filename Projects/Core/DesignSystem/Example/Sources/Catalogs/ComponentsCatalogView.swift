@@ -10,7 +10,7 @@ struct ComponentsCatalogView: View {
                     Image(systemName: "rectangle.and.hand.point.up.left.fill")
                         .foregroundColor(.ds.primary600)
                         .imageScale(.large)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Button")
                             .font(.headline)
@@ -21,13 +21,13 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
-            
+
             NavigationLink(destination: ChipPlaygroundView()) {
                 HStack(spacing: 12) {
                     Image(systemName: "tag.fill")
                         .foregroundColor(.ds.primary600)
                         .imageScale(.large)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Chip")
                             .font(.headline)
@@ -38,13 +38,13 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
-            
+
             NavigationLink(destination: BadgePlaygroundView()) {
                 HStack(spacing: 12) {
                     Image(systemName: "app.badge.fill")
                         .foregroundColor(.ds.primary600)
                         .imageScale(.large)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Badge")
                             .font(.headline)
@@ -55,13 +55,13 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
-            
+
             NavigationLink(destination: CheckboxPlaygroundView()) {
                 HStack(spacing: 12) {
                     Image(systemName: "checkmark.square.fill")
                         .foregroundColor(.ds.primary600)
                         .imageScale(.large)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Checkbox")
                             .font(.headline)

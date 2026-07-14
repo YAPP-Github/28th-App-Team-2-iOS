@@ -29,7 +29,7 @@ public struct DSChip: View {
     private let title: String
     private let isSelected: Bool
     private let action: () -> Void
-    
+
     public init(
         _ title: String,
         isSelected: Bool = false,
@@ -39,7 +39,7 @@ public struct DSChip: View {
         self.isSelected = isSelected
         self.action = action
     }
-    
+
     public var body: some View {
         let specification = Self.specification(isSelected: isSelected)
 

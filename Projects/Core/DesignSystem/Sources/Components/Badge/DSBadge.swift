@@ -41,12 +41,12 @@ public struct DSBadge: View {
 
     private let title: String
     private let variant: DSBadgeVariant
-    
+
     public init(_ title: String, variant: DSBadgeVariant) {
         self.title = title
         self.variant = variant
     }
-    
+
     public var body: some View {
         let specification = Self.specification(variant: variant)
 

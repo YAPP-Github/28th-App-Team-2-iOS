@@ -8,7 +8,7 @@ public enum DesignSystemColor {
     // Common
     public static let white = DesignSystemAsset.Colors.white.swiftUIColor
     public static let black = DesignSystemAsset.Colors.black.swiftUIColor
-    
+
     // Gray
     public static let gray25 = DesignSystemAsset.Colors.gray25.swiftUIColor
     public static let gray50 = DesignSystemAsset.Colors.gray50.swiftUIColor
@@ -24,7 +24,7 @@ public enum DesignSystemColor {
     public static let gray925 = DesignSystemAsset.Colors.gray925.swiftUIColor
     public static let gray950 = DesignSystemAsset.Colors.gray950.swiftUIColor
     public static let gray975 = DesignSystemAsset.Colors.gray975.swiftUIColor
-    
+
     // Primary
     public static let primary50 = DesignSystemAsset.Colors.primary50.swiftUIColor
     public static let primary100 = DesignSystemAsset.Colors.primary100.swiftUIColor
@@ -36,7 +36,7 @@ public enum DesignSystemColor {
     public static let primary700 = DesignSystemAsset.Colors.primary700.swiftUIColor
     public static let primary800 = DesignSystemAsset.Colors.primary800.swiftUIColor
     public static let primary900 = DesignSystemAsset.Colors.primary900.swiftUIColor
-    
+
     // CoolGray
     public static let coolGray50 = DesignSystemAsset.Colors.coolGray50.swiftUIColor
     public static let coolGray100 = DesignSystemAsset.Colors.coolGray100.swiftUIColor
@@ -48,7 +48,7 @@ public enum DesignSystemColor {
     public static let coolGray700 = DesignSystemAsset.Colors.coolGray700.swiftUIColor
     public static let coolGray800 = DesignSystemAsset.Colors.coolGray800.swiftUIColor
     public static let coolGray900 = DesignSystemAsset.Colors.coolGray900.swiftUIColor
-    
+
     // Sky
     public static let sky50 = DesignSystemAsset.Colors.sky50.swiftUIColor
     public static let sky100 = DesignSystemAsset.Colors.sky100.swiftUIColor
@@ -60,7 +60,7 @@ public enum DesignSystemColor {
     public static let sky700 = DesignSystemAsset.Colors.sky700.swiftUIColor
     public static let sky800 = DesignSystemAsset.Colors.sky800.swiftUIColor
     public static let sky900 = DesignSystemAsset.Colors.sky900.swiftUIColor
-    
+
     // Pink
     public static let pink50 = DesignSystemAsset.Colors.pink50.swiftUIColor
     public static let pink100 = DesignSystemAsset.Colors.pink100.swiftUIColor
@@ -72,7 +72,7 @@ public enum DesignSystemColor {
     public static let pink700 = DesignSystemAsset.Colors.pink700.swiftUIColor
     public static let pink800 = DesignSystemAsset.Colors.pink800.swiftUIColor
     public static let pink900 = DesignSystemAsset.Colors.pink900.swiftUIColor
-    
+
     // Red
     public static let red50 = DesignSystemAsset.Colors.red50.swiftUIColor
     public static let red100 = DesignSystemAsset.Colors.red100.swiftUIColor
@@ -84,7 +84,7 @@ public enum DesignSystemColor {
     public static let red700 = DesignSystemAsset.Colors.red700.swiftUIColor
     public static let red800 = DesignSystemAsset.Colors.red800.swiftUIColor
     public static let red900 = DesignSystemAsset.Colors.red900.swiftUIColor
-    
+
     // Orange
     public static let orange50 = DesignSystemAsset.Colors.orange50.swiftUIColor
     public static let orange100 = DesignSystemAsset.Colors.orange100.swiftUIColor
@@ -96,7 +96,7 @@ public enum DesignSystemColor {
     public static let orange700 = DesignSystemAsset.Colors.orange700.swiftUIColor
     public static let orange800 = DesignSystemAsset.Colors.orange800.swiftUIColor
     public static let orange900 = DesignSystemAsset.Colors.orange900.swiftUIColor
-    
+
     // Teal
     public static let teal50 = DesignSystemAsset.Colors.teal50.swiftUIColor
     public static let teal100 = DesignSystemAsset.Colors.teal100.swiftUIColor
@@ -108,7 +108,7 @@ public enum DesignSystemColor {
     public static let teal700 = DesignSystemAsset.Colors.teal700.swiftUIColor
     public static let teal800 = DesignSystemAsset.Colors.teal800.swiftUIColor
     public static let teal900 = DesignSystemAsset.Colors.teal900.swiftUIColor
-    
+
     // Opacity (Black α - Base: #1B1B1B)
     public static let opacity05 = DesignSystemAsset.Colors.opacity05.swiftUIColor
     public static let opacity10 = DesignSystemAsset.Colors.opacity10.swiftUIColor
@@ -117,7 +117,7 @@ public enum DesignSystemColor {
     public static let opacity50 = DesignSystemAsset.Colors.opacity50.swiftUIColor
     public static let opacity60 = DesignSystemAsset.Colors.opacity60.swiftUIColor
     public static let opacity80 = DesignSystemAsset.Colors.opacity80.swiftUIColor
-    
+
     // White-Opacity (White α - Base: #FFFFFF)
     public static let whiteOpacity05 = DesignSystemAsset.Colors.whiteOpacity05.swiftUIColor
     public static let whiteOpacity10 = DesignSystemAsset.Colors.whiteOpacity10.swiftUIColor
