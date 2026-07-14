@@ -35,7 +35,7 @@ struct IconCatalogView: View {
                         icon.swiftUIImage
                             .resizable()
                             .renderingMode(.template)
-                            .foregroundColor(isDarkBackground ? .white : Color.ds.gray900)
+                            .foregroundStyle(isDarkBackground ? Color.ds.white : Color.ds.gray900)
                             .frame(width: 24, height: 24)
                             .padding()
                             .background(isDarkBackground ? Color.ds.coolGray900 : Color.ds.gray50)

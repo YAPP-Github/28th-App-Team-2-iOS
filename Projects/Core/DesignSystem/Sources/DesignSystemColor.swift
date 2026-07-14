@@ -4,7 +4,7 @@ public extension Color {
     static let ds = DesignSystemColor.self
 }
 
-public struct DesignSystemColor {
+public enum DesignSystemColor {
     // Common
     public static let white = DesignSystemAsset.Colors.white.swiftUIColor
     public static let black = DesignSystemAsset.Colors.black.swiftUIColor

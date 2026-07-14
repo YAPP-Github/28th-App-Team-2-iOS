@@ -40,13 +40,13 @@ extension FontStyle {
         
         if caseName.hasPrefix("heading") {
             let num = caseName.replacingOccurrences(of: "heading", with: "")
-            category = "Heading" + (num.first.map(String.init) ?? "")
+            category = "Heading" + String(num.prefix(while: \.isNumber))
         } else if caseName.hasPrefix("body") {
             let num = caseName.replacingOccurrences(of: "body", with: "")
-            category = "Body" + (num.first.map(String.init) ?? "")
+            category = "Body" + String(num.prefix(while: \.isNumber))
         } else if caseName.hasPrefix("caption") {
             let num = caseName.replacingOccurrences(of: "caption", with: "")
-            category = "Caption" + (num.first.map(String.init) ?? "")
+            category = "Caption" + String(num.prefix(while: \.isNumber))
         } else {
             category = "Font"
         }

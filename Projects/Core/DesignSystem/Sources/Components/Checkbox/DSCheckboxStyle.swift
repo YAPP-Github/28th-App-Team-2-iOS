@@ -27,7 +27,7 @@ struct DSCheckboxStyle: ToggleStyle {
                     iconAsset.swiftUIImage
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundColor(iconTintAsset.swiftUIColor)
+                        .foregroundStyle(iconTintAsset.swiftUIColor)
                         .frame(
                             width: iconSize,
                             height: iconSize

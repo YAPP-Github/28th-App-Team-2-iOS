@@ -115,7 +115,7 @@ public struct DSButton: View {
                 }
             }
         }
-        .buttonStyle(DSButtonStyle(variant: variant, size: size))
+        .buttonStyle(DSButtonStyle(specification: specification))
     }
 }
 

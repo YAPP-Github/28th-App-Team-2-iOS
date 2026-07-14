@@ -55,7 +55,7 @@ public struct DSBadge: View {
             .lineLimit(1)
             .padding(.vertical, specification.verticalPadding)
             .padding(.horizontal, specification.horizontalPadding)
-            .foregroundColor(specification.foregroundAsset.swiftUIColor)
+            .foregroundStyle(specification.foregroundAsset.swiftUIColor)
             .background(specification.backgroundAsset.swiftUIColor)
             .clipShape(specification.shape.swiftUIShape)
     }
