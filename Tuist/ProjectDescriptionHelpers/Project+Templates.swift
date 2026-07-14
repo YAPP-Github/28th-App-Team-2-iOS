@@ -166,7 +166,10 @@ public extension Project {
         name: String,
         dependencies: [TargetDependency] = [],
         resources: ResourceFileElements? = nil,
-        hasTests: Bool = true
+        hasTests: Bool = true,
+        testDependencies: [TargetDependency] = [],
+        hasExample: Bool = false,
+        exampleDependencies: [TargetDependency] = []
     ) -> Project {
         let targets = makeTargets(
             name: name,
@@ -174,7 +177,10 @@ public extension Project {
             bundleId: "\(bundleIdPrefix).\(name)",
             dependencies: dependencies,
             resources: resources,
-            hasTests: hasTests
+            hasTests: hasTests,
+            testDependencies: testDependencies,
+            hasExample: hasExample,
+            exampleDependencies: exampleDependencies
         )
         return Project(name: name, targets: targets)
     }

@@ -44,23 +44,32 @@ done < <(find Projects/Core -mindepth 1 -maxdepth 1 -type d | sort)
 
 app_name="$(sed -n 's/.*name:[[:space:]]*"\([^"]*\)".*/\1/p' Projects/App/Project.swift | head -n 1)"
 
+lower_core_names=("Model" "Utils")
+
 check_core_imports() {
-  local file import
-  while IFS= read -r file; do
-    while IFS= read -r import; do
-      if contains_name "$import" "${feature_names[@]}" || contains_name "$import" "${feature_interface_names[@]}"; then
-        fail "$file imports Feature layer module '$import'. Core must not depend on Feature."
-      fi
+  local core file import
+  for core in "${core_names[@]}"; do
+    while IFS= read -r file; do
+      while IFS= read -r import; do
+        if contains_name "$import" "${feature_names[@]}" || contains_name "$import" "${feature_interface_names[@]}"; then
+          fail "$file imports Feature layer module '$import'. Core must not depend on Feature."
+        fi
 
-      if contains_name "$import" "${core_names[@]}"; then
-        fail "$file imports Core module '$import'. Core modules must remain independent."
-      fi
+        if contains_name "$import" "${core_names[@]}"; then
+          if ! contains_name "$core" "${lower_core_names[@]}" && contains_name "$import" "${lower_core_names[@]}"; then
+            # 상위 Core -> 하위 Core 단방향 참조 허용
+            :
+          else
+            fail "$file imports Core module '$import'. Core modules must remain independent."
+          fi
+        fi
 
-      if [[ "$import" == "$app_name" ]]; then
-        fail "$file imports App module '$import'. Core must not depend on App."
-      fi
-    done < <(swift_imports "$file")
-  done < <(find Projects/Core -path '*/Derived/*' -prune -o -path '*/Tests/*' -prune -o -name '*.swift' -type f -print)
+        if [[ "$import" == "$app_name" ]]; then
+          fail "$file imports App module '$import'. Core must not depend on App."
+        fi
+      done < <(swift_imports "$file")
+    done < <(find "Projects/Core/$core/Sources" -name '*.swift' -type f -print)
+  done
 }
 
 check_feature_imports() {
@@ -162,9 +171,16 @@ check_project_swift_files() {
       fail "$core_project must use Project.makeCore(...)."
     fi
 
-    if grep -Eq '\.project\(target:' "$core_project"; then
-      fail "$core_project declares an internal project dependency. Core modules must remain independent."
-    fi
+    local target_dep
+    while read -r target_dep; do
+      if [[ -n "$target_dep" ]]; then
+        if contains_name "$core" "${lower_core_names[@]}"; then
+          fail "$core_project declares an internal project dependency '$target_dep'. Lower Core must remain independent."
+        elif ! contains_name "$target_dep" "${lower_core_names[@]}"; then
+          fail "$core_project declares a forbidden internal project dependency '$target_dep'. Upper Core can only depend on Lower Core."
+        fi
+      fi
+    done < <(perl -0777 -ne 'while(/\.project\(\s*target:\s*"([^"]+)"/g){print "$1\n"}' "$core_project")
   done
 
   if ! grep -q 'Project.makeApp' Projects/App/Project.swift; then
@@ -177,6 +193,10 @@ check_graph_edge() {
   local to="$2"
 
   if contains_name "$from" "${core_names[@]}"; then
+    if ! contains_name "$from" "${lower_core_names[@]}" && contains_name "$to" "${lower_core_names[@]}"; then
+      # 상위 Core -> 하위 Core 단방향 참조 허용
+      return
+    fi
     fail "docs/graph.dot has forbidden Core outgoing edge: $from -> $to"
     return
   fi
@@ -209,11 +229,11 @@ check_graph_edge() {
     return
   fi
 
-  if [[ "$from" == *FeatureExample && ( "$to" == "${from%Example}" || "$to" == "${from%Example}Testing" ) ]]; then
+  if [[ "$from" == *Example && ( "$to" == "${from%Example}" || "$to" == "${from%Example}Testing" ) ]]; then
     return
   fi
 
-  if [[ "$from" == *FeatureExample ]]; then
+  if [[ "$from" == *Example ]]; then
     fail "docs/graph.dot has unexpected Example edge: $from -> $to"
     return
   fi
