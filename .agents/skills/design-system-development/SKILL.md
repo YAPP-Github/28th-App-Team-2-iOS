@@ -46,6 +46,7 @@ Figma를 디자인 값의 원본으로 사용하고, 승인된 값을 해석한 
 3. `Derived/Sources`의 Tuist 생성 파일은 직접 수정하지 않는다.
 4. 컬러와 아이콘은 `DesignSystemColor.swift`·`DesignSystemIcon.swift`의 `.ds` API에 연결하고, 폰트는 `DesignSystemFont.swift`의 `FontStyle`과 `.ds` API에 연결한다.
 5. Color/Icon/Font Catalog에 등록한다.
+6. 컬러·아이콘 리소스 또는 `.ds` 브릿지·Catalog를 변경한 경우 `./scripts/validate-design-system-assets.sh`를 실행한다. 이 검증은 DesignSystem 리소스 작업에만 적용한다.
 
 ## 5. 컴포넌트 작업 순서
 
@@ -62,6 +63,7 @@ Figma를 디자인 값의 원본으로 사용하고, 승인된 값을 해석한 
 
 ```bash
 mise exec -- tuist generate --no-open
+./scripts/validate-design-system-assets.sh # 컬러·아이콘 리소스 또는 브릿지·Catalog 변경 시
 mise exec -- tuist xcodebuild test -workspace todakun.xcworkspace -scheme DesignSystem -destination '<사용 가능한 iOS Simulator>' CODE_SIGNING_ALLOWED=NO
 mise exec -- tuist xcodebuild build -workspace todakun.xcworkspace -scheme DesignSystemExample -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ./scripts/sync-and-validate.sh
