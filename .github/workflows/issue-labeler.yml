@@ -1,0 +1,212 @@
+name: Issue & PR Auto Labeler & Project Sync
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  label-and-sync:
+    # 처음 열렸을 때(opened), 또는 수정(edited)되었는데 '제목(title)'이 변경되었을 때만 실행
+    if: github.event.action == 'opened' || (github.event.action == 'edited' && github.event.changes.title)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # -----------------------------------------------------------------------------
+      # Step 1: Auto Labeling (보안을 위해 기본 GITHUB_TOKEN을 디폴트로 사용)
+      # -----------------------------------------------------------------------------
+      - name: Auto Labeling
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const title = context.payload.issue 
+              ? context.payload.issue.title 
+              : context.payload.pull_request.title;
+            const issueNumber = context.issue.number;
+
+            // 1. Load JSON Config
+            if (!fs.existsSync('.github/issue-pr-title-conventions.json')) {
+              console.log('issue-pr-title-conventions.json does not exist. Skipping.');
+              return;
+            }
+            const rules = JSON.parse(fs.readFileSync('.github/issue-pr-title-conventions.json', 'utf8'));
+
+            // 2. Extract bracket prefixes
+            const matches = [...title.matchAll(/\[(.*?)\]/g)].map(m => m[1].trim());
+            if (matches.length === 0) {
+              console.log('No bracket prefixes found in title.');
+              return;
+            }
+
+            // 3. Match and Add Labels
+            const labelsToAdd = [];
+            for (const match of matches) {
+              if (rules.allowed_types && rules.allowed_types[match]) {
+                labelsToAdd.push(rules.allowed_types[match].label);
+              }
+            }
+            const uniqueLabels = [...new Set(labelsToAdd)];
+
+            if (uniqueLabels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: uniqueLabels
+              });
+              console.log(`Successfully added labels: ${uniqueLabels.join(', ')}`);
+            }
+
+      # -----------------------------------------------------------------------------
+      # Step 2: Project Sync (조직 프로젝트 권한이 부여된 PROJECT_PAT 사용)
+      # -----------------------------------------------------------------------------
+      - name: Project Board Sync
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.PROJECT_PAT }}
+          script: |
+            const fs = require('fs');
+            const title = context.payload.issue 
+              ? context.payload.issue.title 
+              : context.payload.pull_request.title;
+            const issueNodeId = context.payload.issue 
+              ? context.payload.issue.node_id 
+              : context.payload.pull_request.node_id;
+
+            // PR은 보드에 추가하지 않음 (이슈와 섞여 보드가 지저분해지는 것 방지)
+            if (context.payload.pull_request) {
+              console.log("This is a PR. Skipping project board sync.");
+              return;
+            }
+
+            // 1. Load JSON Config
+            if (!fs.existsSync('.github/issue-pr-title-conventions.json')) {
+              console.log('issue-pr-title-conventions.json does not exist. Skipping.');
+              return;
+            }
+            const rules = JSON.parse(fs.readFileSync('.github/issue-pr-title-conventions.json', 'utf8'));
+
+            // 2. Extract bracket prefixes
+            const matches = [...title.matchAll(/\[(.*?)\]/g)].map(m => m[1].trim());
+            if (matches.length === 0) {
+              console.log('No bracket prefixes found in title.');
+              return;
+            }
+
+            // 3. Fetch Project 34 Metadata
+            const projectQuery = `
+              query($owner: String!, $projectNumber: Int!) {
+                organization(login: $owner) {
+                  projectV2(number: $projectNumber) {
+                    id
+                    fields(first: 50) {
+                      nodes {
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            let projectId, pageField;
+            try {
+              const projResult = await github.graphql(projectQuery, { 
+                owner: context.repo.owner, 
+                projectNumber: 34 
+              });
+              const project = projResult.organization.projectV2;
+              projectId = project.id;
+              pageField = project.fields.nodes.find(f => f.name === 'Page');
+            } catch (error) {
+              console.log("Could not fetch Project 34 details. Org permission issue:", error.message);
+              return;
+            }
+
+            if (!pageField) {
+              console.log("Could not find 'Page' field in Project 34.");
+              return;
+            }
+
+            // 4. ADD issue/PR to Project 34
+            const addMutation = `
+              mutation($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+                  item { id }
+                }
+              }
+            `;
+            let itemId;
+            try {
+              const addResult = await github.graphql(addMutation, {
+                projectId: projectId,
+                contentId: issueNodeId
+              });
+              itemId = addResult.addProjectV2ItemById.item.id;
+              console.log(`Successfully added/found item in project 34. Item ID: ${itemId}`);
+            } catch (error) {
+              console.log("Failed to add content to project:", error.message);
+              return;
+            }
+
+            // 5. Extract domain keyword & Update Page Field
+            const allAllowedDomains = [
+              ...(rules.allowed_domains?.screen || []),
+              ...(rules.allowed_domains?.common || [])
+            ];
+            const domainKeyword = matches.find(m => allAllowedDomains.includes(m));
+            
+            if (!domainKeyword) {
+              console.log("No specific domain prefix found in title. Page field left blank.");
+              return;
+            }
+
+            const targetOption = pageField.options.find(opt => opt.name === domainKeyword);
+            if (!targetOption) {
+              console.log(`Could not find option matching '${domainKeyword}' in Page field.`);
+              return;
+            }
+
+            const updateMutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: {
+                    singleSelectOptionId: $optionId
+                  }
+                }) {
+                  projectV2Item { id }
+                }
+              }
+            `;
+
+            try {
+              await github.graphql(updateMutation, {
+                projectId,
+                itemId,
+                fieldId: pageField.id,
+                optionId: targetOption.id
+              });
+              console.log(`Successfully updated Project Page field to '${domainKeyword}'`);
+            } catch (error) {
+              console.log("Failed to update Page field:", error.message);
+            }
