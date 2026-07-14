@@ -23,6 +23,16 @@ while read local_ref local_sha remote_ref remote_sha; do
     fi
 done
 
+# push 대상 커밋과 lint 대상이 달라지는 것을 방지
+LINT_RELEVANT_CHANGES="$(git status --porcelain --untracked-files=all -- '*.swift' '.swiftlint.yml' '.mise.toml' 'scripts/lint.sh')"
+
+if [ -n "$LINT_RELEVANT_CHANGES" ]; then
+    echo "[❌ Error] lint 관련 미커밋 변경사항이 있어 Push를 차단합니다."
+    printf '%s\n' "$LINT_RELEVANT_CHANGES"
+    echo "변경사항을 커밋하거나 정리한 후 다시 Push해주세요."
+    exit 1
+fi
+
 # SwiftLint 검증 실행
 LINT_SCRIPT="./scripts/lint.sh"
 
