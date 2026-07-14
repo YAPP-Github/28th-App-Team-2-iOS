@@ -3,6 +3,7 @@
 오늘의 운을 기반으로 사용자의 하루 선택과 행동을 설계하는 데일리 체크인형 자기관리 앱.
 
 ## 🛠️ Tech Stack & Architecture
+
 - **Language**: Swift 6.0+
 - **Platform**: iOS 17.0+
 - **UI Framework**: SwiftUI
@@ -10,6 +11,7 @@
 - **Project Generator**: Tuist (Static Frameworks)
 
 ## 📁 Project Structure
+
 본 프로젝트는 **App - Feature - Core** 3계층 구조로 이루어진 멀티 모듈 아키텍처로 설계되었습니다. (아래 서술된 내용은 프로젝트가 지향하는 최종 아키텍처 모델이며, 현재는 구조적인 뼈대(Skeleton/Stub) 위주로 구성되어 개발 진행 중입니다.)
 
 특히 **Feature 레이어**는 피처 간 참조 사이클을 방지하고 빌드 최적화를 달성하기 위해 **uFeature 아키텍처(Interface/Testing 분리)**를 채택했습니다.
@@ -111,6 +113,7 @@ graph TD
 ## 🚀 Getting Started
 
 ### 1. Setup & Run
+
 프로젝트 레포지토리를 클론한 후(또는 개발 도구 설정이 변경되었을 때) 다음 명령을 실행하여 필요한 도구 진단, `mise install` 연동 및 Git Hooks 설정을 일괄 자동 완료합니다.
 
 ```bash
@@ -132,7 +135,8 @@ tuist install
 tuist generate
 ```
 
-### 3. Dependency Graph
+### 2. Dependency Graph
+
 프로젝트의 아키텍처 및 모듈 의존성 그래프를 시각화하여 확인하려면 아래 명령어를 사용합니다.
 ```bash
 # 테스트 타겟 및 외부 의존성을 제외하고 코어/피처 아키텍처 및 Example 앱 타겟을 시각화 (png 형식으로 docs/graph.png 저장)
@@ -142,7 +146,24 @@ tuist graph --skip-test-targets --skip-external-dependencies --format png --no-o
 <br>
 <img src="./docs/graph.png" alt="Architecture Graph" width="600">
 
+### 3. Code Convention Validation
+
+SwiftLint를 사용해 프로젝트의 Swift 코드 컨벤션을 검사합니다. 검사 대상과 제외 경로, 활성화 규칙은 루트의 `.swiftlint.yml`에서 관리합니다.
+
+```bash
+# 코드 컨벤션 검사
+./scripts/lint.sh
+
+# 자동 수정 가능한 위반 사항 수정
+mise exec -- swiftlint --fix --config .swiftlint.yml
+```
+
+초기 도입 단계에서는 SwiftLint 기본 규칙을 사용하되, 구조 변경에 대한 팀 합의가 필요한 일부 규칙은 비활성화되어 있습니다. 새 규칙은 팀 합의 후 점진적으로 활성화합니다.
+
+Git Hooks가 설정되어 있으면 push 전에 SwiftLint와 아키텍처 검증이 순서대로 실행됩니다.
+
 ### 4. Architecture Validation
+
 App / Feature / Core 계층 규칙과 물리 의존성 위반 여부를 빠르게 확인하려면 아래 명령어를 실행합니다. (스크립트 내부에서 자동으로 `tuist graph`를 실행하여 최신 상태의 `docs/graph.dot`를 검증합니다.)
 ```bash
 ./scripts/sync-and-validate.sh

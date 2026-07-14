@@ -1,0 +1,44 @@
+included:
+  - Projects
+  - Tuist
+  - Tuist.swift
+  - Workspace.swift
+
+excluded:
+  - .build
+  - "**/.build/**"
+  - Derived
+  - "**/Derived/**"
+  - DerivedData
+  - Tuist/.build
+  - Tuist/Derived
+
+# 초기 도입 단계에서는 코드 구조 변경에 대한 팀 합의가 필요한 규칙을 유예합니다.
+# 규칙은 팀 합의 후 후속 PR에서 점진적으로 활성화합니다.
+disabled_rules:
+  - function_body_length
+  - nesting
+
+opt_in_rules:
+  - closure_spacing
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - empty_count
+  - empty_string
+  - first_where
+  - redundant_nil_coalescing
+
+# 앱 코드의 lowerCamelCase 식별자에서 약어 위치에 따른 표기를 통일합니다.
+# 약어 추가 시 정규식과 안내 문구를 함께 갱신합니다.
+custom_rules:
+  acronym_casing:
+    name: Acronym Casing
+    included:
+      - '.*/Projects/(?:App|Feature|Core)/.*\.swift'
+    regex: '\b[A-Za-z0-9_]*(?:Id|Url|Uuid)(?=[A-Z0-9_]|\b)[A-Za-z0-9_]*\b'
+    match_kinds:
+      - identifier
+    message: "lowerCamelCase 식별자에서는 id/url/uuid로 시작하고, 이후에는 ID/URL/UUID로 표기하세요. (예: id, urlRequest, userID, imageURL)"
+    severity: warning
+
+reporter: xcode

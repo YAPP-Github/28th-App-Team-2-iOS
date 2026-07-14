@@ -2,7 +2,7 @@ import ProjectDescription
 
 public extension Project {
     private static let bundleIdPrefix = "com.kikidan.todakun"
-    
+
     private static func makeTargets(
         name: String,
         destinations: Destinations = .iOS,
@@ -18,7 +18,7 @@ public extension Project {
         exampleDependencies: [TargetDependency] = []
     ) -> [Target] {
         var targets: [Target] = []
-        
+
         // Main Target
         targets.append(
             .target(
@@ -33,7 +33,7 @@ public extension Project {
                 dependencies: dependencies
             )
         )
-        
+
         // Unit Tests Target
         if hasTests {
             targets.append(
@@ -51,7 +51,7 @@ public extension Project {
                 )
             )
         }
-        
+
         // Example App Target
         if hasExample {
             targets.append(
@@ -70,10 +70,10 @@ public extension Project {
                 )
             )
         }
-        
+
         return targets
     }
-    
+
     static func makeApp(
         name: String,
         dependencies: [TargetDependency] = [],
@@ -99,7 +99,7 @@ public extension Project {
     ) -> Project {
         let targetBundleId = "\(bundleIdPrefix).\(name)"
         var projectTargets: [Target] = []
-        
+
         // 1. Interface Target
         let interfaceName = "\(name)Interface"
         let interfaceTargets = makeTargets(
@@ -111,11 +111,11 @@ public extension Project {
             hasExample: false
         )
         projectTargets.append(contentsOf: interfaceTargets)
-        
+
         // 2. Testing Target (Optional)
         var testDependencies: [TargetDependency] = []
         var exampleDependencies: [TargetDependency] = []
-        
+
         if hasTesting {
             let testingName = "\(name)Testing"
             let testingTargets = makeTargets(
@@ -136,7 +136,7 @@ public extension Project {
             testDependencies.append(.target(name: testingName))
             exampleDependencies.append(.target(name: testingName))
         }
-        
+
         // 3. Implementation + Tests + Example
         let defaultDependencies: [TargetDependency] = [
             .target(name: interfaceName),
@@ -146,7 +146,7 @@ public extension Project {
             .project(target: "Utils", path: .relativeToRoot("Projects/Core/Utils")),
             .external(name: "ComposableArchitecture")
         ]
-        
+
         let implementationTargets = makeTargets(
             name: name,
             product: .staticFramework,
@@ -158,7 +158,7 @@ public extension Project {
             exampleDependencies: exampleDependencies
         )
         projectTargets.append(contentsOf: implementationTargets)
-        
+
         return Project(name: name, targets: projectTargets)
     }
 

@@ -2,11 +2,23 @@
 
 # pre-push hook
 # 1. 절대적 Force Push 금지 (Non-fast-forward 푸시 차단)
-# 2. 아키텍처 다이어그램 동기화 및 검증 실행
+# 2. SwiftLint 코드 컨벤션 검증
+# 3. 아키텍처 다이어그램 동기화 및 검증 실행
 
 echo "========================================"
 echo "🛡  Running pre-push hooks..."
 echo "========================================"
+
+# setup 시 저장한 실제 Mise 경로를 GUI 환경의 PATH에 복원
+MISE_PATH="$(git config --local --get hooks.misePath 2>/dev/null)"
+
+if [ -z "$MISE_PATH" ] || [ ! -x "$MISE_PATH" ]; then
+    echo "[❌ Error] 저장된 Mise 경로를 찾을 수 없습니다."
+    echo "./scripts/setup-hooks.sh를 다시 실행해주세요."
+    exit 1
+fi
+
+export PATH="$(dirname "$MISE_PATH"):$PATH"
 
 # Force push (Non-fast-forward) 검사
 while read local_ref local_sha remote_ref remote_sha; do
@@ -21,6 +33,32 @@ while read local_ref local_sha remote_ref remote_sha; do
         fi
     fi
 done
+
+# push 대상 커밋과 lint 대상이 달라지는 것을 방지
+LINT_RELEVANT_CHANGES="$(git status --porcelain --untracked-files=all -- '*.swift' '.swiftlint.yml' '.mise.toml' 'scripts/lint.sh')"
+
+if [ -n "$LINT_RELEVANT_CHANGES" ]; then
+    echo "[❌ Error] lint 관련 미커밋 변경사항이 있어 Push를 차단합니다."
+    printf '%s\n' "$LINT_RELEVANT_CHANGES"
+    echo "변경사항을 커밋하거나 정리한 후 다시 Push해주세요."
+    exit 1
+fi
+
+# SwiftLint 검증 실행
+LINT_SCRIPT="./scripts/lint.sh"
+
+if [ -f "$LINT_SCRIPT" ]; then
+    echo "🔎 Validating code conventions before push..."
+    if ! "$LINT_SCRIPT"; then
+        echo ""
+        echo "[❌ Error] SwiftLint 검증 실패로 Push가 차단되었습니다."
+        echo "위 로그를 확인하고 lint 위반 사항을 수정해주세요."
+        exit 1
+    fi
+else
+    echo "[❌ Error] $LINT_SCRIPT 파일을 찾을 수 없어 Push를 차단합니다."
+    exit 1
+fi
 
 # 아키텍처 검증 실행
 VALIDATE_SCRIPT="./scripts/sync-and-validate.sh"
