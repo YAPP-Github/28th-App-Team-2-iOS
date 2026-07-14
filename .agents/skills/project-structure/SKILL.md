@@ -18,7 +18,7 @@ description: 토닥운 프로젝트에서 Tuist 설정, Project.swift, Projects/
 구조 변경 또는 기능 구현을 시작하면 다음 순서를 따른다.
 
 1. `README.md`의 Project Structure와 `docs/graph.dot`를 먼저 확인한다.
-2. Feature 구현체 간 import, Core 간 import, Core에서 Feature/App import를 만들지 않는다.
+2. Feature 구현체 간 import, Core에서 Feature/App import를 만들지 않는다. (Core 내부는 상위 ➡️ 하위 단방향 참조만 허용)
 3. 최종 보고 전 `./scripts/sync-and-validate.sh`를 실행하고 결과를 보고한다. (스크립트 내부에서 `.dot` 파일 검증과 함께 `.png` 시각화 파일도 자동 갱신해 줌)
 
 ## 자동 검증 기준 (Architectural Constraints)

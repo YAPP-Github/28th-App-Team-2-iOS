@@ -29,7 +29,7 @@ reviews:
   review_status: true # 리뷰 진행 상태(Reviewing... / Completed)를 GitHub 하단 Check 영역에 표시
   assess_linked_issues: true # PR이 해결하려는 원본 이슈(#번호)의 요구사항을 100% 충족했는지 검증
   high_level_summary: true # PR 본문 최상단에 마크다운 형태의 '릴리즈 노트(변경점 요약)' 자동 생성
-  collapse_walkthrough: true # 파일별 상세 변경점(Walkthrough) 설명은 기본적으로 접어두어 스크롤 낭비 방지
+  collapse_walkthrough: false # 파일별 상세 변경점(Walkthrough) 설명을 항상 펼쳐둔 상태로 노출
   sequence_diagrams: true # 코드 로직이 복잡하게 변경된 경우, 봇이 Mermaid 시퀀스 다이어그램(순서도) 자동 생성
   poem: false # 리뷰 코멘트 맨 마지막에 시(Poem)를 지어주는 감성 기능 끄기 (실무 핏팅)
   
