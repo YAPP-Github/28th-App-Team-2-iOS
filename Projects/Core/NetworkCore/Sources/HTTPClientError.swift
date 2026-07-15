@@ -19,7 +19,9 @@ public enum HTTPClientError: Error, Sendable {
     case emptyResponse
 
     /// 응답 본문을 요청한 타입으로 디코딩하지 못했습니다.
-    case decodingFailed(DecodingError)
+    ///
+    /// - Parameter description: 원본 디코딩 오류의 설명입니다.
+    case decodingFailed(description: String)
 
     /// 요청 전송 계층에서 오류가 발생했습니다.
     ///

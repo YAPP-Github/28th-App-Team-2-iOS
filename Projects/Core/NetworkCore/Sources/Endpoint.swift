@@ -78,7 +78,13 @@ public extension Endpoint {
         headers: [String: String] = [:]
     ) throws -> Self {
         var headers = headers
-        headers["Content-Type"] = headers["Content-Type"] ?? "application/json"
+        let hasContentType = headers.keys.contains {
+            $0.caseInsensitiveCompare("Content-Type") == .orderedSame
+        }
+
+        if !hasContentType {
+            headers["Content-Type"] = "application/json"
+        }
 
         return Self(
             method: .post,

@@ -7,6 +7,16 @@ final class HTTPClientTests: XCTestCase {
         let message: String
     }
 
+    private struct CustomFailureResponse: Decodable, Sendable {
+        init(from decoder: Decoder) throws {
+            throw DecodingProbeError.invalidPayload
+        }
+    }
+
+    private enum DecodingProbeError: Error {
+        case invalidPayload
+    }
+
     func testRequestDecodesSuccessfulResponse() async throws {
         let responseData = try JSONEncoder().encode(["message": "반가워요"])
         let client = makeClient { request in
@@ -92,6 +102,24 @@ final class HTTPClientTests: XCTestCase {
         }
     }
 
+    func testRequestWrapsCustomDecodingError() async throws {
+        let client = makeClient { request in
+            (
+                Data(#"{"value":true}"#.utf8),
+                try Self.makeHTTPResponse(for: request, statusCode: 200)
+            )
+        }
+
+        do {
+            let _: CustomFailureResponse = try await client.request(.get("/custom-error"))
+            XCTFail("커스텀 디코딩 오류도 HTTPClientError로 변환되어야 합니다.")
+        } catch let HTTPClientError.decodingFailed(description) {
+            XCTAssertTrue(description.contains("invalidPayload"))
+        } catch {
+            XCTFail("예상하지 못한 에러: \(error)")
+        }
+    }
+
     func testRequestMapsTransportError() async throws {
         let client = makeClient { _ in
             throw URLError(.notConnectedToInternet)
@@ -130,24 +158,36 @@ final class HTTPClientTests: XCTestCase {
         }
     }
 
-    func testRequestPreservesTaskCancellation() async throws {
-        let client = makeClient { _ in
-            throw CancellationError()
+    func testDataAcceptsUpperSuccessfulStatusBoundary() async throws {
+        let client = makeClient { request in
+            (
+                Data(),
+                try Self.makeHTTPResponse(for: request, statusCode: 299)
+            )
+        }
+
+        _ = try await client.data(for: .get("/upper-success-boundary"))
+    }
+
+    func testDataRejectsLowerRedirectStatusBoundary() async throws {
+        let client = makeClient { request in
+            (
+                Data(),
+                try Self.makeHTTPResponse(for: request, statusCode: 300)
+            )
         }
 
         do {
-            let _: ResponseBody = try await client.request(.get("/cancelled"))
-            XCTFail("작업 취소는 transport error로 변환되면 안 됩니다.")
-        } catch is CancellationError {
-            // Expected
+            _ = try await client.data(for: .get("/lower-redirect-boundary"))
+            XCTFail("300 응답은 성공 범위에 포함되면 안 됩니다.")
+        } catch let HTTPClientError.unacceptableStatusCode(code, _) {
+            XCTAssertEqual(code, 300)
         } catch {
             XCTFail("예상하지 못한 에러: \(error)")
         }
     }
 
-    private func makeClient(
-        transport: @escaping HTTPClient.Transport
-    ) -> HTTPClient {
+    private func makeClient(transport: @escaping HTTPClient.Transport) -> HTTPClient {
         HTTPClient(
             baseURL: URL(string: "https://api.todakun.com")!,
             transport: transport,

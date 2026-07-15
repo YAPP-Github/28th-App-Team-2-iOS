@@ -75,15 +75,23 @@ public struct HTTPClient: Sendable {
         as responseType: Response.Type = Response.self
     ) async throws -> Response {
         let data = try await data(for: endpoint)
+        try Task.checkCancellation()
 
         guard !data.isEmpty else {
             throw HTTPClientError.emptyResponse
         }
 
         do {
-            return try makeDecoder().decode(responseType, from: data)
-        } catch let decodingError as DecodingError {
-            throw HTTPClientError.decodingFailed(decodingError)
+            let response = try makeDecoder().decode(responseType, from: data)
+            try Task.checkCancellation()
+            return response
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            try Task.checkCancellation()
+            throw HTTPClientError.decodingFailed(
+                description: String(describing: error)
+            )
         }
     }
 
@@ -103,13 +111,18 @@ public struct HTTPClient: Sendable {
     /// - Throws: 요청 생성, 전송 또는 상태 코드 검증에 실패하면 `HTTPClientError`를 던집니다.
     ///   작업이 취소되면 `CancellationError`를 그대로 전달합니다.
     public func data(for endpoint: Endpoint) async throws -> Data {
-        let request = try await endpoint.urlRequest(
+        try Task.checkCancellation()
+        let headers = await defaultHeaders()
+        try Task.checkCancellation()
+
+        let request = try endpoint.urlRequest(
             baseURL: baseURL,
-            defaultHeaders: defaultHeaders()
+            defaultHeaders: headers
         )
 
         do {
             let (data, response) = try await transport(request)
+            try Task.checkCancellation()
 
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw HTTPClientError.invalidResponse

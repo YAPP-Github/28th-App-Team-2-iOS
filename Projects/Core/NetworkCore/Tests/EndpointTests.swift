@@ -55,4 +55,21 @@ final class EndpointTests: XCTestCase {
             ["nickname": "토닥"]
         )
     }
+
+    func testPostEndpointPreservesCaseInsensitiveContentType() throws {
+        let endpoint = try Endpoint.post(
+            "/problem",
+            body: ["message": "잘못된 요청"],
+            headers: ["content-type": "application/problem+json"]
+        )
+        let request = try endpoint.urlRequest(
+            baseURL: try XCTUnwrap(URL(string: "https://api.todakun.com")),
+            defaultHeaders: [:]
+        )
+
+        XCTAssertEqual(
+            request.value(forHTTPHeaderField: "Content-Type"),
+            "application/problem+json"
+        )
+    }
 }
