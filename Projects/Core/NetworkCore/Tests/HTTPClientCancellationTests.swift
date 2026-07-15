@@ -77,7 +77,7 @@ final class HTTPClientCancellationTests: XCTestCase {
             try? await Task.sleep(for: .seconds(10))
             return (
                 responseData,
-                try Self.makeHTTPResponse(for: request, statusCode: 200)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 200)
             )
         }
         let task = Task {
@@ -109,7 +109,7 @@ final class HTTPClientCancellationTests: XCTestCase {
             transport: { request in
                 (
                     Data(#"{"value":true}"#.utf8),
-                    try Self.makeHTTPResponse(for: request, statusCode: 200)
+                    try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 200)
                 )
             }
         )
@@ -139,20 +139,6 @@ final class HTTPClientCancellationTests: XCTestCase {
             baseURL: URL(string: "https://api.todakun.com")!,
             transport: transport,
             makeDecoder: makeDecoder
-        )
-    }
-
-    private static func makeHTTPResponse(
-        for request: URLRequest,
-        statusCode: Int
-    ) throws -> HTTPURLResponse {
-        try XCTUnwrap(
-            HTTPURLResponse(
-                url: try XCTUnwrap(request.url),
-                statusCode: statusCode,
-                httpVersion: nil,
-                headerFields: nil
-            )
         )
     }
 }

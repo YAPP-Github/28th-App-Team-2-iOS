@@ -115,7 +115,7 @@ extension Endpoint {
         }
 
         if !queryItems.isEmpty {
-            components.queryItems = queryItems
+            components.queryItems = (components.queryItems ?? []) + queryItems
         }
 
         guard let requestURL = components.url else {

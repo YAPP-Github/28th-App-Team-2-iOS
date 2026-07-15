@@ -34,6 +34,27 @@ final class EndpointTests: XCTestCase {
         XCTAssertEqual(request.value(forHTTPHeaderField: "X-Trace-ID"), "test-trace")
     }
 
+    func testURLRequestPreservesBaseURLQueryItems() throws {
+        let endpoint = Endpoint.get(
+            "/fortune/today",
+            queryItems: [
+                URLQueryItem(name: "date", value: "2026-07-15")
+            ]
+        )
+
+        let request = try endpoint.urlRequest(
+            baseURL: try XCTUnwrap(
+                URL(string: "https://api.todakun.com/v1?tenant=alpha")
+            ),
+            defaultHeaders: [:]
+        )
+
+        XCTAssertEqual(
+            request.url?.absoluteString,
+            "https://api.todakun.com/v1/fortune/today?tenant=alpha&date=2026-07-15"
+        )
+    }
+
     func testPostEndpointEncodesJSONBodyAndContentType() throws {
         struct RequestBody: Encodable {
             let nickname: String

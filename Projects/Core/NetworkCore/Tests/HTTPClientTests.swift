@@ -26,7 +26,7 @@ final class HTTPClientTests: XCTestCase {
             )
             return (
                 responseData,
-                try Self.makeHTTPResponse(for: request, statusCode: 200)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 200)
             )
         }
 
@@ -39,7 +39,7 @@ final class HTTPClientTests: XCTestCase {
         let client = makeClient { request in
             (
                 Data(),
-                try Self.makeHTTPResponse(for: request, statusCode: 200)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 200)
             )
         }
 
@@ -57,7 +57,7 @@ final class HTTPClientTests: XCTestCase {
         let client = makeClient { request in
             (
                 Data(),
-                try Self.makeHTTPResponse(for: request, statusCode: 204)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 204)
             )
         }
 
@@ -69,7 +69,7 @@ final class HTTPClientTests: XCTestCase {
         let client = makeClient { request in
             (
                 responseData,
-                try Self.makeHTTPResponse(for: request, statusCode: 404)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 404)
             )
         }
 
@@ -88,7 +88,7 @@ final class HTTPClientTests: XCTestCase {
         let client = makeClient { request in
             (
                 Data(#"{"unexpected":true}"#.utf8),
-                try Self.makeHTTPResponse(for: request, statusCode: 200)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 200)
             )
         }
 
@@ -106,7 +106,7 @@ final class HTTPClientTests: XCTestCase {
         let client = makeClient { request in
             (
                 Data(#"{"value":true}"#.utf8),
-                try Self.makeHTTPResponse(for: request, statusCode: 200)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 200)
             )
         }
 
@@ -162,7 +162,7 @@ final class HTTPClientTests: XCTestCase {
         let client = makeClient { request in
             (
                 Data(),
-                try Self.makeHTTPResponse(for: request, statusCode: 299)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 299)
             )
         }
 
@@ -173,7 +173,7 @@ final class HTTPClientTests: XCTestCase {
         let client = makeClient { request in
             (
                 Data(),
-                try Self.makeHTTPResponse(for: request, statusCode: 300)
+                try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 300)
             )
         }
 
@@ -194,20 +194,6 @@ final class HTTPClientTests: XCTestCase {
             defaultHeaders: {
                 ["Authorization": "Bearer token"]
             }
-        )
-    }
-
-    private static func makeHTTPResponse(
-        for request: URLRequest,
-        statusCode: Int
-    ) throws -> HTTPURLResponse {
-        try XCTUnwrap(
-            HTTPURLResponse(
-                url: try XCTUnwrap(request.url),
-                statusCode: statusCode,
-                httpVersion: nil,
-                headerFields: nil
-            )
         )
     }
 }
