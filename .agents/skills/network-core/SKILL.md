@@ -39,6 +39,8 @@ Feature Reducer -> {Feature}Client -> HTTPClient -> Transport -> URLSession
 ## 조립
 
 - App에서 base URL, 인증 헤더, 디코더 정책을 적용한 `HTTPClient`를 한 번 구성한다.
+- Feature Implementation은 App이 구성한 `HTTPClient`를 전달할 수 있는 public 조립 진입점을 제공한다. public `DependencyValues` key path 또는 Feature Store/의존성 factory 중 프로젝트 구조에 맞는 방식을 사용한다.
+- App은 Store 또는 Feature 의존성을 조립할 때 `{Feature}Client.live(httpClient:)`를 주입한다. `DependencyKey.liveValue` 내부에서 `HTTPClient`를 다시 생성하지 않는다.
 - 운영 환경의 `Transport`에는 `URLSession.data(for:)`를 연결한다.
 - 단위 테스트에서는 원하는 응답이나 오류를 반환하는 Transport 클로저를 주입한다.
 - Transport 테스트 클로저가 Stub 또는 Spy 역할을 하므로 별도의 `MockURLSession`이나 커스텀 `URLProtocol`을 만들지 않는다.
