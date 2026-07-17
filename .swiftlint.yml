@@ -19,6 +19,11 @@ disabled_rules:
   - function_body_length
   - nesting
 
+# DesignSystem의 공개 네임스페이스(`Color.ds`, `Image.ds`, `Font.ds`)는 의도적으로 짧게 유지합니다.
+identifier_name:
+  excluded:
+    - ds
+
 opt_in_rules:
   - closure_spacing
   - contains_over_filter_count
