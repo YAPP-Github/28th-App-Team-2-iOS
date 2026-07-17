@@ -1,4 +1,0 @@
-interface:
-  display_name: "NetworkCore"
-  short_description: "NetworkCore와 Feature Client 사용 경계를 적용합니다"
-  default_prompt: "$network-core를 사용해 NetworkCore 구현과 Feature Client 경계를 검토해 주세요."
