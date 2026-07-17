@@ -12,19 +12,42 @@ struct DesignSystemExampleApp: App {
 
 struct ContentView: View {
     var body: some View {
-        NavigationStack {
-            List {
-                Section("Colors") {
-                    Text("Brand Colors will be listed here")
-                }
-                Section("Fonts") {
-                    Text("Typography styles will be listed here")
-                }
-                Section("Components") {
-                    Text("UI components will be listed here")
-                }
+        TabView {
+            NavigationStack {
+                ColorCatalogView()
+                    .navigationTitle("Color Palette")
+                    .navigationBarTitleDisplayMode(.inline)
             }
-            .navigationTitle("Design System Catalog")
+            .tabItem {
+                Label("Colors", systemImage: "paintpalette")
+            }
+
+            NavigationStack {
+                FontCatalogView()
+                    .navigationTitle("Typography")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .tabItem {
+                Label("Fonts", systemImage: "textformat")
+            }
+
+            NavigationStack {
+                IconCatalogView()
+                    .navigationTitle("Icons")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .tabItem {
+                Label("Icons", systemImage: "star")
+            }
+
+            NavigationStack {
+                ComponentsCatalogView()
+                    .navigationTitle("Components")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .tabItem {
+                Label("Components", systemImage: "square.grid.2x2")
+            }
         }
     }
 }

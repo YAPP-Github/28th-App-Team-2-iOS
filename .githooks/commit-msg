@@ -9,6 +9,11 @@ COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 # 커밋 메시지 첫 번째 줄 추출 (빈 줄 제거)
 FIRST_LINE=$(echo "$COMMIT_MSG" | grep -v '^#' | sed '/^$/d' | head -n 1)
 
+# 머지(Merge) 커밋 및 리버트(Revert) 커밋 메시지는 검사 건너뛰기
+if [[ $FIRST_LINE == Merge* || $FIRST_LINE == merge* || $FIRST_LINE == Revert* || $FIRST_LINE == revert* ]]; then
+    exit 0
+fi
+
 # 유효성 검사 정규식:
 # (feat|fix|chore|refactor|docs|style|test|build|ci)(스코프)?: 커밋메시지
 REGEX="^(feat|fix|chore|refactor|docs|style|test|build|ci)(\([a-zA-Z0-9_-]+\))?: .+"
