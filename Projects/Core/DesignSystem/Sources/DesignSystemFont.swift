@@ -33,6 +33,21 @@ public enum FontStyle: Equatable, Sendable {
         }
     }
 
+    public var lineHeight: CGFloat {
+        switch self {
+        case .heading1ExtraBold, .heading1Bold, .heading1SemiBold: return 44
+        case .heading2ExtraBold, .heading2Bold, .heading2SemiBold: return 38
+        case .heading3Bold, .heading3Medium, .heading3Regular: return 32
+        case .heading4Bold, .heading4Medium, .heading4Regular: return 30
+        case .body1Bold, .body1Medium, .body1Regular: return 26
+        case .body2SemiBold, .body2Medium, .body2Regular: return 24
+        case .body3SemiBold, .body3Medium, .body3Regular: return 20
+        case .caption1SemiBold, .caption1Medium, .caption1Regular: return 16
+        case .caption2SemiBold, .caption2Medium, .caption2Regular: return 14
+        case .caption3SemiBold, .caption3Medium, .caption3Regular: return 13
+        }
+    }
+
     // Tuist 자동 생성 accessor를 통해 번들 내 폰트 파일과 타입세이프하게 연결
     var fontConvertible: DesignSystemFontConvertible {
         switch self {
@@ -64,17 +79,16 @@ public struct DesignSystemFont {
     }
 }
 
-// MARK: - Line Height 130% ViewModifier
+// MARK: - Fixed Line Height ViewModifier
 
 struct DSLineHeightModifier: ViewModifier {
     let fontSize: CGFloat
-    let lineHeightMultiplier: CGFloat
+    let lineHeight: CGFloat
     let fontConvertible: DesignSystemFontConvertible
 
     func body(content: Content) -> some View {
         let uiFont = UIFont(font: fontConvertible, size: fontSize) ?? UIFont.systemFont(ofSize: fontSize)
-        let targetLineHeight = fontSize * lineHeightMultiplier
-        let spacing = targetLineHeight - uiFont.lineHeight
+        let spacing = lineHeight - uiFont.lineHeight
 
         return content
             .lineSpacing(spacing)
@@ -91,7 +105,7 @@ extension View {
             .modifier(
                 DSLineHeightModifier(
                     fontSize: style.size,
-                    lineHeightMultiplier: 1.3,
+                    lineHeight: style.lineHeight,
                     fontConvertible: style.fontConvertible
                 )
             )
