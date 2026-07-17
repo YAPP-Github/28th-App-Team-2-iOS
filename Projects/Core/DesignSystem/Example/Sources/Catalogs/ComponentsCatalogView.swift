@@ -72,6 +72,23 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            NavigationLink(destination: DividerPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "minus")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Divider")
+                            .font(.headline)
+                        Text("1pt, 10pt 두께로 콘텐츠 영역을 구분하는 디바이더")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }
