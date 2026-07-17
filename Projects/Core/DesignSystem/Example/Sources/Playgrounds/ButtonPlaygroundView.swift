@@ -59,7 +59,10 @@ struct ButtonPlaygroundView: View {
                     )
                     DSSpecificationRow(title: "Gap (Icon-Text)", value: specification.contentGap.ptDescription)
                     DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
-                    DSSpecificationRow(title: "Icon Size", value: iconSizeDescription)
+                    DSSpecificationRow(
+                        title: "Icon Size (When Present)",
+                        value: specification.iconSize.squarePtDescription
+                    )
                     DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
                     DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
                 }
@@ -98,11 +101,5 @@ struct ButtonPlaygroundView: View {
             component
                 .disabled(!isEnabled)
         }
-    }
-
-    private var iconSizeDescription: String {
-        guard showLeftIcon || showRightIcon else { return "None" }
-        let size = specification.iconSize.ptDescription
-        return "\(size) × \(size)"
     }
 }
