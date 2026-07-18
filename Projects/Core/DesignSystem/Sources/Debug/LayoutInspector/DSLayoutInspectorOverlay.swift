@@ -95,7 +95,7 @@ struct DSLayoutInspectorOverlay: View {
         ForEach(Array(regions.prefix(250)), id: \.regionID) { region in
             Rectangle()
                 .stroke(
-                    outlineColor(for: region.source),
+                    DSLayoutInspectorControl.outlineColor(for: region.source),
                     lineWidth: 0.5
                 )
                 .frame(width: region.frame.width, height: region.frame.height)
@@ -143,7 +143,7 @@ struct DSLayoutInspectorOverlay: View {
                     Spacer()
 
                     VStack(spacing: 8) {
-                        inspectorButton(
+                        DSLayoutInspectorControl.button(
                             title: "정보",
                             systemImage: "viewfinder",
                             isActive: mode == .inspection
@@ -151,7 +151,7 @@ struct DSLayoutInspectorOverlay: View {
                             mode = .inspection
                         }
 
-                        inspectorButton(
+                        DSLayoutInspectorControl.button(
                             title: "간격",
                             systemImage: "arrow.left.and.right",
                             isActive: mode == .spacing
@@ -159,7 +159,7 @@ struct DSLayoutInspectorOverlay: View {
                             mode = .spacing
                         }
 
-                        inspectorButton(
+                        DSLayoutInspectorControl.button(
                             title: "자",
                             systemImage: "ruler",
                             isActive: mode == .ruler
@@ -167,14 +167,14 @@ struct DSLayoutInspectorOverlay: View {
                             mode = .ruler
                         }
 
-                        inspectorButton(
+                        DSLayoutInspectorControl.button(
                             title: "새로고침",
                             systemImage: "arrow.clockwise",
                             isActive: false,
                             action: refresh
                         )
 
-                        inspectorButton(
+                        DSLayoutInspectorControl.button(
                             title: "닫기",
                             systemImage: "xmark",
                             isActive: false,
@@ -234,34 +234,19 @@ struct DSLayoutInspectorOverlay: View {
 
 private extension DSLayoutInspectorOverlay {
     private var reportedRegionIdentity: String {
-        reportedRegions
-            .map { region in
-                let frameIdentity = [
-                    region.frame.minX,
-                    region.frame.minY,
-                    region.frame.width,
-                    region.frame.height
-                ]
-                .map { String(Int(($0 * displayScale).rounded())) }
-                .joined(separator: ":")
-                return "\(region.regionID):\(frameIdentity)"
-            }
-            .sorted()
-            .joined(separator: "|")
+        DSLayoutInspectorRefreshIdentity.reportedRegions(
+            reportedRegions,
+            displayScale: displayScale
+        )
     }
 
     private var refreshIdentity: String {
-        let layoutIdentity = [
-            layoutSize.width,
-            layoutSize.height,
-            layoutSafeAreaInsets.top,
-            layoutSafeAreaInsets.leading,
-            layoutSafeAreaInsets.bottom,
-            layoutSafeAreaInsets.trailing
-        ]
-            .map { String(Int(($0 * displayScale).rounded())) }
-            .joined(separator: ":")
-        return "\(reportedRegionIdentity)|\(layoutIdentity)"
+        DSLayoutInspectorRefreshIdentity.make(
+            reportedRegionIdentity: reportedRegionIdentity,
+            layoutSize: layoutSize,
+            safeAreaInsets: layoutSafeAreaInsets,
+            displayScale: displayScale
+        )
     }
 
     private var selectedRegions: [DSLayoutRegion] {
@@ -299,29 +284,6 @@ private extension DSLayoutInspectorOverlay {
         [rulerPoints.start, rulerPoints.end].compactMap { $0 }.count
     }
 
-    private func inspectorButton(
-        title: String,
-        systemImage: String,
-        isActive: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 15, weight: .semibold))
-                .frame(width: 34, height: 34)
-                .foregroundStyle(isActive ? .black : .white)
-                .background(
-                    isActive ? Color.yellow : Color.black.opacity(0.82),
-                    in: RoundedRectangle(cornerRadius: 9)
-                )
-                .frame(width: 44, height: 44)
-        }
-        .accessibilityLabel(title)
-        .accessibilityIdentifier(
-            "\(DSLayoutInspectorConstants.accessibilityPrefix).\(title)"
-        )
-    }
-
     private func refresh() {
         automaticRegions = DSLayoutElementCollector.collect()
         safeAreaInsets = DSLayoutElementCollector.safeAreaInsets()
@@ -338,19 +300,6 @@ private extension DSLayoutInspectorOverlay {
 
             refresh()
             if !automaticRegions.isEmpty { return }
-        }
-    }
-
-    private func outlineColor(for source: DSLayoutRegionSource) -> Color {
-        switch source {
-        case .view:
-            .orange
-        case .accessibility:
-            .cyan
-        case .designSystem:
-            .purple
-        case .designSystemDetail:
-            .mint
         }
     }
 
