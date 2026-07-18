@@ -45,7 +45,7 @@ public struct DSChip: View {
 
         Button(action: action) {
             Text(title)
-                .dsFont(specification.fontStyle, debugName: "DSChip.Text")
+                .dsFont(specification.fontStyle)
         }
         .buttonStyle(DSChipButtonStyle(specification: specification))
         .dsDebugGeometry("DSChip")

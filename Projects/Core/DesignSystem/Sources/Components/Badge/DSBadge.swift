@@ -51,7 +51,7 @@ public struct DSBadge: View {
         let specification = Self.specification(variant: variant)
 
         Text(title)
-            .dsFont(specification.fontStyle, debugName: "DSBadge.Text")
+            .dsFont(specification.fontStyle)
             .padding(.vertical, specification.verticalPadding)
             .padding(.horizontal, specification.horizontalPadding)
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)

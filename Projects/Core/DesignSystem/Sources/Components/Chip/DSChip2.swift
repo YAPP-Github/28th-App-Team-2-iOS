@@ -32,7 +32,7 @@ public struct DSChip2: View {
         let specification = Self.specification
 
         Text(title)
-            .dsFont(specification.fontStyle, debugName: "DSChip2.Text")
+            .dsFont(specification.fontStyle)
             .lineLimit(1)
             .padding(.vertical, specification.verticalPadding)
             .padding(.horizontal, specification.horizontalPadding)

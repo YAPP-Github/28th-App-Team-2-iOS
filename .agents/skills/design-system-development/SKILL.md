@@ -45,7 +45,7 @@ Figma를 디자인 값의 원본으로 사용하고, 승인된 값을 해석한 
 - DesignSystem 컴포넌트가 외곽과 내부의 의미 있는 영역을 자기 구현 안에서 보고한다.
 - 검사기 진입 API·구현 타입·상태·테스트는 모두 `#if DEBUG`에서만 컴파일한다.
 - 컴포넌트 호출부의 분기를 없애기 위해 internal geometry helper는 Release에서 이름을 평가하지 않고 `Self`를 반환하는 no-op을 제공한다. no-op에 View modifier나 상태를 추가하지 않는다.
-- 컴포넌트 디버그 이름은 저장 프로퍼티로 만들지 않고 private 계산 프로퍼티 또는 `@autoclosure` 표현식으로 둔다. 이름 문자열 보간과 계산 프로퍼티 접근은 geometry helper 또는 `dsFont(_:debugName:)`의 인자 위치에 직접 작성하고, `body`의 지역 `let`·`var`로 미리 계산하지 않는다.
+- 컴포넌트 디버그 이름은 저장 프로퍼티로 만들지 않고 private 계산 프로퍼티 또는 `@autoclosure` 표현식으로 둔다. 이름 문자열 보간과 계산 프로퍼티 접근은 geometry helper의 인자 위치에 직접 작성하고, `body`의 지역 `let`·`var`로 미리 계산하지 않는다. Text는 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 보고한다.
 - App·Example처럼 DesignSystem 외부 모듈에서 호출하는 `dsDebugLayoutInspector()`만 DEBUG 빌드에서 public으로 선언한다. DesignSystem 내부에서만 사용하는 geometry helper와 구현 타입은 internal 또는 private로 제한한다.
 - DEBUG 전용 구현을 검사하는 테스트 파일은 전체를 `#if DEBUG`로 감싼다.
 
@@ -63,7 +63,7 @@ Figma를 디자인 값의 원본으로 사용하고, 승인된 값을 해석한 
 1. Figma의 variant·size·state·값을 확인하고 애매한 항목을 사용자에게 확인한다.
 2. 컴포넌트 전용 public read-only Specification과 조회 API를 구현한다.
 3. View/Style의 렌더링 디자인 값을 Specification에 연결한다.
-4. DEBUG 레이아웃 검사기에서 컴포넌트 외곽과 측정 가치가 있는 내부 영역을 구현 안에서 보고한다. 컴포넌트 외곽은 `dsDebugGeometry`, 행간을 포함한 Text 영역은 `dsFont(_:debugName:)`, 그 밖의 서로 다른 내부 레이아웃 영역은 `dsDebugDetailGeometry`를 사용한다. 내부의 모든 View에 기계적으로 적용하지 않고 아이콘·콘텐츠 그룹·상태 표시·슬롯 등 레이아웃 경계나 Specification 값을 확인할 수 있는 영역만 등록한다. 배경·테두리·그림자처럼 장식 목적이거나 기존 영역과 프레임이 같은 요소는 제외한다. 이미 geometry를 보고하는 하위 DesignSystem 컴포넌트를 조합할 때는 동일 영역을 부모에서 중복 등록하지 않고, 부모가 추가한 외곽·컨테이너·padding 경계만 등록한다. 각 helper의 Release no-op을 사용하므로 컴포넌트 호출부를 `#if DEBUG`로 분기하지 않는다.
+4. DEBUG 레이아웃 검사기에서 컴포넌트 외곽과 측정 가치가 있는 내부 영역을 구현 안에서 보고한다. 컴포넌트 외곽은 `dsDebugGeometry`, 행간을 포함한 Text 영역은 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 보고하고, 그 밖의 서로 다른 내부 레이아웃 영역은 `dsDebugDetailGeometry`를 사용한다. 내부의 모든 View에 기계적으로 적용하지 않고 아이콘·콘텐츠 그룹·상태 표시·슬롯 등 레이아웃 경계나 Specification 값을 확인할 수 있는 영역만 등록한다. 배경·테두리·그림자처럼 장식 목적이거나 기존 영역과 프레임이 같은 요소는 제외한다. 이미 geometry를 보고하는 하위 DesignSystem 컴포넌트를 조합할 때는 동일 영역을 부모에서 중복 등록하지 않고, 부모가 추가한 외곽·컨테이너·padding 경계만 등록한다. 각 helper의 Release no-op을 사용하므로 컴포넌트 호출부를 `#if DEBUG`로 분기하지 않는다.
 5. 단일 컴포넌트 Playground와 사양표를 추가한다.
 6. Components Catalog에 등록한다.
 7. 컴포넌트별 테스트 파일에 모든 Specification 조합의 매핑 테스트를 추가한다.

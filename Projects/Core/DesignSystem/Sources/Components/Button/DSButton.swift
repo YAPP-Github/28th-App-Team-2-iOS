@@ -122,10 +122,7 @@ public struct DSButton: View {
             }
 
             Text(title)
-                .dsFont(
-                    specification.fontStyle,
-                    debugName: "\(debugName).Title"
-                )
+                .dsFont(specification.fontStyle)
 
             if let rightIcon {
                 rightIcon
