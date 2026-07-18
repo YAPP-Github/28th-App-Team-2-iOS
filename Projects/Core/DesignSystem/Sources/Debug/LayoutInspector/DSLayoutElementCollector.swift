@@ -6,6 +6,11 @@ enum DSLayoutElementCollector {
     static func collect() -> [DSLayoutRegion] {
         guard let window = activeWindow() else { return [] }
 
+        return collect(in: window)
+    }
+
+    static func collect(in window: UIWindow) -> [DSLayoutRegion] {
+
         var regions: [DSLayoutRegion] = []
         var accessibilityObjects = Set<ObjectIdentifier>()
         collectViews(

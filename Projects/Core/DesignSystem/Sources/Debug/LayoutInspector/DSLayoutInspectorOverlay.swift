@@ -11,6 +11,8 @@ struct DSLayoutInspectorOverlay: View {
 
     @Binding var menuOffset: CGFloat
     let reportedRegions: [DSLayoutRegion]
+    let layoutSize: CGSize
+    let layoutSafeAreaInsets: EdgeInsets
     let onClose: () -> Void
 
     @Environment(\.displayScale) private var displayScale
@@ -37,7 +39,7 @@ struct DSLayoutInspectorOverlay: View {
             controlPanel
         }
         .ignoresSafeArea()
-        .task(id: reportedRegionIdentity) {
+        .task(id: refreshIdentity) {
             await refreshAfterPresentation()
         }
         .onChange(of: mode) {
@@ -233,9 +235,33 @@ struct DSLayoutInspectorOverlay: View {
 private extension DSLayoutInspectorOverlay {
     private var reportedRegionIdentity: String {
         reportedRegions
-            .map(\.regionID)
+            .map { region in
+                let frameIdentity = [
+                    region.frame.minX,
+                    region.frame.minY,
+                    region.frame.width,
+                    region.frame.height
+                ]
+                .map { String(Int(($0 * displayScale).rounded())) }
+                .joined(separator: ":")
+                return "\(region.regionID):\(frameIdentity)"
+            }
             .sorted()
             .joined(separator: "|")
+    }
+
+    private var refreshIdentity: String {
+        let layoutIdentity = [
+            layoutSize.width,
+            layoutSize.height,
+            layoutSafeAreaInsets.top,
+            layoutSafeAreaInsets.leading,
+            layoutSafeAreaInsets.bottom,
+            layoutSafeAreaInsets.trailing
+        ]
+            .map { String(Int(($0 * displayScale).rounded())) }
+            .joined(separator: ":")
+        return "\(reportedRegionIdentity)|\(layoutIdentity)"
     }
 
     private var selectedRegions: [DSLayoutRegion] {
@@ -288,6 +314,7 @@ private extension DSLayoutInspectorOverlay {
                     isActive ? Color.yellow : Color.black.opacity(0.82),
                     in: RoundedRectangle(cornerRadius: 9)
                 )
+                .frame(width: 44, height: 44)
         }
         .accessibilityLabel(title)
         .accessibilityIdentifier(

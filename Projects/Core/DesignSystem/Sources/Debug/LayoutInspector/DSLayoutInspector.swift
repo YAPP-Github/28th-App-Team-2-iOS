@@ -48,7 +48,9 @@ private struct DSLayoutInspectorModifier: ViewModifier {
                             reportedRegions: reportedRegions(
                                 from: nodes,
                                 in: geometry
-                            )
+                            ),
+                            layoutSize: geometry.size,
+                            layoutSafeAreaInsets: geometry.safeAreaInsets
                         ) {
                             isPresented = false
                         }

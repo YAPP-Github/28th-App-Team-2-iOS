@@ -29,8 +29,8 @@ final class DSLayoutInspectorPositionCalculatorTests: XCTestCase {
             safeAreaInsets: safeAreaInsets
         )
 
-        XCTAssertEqual(top, -250)
-        XCTAssertEqual(bottom, 275)
+        XCTAssertEqual(top, -225)
+        XCTAssertEqual(bottom, 250)
     }
 }
 #endif

@@ -15,6 +15,7 @@ struct DSLayoutInspectorActivationHandle: View {
                     in: RoundedRectangle(cornerRadius: 10)
                 )
                 .shadow(color: .black.opacity(0.18), radius: 3, y: 1)
+                .frame(width: 44, height: 48)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("레이아웃 검사기 열기")

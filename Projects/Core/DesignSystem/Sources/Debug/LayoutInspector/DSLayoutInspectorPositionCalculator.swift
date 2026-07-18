@@ -3,7 +3,7 @@ import UIKit
 
 enum DSLayoutInspectorPositionCalculator {
     private static let edgeMargin: CGFloat = 12
-    private static let menuButtonLength: CGFloat = 34
+    private static let menuButtonLength: CGFloat = 44
     private static let menuButtonSpacing: CGFloat = 8
     private static let menuButtonCount: CGFloat = 5
 
