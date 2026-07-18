@@ -1,0 +1,358 @@
+name: PR Discord Notification
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, ready_for_review, review_requested, closed]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Build and send PR notification
+        uses: actions/github-script@v9
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_MAP: ${{ vars.DISCORD_USER_MAP }}
+        with:
+          script: |
+            const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+            if (!webhookUrl) {
+              core.setFailed('DISCORD_WEBHOOK_URL repository secret is not configured.');
+              return;
+            }
+
+            let userMap = {};
+            const rawUserMap = process.env.DISCORD_USER_MAP?.trim();
+            if (rawUserMap) {
+              try {
+                const parsed = JSON.parse(rawUserMap);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                  userMap = Object.fromEntries(
+                    Object.entries(parsed).flatMap(([githubLogin, discordId]) => {
+                      if (typeof discordId !== 'string') return [];
+                      const normalizedId = discordId.trim();
+                      if (!/^\d+$/.test(normalizedId)) return [];
+                      return [[githubLogin.toLowerCase(), normalizedId]];
+                    }),
+                  );
+                } else {
+                  core.warning('DISCORD_USER_MAP must be a JSON object. Falling back to GitHub usernames.');
+                }
+              } catch (error) {
+                core.warning(`Failed to parse DISCORD_USER_MAP. Falling back to GitHub usernames: ${error.message}`);
+              }
+            }
+
+            const colors = {
+              opened: 0x2f81f7,
+              approved: 0x3fb950,
+              changesRequested: 0xf85149,
+              reviewRequested: 0xd29922,
+              dismissed: 0xdb6d28,
+              merged: 0xa371f7,
+              test: 0x8b949e,
+            };
+
+            const resolveDiscordId = (githubLogin) => {
+              const discordId = githubLogin
+                ? String(userMap[githubLogin.toLowerCase()] ?? '')
+                : '';
+              return /^\d+$/.test(discordId) ? discordId : null;
+            };
+
+            const mentionFor = (githubLogin, mentionIds) => {
+              const discordId = resolveDiscordId(githubLogin);
+              if (discordId) {
+                mentionIds.add(discordId);
+                return `<@${discordId}>`;
+              }
+              return githubLogin ? `\`${githubLogin}\`` : '알 수 없음';
+            };
+
+            const appendWaitQuery = (url) =>
+              `${url}${url.includes('?') ? '&' : '?'}wait=true`;
+
+            const delay = (milliseconds) =>
+              new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+            const sendToDiscord = async (payload) => {
+              const endpoint = appendWaitQuery(webhookUrl);
+              const maxAttempts = 3;
+
+              for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+                try {
+                  const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    signal: AbortSignal.timeout(10_000),
+                  });
+
+                  if (response.ok) {
+                    core.info(`Discord notification sent successfully on attempt ${attempt}.`);
+                    return;
+                  }
+
+                  const retryable = response.status === 429 || response.status >= 500;
+                  if (!retryable || attempt === maxAttempts) {
+                    const error = new Error(`Discord webhook returned HTTP ${response.status}.`);
+                    error.discordRetryable = retryable;
+                    throw error;
+                  }
+
+                  let retryAfter = attempt * 1_000;
+                  if (response.status === 429) {
+                    try {
+                      const rateLimit = await response.json();
+                      retryAfter = Math.max(Number(rateLimit.retry_after ?? 1) * 1_000, 1_000);
+                    } catch {
+                      core.warning('Could not parse Discord rate-limit response. Using default retry delay.');
+                    }
+                  }
+                  await delay(retryAfter);
+                } catch (error) {
+                  if (error.discordRetryable === false || attempt === maxAttempts) {
+                    throw error;
+                  }
+                  core.warning(`Discord notification attempt ${attempt} failed: ${error.message}`);
+                  await delay(attempt * 1_000);
+                }
+              }
+            };
+
+            if (context.eventName === 'workflow_dispatch') {
+              await sendToDiscord({
+                embeds: [
+                  {
+                    title: '🧪 PR Discord 알림 연결 테스트',
+                    description: 'GitHub Actions에서 Discord Webhook으로 메시지를 정상 전송했습니다.',
+                    color: colors.test,
+                    footer: { text: `${context.repo.owner}/${context.repo.repo}` },
+                    timestamp: new Date().toISOString(),
+                  },
+                ],
+                allowed_mentions: { parse: [] },
+              });
+              return;
+            }
+
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.notice(`Unsupported event payload: ${context.eventName}`);
+              return;
+            }
+
+            const action = context.payload.action;
+            if (context.eventName === 'pull_request_review') {
+              const reviewState = context.payload.review?.state?.toLowerCase();
+              if (action === 'submitted' && !['approved', 'changes_requested'].includes(reviewState)) {
+                core.notice(`Skipping pull request review state: ${reviewState ?? 'unknown'}`);
+                return;
+              }
+            }
+
+            if (context.eventName === 'pull_request') {
+              if (action === 'opened' && pr.draft) {
+                core.notice('Skipping draft pull request creation.');
+                return;
+              }
+              if (action === 'closed' && !pr.merged) {
+                core.notice('Skipping pull request closed without merge.');
+                return;
+              }
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pullNumber = pr.number;
+            const prUrl = pr.html_url;
+            const conversationUrl = prUrl;
+            const filesUrl = `${prUrl}/files`;
+            const checksUrl = `${prUrl}/checks`;
+            const mentionIds = new Set();
+
+            const getReviewSummary = async () => {
+              const reviews = await github.paginate(github.rest.pulls.listReviews, {
+                owner,
+                repo,
+                pull_number: pullNumber,
+                per_page: 100,
+              });
+              const requested = await github.rest.pulls.listRequestedReviewers({
+                owner,
+                repo,
+                pull_number: pullNumber,
+              });
+
+              const decisiveStateByUser = new Map();
+              for (const review of reviews) {
+                const login = review.user?.login;
+                const state = review.state?.toUpperCase();
+                if (login && ['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'].includes(state)) {
+                  decisiveStateByUser.set(login, state);
+                }
+              }
+
+              const pendingUsers = requested.data.users.map((user) => user.login);
+              const pendingSet = new Set(pendingUsers);
+              const approved = [];
+              const changesRequested = [];
+
+              for (const [login, state] of decisiveStateByUser) {
+                if (pendingSet.has(login)) continue;
+                if (state === 'APPROVED') approved.push(login);
+                if (state === 'CHANGES_REQUESTED') changesRequested.push(login);
+              }
+
+              const pendingTeams = requested.data.teams.map((team) => `${team.organization?.login ?? owner}/${team.slug}`);
+              return {
+                approved: approved.sort(),
+                changesRequested: changesRequested.sort(),
+                pending: [...pendingUsers.sort(), ...pendingTeams.sort()],
+                reviews,
+              };
+            };
+
+            let heading;
+            let color;
+            let actorLine;
+            let content = '';
+            let includeReviewSummary = false;
+            let reviewSummary;
+
+            if (context.eventName === 'pull_request') {
+              if (action === 'opened') {
+                heading = `🆕 PR #${pullNumber} 생성`;
+                color = colors.opened;
+                actorLine = `작성자: \`${pr.user.login}\``;
+              } else if (action === 'ready_for_review') {
+                heading = `👀 PR #${pullNumber} 리뷰 준비 완료`;
+                color = colors.opened;
+                actorLine = `작성자: \`${pr.user.login}\``;
+              } else if (action === 'review_requested') {
+                includeReviewSummary = true;
+                reviewSummary = await getReviewSummary();
+                const requestedReviewer = context.payload.requested_reviewer?.login;
+                const requestedTeam = context.payload.requested_team?.slug;
+                const hasPreviousReview = requestedReviewer
+                  ? reviewSummary.reviews.some((review) =>
+                      review.user?.login === requestedReviewer && review.state?.toUpperCase() !== 'PENDING')
+                  : false;
+
+                heading = hasPreviousReview
+                  ? `🔁 PR #${pullNumber} 재리뷰 요청`
+                  : `🔍 PR #${pullNumber} 리뷰 요청`;
+                color = colors.reviewRequested;
+
+                if (requestedReviewer) {
+                  const target = mentionFor(requestedReviewer, mentionIds);
+                  actorLine = `요청 대상: ${target}`;
+                  content = `${target} PR #${pullNumber} 리뷰가 요청되었습니다.`;
+                } else {
+                  actorLine = `요청 팀: \`${requestedTeam ?? '알 수 없음'}\``;
+                }
+              } else if (action === 'closed' && pr.merged) {
+                heading = `🟣 PR #${pullNumber} 머지 완료`;
+                color = colors.merged;
+                actorLine = `머지: \`${context.payload.sender.login}\``;
+              }
+            } else if (context.eventName === 'pull_request_review') {
+              includeReviewSummary = true;
+              reviewSummary = await getReviewSummary();
+              const reviewer = context.payload.review?.user?.login ?? context.payload.sender.login;
+              const reviewState = context.payload.review?.state?.toLowerCase();
+
+              if (action === 'submitted' && reviewState === 'approved') {
+                heading = `✅ PR #${pullNumber} 리뷰 승인`;
+                color = colors.approved;
+                actorLine = `리뷰어: \`${reviewer}\``;
+              } else if (action === 'submitted' && reviewState === 'changes_requested') {
+                heading = `🛠️ PR #${pullNumber} 변경 요청`;
+                color = colors.changesRequested;
+                actorLine = `리뷰어: \`${reviewer}\``;
+                const author = mentionFor(pr.user.login, mentionIds);
+                content = `${author} PR #${pullNumber}에 변경이 요청되었습니다.`;
+              } else if (action === 'dismissed') {
+                heading = `⚠️ PR #${pullNumber} 리뷰 무효화`;
+                color = colors.dismissed;
+                actorLine = `대상 리뷰어: \`${reviewer}\``;
+                const author = mentionFor(pr.user.login, mentionIds);
+                content = `${author} PR #${pullNumber}의 기존 리뷰가 무효화되었습니다.`;
+              }
+            }
+
+            if (!heading || color === undefined) {
+              core.notice(`No Discord notification configured for ${context.eventName}.${action}.`);
+              return;
+            }
+
+            const fields = [
+              {
+                name: '브랜치',
+                value: `\`${pr.head.ref}\` → \`${pr.base.ref}\``,
+                inline: true,
+              },
+              {
+                name: '변경 규모',
+                value: `${pr.changed_files ?? 0} files · +${pr.additions ?? 0} / -${pr.deletions ?? 0}`,
+                inline: true,
+              },
+            ];
+
+            if (includeReviewSummary && reviewSummary) {
+              const summaryLines = [];
+              if (reviewSummary.approved.length > 0) {
+                summaryLines.push(`✅ 승인: ${reviewSummary.approved.map((login) => `\`${login}\``).join(', ')}`);
+              }
+              if (reviewSummary.changesRequested.length > 0) {
+                summaryLines.push(`🛠️ 변경 요청: ${reviewSummary.changesRequested.map((login) => `\`${login}\``).join(', ')}`);
+              }
+              if (reviewSummary.pending.length > 0) {
+                summaryLines.push(`⏳ 대기: ${reviewSummary.pending.map((login) => `\`${login}\``).join(', ')}`);
+              }
+              if (summaryLines.length === 0) {
+                summaryLines.push('등록된 리뷰 상태 없음');
+              }
+              const reviewSummaryText = summaryLines.join('\n');
+              fields.push({
+                name: '리뷰 현황',
+                value: reviewSummaryText.length <= 1_024
+                  ? reviewSummaryText
+                  : `${reviewSummaryText.slice(0, 1_023)}…`,
+                inline: false,
+              });
+            }
+
+            fields.push({
+              name: '바로가기',
+              value: `[대화](${conversationUrl}) · [변경 파일](${filesUrl}) · [Checks](${checksUrl})`,
+              inline: false,
+            });
+
+            await sendToDiscord({
+              content,
+              embeds: [
+                {
+                  title: heading,
+                  url: prUrl,
+                  description: `**${pr.title}**\n${actorLine}`,
+                  color,
+                  fields,
+                  footer: { text: `${owner}/${repo}` },
+                  timestamp: new Date().toISOString(),
+                },
+              ],
+              allowed_mentions: {
+                parse: [],
+                users: [...mentionIds],
+              },
+            });
