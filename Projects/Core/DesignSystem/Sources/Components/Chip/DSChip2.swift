@@ -32,12 +32,13 @@ public struct DSChip2: View {
         let specification = Self.specification
 
         Text(title)
-            .dsFont(specification.fontStyle)
+            .dsFont(specification.fontStyle, debugName: "DSChip2.Text")
             .lineLimit(1)
             .padding(.vertical, specification.verticalPadding)
             .padding(.horizontal, specification.horizontalPadding)
             .foregroundColor(specification.foregroundAsset.swiftUIColor)
             .background(specification.backgroundAsset.swiftUIColor)
             .clipShape(specification.shape.swiftUIShape)
+            .dsDebugGeometry("DSChip2")
     }
 }

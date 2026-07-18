@@ -5,7 +5,12 @@ import DesignSystem
 struct DesignSystemExampleApp: App {
     var body: some Scene {
         WindowGroup {
+#if DEBUG
             ContentView()
+                .dsDebugLayoutInspector()
+#else
+            ContentView()
+#endif
         }
     }
 }

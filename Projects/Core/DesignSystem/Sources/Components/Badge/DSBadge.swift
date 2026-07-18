@@ -51,11 +51,12 @@ public struct DSBadge: View {
         let specification = Self.specification(variant: variant)
 
         Text(title)
-            .dsFont(specification.fontStyle)
+            .dsFont(specification.fontStyle, debugName: "DSBadge.Text")
             .padding(.vertical, specification.verticalPadding)
             .padding(.horizontal, specification.horizontalPadding)
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)
             .background(specification.backgroundAsset.swiftUIColor)
             .clipShape(specification.shape.swiftUIShape)
+            .dsDebugGeometry("DSBadge")
     }
 }

@@ -32,6 +32,7 @@ struct DSCheckboxStyle: ToggleStyle {
                             width: iconSize,
                             height: iconSize
                         )
+                        .dsDebugDetailGeometry("DSCheckbox.Icon")
                 }
             }
         }
