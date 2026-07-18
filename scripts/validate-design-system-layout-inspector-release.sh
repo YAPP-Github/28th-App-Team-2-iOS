@@ -133,7 +133,7 @@ report_pattern \
   "$IMPLEMENTATION_SYMBOL_PATTERN" \
   "Release 심볼에 DEBUG 레이아웃 검사기 구현 타입이 남아 있습니다."
 
-RUNTIME_STRING_PATTERN='DS_LAYOUT_INSPECTOR_ENABLED|영역을 눌러 속성을 확인하세요|두 영역을 차례로 눌러 간격을 측정하세요|두 지점을 차례로 누르거나 드래그해 측정하세요|현재 화면:|선택 영역:'
+RUNTIME_STRING_PATTERN='영역을 눌러 속성을 확인하세요|두 영역을 차례로 눌러 간격을 측정하세요|두 지점을 차례로 누르거나 드래그해 측정하세요|현재 화면:|선택 영역:'
 report_pattern \
   "$TEMP_DIR/all-strings" \
   "$RUNTIME_STRING_PATTERN" \

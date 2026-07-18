@@ -1,5 +1,4 @@
 #if DEBUG
-import Foundation
 import SwiftUI
 
 public extension View {
@@ -10,9 +9,7 @@ public extension View {
 }
 
 private struct DSLayoutInspectorModifier: ViewModifier {
-    @State private var isPresented = ProcessInfo.processInfo.environment[
-        "DS_LAYOUT_INSPECTOR_ENABLED"
-    ] == "1"
+    @State private var isPresented = false
     @State private var handleOffset: CGFloat = 0
     @GestureState private var handleDragOffset: CGFloat = 0
 
