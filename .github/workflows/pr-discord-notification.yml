@@ -37,10 +37,12 @@ jobs:
                 const parsed = JSON.parse(rawUserMap);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                   userMap = Object.fromEntries(
-                    Object.entries(parsed).map(([githubLogin, discordId]) => [
-                      githubLogin.toLowerCase(),
-                      discordId,
-                    ]),
+                    Object.entries(parsed).flatMap(([githubLogin, discordId]) => {
+                      if (typeof discordId !== 'string') return [];
+                      const normalizedId = discordId.trim();
+                      if (!/^\d+$/.test(normalizedId)) return [];
+                      return [[githubLogin.toLowerCase(), normalizedId]];
+                    }),
                   );
                 } else {
                   core.warning('DISCORD_USER_MAP must be a JSON object. Falling back to GitHub usernames.');
@@ -102,7 +104,9 @@ jobs:
 
                   const retryable = response.status === 429 || response.status >= 500;
                   if (!retryable || attempt === maxAttempts) {
-                    throw new Error(`Discord webhook returned HTTP ${response.status}.`);
+                    const error = new Error(`Discord webhook returned HTTP ${response.status}.`);
+                    error.discordRetryable = retryable;
+                    throw error;
                   }
 
                   let retryAfter = attempt * 1_000;
@@ -116,7 +120,7 @@ jobs:
                   }
                   await delay(retryAfter);
                 } catch (error) {
-                  if (attempt === maxAttempts) {
+                  if (error.discordRetryable === false || attempt === maxAttempts) {
                     throw error;
                   }
                   core.warning(`Discord notification attempt ${attempt} failed: ${error.message}`);
@@ -318,9 +322,12 @@ jobs:
               if (summaryLines.length === 0) {
                 summaryLines.push('등록된 리뷰 상태 없음');
               }
+              const reviewSummaryText = summaryLines.join('\n');
               fields.push({
                 name: '리뷰 현황',
-                value: summaryLines.join('\n'),
+                value: reviewSummaryText.length <= 1_024
+                  ? reviewSummaryText
+                  : `${reviewSummaryText.slice(0, 1_023)}…`,
                 inline: false,
               });
             }
