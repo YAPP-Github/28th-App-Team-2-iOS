@@ -5,7 +5,7 @@ description: DesignSystem 모듈 자체의 컴포넌트, 리소스, Example Play
 
 # Design System Development Guidelines
 
-Figma를 디자인 값의 원본으로 사용하고, 승인된 값을 해석한 프로덕션 `Specification`을 렌더링·Example·테스트의 런타임 SSOT로 사용한다.
+Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SSOT로 사용하고, 이를 해석한 프로덕션 `Specification`을 렌더링·Example·테스트의 런타임 SSOT로 사용한다.
 
 ## 1. Specification SSOT
 
@@ -58,15 +58,16 @@ Figma를 디자인 값의 원본으로 사용하고, 승인된 값을 해석한 
 5. Color/Icon/Font Catalog에 등록한다.
 6. 컬러·아이콘 리소스 또는 `.ds` 브릿지·Catalog를 변경한 경우 `./scripts/validate-design-system-assets.sh`를 실행한다. 이 검증은 DesignSystem 리소스 작업에만 적용한다.
 
-## 5. 컴포넌트 작업 순서
+## 5. 컴포넌트 작업 순서 (Docs-as-Code 기반)
 
 1. Figma의 variant·size·state·값을 확인하고 애매한 항목을 사용자에게 확인한다.
-2. 컴포넌트 전용 public read-only Specification과 조회 API를 구현한다.
-3. View/Style의 렌더링 디자인 값을 Specification에 연결한다.
-4. DEBUG 레이아웃 검사기에서 컴포넌트 외곽과 측정 가치가 있는 내부 영역을 구현 안에서 보고한다. 컴포넌트 외곽은 `dsDebugGeometry`, 행간을 포함한 Text 영역은 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 보고하고, 그 밖의 서로 다른 내부 레이아웃 영역은 `dsDebugDetailGeometry`를 사용한다. 내부의 모든 View에 기계적으로 적용하지 않고 아이콘·콘텐츠 그룹·상태 표시·슬롯 등 레이아웃 경계나 Specification 값을 확인할 수 있는 영역만 등록한다. 배경·테두리·그림자처럼 장식 목적이거나 기존 영역과 프레임이 같은 요소는 제외한다. 이미 geometry를 보고하는 하위 DesignSystem 컴포넌트를 조합할 때는 동일 영역을 부모에서 중복 등록하지 않고, 부모가 추가한 외곽·컨테이너·padding 경계만 등록한다. 각 helper의 Release no-op을 사용하므로 컴포넌트 호출부를 `#if DEBUG`로 분기하지 않는다.
-5. 단일 컴포넌트 Playground와 사양표를 추가한다.
-6. Components Catalog에 등록한다.
-7. 컴포넌트별 테스트 파일에 모든 Specification 조합의 매핑 테스트를 추가한다.
+2. **[필수] `Projects/Core/DesignSystem/Docs/Components/` 하위에 개별 마크다운 명세서를 생성/갱신하고, 전체 인덱스인 `Docs/Figma_Specification.md` 에도 링크와 썸네일을 반드시 업데이트한다. (각 명세서 최상단에 Figma 원본 링크(Node ID) 유지)**
+3. 컴포넌트 전용 public read-only Specification과 조회 API를 구현한다. (오직 마크다운 명세서만을 SSOT로 보고 구현)
+4. View/Style의 렌더링 디자인 값을 Specification에 연결한다.
+5. DEBUG 레이아웃 검사기에서 컴포넌트 외곽과 측정 가치가 있는 내부 영역을 구현 안에서 보고한다. 컴포넌트 외곽은 `dsDebugGeometry`, 행간을 포함한 Text 영역은 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 보고하고, 그 밖의 서로 다른 내부 레이아웃 영역은 `dsDebugDetailGeometry`를 사용한다. 내부의 모든 View에 기계적으로 적용하지 않고 아이콘·콘텐츠 그룹·상태 표시·슬롯 등 레이아웃 경계나 Specification 값을 확인할 수 있는 영역만 등록한다. 배경·테두리·그림자처럼 장식 목적이거나 기존 영역과 프레임이 같은 요소는 제외한다. 이미 geometry를 보고하는 하위 DesignSystem 컴포넌트를 조합할 때는 동일 영역을 부모에서 중복 등록하지 않고, 부모가 추가한 외곽·컨테이너·padding 경계만 등록한다. 각 helper의 Release no-op을 사용하므로 컴포넌트 호출부를 `#if DEBUG`로 분기하지 않는다.
+6. 단일 컴포넌트 Playground와 사양표를 추가한다.
+7. Components Catalog에 등록한다.
+8. 컴포넌트별 테스트 파일에 모든 Specification 조합의 매핑 테스트를 추가한다.
 
 ## 6. 검증
 
