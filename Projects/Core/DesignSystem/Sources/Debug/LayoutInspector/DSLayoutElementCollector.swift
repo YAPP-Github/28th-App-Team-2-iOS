@@ -10,9 +10,12 @@ enum DSLayoutElementCollector {
     }
 
     static func collect(in window: UIWindow) -> [DSLayoutRegion] {
-
         var regions: [DSLayoutRegion] = []
         var accessibilityObjects = Set<ObjectIdentifier>()
+
+        // SwiftUI의 Text·Button 같은 일부 요소는 독립 UIView가 아니라 접근성 트리에만
+        // 노출된다. 뷰 계층과 접근성 계층을 모두 순회해야 실제 화면에서 선택 가능한
+        // 영역을 최대한 빠짐없이 수집할 수 있다.
         collectViews(
             from: window,
             in: window,
@@ -50,6 +53,8 @@ enum DSLayoutElementCollector {
     }
 
     private static func activeWindow() -> UIWindow? {
+        // 멀티 윈도우 환경에서는 foregroundActive scene만 대상으로 삼는다.
+        // key window가 없을 수 있으므로, 그 경우 보이는 첫 window로 안전하게 대체한다.
         let activeScenes = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .filter { $0.activationState == .foregroundActive }
@@ -110,6 +115,9 @@ enum DSLayoutElementCollector {
         regions: inout [DSLayoutRegion],
         accessibilityObjects: inout Set<ObjectIdentifier>
     ) {
+        // 오버레이 자신까지 수집하면 윤곽선·제어 패널이 다시 선택 대상이 되어
+        // 검사기가 자기 자신을 계속 검사하게 된다. 전용 accessibility prefix로
+        // 검사기 구성 요소를 한 번에 제외한다.
         guard isVisible(view),
               !isInspectorElement(view),
               view.window === window || view === window else {
@@ -156,6 +164,9 @@ enum DSLayoutElementCollector {
         visited: inout Set<ObjectIdentifier>
     ) {
         let objectID = ObjectIdentifier(object)
+
+        // 같은 접근성 객체가 accessibilityElements, elementCount, automationElements를
+        // 통해 중복 노출될 수 있다. 객체 identity 기준으로 한 번만 방문한다.
         guard visited.insert(objectID).inserted,
               !object.accessibilityElementsHidden,
               !isInspectorElement(object) else {
@@ -163,6 +174,8 @@ enum DSLayoutElementCollector {
         }
 
         if object.isAccessibilityElement {
+            // accessibilityFrame은 screen 좌표계 기준이므로, overlay와 같은 window
+            // 좌표계로 변환한 뒤 다른 UIView 프레임과 함께 비교한다.
             let frame = window.screen.coordinateSpace.convert(
                 object.accessibilityFrame,
                 to: window.coordinateSpace
@@ -195,6 +208,9 @@ enum DSLayoutElementCollector {
     private static func accessibilityChildren(of object: NSObject) -> [NSObject] {
         var children: [NSObject] = []
 
+        // 컨테이너마다 노출 방식이 다르다. 명시 배열을 우선하고, 없으면 UIKit의
+        // indexed API를 사용한다. automationElements는 UIKit 자동화용 별도 경로라
+        // 추가로 합친다.
         if let elements = object.accessibilityElements, !elements.isEmpty {
             children.append(contentsOf: elements.compactMap { $0 as? NSObject })
         } else {

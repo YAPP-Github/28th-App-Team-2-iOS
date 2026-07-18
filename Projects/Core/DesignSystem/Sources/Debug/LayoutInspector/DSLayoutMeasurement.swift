@@ -22,6 +22,9 @@ struct DSLayoutRulerPoints: Equatable {
     let end: CGPoint?
 
     static let empty = DSLayoutRulerPoints(start: nil, end: nil)
+
+    // Ruler는 탭 두 번으로도 측정한다. 터치가 아주 조금 흔들린 것을 drag로 처리하면
+    // 첫 번째 점이 고정되지 않으므로, 이 거리 미만은 탭으로 간주한다.
     static let tapMovementTolerance: CGFloat = 4
 
     func afterTapping(_ point: CGPoint) -> DSLayoutRulerPoints {
@@ -116,6 +119,8 @@ enum DSLayoutMeasurementCalculator {
         let corner = CGPoint(x: end.x, y: start.y)
         var measurements: [DSLayoutMeasurement] = []
 
+        // 수평 드래그 중 생긴 아주 작은 세로 흔들림까지 별도 거리로 보이면 노이즈가
+        // 된다. 0.5pt 미만의 축 이동은 표시하지 않되, 실제 주축 거리 측정은 유지한다.
         if abs(end.x - start.x) >= 0.5 {
             measurements.append(
                 measurement(axis: .horizontal, start: start, end: corner)
