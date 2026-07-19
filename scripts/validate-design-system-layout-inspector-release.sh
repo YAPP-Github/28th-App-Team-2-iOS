@@ -146,8 +146,7 @@ report_pattern \
   "$DEBUG_NAME_PATTERN" \
   "Release 산출물에 평가된 컴포넌트 디버그 이름이 남아 있습니다."
 
-if ! find "$MODULE_DIR" -type f -name '*.abi.json' -print0 \
-  | xargs -0 cat > "$TEMP_DIR/public-abi"; then
+if ! find "$MODULE_DIR" -type f -name '*.abi.json' -exec cat {} + > "$TEMP_DIR/public-abi"; then
   fail "DesignSystem 공개 ABI 정보를 읽지 못했습니다."
 elif [[ ! -s "$TEMP_DIR/public-abi" ]]; then
   fail "DesignSystem 공개 ABI 정보가 비어 있습니다."

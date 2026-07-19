@@ -29,14 +29,21 @@ struct DSLayoutInspectorOverlay: View {
     @GestureState private var informationDragOffset: CGFloat = 0
 
     var body: some View {
+        let currentRegions = mergedRegions
+        let currentSelectedRegions = selectedRegions(in: currentRegions)
+        let currentMeasurements = measurements(for: currentSelectedRegions)
+
         ZStack {
-            interactionLayer
+            interactionLayer(regions: currentRegions)
                 .accessibilityHidden(true)
-            regionOutlines
+            regionOutlines(
+                regions: currentRegions,
+                selectedRegions: currentSelectedRegions
+            )
                 .accessibilityHidden(true)
-            measurementOverlay
+            measurementOverlay(measurements: currentMeasurements)
                 .accessibilityHidden(true)
-            controlPanel
+            controlPanel(selectedRegions: currentSelectedRegions)
         }
         .ignoresSafeArea()
         .task(id: refreshIdentity) {
@@ -49,7 +56,7 @@ struct DSLayoutInspectorOverlay: View {
     }
 
     @ViewBuilder
-    private var interactionLayer: some View {
+    private func interactionLayer(regions: [DSLayoutRegion]) -> some View {
         switch mode {
         case .inspection, .spacing:
             Color.black.opacity(0.001)
@@ -57,7 +64,7 @@ struct DSLayoutInspectorOverlay: View {
                 .gesture(
                     SpatialTapGesture()
                         .onEnded { gesture in
-                            selectRegion(at: gesture.location)
+                            selectRegion(at: gesture.location, in: regions)
                         }
                 )
         case .ruler:
@@ -91,7 +98,10 @@ struct DSLayoutInspectorOverlay: View {
         }
     }
 
-    private var regionOutlines: some View {
+    private func regionOutlines(
+        regions: [DSLayoutRegion],
+        selectedRegions: [DSLayoutRegion]
+    ) -> some View {
         ForEach(Array(regions.prefix(250)), id: \.regionID) { region in
             Rectangle()
                 .stroke(
@@ -113,7 +123,9 @@ struct DSLayoutInspectorOverlay: View {
         .allowsHitTesting(false)
     }
 
-    private var measurementOverlay: some View {
+    private func measurementOverlay(
+        measurements: [DSLayoutMeasurement]
+    ) -> some View {
         ZStack {
             ForEach(measurements, id: \.measurementID) { measurement in
                 DSLayoutMeasurementView(measurement: measurement)
@@ -136,7 +148,9 @@ struct DSLayoutInspectorOverlay: View {
         .allowsHitTesting(false)
     }
 
-    private var controlPanel: some View {
+    private func controlPanel(
+        selectedRegions: [DSLayoutRegion]
+    ) -> some View {
         GeometryReader { geometry in
             ZStack {
                 HStack {
@@ -249,13 +263,15 @@ private extension DSLayoutInspectorOverlay {
         )
     }
 
-    private var selectedRegions: [DSLayoutRegion] {
+    private func selectedRegions(
+        in regions: [DSLayoutRegion]
+    ) -> [DSLayoutRegion] {
         selectedRegionIDs.compactMap { selectedID in
             regions.first { $0.regionID == selectedID }
         }
     }
 
-    private var regions: [DSLayoutRegion] {
+    private var mergedRegions: [DSLayoutRegion] {
         DSLayoutRegionMerger.merge(
             automaticRegions: automaticRegions,
             reportedRegions: reportedRegions,
@@ -263,7 +279,9 @@ private extension DSLayoutInspectorOverlay {
         )
     }
 
-    private var measurements: [DSLayoutMeasurement] {
+    private func measurements(
+        for selectedRegions: [DSLayoutRegion]
+    ) -> [DSLayoutMeasurement] {
         if mode == .ruler,
            let rulerStart = rulerPoints.start,
            let rulerEnd = rulerPoints.end {
@@ -344,7 +362,7 @@ private extension DSLayoutInspectorOverlay {
         )
     }
 
-    func selectRegion(at point: CGPoint) {
+    func selectRegion(at point: CGPoint, in regions: [DSLayoutRegion]) {
         guard let region = DSLayoutMeasurementCalculator.region(
             at: point,
             in: regions
