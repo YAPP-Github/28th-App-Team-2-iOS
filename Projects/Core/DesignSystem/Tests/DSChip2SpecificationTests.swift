@@ -1,15 +1,16 @@
-import XCTest
+import Testing
 @testable import DesignSystem
 
-final class DSChip2SpecificationTests: XCTestCase {
+struct DSChip2SpecificationTests {
+    @Test("Chip2 스펙 매핑 검증")
     func testSpecification() {
         let specification = DSChip2.specification
 
-        XCTAssertEqual(specification.verticalPadding, 5)
-        XCTAssertEqual(specification.horizontalPadding, 10)
-        XCTAssertEqual(specification.shape, .capsule)
-        XCTAssertEqual(specification.fontStyle, .body3Medium)
-        XCTAssertColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary700)
-        XCTAssertColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.white)
+        #expect(specification.verticalPadding == 5)
+        #expect(specification.horizontalPadding == 10)
+        #expect(specification.shape == .capsule)
+        #expect(specification.fontStyle == .body3Medium)
+        expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary700)
+        expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.white)
     }
 }

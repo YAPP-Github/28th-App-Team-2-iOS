@@ -1,10 +1,12 @@
 #if DEBUG
 import UIKit
-import XCTest
+import Testing
 @testable import DesignSystem
 
+@Suite(.serialized)
 @MainActor
-final class DSLayoutElementCollectorTests: XCTestCase {
+struct DSLayoutElementCollectorTests {
+    @Test("수집 시 보이는 뷰 및 접근성 요소 포함 검증")
     func testCollectIncludesVisibleViewAndAccessibilityElement() {
         let window = makeWindow()
         let view = UIView(frame: CGRect(x: 20, y: 30, width: 80, height: 40))
@@ -23,14 +25,15 @@ final class DSLayoutElementCollectorTests: XCTestCase {
 
         let regions = DSLayoutElementCollector.collect(in: window)
 
-        XCTAssertTrue(regions.contains {
+        #expect(regions.contains {
             $0.source == .view && $0.name.contains("측정 대상")
         })
-        XCTAssertTrue(regions.contains {
+        #expect(regions.contains {
             $0.source == .accessibility && $0.name == "접근성 대상"
         })
     }
 
+    @Test("수집 시 숨겨진 뷰 및 검사기 뷰 제외 검증")
     func testCollectExcludesHiddenAndInspectorViews() {
         let window = makeWindow()
 
@@ -47,12 +50,10 @@ final class DSLayoutElementCollectorTests: XCTestCase {
 
         let regions = DSLayoutElementCollector.collect(in: window)
 
-        XCTAssertFalse(regions.contains { $0.name.contains("숨김 대상") })
-        XCTAssertFalse(
-            regions.contains {
-                $0.regionID == "view-\(ObjectIdentifier(inspectorView))"
-            }
-        )
+        #expect(!regions.contains { $0.name.contains("숨김 대상") })
+        #expect(!regions.contains {
+            $0.regionID == "view-\(ObjectIdentifier(inspectorView))"
+        })
     }
 
     private func makeWindow() -> UIWindow {

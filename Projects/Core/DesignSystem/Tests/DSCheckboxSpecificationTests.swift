@@ -1,26 +1,28 @@
-import XCTest
+import Testing
 @testable import DesignSystem
 
-final class DSCheckboxSpecificationTests: XCTestCase {
-    func testSpecifications() {
-        let unchecked = DSCheckbox.specification(isOn: false)
-        XCTAssertEqual(unchecked.size, 20)
-        XCTAssertEqual(unchecked.borderWidth, 1)
-        XCTAssertNil(unchecked.iconSize)
-        XCTAssertEqual(unchecked.shape, .roundedRectangle(cornerRadius: 6))
-        XCTAssertColorEqual(unchecked.backgroundAsset, DesignSystemAsset.Colors.white)
-        XCTAssertColorEqual(unchecked.borderAsset, DesignSystemAsset.Colors.coolGray300)
-        XCTAssertNil(unchecked.iconAsset)
-        XCTAssertNil(unchecked.iconTintAsset)
+struct DSCheckboxSpecificationTests {
+    @Test("Checkbox 스펙 매핑 검증", arguments: [false, true])
+    func testSpecifications(isOn: Bool) {
+        let specification = DSCheckbox.specification(isOn: isOn)
 
-        let checked = DSCheckbox.specification(isOn: true)
-        XCTAssertEqual(checked.size, 20)
-        XCTAssertNil(checked.borderWidth)
-        XCTAssertEqual(checked.iconSize, 16)
-        XCTAssertEqual(checked.shape, .roundedRectangle(cornerRadius: 6))
-        XCTAssertColorEqual(checked.backgroundAsset, DesignSystemAsset.Colors.primary600)
-        XCTAssertNil(checked.borderAsset)
-        XCTAssertEqual(checked.iconAsset?.name, DesignSystemAsset.Icons.checkLine.name)
-        XCTAssertColorEqual(checked.iconTintAsset, DesignSystemAsset.Colors.white)
+        #expect(specification.size == 20)
+        #expect(specification.shape == .roundedRectangle(cornerRadius: 6))
+
+        if isOn {
+            #expect(specification.borderWidth == nil)
+            #expect(specification.iconSize == 16)
+            expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary600)
+            #expect(specification.borderAsset == nil)
+            #expect(specification.iconAsset?.name == DesignSystemAsset.Icons.checkLine.name)
+            expectColorEqual(specification.iconTintAsset, DesignSystemAsset.Colors.white)
+        } else {
+            #expect(specification.borderWidth == 1)
+            #expect(specification.iconSize == nil)
+            expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.white)
+            expectColorEqual(specification.borderAsset, DesignSystemAsset.Colors.coolGray300)
+            #expect(specification.iconAsset == nil)
+            #expect(specification.iconTintAsset == nil)
+        }
     }
 }

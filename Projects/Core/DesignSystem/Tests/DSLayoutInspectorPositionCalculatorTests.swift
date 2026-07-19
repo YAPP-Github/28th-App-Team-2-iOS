@@ -1,11 +1,12 @@
 #if DEBUG
 import UIKit
-import XCTest
+import Testing
 @testable import DesignSystem
 
-final class DSLayoutInspectorPositionCalculatorTests: XCTestCase {
+struct DSLayoutInspectorPositionCalculatorTests {
     private let safeAreaInsets = UIEdgeInsets(top: 59, left: 0, bottom: 34, right: 0)
 
+    @Test("정보 패널 상단 한계점 오프셋 계산 검증")
     func testInformationPanelTopLimit() {
         let result = DSLayoutInspectorPositionCalculator.informationOffset(
             -1_000,
@@ -14,9 +15,10 @@ final class DSLayoutInspectorPositionCalculatorTests: XCTestCase {
             safeAreaInsets: safeAreaInsets
         )
 
-        XCTAssertEqual(result, -647)
+        #expect(result == -647)
     }
 
+    @Test("메뉴 상하단 한계점 오프셋 계산 검증")
     func testActiveMenuLimits() {
         let top = DSLayoutInspectorPositionCalculator.menuOffset(
             -1_000,
@@ -29,8 +31,8 @@ final class DSLayoutInspectorPositionCalculatorTests: XCTestCase {
             safeAreaInsets: safeAreaInsets
         )
 
-        XCTAssertEqual(top, -225)
-        XCTAssertEqual(bottom, 250)
+        #expect(top == -225)
+        #expect(bottom == 250)
     }
 }
 #endif
