@@ -12,4 +12,4 @@
     - 🖼️ **SelectBox** (INSTANCE) `W: 170.5, H: 48.0` [X: 0.0, Y: 0.0 | Fill: whiteOpacity60 (whiteOpacity60 (whiteOpacity60 (#ffffff))) (op: 1.00) | Stroke: coolGray300 (coolGray300 (coolGray300 (#d6dce5))) (op: 1.00) | Radius: 12]
       - 📝 **남성** (TEXT) `W: 138.5, H: 21.0` [X: 16.0, Y: 13.5 | Font: dsBody1Medium | Color: coolGray800 (coolGray800 (coolGray800 (#373c46))) (op: 1.00)]
     - 🖼️ **SelectBox** (INSTANCE) `W: 170.5, H: 48.0` [X: 182.5, Y: 0.0 | Fill: whiteOpacity60 (whiteOpacity60 (whiteOpacity60 (#ffffff))) (op: 1.00) | Stroke: coolGray300 (coolGray300 (coolGray300 (#d6dce5))) (op: 1.00) | Radius: 12]
-      - 📝 **남성** (TEXT) `W: 138.5, H: 21.0` [X: 16.0, Y: 13.5 | Font: dsBody1Medium | Color: coolGray800 (coolGray800 (coolGray800 (#373c46))) (op: 1.00)]
+      - 📝 **여성** (TEXT) `W: 138.5, H: 21.0` [X: 16.0, Y: 13.5 | Font: dsBody1Medium | Color: coolGray800 (coolGray800 (coolGray800 (#373c46))) (op: 1.00)]

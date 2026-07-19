@@ -4,9 +4,11 @@
 에이전트는 디자인 시스템 컴포넌트(`Projects/Core/DesignSystem`) 구현 시 이 문서를 SSOT(Single Source of Truth)로 참조하십시오.
 
 ## 🔗 피그마 전체 컴포넌트 명세
+
 [Figma 전체 컴포넌트 명세 보러가기](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco/Yapp-2%EC%A1%B0--%ED%86%A0%EB%8B%A5%EC%9A%B4-?node-id=367-1011&t=zwfU9lrAWxiTaXjo-4)
 
 ## 🖼️ 디자인 시스템 참조 이미지
+
 ![Design System Components](Images/Design_System_Components_Overview.png)
 
 ---
