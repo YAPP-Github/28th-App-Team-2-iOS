@@ -54,9 +54,9 @@ Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SS
 1. 모든 리소스를 `Projects/Core/DesignSystem/Resources` 아래에서 관리한다. 컬러와 아이콘은 `Resources/Assets.xcassets`에, `.otf` 폰트는 `Resources`에 둔다.
 2. 리소스를 추가·삭제·이름 변경한 경우 프로젝트 루트에서 `mise exec -- tuist generate --no-open`을 실행해 Swift 접근 코드를 갱신한다.
 3. `Derived/Sources`의 Tuist 생성 파일은 직접 수정하지 않는다.
-4. 컬러와 아이콘은 `DesignSystemColor.swift`·`DesignSystemIcon.swift`의 `.ds` API에 연결하고, 폰트는 `DesignSystemFont.swift`의 `FontStyle`과 `.ds` API에 연결한다.
+4. 컬러는 `DesignSystemColor.swift`의 `.ds` API에 연결하고, 아이콘은 `DSIconAsset`으로 식별하고 `DSIcon`으로 렌더링한다. 폰트는 `DesignSystemFont.swift`의 `FontStyle`과 `.ds` API에 연결한다.
 5. Color/Icon/Font Catalog에 등록한다.
-6. 컬러·아이콘 리소스 또는 `.ds` 브릿지·Catalog를 변경한 경우 `./scripts/validate-design-system-assets.sh`를 실행한다. 이 검증은 DesignSystem 리소스 작업에만 적용한다.
+6. 컬러·아이콘 리소스, 컬러 `.ds` 브릿지, `DSIconAsset` 또는 Color/Icon Catalog를 변경한 경우 `./scripts/validate-design-system-assets.sh`를 실행한다. 이 검증은 DesignSystem 리소스 작업에만 적용한다.
 
 ## 5. 컴포넌트 작업 순서 (Docs-as-Code 기반)
 
@@ -77,7 +77,7 @@ Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SS
 
 ```bash
 mise exec -- tuist generate --no-open
-./scripts/validate-design-system-assets.sh # 컬러·아이콘 리소스 또는 브릿지·Catalog 변경 시
+./scripts/validate-design-system-assets.sh # 컬러·아이콘 리소스, 컬러 .ds 브릿지, DSIconAsset 또는 Catalog 변경 시
 xcrun simctl list devices available
 ```
 

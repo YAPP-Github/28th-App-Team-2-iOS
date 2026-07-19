@@ -4,10 +4,7 @@ import DesignSystem
 struct IconCatalogView: View {
     @State private var isDarkBackground = false
 
-    private let icons: [DesignSystemImages] = [
-        DesignSystemAsset.Icons.checkLine,
-        DesignSystemAsset.Icons.edit
-    ]
+    private let icons = DSIconAsset.allCases
 
     let columns = [
         GridItem(.adaptive(minimum: 100))
@@ -30,18 +27,15 @@ struct IconCatalogView: View {
             .padding(.horizontal)
 
             LazyVGrid(columns: columns, spacing: 20) {
-                ForEach(icons, id: \.name) { icon in
+                ForEach(icons, id: \.self) { icon in
                     VStack {
-                        icon.swiftUIImage
-                            .resizable()
-                            .renderingMode(.template)
+                        DSIcon(icon, width: 24, height: 24)
                             .foregroundStyle(isDarkBackground ? Color.ds.white : Color.ds.gray900)
-                            .frame(width: 24, height: 24)
                             .padding()
                             .background(isDarkBackground ? Color.ds.coolGray900 : Color.ds.gray50)
                             .cornerRadius(12)
 
-                        Text(icon.displayName)
+                        Text(icon.name)
                             .font(.system(.caption, design: .monospaced))
                             .foregroundColor(isDarkBackground ? Color.ds.gray300 : Color.ds.gray600)
                     }

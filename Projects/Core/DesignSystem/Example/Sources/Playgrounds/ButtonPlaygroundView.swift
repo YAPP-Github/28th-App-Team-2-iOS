@@ -74,8 +74,8 @@ struct ButtonPlaygroundView: View {
 
     @ViewBuilder
     private var buttonPreview: some View {
-        let left = showLeftIcon ? Image.ds.edit : nil
-        let right = showRightIcon ? Image.ds.edit : nil
+        let left = showLeftIcon ? DSIconAsset.edit : nil
+        let right = showRightIcon ? DSIconAsset.edit : nil
 
         switch (selectedVariant, selectedSize) {
         case (.primary, .large):
