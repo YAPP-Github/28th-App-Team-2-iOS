@@ -100,7 +100,12 @@ struct DSLineHeightModifier: ViewModifier {
 extension View {
     // 공통 폰트 지정 기반 뷰 모디파이어
     func dsFont(_ style: FontStyle) -> some View {
-        return self
+        dsStyledFont(style)
+            .dsDebugTypographyGeometry("Typography.\(String(describing: style))")
+    }
+
+    private func dsStyledFont(_ style: FontStyle) -> some View {
+        self
             .font(.ds.font(style))
             .modifier(
                 DSLineHeightModifier(

@@ -48,5 +48,6 @@ public struct DSChip: View {
                 .dsFont(specification.fontStyle)
         }
         .buttonStyle(DSChipButtonStyle(specification: specification))
+        .dsDebugGeometry("DSChip")
     }
 }

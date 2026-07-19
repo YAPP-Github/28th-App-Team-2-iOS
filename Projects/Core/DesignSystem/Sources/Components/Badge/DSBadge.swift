@@ -57,5 +57,6 @@ public struct DSBadge: View {
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)
             .background(specification.backgroundAsset.swiftUIColor)
             .clipShape(specification.shape.swiftUIShape)
+            .dsDebugGeometry("DSBadge")
     }
 }

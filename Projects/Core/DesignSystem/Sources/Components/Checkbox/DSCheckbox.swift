@@ -39,5 +39,6 @@ public struct DSCheckbox: View {
             EmptyView()
         }
         .toggleStyle(DSCheckboxStyle())
+        .dsDebugGeometry("DSCheckbox")
     }
 }

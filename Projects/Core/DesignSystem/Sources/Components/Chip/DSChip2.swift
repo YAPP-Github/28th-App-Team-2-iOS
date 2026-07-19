@@ -39,5 +39,6 @@ public struct DSChip2: View {
             .foregroundColor(specification.foregroundAsset.swiftUIColor)
             .background(specification.backgroundAsset.swiftUIColor)
             .clipShape(specification.shape.swiftUIShape)
+            .dsDebugGeometry("DSChip2")
     }
 }

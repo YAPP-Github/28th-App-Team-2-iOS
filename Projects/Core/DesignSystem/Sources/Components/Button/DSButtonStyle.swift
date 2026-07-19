@@ -5,7 +5,6 @@ struct DSButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .dsFont(specification.fontStyle)
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)
             .frame(height: specification.height)
             .padding(.horizontal, specification.horizontalPadding)

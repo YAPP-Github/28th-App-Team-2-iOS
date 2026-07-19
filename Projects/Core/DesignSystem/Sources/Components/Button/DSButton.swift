@@ -87,6 +87,23 @@ public struct DSButton: View {
         self.action = action
     }
 
+    private var debugName: String {
+        switch (variant, size) {
+        case (.primary, .large):
+            "DSPrimaryLargeButton"
+        case (.primary, .medium):
+            "DSPrimaryMediumButton"
+        case (.primary, .small):
+            "DSPrimarySmallButton"
+        case (.secondary, .large):
+            "DSSecondaryLargeButton"
+        case (.secondary, .medium):
+            "DSSecondaryMediumButton"
+        case (.secondary, .small):
+            "DSSecondarySmallButton"
+        }
+    }
+
     public var body: some View {
         let specification = Self.specification(
             variant: variant,
@@ -94,28 +111,35 @@ public struct DSButton: View {
             isEnabled: isEnabled
         )
 
-        Button(action: action) {
-            HStack(alignment: .center, spacing: specification.contentGap) {
-                if let leftIcon {
-                    leftIcon
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: specification.iconSize, height: specification.iconSize)
-                }
+        let content = HStack(alignment: .center, spacing: specification.contentGap) {
+            if let leftIcon {
+                leftIcon
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: specification.iconSize, height: specification.iconSize)
+                    .dsDebugDetailGeometry("\(debugName).LeftIcon")
+            }
 
-                Text(title)
+            Text(title)
+                .dsFont(specification.fontStyle)
 
-                if let rightIcon {
-                    rightIcon
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: specification.iconSize, height: specification.iconSize)
-                }
+            if let rightIcon {
+                rightIcon
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: specification.iconSize, height: specification.iconSize)
+                    .dsDebugDetailGeometry("\(debugName).RightIcon")
             }
         }
+        .dsDebugDetailGeometry("\(debugName).Content")
+
+        Button(action: action) {
+            content
+        }
         .buttonStyle(DSButtonStyle(specification: specification))
+        .dsDebugGeometry(debugName)
     }
 }
 
@@ -141,7 +165,14 @@ public struct DSPrimaryLargeButton: View {
     }
 
     public var body: some View {
-        DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .primary, size: .large, action: action)
+        DSButton(
+            title,
+            leftIcon: leftIcon,
+            rightIcon: rightIcon,
+            variant: .primary,
+            size: .large,
+            action: action
+        )
     }
 }
 
@@ -164,7 +195,14 @@ public struct DSPrimaryMediumButton: View {
     }
 
     public var body: some View {
-        DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .primary, size: .medium, action: action)
+        DSButton(
+            title,
+            leftIcon: leftIcon,
+            rightIcon: rightIcon,
+            variant: .primary,
+            size: .medium,
+            action: action
+        )
     }
 }
 
@@ -187,7 +225,14 @@ public struct DSPrimarySmallButton: View {
     }
 
     public var body: some View {
-        DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .primary, size: .small, action: action)
+        DSButton(
+            title,
+            leftIcon: leftIcon,
+            rightIcon: rightIcon,
+            variant: .primary,
+            size: .small,
+            action: action
+        )
     }
 }
 
@@ -211,7 +256,14 @@ public struct DSSecondaryLargeButton: View {
     }
 
     public var body: some View {
-        DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .secondary, size: .large, action: action)
+        DSButton(
+            title,
+            leftIcon: leftIcon,
+            rightIcon: rightIcon,
+            variant: .secondary,
+            size: .large,
+            action: action
+        )
     }
 }
 
@@ -234,7 +286,14 @@ public struct DSSecondaryMediumButton: View {
     }
 
     public var body: some View {
-        DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .secondary, size: .medium, action: action)
+        DSButton(
+            title,
+            leftIcon: leftIcon,
+            rightIcon: rightIcon,
+            variant: .secondary,
+            size: .medium,
+            action: action
+        )
     }
 }
 
@@ -257,6 +316,13 @@ public struct DSSecondarySmallButton: View {
     }
 
     public var body: some View {
-        DSButton(title, leftIcon: leftIcon, rightIcon: rightIcon, variant: .secondary, size: .small, action: action)
+        DSButton(
+            title,
+            leftIcon: leftIcon,
+            rightIcon: rightIcon,
+            variant: .secondary,
+            size: .small,
+            action: action
+        )
     }
 }
