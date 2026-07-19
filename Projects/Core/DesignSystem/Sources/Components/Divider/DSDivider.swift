@@ -35,6 +35,7 @@ public struct DSDivider: View {
             .frame(maxWidth: .infinity)
             .frame(height: specification.thickness)
             .accessibilityHidden(true)
+            .dsDebugGeometry("DSDivider")
     }
 }
 
