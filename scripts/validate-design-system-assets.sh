@@ -143,7 +143,7 @@ if ! perl -ne 'print "$1\t$2\n" if /^\s*public static let ([A-Za-z_][A-Za-z0-9_]
 fi
 
 # DSIconAsset은 원본 에셋 이름을 보존해 DSIcon의 DEBUG 영역명과 Catalog 등록에 사용한다.
-if ! perl -0777 -ne '$source = $_; while ($source =~ /case \.([A-Za-z_][A-Za-z0-9_]*)\s*:\s*DesignSystemAsset\.Icons\.([A-Za-z_][A-Za-z0-9_]*)\.swiftUIImage/g) { print "$1\t$2\n" }' \
+if ! perl -0777 -ne '$source = $_; while ($source =~ /case \.([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:return\s+)?DesignSystemAsset\.Icons\.([A-Za-z_][A-Za-z0-9_]*)\.swiftUIImage/g) { print "$1\t$2\n" }' \
   "$ICON_ASSET" | sort -u > "$TEMP_DIR/ds-icon-mappings"; then
   fail "DSIconAsset 에셋 매핑을 추출하지 못했습니다."
 fi
