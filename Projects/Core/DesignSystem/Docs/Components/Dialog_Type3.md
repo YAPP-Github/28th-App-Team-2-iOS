@@ -2,6 +2,10 @@
 
 [🔗 Figma 원본 링크](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=394-5254)
 
+> [!IMPORTANT]
+> 다이얼로그(Dialog) 컴포넌트의 가로 폭(Width)은 **280px로 항상 고정**됩니다.
+
+
 ![Dialog_Type3](../Images/Dialog_Type3.png)
 
 ## 🏗️ Structure & Layout

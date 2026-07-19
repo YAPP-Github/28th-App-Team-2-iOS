@@ -209,6 +209,10 @@
 
 ## 5. 레이아웃 & 다이얼로그 (#27)
 
+> [!IMPORTANT]
+> 다이얼로그(Dialog) 컴포넌트군의 가로 폭(Width)은 **280px로 항상 고정**됩니다.
+
+
 ### 🧩 Bottom_Navigation [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=380-2848)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Bottom_Navigation.md)
