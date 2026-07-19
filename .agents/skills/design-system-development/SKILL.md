@@ -61,6 +61,7 @@ Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SS
 ## 5. 컴포넌트 작업 순서 (Docs-as-Code 기반)
 
 1. Figma의 variant·size·state·값을 확인하고 애매한 항목을 사용자에게 확인한다.
+   - **[주의]** Figma MCP 등 자동 추출기 특성상, 시각적으로 숨겨진 레이어나 오염된 정보가 텍스트 스펙에 잘못 노출되거나 누락될 수 있습니다. 따라서 분석 시 명세서 텍스트 수치에만 의존하지 말고, **연동된 시각 렌더링 이미지(Docs/Images/) 및 Figma 원본을 교차 검증(Cross-check)**해야 합니다.
 2. **[필수] `Projects/Core/DesignSystem/Docs/Components/` 하위에 개별 마크다운 명세서를 생성/갱신하고, 전체 인덱스인 `Docs/Figma_Specification.md` 에도 링크와 썸네일을 반드시 업데이트한다. (각 명세서 최상단에 Figma 원본 링크(Node ID) 유지)**
 3. 컴포넌트 전용 public read-only Specification과 조회 API를 구현한다. (오직 마크다운 명세서만을 SSOT로 보고 구현)
 4. View/Style의 렌더링 디자인 값을 Specification에 연결한다.
