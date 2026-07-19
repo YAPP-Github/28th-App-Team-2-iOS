@@ -6,7 +6,7 @@
 
 ## 🏗️ Structure & Layout
 
-- 🖼️ **Toast** (COMPONENT) `W: 212.0, H: 36.0` [Fill: black (black (black (#000000))) (op: 0.80) | Radius: 8]
+- 🖼️ **Toast** (COMPONENT) `W: 212.0, H: 36.0` [Fill: black (#000000) (op: 0.80) | Radius: 8]
   - 🟦 **Container** (FRAME) `W: 212.0, H: 36.0` [X: 0.0, Y: 0.0]
     - 🟦 **Contents** (FRAME) `W: 212.0, H: 36.0` [X: 0.0, Y: 0.0]
       - 📝 **메시지에 마침표를 찍어주세요.** (TEXT) `W: 168.0, H: 20.0` [X: 8.0, Y: 8.0 | Font: dsBody3Regular (Figma LH: 20.0px) | Color: #f7f7f8 (op: 1.00)]

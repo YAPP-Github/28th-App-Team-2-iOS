@@ -12,4 +12,4 @@
     - 🟦 **Button** (FRAME) `W: 20.0, H: 20.0` [X: 317.0, Y: 12.0]
       - 🟦 **Icon/Navigation/Close** (FRAME) `W: 16.0, H: 16.0` [X: 2.0, Y: 2.0]
         - 🟦 **content** (GROUP) `W: 13.3, H: 13.3` [X: 1.3, Y: 1.3]
-          - 🟦 **Rectangle 939** (RECTANGLE) `W: 13.3, H: 13.3` [X: 0.0, Y: 0.0 | Fill: whiteOpacity60 (whiteOpacity60 (whiteOpacity60 (#ffffff))) (op: 0.60)]
+          - 🟦 **Rectangle 939** (RECTANGLE) `W: 13.3, H: 13.3` [X: 0.0, Y: 0.0 | Fill: whiteOpacity60 (#ffffff) (op: 0.60)]

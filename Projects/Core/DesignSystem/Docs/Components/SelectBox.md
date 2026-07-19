@@ -7,7 +7,7 @@
 ## 🏗️ Structure & Layout
 
 - 🟦 **SelectBox** (COMPONENT_SET) `W: 208.5, H: 156.0` [Radius: 5]
-  - 🖼️ **Variant: off** (COMPONENT) `W: 168.5, H: 48.0` [X: 20.0, Y: 20.0 | Fill: whiteOpacity60 (whiteOpacity60 (whiteOpacity60 (#ffffff))) (op: 1.00) | Stroke: coolGray300 (coolGray300 (coolGray300 (#d6dce5))) (op: 1.00) | Radius: 12]
-    - 📝 **남성** (TEXT) `W: 136.5, H: 21.0` [X: 16.0, Y: 13.5 | Font: dsBody1Medium | Color: coolGray800 (coolGray800 (coolGray800 (#373c46))) (op: 1.00)]
-  - 🖼️ **Variant: on** (COMPONENT) `W: 168.5, H: 48.0` [X: 20.0, Y: 88.0 | Fill: primary50 (primary50 (primary50 (#f5f3fe))) (op: 1.00) | Stroke: primary600 (primary600 (primary600 (#7f73ea))) (op: 1.00) | Radius: 12]
-    - 📝 **남성** (TEXT) `W: 136.5, H: 21.0` [X: 16.0, Y: 13.5 | Font: dsBody1Medium | Color: primary700 (primary700 (primary700 (#5757d7))) (op: 1.00)]
+  - 🖼️ **Variant: off** (COMPONENT) `W: 168.5, H: 48.0` [X: 20.0, Y: 20.0 | Fill: whiteOpacity60 (#ffffff) (op: 1.00) | Stroke: coolGray300 (#d6dce5) (op: 1.00) | Radius: 12]
+    - 📝 **남성** (TEXT) `W: 136.5, H: 21.0` [X: 16.0, Y: 13.5 | Font: dsBody1Medium | Color: coolGray800 (#373c46) (op: 1.00)]
+  - 🖼️ **Variant: on** (COMPONENT) `W: 168.5, H: 48.0` [X: 20.0, Y: 88.0 | Fill: primary50 (#f5f3fe) (op: 1.00) | Stroke: primary600 (#7f73ea) (op: 1.00) | Radius: 12]
+    - 📝 **남성** (TEXT) `W: 136.5, H: 21.0` [X: 16.0, Y: 13.5 | Font: dsBody1Medium | Color: primary700 (#5757d7) (op: 1.00)]

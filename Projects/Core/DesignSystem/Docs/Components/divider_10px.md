@@ -7,4 +7,4 @@
 ## 🏗️ Structure & Layout
 
 - 🖼️ **divider_10px** (COMPONENT) `W: 393.0, H: 10.0`
-  - 🟦 **Rectangle 34626010** (RECTANGLE) `W: 393.0, H: 10.0` [X: 0.0, Y: 0.0 | Fill: gray25 (gray25 (gray25 (#fafafa))) (op: 1.00)]
+  - 🟦 **Rectangle 34626010** (RECTANGLE) `W: 393.0, H: 10.0` [X: 0.0, Y: 0.0 | Fill: gray25 (#fafafa) (op: 1.00)]
