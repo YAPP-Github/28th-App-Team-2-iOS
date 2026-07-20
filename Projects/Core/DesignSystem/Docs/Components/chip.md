@@ -10,4 +10,4 @@
   - 🖼️ **Variant: off** (COMPONENT) `W: 68.0, H: 48.0` [X: 20.0, Y: 20.0 | Fill: gray25 (#fafafa) (op: 1.00) | Radius: 100]
     - 📝 **학생** (TEXT) `W: 28.0, H: 24.0` [X: 20.0, Y: 12.0 | Font: dsBody2Medium | Color: coolGray700 (#505866) (op: 1.00)]
   - 🖼️ **Variant: on** (COMPONENT) `W: 68.0, H: 48.0` [X: 20.0, Y: 85.0 | Fill: primary500 (#9c8af6) (op: 1.00) | Radius: 100]
-    - 📝 **학생** (TEXT) `W: 28.0, H: 24.0` [X: 20.0, Y: 12.0 | Font: dsBody2SemiBold | Color: whiteOpacity60 (#ffffff) (op: 1.00)]
+    - 📝 **학생** (TEXT) `W: 28.0, H: 24.0` [X: 20.0, Y: 12.0 | Font: dsBody2SemiBold | Color: white (#ffffff) (op: 1.00)]

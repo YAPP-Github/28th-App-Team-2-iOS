@@ -6,7 +6,7 @@
 
 ## 🏗️ Structure & Layout
 
-- 🖼️ **WheelPicker_single** (COMPONENT) `W: 352.0, H: 319.0` [Fill: whiteOpacity60 (#ffffff) (op: 1.00) | Radius: 12]
+- 🖼️ **WheelPicker_single** (COMPONENT) `W: 352.0, H: 319.0` [Fill: white (#ffffff) (op: 1.00) | Radius: 12]
   - 🟦 **Frame 1430106076** (FRAME) `W: 292.0, H: 235.0` [X: 30.0, Y: 44.0]
     - 🟦 **Frame 1430106133** (FRAME) `W: 292.0, H: 32.0` [X: 0.0, Y: 0.0]
       - 📝 **태어난 시각 선택** (TEXT) `W: 220.0, H: 32.0` [X: 0.0, Y: 0.0 | Font: dsHeading3Bold | Color: black (#000000) (op: 1.00)]

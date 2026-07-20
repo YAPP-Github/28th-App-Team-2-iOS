@@ -17,5 +17,5 @@
           - 🟦 **content** (GROUP) `W: 16.7, H: 16.7` [X: 1.7, Y: 1.7]
             - 🟦 **background** (RECTANGLE) `W: 16.7, H: 16.7` [X: 0.0, Y: 0.0]
     - 🟦 **Frame 1430105945** (FRAME) `W: 117.0, H: 48.0` [X: 236.0, Y: 0.0 | Fill: gray25 (#fafafa) (op: 1.00) | Radius: 12]
-      - 🖼️ **Checkbox** (INSTANCE) `W: 20.0, H: 20.0` [X: 16.0, Y: 14.0 | Fill: whiteOpacity60 (#ffffff) (op: 1.00) | Stroke: gray300 (#dcdcdc) (op: 1.00) | Radius: 6]
+      - 🖼️ **Checkbox** (INSTANCE) `W: 20.0, H: 20.0` [X: 16.0, Y: 14.0 | Fill: white (#ffffff) (op: 1.00) | Stroke: gray300 (#dcdcdc) (op: 1.00) | Radius: 6]
       - 📝 **시간 모름** (TEXT) `W: 59.0, H: 21.0` [X: 42.0, Y: 13.5 | Font: dsBody3Medium | Color: gray975 (#171717) (op: 1.00)]

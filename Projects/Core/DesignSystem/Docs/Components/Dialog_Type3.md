@@ -10,7 +10,7 @@
 
 ## 🏗️ Structure & Layout
 
-- 🖼️ **Dialog** (INSTANCE) `W: 280.0, H: 128.0` [Fill: whiteOpacity60 (#ffffff) (op: 1.00) | Radius: 12]
+- 🖼️ **Dialog** (INSTANCE) `W: 280.0, H: 128.0` [Fill: white (#ffffff) (op: 1.00) | Radius: 12]
   - 🟦 **Frame 625626** (FRAME) `W: 280.0, H: 44.0` [X: 0.0, Y: 0.0]
     - 🟦 **text** (FRAME) `W: 280.0, H: 44.0` [X: 0.0, Y: 0.0]
       - 🟦 **Frame 625625** (FRAME) `W: 240.0, H: 24.0` [X: 20.0, Y: 20.0]
@@ -19,4 +19,4 @@
   - 🖼️ **Button** (INSTANCE) `W: 280.0, H: 84.0` [X: 0.0, Y: 44.0]
     - 🖼️ **Button** (INSTANCE) `W: 240.0, H: 44.0` [X: 20.0, Y: 20.0]
       - 🖼️ **Button** (INSTANCE) `W: 240.0, H: 44.0` [X: 0.0, Y: 0.0 | Fill: primary600 (#7f73ea) (op: 1.00) | Radius: 12]
-        - 📝 **다음 단계** (TEXT) `W: 36.0, H: 20.0` [X: 102.0, Y: 12.0 | Font: dsBody3SemiBold (Figma LH: 20.0px) | Color: whiteOpacity60 (#ffffff) (op: 1.00)]
+        - 📝 **다음 단계** (TEXT) `W: 36.0, H: 20.0` [X: 102.0, Y: 12.0 | Font: dsBody3SemiBold (Figma LH: 20.0px) | Color: white (#ffffff) (op: 1.00)]

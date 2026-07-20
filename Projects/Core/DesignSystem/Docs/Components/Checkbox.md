@@ -13,4 +13,4 @@
         - 🟦 **content_area** (RECTANGLE) `W: 16.0, H: 16.0` [X: 0.0, Y: 0.0]
         - 🟦 **content** (GROUP) `W: 13.3, H: 13.3` [X: 1.3, Y: 1.3]
           - 🟦 **Rectangle 5396** (RECTANGLE) `W: 13.3, H: 13.3` [X: 0.0, Y: 0.0]
-  - 🖼️ **Variant: Off** (COMPONENT) `W: 20.0, H: 20.0` [X: 20.0, Y: 60.0 | Fill: whiteOpacity60 (#ffffff) (op: 1.00) | Stroke: gray300 (#dcdcdc) (op: 1.00) | Radius: 6]
+  - 🖼️ **Variant: Off** (COMPONENT) `W: 20.0, H: 20.0` [X: 20.0, Y: 60.0 | Fill: white (#ffffff) (op: 1.00) | Stroke: gray300 (#dcdcdc) (op: 1.00) | Radius: 6]

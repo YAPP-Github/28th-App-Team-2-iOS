@@ -7,7 +7,7 @@
 ## 🏗️ Structure & Layout
 
 - 🟦 **Header** (COMPONENT_SET) `W: 433.0, H: 208.0` [Fill: #f6f6f6 (op: 1.00) | Radius: 5]
-  - 🖼️ **Variant: Header_sub** (COMPONENT) `W: 393.0, H: 48.0` [X: 20.0, Y: 127.0 | Fill: whiteOpacity60 (#ffffff) (op: 1.00)]
+  - 🖼️ **Variant: Header_sub** (COMPONENT) `W: 393.0, H: 48.0` [X: 20.0, Y: 127.0 | Fill: white (#ffffff) (op: 1.00)]
     - 🟦 **chevron_left_narrow** (FRAME) `W: 20.0, H: 20.0` [X: 20.0, Y: 14.0]
       - 🟦 **chevron_left_narrow** (GROUP) `W: 20.0, H: 20.0` [X: 0.0, Y: 0.0]
         - 🟦 **content_area** (RECTANGLE) `W: 20.0, H: 20.0` [X: 0.0, Y: 0.0]
@@ -26,7 +26,7 @@
         - 🟦 **content_area** (RECTANGLE) `W: 20.0, H: 20.0` [X: 0.0, Y: 0.0]
         - 🟦 **content** (GROUP) `W: 16.7, H: 16.7` [X: 1.7, Y: 1.7]
           - 🟦 **Rectangle 939** (RECTANGLE) `W: 16.7, H: 16.7` [X: 0.0, Y: 0.0 | Fill: #131313 (op: 1.00)]
-  - 🖼️ **Variant: Header_main** (COMPONENT) `W: 393.0, H: 60.0` [X: 20.0, Y: 39.0 | Fill: whiteOpacity60 (#ffffff) (op: 1.00)]
+  - 🖼️ **Variant: Header_main** (COMPONENT) `W: 393.0, H: 60.0` [X: 20.0, Y: 39.0 | Fill: white (#ffffff) (op: 1.00)]
     - 🟦 **Frame 1430106352** (FRAME) `W: 107.0, H: 30.0` [X: 20.0, Y: 15.0]
       - 📝 **Title** (TEXT) `W: 47.0, H: 30.0` [X: 0.0, Y: 0.0 | Font: dsHeading4Bold | Color: black (#000000) (op: 1.00)]
       - 📝 **subtext** (TEXT) `W: 48.0, H: 20.0` [X: 59.0, Y: 5.0 | Font: dsBody3Regular | Color: gray500 (#9a9a9a) (op: 1.00)]

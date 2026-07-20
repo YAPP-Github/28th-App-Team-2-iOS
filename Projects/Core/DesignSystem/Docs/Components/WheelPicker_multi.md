@@ -6,7 +6,7 @@
 
 ## 🏗️ Structure & Layout
 
-- 🖼️ **WheelPicker_multi** (COMPONENT) `W: 352.0, H: 309.0` [Fill: whiteOpacity60 (#ffffff) (op: 1.00) | Radius: 12]
+- 🖼️ **WheelPicker_multi** (COMPONENT) `W: 352.0, H: 309.0` [Fill: white (#ffffff) (op: 1.00) | Radius: 12]
   - 🟦 **Frame 1430106076** (FRAME) `W: 292.0, H: 225.0` [X: 30.0, Y: 44.0]
     - 🟦 **Frame 1430106131** (FRAME) `W: 292.0, H: 32.0` [X: 0.0, Y: 0.0]
       - 📝 **받을 시간 입력** (TEXT) `W: 220.0, H: 32.0` [X: 0.0, Y: 0.0 | Font: dsHeading3Bold | Color: black (#000000) (op: 1.00)]
