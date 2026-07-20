@@ -189,7 +189,7 @@
 
 ![User Chat](Images/User_Chat.png)
 
-### 🧩 Todak Example Question [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1069-13685)
+### 🧩 Todak Example Question [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=2173-21550)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Todak_Example_Question.md)
 
