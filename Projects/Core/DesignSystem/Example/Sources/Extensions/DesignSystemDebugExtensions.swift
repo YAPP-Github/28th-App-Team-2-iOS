@@ -12,6 +12,24 @@ extension CGFloat {
     }
 }
 
+extension CGSize {
+    var ptDescription: String {
+        "\(width.ptDescription) × \(height.ptDescription)"
+    }
+}
+
+extension EdgeInsets {
+    var ptDescription: String {
+        if top == bottom && leading == trailing {
+            if top == leading {
+                return "All \(top.ptDescription)"
+            }
+            return "H: \(leading.ptDescription), V: \(top.ptDescription)"
+        }
+        return "T: \(top.ptDescription), B: \(bottom.ptDescription), L: \(leading.ptDescription), R: \(trailing.ptDescription)"
+    }
+}
+
 extension DSComponentShape {
     var specName: String {
         switch self {

@@ -89,6 +89,23 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            NavigationLink(destination: TogglePlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "switch.2")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Toggle")
+                            .font(.headline)
+                        Text("On/Off 상태를 제어하는 스위치 컴포넌트")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }
