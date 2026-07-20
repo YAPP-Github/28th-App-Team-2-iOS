@@ -8,7 +8,7 @@ DESIGN_SYSTEM_DIR="${DESIGN_SYSTEM_DIR:-$ROOT_DIR/Projects/Core/DesignSystem}"
 ASSET_CATALOG="$DESIGN_SYSTEM_DIR/Resources/Assets.xcassets"
 GENERATED_ACCESSORS="$DESIGN_SYSTEM_DIR/Derived/Sources/TuistAssets+DesignSystem.swift"
 COLOR_BRIDGE="$DESIGN_SYSTEM_DIR/Sources/DesignSystemColor.swift"
-ICON_BRIDGE="$DESIGN_SYSTEM_DIR/Sources/DesignSystemIcon.swift"
+ICON_ASSET="$DESIGN_SYSTEM_DIR/Sources/DesignSystemIcon.swift"
 COLOR_CATALOG="$DESIGN_SYSTEM_DIR/Example/Sources/Catalogs/ColorCatalogView.swift"
 ICON_CATALOG="$DESIGN_SYSTEM_DIR/Example/Sources/Catalogs/IconCatalogView.swift"
 
@@ -66,7 +66,7 @@ require_directory "$ASSET_CATALOG/Colors"
 require_directory "$ASSET_CATALOG/Icons"
 require_file "$GENERATED_ACCESSORS"
 require_file "$COLOR_BRIDGE"
-require_file "$ICON_BRIDGE"
+require_file "$ICON_ASSET"
 require_file "$COLOR_CATALOG"
 require_file "$ICON_CATALOG"
 
@@ -142,17 +142,18 @@ if ! perl -ne 'print "$1\t$2\n" if /^\s*public static let ([A-Za-z_][A-Za-z0-9_]
   fail "Color.ds 브릿지 매핑을 추출하지 못했습니다."
 fi
 
-if ! perl -ne 'print "$1\t$2\n" if /^\s*public static let ([A-Za-z_][A-Za-z0-9_]*)\s*=\s*DesignSystemAsset\.Icons\.([A-Za-z_][A-Za-z0-9_]*)\.swiftUIImage\s*$/' \
-  "$ICON_BRIDGE" | sort -u > "$TEMP_DIR/icon-bridge-mappings"; then
-  fail "Image.ds 브릿지 매핑을 추출하지 못했습니다."
+# DSIconAsset은 원본 에셋 이름을 보존해 DSIcon의 DEBUG 영역명과 Catalog 등록에 사용한다.
+if ! perl -0777 -ne '$source = $_; while ($source =~ /case \.([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:return\s+)?DesignSystemAsset\.Icons\.([A-Za-z_][A-Za-z0-9_]*)\.swiftUIImage/g) { print "$1\t$2\n" }' \
+  "$ICON_ASSET" | sort -u > "$TEMP_DIR/ds-icon-mappings"; then
+  fail "DSIconAsset 에셋 매핑을 추출하지 못했습니다."
 fi
 
 if ! cut -f2 "$TEMP_DIR/color-bridge-mappings" | sort -u > "$TEMP_DIR/bridged-colors"; then
   fail "Color.ds 브릿지 접근자 목록을 만들지 못했습니다."
 fi
 
-if ! cut -f2 "$TEMP_DIR/icon-bridge-mappings" | sort -u > "$TEMP_DIR/bridged-icons"; then
-  fail "Image.ds 브릿지 접근자 목록을 만들지 못했습니다."
+if ! cut -f2 "$TEMP_DIR/ds-icon-mappings" | sort -u > "$TEMP_DIR/ds-icon-identifiers"; then
+  fail "DSIconAsset 접근자 목록을 만들지 못했습니다."
 fi
 
 # Catalog에서 주석 처리된 참조는 등록으로 간주하지 않는다.
@@ -166,13 +167,22 @@ if ! perl -0777 -ne '$source = $_; $source =~ s{/\*.*?\*/}{}gs; $source =~ s{//[
   fail "아이콘 Catalog의 접근자 목록을 추출하지 못했습니다."
 fi
 
+if rg -q 'DSIconAsset\.allCases' "$ICON_CATALOG"; then
+  if ! sort -u "$TEMP_DIR/catalog-icons" "$TEMP_DIR/ds-icon-identifiers" \
+    > "$TEMP_DIR/catalog-icons-with-ds-icon"; then
+    fail "DSIconAsset 기반 Icon Catalog 등록 정보를 합치지 못했습니다."
+  elif ! mv "$TEMP_DIR/catalog-icons-with-ds-icon" "$TEMP_DIR/catalog-icons"; then
+    fail "Icon Catalog 등록 정보를 갱신하지 못했습니다."
+  fi
+fi
+
 if [[ "$failures" -gt 0 ]]; then
   printf 'DesignSystem 에셋 등록 정보 추출에 실패했습니다.\n' >&2
   exit 1
 fi
 
 report_bridge_name_mismatches "$TEMP_DIR/color-bridge-mappings" "Color.ds 브릿지"
-report_bridge_name_mismatches "$TEMP_DIR/icon-bridge-mappings" "Image.ds 브릿지"
+report_bridge_name_mismatches "$TEMP_DIR/ds-icon-mappings" "DSIconAsset"
 
 report_difference \
   "$TEMP_DIR/asset-colors" \
@@ -194,9 +204,9 @@ report_difference \
 
 report_difference \
   "$TEMP_DIR/generated-icon-identifiers" \
-  "$TEMP_DIR/bridged-icons" \
-  "Tuist 아이콘 접근자가 Image.ds 브릿지에 없습니다" \
-  "Image.ds 브릿지가 알 수 없는 Tuist 접근자를 참조합니다"
+  "$TEMP_DIR/ds-icon-identifiers" \
+  "Tuist 아이콘 접근자가 DSIconAsset에 없습니다" \
+  "DSIconAsset이 알 수 없는 Tuist 접근자를 참조합니다"
 
 report_difference \
   "$TEMP_DIR/generated-color-identifiers" \

@@ -6,8 +6,9 @@ struct DSButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)
-            .frame(height: specification.height)
             .padding(.horizontal, specification.horizontalPadding)
+            .frame(maxWidth: .infinity)
+            .frame(height: specification.height)
             .background(specification.backgroundAsset.swiftUIColor)
             .clipShape(specification.shape.swiftUIShape)
     }

@@ -1,9 +1,10 @@
 #if DEBUG
 import CoreGraphics
-import XCTest
+import Testing
 @testable import DesignSystem
 
-final class DSLayoutRegionMergerTests: XCTestCase {
+struct DSLayoutRegionMergerTests {
+    @Test("동일 프레임일 때 디자인시스템 영역 우선권 검증")
     func testDesignSystemRegionWinsForSameFrame() {
         let frame = CGRect(x: 10, y: 20, width: 100, height: 40)
         let result = DSLayoutRegionMerger.merge(
@@ -12,9 +13,10 @@ final class DSLayoutRegionMergerTests: XCTestCase {
             displayScale: 3
         )
 
-        XCTAssertEqual(result.map(\.regionID), ["button"])
+        #expect(result.map(\.regionID) == ["button"])
     }
 
+    @Test("디테일 영역은 항상 표시됨을 검증")
     func testDetailsAreAlwaysVisible() {
         let outer = region(
             regionID: "button",
@@ -33,9 +35,10 @@ final class DSLayoutRegionMergerTests: XCTestCase {
             displayScale: 3
         )
 
-        XCTAssertEqual(result.map(\.regionID), ["button", "title"])
+        #expect(result.map(\.regionID) == ["button", "title"])
     }
 
+    @Test("타이포그래피 라인 박스가 접근성 영역을 대체하는지 검증")
     func testTypographyLineBoxReplacesAccessibilityBounds() {
         let accessibilityText = region(
             regionID: "accessibility-text",
@@ -55,9 +58,10 @@ final class DSLayoutRegionMergerTests: XCTestCase {
             displayScale: 3
         )
 
-        XCTAssertEqual(result.map(\.regionID), ["typography"])
+        #expect(result.map(\.regionID) == ["typography"])
     }
 
+    @Test("타이포그래피 영역 내 좁은 자식 영역 보존 검증")
     func testTypographyKeepsNarrowerChildRegion() {
         let child = region(
             regionID: "child",
@@ -77,9 +81,10 @@ final class DSLayoutRegionMergerTests: XCTestCase {
             displayScale: 3
         )
 
-        XCTAssertEqual(result.map(\.regionID), ["typography", "child"])
+        #expect(result.map(\.regionID) == ["typography", "child"])
     }
 
+    @Test("디스플레이 스케일에 따른 픽셀 양자화 검증")
     func testDisplayScaleQuantization() {
         let regions = [
             region(
@@ -99,7 +104,7 @@ final class DSLayoutRegionMergerTests: XCTestCase {
             displayScale: 3
         )
 
-        XCTAssertEqual(result.count, 2)
+        #expect(result.count == 2)
     }
 
     private func region(

@@ -1,51 +1,68 @@
-import XCTest
+import Testing
 @testable import DesignSystem
 
-final class DSButtonSpecificationTests: XCTestCase {
-    func testSpecifications() {
+struct DSButtonSpecificationTests {
+    struct TestInput: Sendable, CustomStringConvertible {
+        let variant: DSButtonVariant
+        let size: DSButtonSize
+        let isEnabled: Bool
+
+        var description: String {
+            "\(variant)-\(size)-\(isEnabled ? "enabled" : "disabled")"
+        }
+    }
+
+    private static let inputs: [TestInput] = {
+        var result: [TestInput] = []
         for variant in DSButtonVariant.allCases {
             for size in DSButtonSize.allCases {
                 for isEnabled in [true, false] {
-                    let specification = DSButton.specification(
-                        variant: variant,
-                        size: size,
-                        isEnabled: isEnabled
-                    )
-
-                    XCTAssertEqual(specification.horizontalPadding, 20)
-                    XCTAssertEqual(specification.contentGap, 8)
-                    XCTAssertEqual(specification.shape, .roundedRectangle(cornerRadius: 12))
-
-                    switch size {
-                    case .large:
-                        XCTAssertEqual(specification.height, 52)
-                        XCTAssertEqual(specification.iconSize, 20)
-                        XCTAssertEqual(specification.fontStyle, isEnabled ? .body2SemiBold : .body2Medium)
-                    case .medium:
-                        XCTAssertEqual(specification.height, 44)
-                        XCTAssertEqual(specification.iconSize, 16)
-                        XCTAssertEqual(specification.fontStyle, .body3Medium)
-                    case .small:
-                        XCTAssertEqual(specification.height, 32)
-                        XCTAssertEqual(specification.iconSize, 14)
-                        XCTAssertEqual(specification.fontStyle, isEnabled ? .caption1SemiBold : .caption1Medium)
-                    }
-
-                    if isEnabled {
-                        switch variant {
-                        case .primary:
-                            XCTAssertColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary600)
-                            XCTAssertColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.white)
-                        case .secondary:
-                            XCTAssertColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary50)
-                            XCTAssertColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.primary700)
-                        }
-                    } else {
-                        XCTAssertColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray100)
-                        XCTAssertColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.gray400)
-                    }
+                    result.append(TestInput(variant: variant, size: size, isEnabled: isEnabled))
                 }
             }
+        }
+        return result
+    }()
+
+    @Test("Button 스펙 매핑 검증", arguments: inputs)
+    func testSpecifications(input: TestInput) {
+        let specification = DSButton.specification(
+            variant: input.variant,
+            size: input.size,
+            isEnabled: input.isEnabled
+        )
+
+        #expect(specification.horizontalPadding == 20)
+        #expect(specification.contentGap == 8)
+        #expect(specification.shape == .roundedRectangle(cornerRadius: 12))
+
+        switch input.size {
+        case .large:
+            #expect(specification.height == 52)
+            #expect(specification.iconSize == 20)
+            #expect(specification.fontStyle == (input.isEnabled ? .body2SemiBold : .body2Medium))
+        case .medium:
+            #expect(specification.height == 44)
+            #expect(specification.iconSize == 16)
+            #expect(specification.fontStyle == .body3Medium)
+        case .small:
+            #expect(specification.height == 32)
+            #expect(specification.iconSize == 14)
+            #expect(specification.fontStyle == (input.isEnabled ? .caption1SemiBold : .caption1Medium))
+        }
+
+        if input.isEnabled {
+            switch input.variant {
+            case .primary:
+                expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary600)
+                expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.white)
+            case .secondary:
+                expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary50)
+                expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.primary700)
+            }
+        } else {
+            expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray100)
+            expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.gray400)
         }
     }
 }

@@ -1,11 +1,10 @@
-import XCTest
+import Testing
 @testable import DesignSystem
 
-func XCTAssertColorEqual(
+func expectColorEqual(
     _ actual: DesignSystemColors?,
     _ expected: DesignSystemColors,
-    file: StaticString = #filePath,
-    line: UInt = #line
+    sourceLocation: SourceLocation = #_sourceLocation
 ) {
-    XCTAssertEqual(actual?.name, expected.name, file: file, line: line)
+    #expect(actual?.name == expected.name, sourceLocation: sourceLocation)
 }

@@ -1,22 +1,23 @@
-import XCTest
+import Testing
 @testable import DesignSystem
 
-final class DSChipSpecificationTests: XCTestCase {
-    func testSpecifications() {
-        let unselected = DSChip.specification(isSelected: false)
-        XCTAssertEqual(unselected.verticalPadding, 12)
-        XCTAssertEqual(unselected.horizontalPadding, 20)
-        XCTAssertEqual(unselected.shape, .capsule)
-        XCTAssertEqual(unselected.fontStyle, .body2Medium)
-        XCTAssertColorEqual(unselected.backgroundAsset, DesignSystemAsset.Colors.gray25)
-        XCTAssertColorEqual(unselected.foregroundAsset, DesignSystemAsset.Colors.coolGray700)
+struct DSChipSpecificationTests {
+    @Test("Chip 스펙 매핑 검증", arguments: [false, true])
+    func testSpecifications(isSelected: Bool) {
+        let specification = DSChip.specification(isSelected: isSelected)
 
-        let selected = DSChip.specification(isSelected: true)
-        XCTAssertEqual(selected.verticalPadding, 12)
-        XCTAssertEqual(selected.horizontalPadding, 20)
-        XCTAssertEqual(selected.shape, .capsule)
-        XCTAssertEqual(selected.fontStyle, .body2SemiBold)
-        XCTAssertColorEqual(selected.backgroundAsset, DesignSystemAsset.Colors.primary500)
-        XCTAssertColorEqual(selected.foregroundAsset, DesignSystemAsset.Colors.white)
+        #expect(specification.verticalPadding == 12)
+        #expect(specification.horizontalPadding == 20)
+        #expect(specification.shape == .capsule)
+
+        if isSelected {
+            #expect(specification.fontStyle == .body2SemiBold)
+            expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary500)
+            expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.white)
+        } else {
+            #expect(specification.fontStyle == .body2Medium)
+            expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray25)
+            expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.coolGray700)
+        }
     }
 }

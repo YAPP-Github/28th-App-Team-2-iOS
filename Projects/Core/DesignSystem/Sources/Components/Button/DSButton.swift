@@ -63,8 +63,8 @@ public struct DSButton: View {
     }
 
     private let title: String
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    private let leftIcon: DSIconAsset?
+    private let rightIcon: DSIconAsset?
     private let variant: DSButtonVariant
     private let size: DSButtonSize
     private let action: () -> Void
@@ -73,8 +73,8 @@ public struct DSButton: View {
 
     public init(
         _ title: String,
-        leftIcon: Image? = nil,
-        rightIcon: Image? = nil,
+        leftIcon: DSIconAsset? = nil,
+        rightIcon: DSIconAsset? = nil,
         variant: DSButtonVariant = .primary,
         size: DSButtonSize = .large,
         action: @escaping () -> Void
@@ -113,24 +113,22 @@ public struct DSButton: View {
 
         let content = HStack(alignment: .center, spacing: specification.contentGap) {
             if let leftIcon {
-                leftIcon
-                    .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: specification.iconSize, height: specification.iconSize)
-                    .dsDebugDetailGeometry("\(debugName).LeftIcon")
+                DSIcon(
+                    leftIcon,
+                    width: specification.iconSize,
+                    height: specification.iconSize
+                )
             }
 
             Text(title)
                 .dsFont(specification.fontStyle)
 
             if let rightIcon {
-                rightIcon
-                    .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: specification.iconSize, height: specification.iconSize)
-                    .dsDebugDetailGeometry("\(debugName).RightIcon")
+                DSIcon(
+                    rightIcon,
+                    width: specification.iconSize,
+                    height: specification.iconSize
+                )
             }
         }
         .dsDebugDetailGeometry("\(debugName).Content")
@@ -148,14 +146,14 @@ public struct DSButton: View {
 // 1. Primary Buttons
 public struct DSPrimaryLargeButton: View {
     private let title: String
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    private let leftIcon: DSIconAsset?
+    private let rightIcon: DSIconAsset?
     private let action: () -> Void
 
     public init(
         _ title: String,
-        leftIcon: Image? = nil,
-        rightIcon: Image? = nil,
+        leftIcon: DSIconAsset? = nil,
+        rightIcon: DSIconAsset? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -178,14 +176,14 @@ public struct DSPrimaryLargeButton: View {
 
 public struct DSPrimaryMediumButton: View {
     private let title: String
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    private let leftIcon: DSIconAsset?
+    private let rightIcon: DSIconAsset?
     private let action: () -> Void
 
     public init(
         _ title: String,
-        leftIcon: Image? = nil,
-        rightIcon: Image? = nil,
+        leftIcon: DSIconAsset? = nil,
+        rightIcon: DSIconAsset? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -208,14 +206,14 @@ public struct DSPrimaryMediumButton: View {
 
 public struct DSPrimarySmallButton: View {
     private let title: String
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    private let leftIcon: DSIconAsset?
+    private let rightIcon: DSIconAsset?
     private let action: () -> Void
 
     public init(
         _ title: String,
-        leftIcon: Image? = nil,
-        rightIcon: Image? = nil,
+        leftIcon: DSIconAsset? = nil,
+        rightIcon: DSIconAsset? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -239,14 +237,14 @@ public struct DSPrimarySmallButton: View {
 // 2. Secondary Buttons
 public struct DSSecondaryLargeButton: View {
     private let title: String
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    private let leftIcon: DSIconAsset?
+    private let rightIcon: DSIconAsset?
     private let action: () -> Void
 
     public init(
         _ title: String,
-        leftIcon: Image? = nil,
-        rightIcon: Image? = nil,
+        leftIcon: DSIconAsset? = nil,
+        rightIcon: DSIconAsset? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -269,14 +267,14 @@ public struct DSSecondaryLargeButton: View {
 
 public struct DSSecondaryMediumButton: View {
     private let title: String
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    private let leftIcon: DSIconAsset?
+    private let rightIcon: DSIconAsset?
     private let action: () -> Void
 
     public init(
         _ title: String,
-        leftIcon: Image? = nil,
-        rightIcon: Image? = nil,
+        leftIcon: DSIconAsset? = nil,
+        rightIcon: DSIconAsset? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -299,14 +297,14 @@ public struct DSSecondaryMediumButton: View {
 
 public struct DSSecondarySmallButton: View {
     private let title: String
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    private let leftIcon: DSIconAsset?
+    private let rightIcon: DSIconAsset?
     private let action: () -> Void
 
     public init(
         _ title: String,
-        leftIcon: Image? = nil,
-        rightIcon: Image? = nil,
+        leftIcon: DSIconAsset? = nil,
+        rightIcon: DSIconAsset? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title

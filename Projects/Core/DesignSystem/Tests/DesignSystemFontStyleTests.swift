@@ -1,13 +1,15 @@
-import XCTest
+import Testing
+import CoreGraphics
 @testable import DesignSystem
 
-final class DesignSystemFontStyleTests: XCTestCase {
+struct DesignSystemFontStyleTests {
     private struct FontMetricsExpectation {
         let styles: [FontStyle]
         let size: CGFloat
         let lineHeight: CGFloat
     }
 
+    @Test("폰트 스타일 메트릭 매핑 검증")
     func testFontMetrics() {
         let expectations: [FontMetricsExpectation] = [
             .init(styles: [.heading1ExtraBold, .heading1Bold, .heading1SemiBold], size: 32, lineHeight: 44),
@@ -24,8 +26,8 @@ final class DesignSystemFontStyleTests: XCTestCase {
 
         for expectation in expectations {
             for style in expectation.styles {
-                XCTAssertEqual(style.size, expectation.size)
-                XCTAssertEqual(style.lineHeight, expectation.lineHeight)
+                #expect(style.size == expectation.size)
+                #expect(style.lineHeight == expectation.lineHeight)
             }
         }
     }
