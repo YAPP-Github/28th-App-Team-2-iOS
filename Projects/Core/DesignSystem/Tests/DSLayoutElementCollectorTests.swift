@@ -3,7 +3,6 @@ import UIKit
 import Testing
 @testable import DesignSystem
 
-@Suite(.serialized)
 @MainActor
 struct DSLayoutElementCollectorTests {
     @Test("수집 시 보이는 뷰 및 접근성 요소 포함 검증")
