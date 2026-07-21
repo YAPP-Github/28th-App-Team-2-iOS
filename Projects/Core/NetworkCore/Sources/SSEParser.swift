@@ -73,12 +73,12 @@ struct SSEParser: Sendable {
             retry = nil
         }
 
-        guard !dataLines.isEmpty else {
+        guard !dataLines.isEmpty || eventID != nil || retry != nil else {
             return nil
         }
 
         return SSEEvent(
-            data: dataLines.joined(separator: "\n"),
+            data: dataLines.isEmpty ? nil : dataLines.joined(separator: "\n"),
             event: event,
             id: eventID,
             retry: retry

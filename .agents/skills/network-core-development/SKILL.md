@@ -25,7 +25,7 @@ description: Projects/Core/NetworkCore의 HTTPClient, Endpoint, HTTPClientError,
 - SSE 전송 타입은 `SSEClient`, 원문 이벤트는 `SSEEvent`, 전송 추상화는 `SSEClient.StreamTransport`로 명명한다.
 - 실제 SSE 전송은 `URLSession.bytes(for:)`와 UTF-8 라인 스트림을 사용하며, 일반 HTTP 응답처럼 전체 본문을 메모리에 모으지 않는다.
 - `SSEClient`는 HTTP 성공 상태와 `text/event-stream` 미디어 타입을 검증하고 표준 `data`, `event`, `id`, `retry` 필드만 파싱한다.
-- 스트림 소비가 종료되거나 Task가 취소되면 전달 Task와 기반 `URLSessionDataTask`까지 취소한다.
+- 스트림이 해제·종료되거나 소비 Task가 취소되면 전달 Task와 기반 `URLSessionDataTask`까지 취소한다. 스트림을 보관한 채 반복문만 중단하는 조기 종료는 감지할 수 없으므로 소비 Task 취소 또는 스트림 해제를 호출자 계약으로 명시한다.
 - Feature DTO 변환, `[DONE]` 해석, 자동 재연결, `Last-Event-ID` 정책은 서버 명세가 확정된 Feature Client에서 담당한다.
 - SSE 테스트 대역은 `SSEClient.StreamTransport`와 `StreamConnection`으로 주입하며 실제 서버나 커스텀 `URLProtocol`에 의존하지 않는다.
 - 외부 사용처가 확인되지 않은 `LineStream`, `StreamConnection`, `StreamTransport`와 커스텀 전송 initializer는 테스트 주입 경계로만 사용하고 `internal`로 유지한다.

@@ -236,7 +236,36 @@ struct SSEClientTests {
         #expect(await recorder.snapshot() == [SSEEvent(data: "first")])
     }
 
-    private func makeClient(
+    @Test("조기 반복 종료 후 스트림이 해제되면 연결을 취소한다", .timeLimit(.minutes(1)))
+    func releasingStreamAfterEarlyExitCancelsConnection() async throws {
+        let lineController = LineStreamController()
+        let cancellationSignal = AsyncStream.makeStream(of: Void.self)
+        var cancellationIterator = cancellationSignal.stream.makeAsyncIterator()
+        let client = makeClient { request in
+            SSEClient.StreamConnection(
+                lines: lineController.stream,
+                response: try NetworkCoreTestSupport.makeHTTPResponse(
+                    for: request,
+                    statusCode: 200,
+                    headerFields: ["Content-Type": "text/event-stream"]
+                ),
+                cancel: {
+                    lineController.finish(throwing: CancellationError())
+                    cancellationSignal.continuation.yield()
+                }
+            )
+        }
+
+        lineController.yield("data: first")
+        lineController.yield("")
+        try await consumeFirstEventAndReleaseStream(from: client)
+
+        _ = await cancellationIterator.next()
+    }
+}
+
+private extension SSEClientTests {
+    func makeClient(
         defaultHeaders: @escaping @Sendable () async -> [String: String] = { [:] },
         transport: @escaping SSEClient.StreamTransport
     ) -> SSEClient {
@@ -247,7 +276,7 @@ struct SSEClientTests {
         )
     }
 
-    private func collect(
+    func collect(
         _ stream: AsyncThrowingStream<SSEEvent, Error>
     ) async throws -> [SSEEvent] {
         var events: [SSEEvent] = []
@@ -257,6 +286,12 @@ struct SSEClientTests {
         }
 
         return events
+    }
+
+    func consumeFirstEventAndReleaseStream(from client: SSEClient) async throws {
+        for try await _ in client.events(for: .get("/first-event")) {
+            break
+        }
     }
 }
 

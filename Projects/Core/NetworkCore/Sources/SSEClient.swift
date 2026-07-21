@@ -86,11 +86,13 @@ public struct SSEClient: Sendable {
 
     /// Endpoint로 SSE 연결을 열고 완성된 이벤트를 순서대로 전달합니다.
     ///
-    /// 스트림 소비가 종료되거나 소비 Task가 취소되면 기반 전송 작업도 취소합니다.
+    /// 스트림이 해제·종료되거나 소비 Task가 취소되면 기반 전송 작업도 취소합니다.
+    /// 스트림을 보관한 채 반복문만 중단하면 종료를 감지할 수 없으므로,
+    /// 조기 종료 시에는 소비 Task를 취소하거나 스트림을 해제해야 합니다.
     /// HTTP 성공 상태와 `text/event-stream` 미디어 타입을 검증한 뒤 이벤트를 전달합니다.
     ///
     /// - Parameter endpoint: 전송할 HTTP 요청 정보입니다.
-    /// - Returns: 서버가 빈 줄로 완성한 SSE 이벤트 스트림입니다.
+    /// - Returns: 서버가 빈 줄로 완성한 SSE 표준 필드 블록의 스트림입니다.
     public func events(for endpoint: Endpoint) -> AsyncThrowingStream<SSEEvent, Error> {
         let cancellationRelay = CancellationRelay()
 

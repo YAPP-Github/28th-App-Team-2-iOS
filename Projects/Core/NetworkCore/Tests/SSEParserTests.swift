@@ -63,13 +63,42 @@ struct SSEParserTests {
         #expect(event == SSEEvent(data: ""))
     }
 
-    @Test("data 필드가 없는 블록은 이벤트를 만들지 않는다")
-    func ignoresBlockWithoutDataField() {
+    @Test("event 필드만 있는 블록은 이벤트를 만들지 않는다")
+    func ignoresEventOnlyBlock() {
         var parser = SSEParser()
 
         #expect(parser.consume("event: ping") == nil)
-        #expect(parser.consume("id: 10") == nil)
         #expect(parser.consume("") == nil)
+    }
+
+    @Test("data가 없는 id 제어 블록도 전달한다")
+    func dispatchesIDControlBlockWithoutData() throws {
+        var idParser = SSEParser()
+
+        #expect(idParser.consume("id: 10") == nil)
+        let parsedIDEvent = idParser.consume("")
+        let idEvent = try #require(parsedIDEvent)
+
+        #expect(idEvent == SSEEvent(data: nil, id: "10"))
+
+        var resetParser = SSEParser()
+
+        #expect(resetParser.consume("id") == nil)
+        let parsedResetEvent = resetParser.consume("")
+        let resetEvent = try #require(parsedResetEvent)
+
+        #expect(resetEvent == SSEEvent(data: nil, id: ""))
+    }
+
+    @Test("data가 없는 retry 제어 블록도 전달한다")
+    func dispatchesRetryControlBlockWithoutData() throws {
+        var parser = SSEParser()
+
+        #expect(parser.consume("retry: 1500") == nil)
+        let parsedEvent = parser.consume("")
+        let event = try #require(parsedEvent)
+
+        #expect(event == SSEEvent(data: nil, retry: 1_500))
     }
 
     @Test("ASCII 숫자가 아닌 retry와 NUL이 포함된 id를 무시한다")
