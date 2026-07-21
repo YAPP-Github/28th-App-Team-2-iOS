@@ -28,6 +28,7 @@ description: Projects/Core/NetworkCore의 HTTPClient, Endpoint, HTTPClientError,
 - 스트림 소비가 종료되거나 Task가 취소되면 전달 Task와 기반 `URLSessionDataTask`까지 취소한다.
 - Feature DTO 변환, `[DONE]` 해석, 자동 재연결, `Last-Event-ID` 정책은 서버 명세가 확정된 Feature Client에서 담당한다.
 - SSE 테스트 대역은 `SSEClient.StreamTransport`와 `StreamConnection`으로 주입하며 실제 서버나 커스텀 `URLProtocol`에 의존하지 않는다.
+- 외부 사용처가 확인되지 않은 `LineStream`, `StreamConnection`, `StreamTransport`와 커스텀 전송 initializer는 테스트 주입 경계로만 사용하고 `internal`로 유지한다.
 
 ## 공개 API 문서화
 
