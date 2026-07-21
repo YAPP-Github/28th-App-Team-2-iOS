@@ -5,15 +5,15 @@ import Foundation
 /// `SSEClient`는 이벤트의 `data` 값을 Feature DTO로 해석하거나 자동 재연결하지 않습니다.
 public struct SSEClient: Sendable {
     /// SSE 원문 라인을 비동기로 전달하는 스트림입니다.
-    public typealias LineStream = AsyncThrowingStream<String, Error>
+    typealias LineStream = AsyncThrowingStream<String, Error>
 
     /// 검증 전 HTTP 응답과 SSE 라인 스트림의 연결입니다.
-    public struct StreamConnection: Sendable {
+    struct StreamConnection: Sendable {
         /// UTF-8로 디코딩된 SSE 원문 라인 스트림입니다.
-        public let lines: LineStream
+        let lines: LineStream
 
         /// 서버가 반환한 원본 URL 응답입니다.
-        public let response: URLResponse
+        let response: URLResponse
 
         private let cancellationRelay: CancellationRelay
 
@@ -23,7 +23,7 @@ public struct SSEClient: Sendable {
         ///   - lines: UTF-8로 디코딩된 SSE 원문 라인 스트림입니다.
         ///   - response: 서버가 반환한 원본 URL 응답입니다.
         ///   - cancel: 소비 종료 시 기반 전송 작업을 취소하는 클로저입니다.
-        public init(
+        init(
             lines: LineStream,
             response: URLResponse,
             cancel: @escaping @Sendable () -> Void = {}
@@ -41,7 +41,7 @@ public struct SSEClient: Sendable {
     }
 
     /// 완성된 URL 요청으로 SSE 스트림 연결을 여는 전송 경계입니다.
-    public typealias StreamTransport = @Sendable (URLRequest) async throws -> StreamConnection
+    typealias StreamTransport = @Sendable (URLRequest) async throws -> StreamConnection
 
     private let requestBuilder: URLRequestBuilder
     private let transport: StreamTransport
@@ -53,7 +53,7 @@ public struct SSEClient: Sendable {
     ///   - transport: 완성된 URL 요청으로 SSE 스트림 연결을 여는 클로저입니다.
     ///   - defaultHeaders: 요청마다 동적으로 계산할 공통 HTTP 헤더입니다.
     ///     Endpoint 헤더가 같은 필드를 덮어씁니다.
-    public init(
+    init(
         baseURL: URL,
         transport: @escaping StreamTransport,
         defaultHeaders: @escaping @Sendable () async -> [String: String] = { [:] }
@@ -94,7 +94,7 @@ public struct SSEClient: Sendable {
     public func events(for endpoint: Endpoint) -> AsyncThrowingStream<SSEEvent, Error> {
         let cancellationRelay = CancellationRelay()
 
-        return AsyncThrowingStream { continuation in
+        return AsyncThrowingStream { eventContinuation in
             let producerTask = Task {
                 do {
                     let request = try await requestBuilder.makeRequest(for: endpoint)
@@ -112,27 +112,27 @@ public struct SSEClient: Sendable {
                         try Task.checkCancellation()
 
                         if let event = parser.consume(line) {
-                            continuation.yield(event)
+                            eventContinuation.yield(event)
                         }
                     }
 
                     try Task.checkCancellation()
-                    continuation.finish()
+                    eventContinuation.finish()
                 } catch let clientError as SSEClientError {
-                    continuation.finish(throwing: clientError)
+                    eventContinuation.finish(throwing: clientError)
                 } catch is CancellationError {
-                    continuation.finish(throwing: CancellationError())
+                    eventContinuation.finish(throwing: CancellationError())
                 } catch let urlError as URLError where urlError.code == .cancelled {
-                    continuation.finish(throwing: CancellationError())
+                    eventContinuation.finish(throwing: CancellationError())
                 } catch let urlError as URLError {
-                    continuation.finish(
+                    eventContinuation.finish(
                         throwing: SSEClientError.transportFailed(
                             code: urlError.code,
                             description: urlError.localizedDescription
                         )
                     )
                 } catch {
-                    continuation.finish(
+                    eventContinuation.finish(
                         throwing: SSEClientError.transportFailed(
                             code: nil,
                             description: error.localizedDescription
@@ -141,7 +141,7 @@ public struct SSEClient: Sendable {
                 }
             }
 
-            continuation.onTermination = { @Sendable _ in
+            eventContinuation.onTermination = { @Sendable _ in
                 producerTask.cancel()
                 cancellationRelay.cancel()
             }
@@ -169,22 +169,22 @@ private extension SSEClient {
             let (bytes, response) = try await session.bytes(for: request)
             let cancellationRelay = CancellationRelay()
 
-            let lines = LineStream { continuation in
+            let lines = LineStream { lineContinuation in
                 let forwardingTask = Task {
                     do {
                         for try await line in bytes.lines {
                             try Task.checkCancellation()
-                            continuation.yield(line)
+                            lineContinuation.yield(line)
                         }
 
                         try Task.checkCancellation()
-                        continuation.finish()
+                        lineContinuation.finish()
                     } catch is CancellationError {
-                        continuation.finish(throwing: CancellationError())
+                        lineContinuation.finish(throwing: CancellationError())
                     } catch let urlError as URLError where urlError.code == .cancelled {
-                        continuation.finish(throwing: CancellationError())
+                        lineContinuation.finish(throwing: CancellationError())
                     } catch {
-                        continuation.finish(throwing: error)
+                        lineContinuation.finish(throwing: error)
                     }
                 }
 
@@ -193,7 +193,7 @@ private extension SSEClient {
                     bytes.task.cancel()
                 }
 
-                continuation.onTermination = { @Sendable _ in
+                lineContinuation.onTermination = { @Sendable _ in
                     cancellationRelay.cancel()
                 }
             }
