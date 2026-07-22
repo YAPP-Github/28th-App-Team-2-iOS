@@ -1,5 +1,5 @@
 import Foundation
-import XCTest
+import Testing
 
 enum NetworkCoreTestSupport {
     static func makeHTTPResponse(
@@ -7,9 +7,11 @@ enum NetworkCoreTestSupport {
         statusCode: Int,
         headerFields: [String: String]? = nil
     ) throws -> HTTPURLResponse {
-        try XCTUnwrap(
+        let url = try #require(request.url)
+
+        return try #require(
             HTTPURLResponse(
-                url: try XCTUnwrap(request.url),
+                url: url,
                 statusCode: statusCode,
                 httpVersion: nil,
                 headerFields: headerFields
