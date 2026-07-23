@@ -33,10 +33,6 @@ struct TooltipPlaygroundView: View {
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Bubble Height", value: specification.bubbleHeight.ptDescription)
                     DSSpecificationRow(
-                        title: "Vertical Padding",
-                        value: specification.verticalPadding.ptDescription
-                    )
-                    DSSpecificationRow(
                         title: "Horizontal Padding",
                         value: specification.horizontalPadding.ptDescription
                     )

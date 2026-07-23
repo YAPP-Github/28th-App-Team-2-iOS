@@ -4,7 +4,6 @@ import SwiftUI
 public struct DSTooltip: View {
     public struct Specification: Sendable {
         public let bubbleHeight: CGFloat
-        public let verticalPadding: CGFloat
         public let horizontalPadding: CGFloat
         public let arrowFrameWidth: CGFloat
         public let arrowWidth: CGFloat
@@ -22,7 +21,6 @@ public struct DSTooltip: View {
     public static func specification() -> Specification {
         Specification(
             bubbleHeight: 30,
-            verticalPadding: 6,
             horizontalPadding: 16,
             arrowFrameWidth: 8,
             arrowWidth: 6.9282,
@@ -53,7 +51,6 @@ public struct DSTooltip: View {
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
                 .foregroundStyle(specification.foregroundAsset.swiftUIColor)
-                .padding(.vertical, specification.verticalPadding)
                 .padding(.horizontal, specification.horizontalPadding)
                 .frame(height: specification.bubbleHeight)
                 .background(
