@@ -89,6 +89,40 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            NavigationLink(destination: SelectBoxPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.rectangle.stack.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("SelectBox")
+                            .font(.headline)
+                        Text("선택 여부를 on/off 상태로 표현하는 선택 상자")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            NavigationLink(destination: TooltipPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "text.bubble.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Tooltip")
+                            .font(.headline)
+                        Text("짧은 안내 메시지를 화살표와 함께 표시하는 툴팁")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }
