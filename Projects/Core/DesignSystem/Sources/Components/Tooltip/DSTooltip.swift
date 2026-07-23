@@ -58,6 +58,7 @@ public struct DSTooltip: View {
                         .opacity(specification.backgroundOpacity)
                 )
                 .clipShape(specification.shape.swiftUIShape)
+                .dsDebugDetailGeometry("DSTooltip.Bubble")
 
             DSIcon(
                 specification.arrowAsset,
