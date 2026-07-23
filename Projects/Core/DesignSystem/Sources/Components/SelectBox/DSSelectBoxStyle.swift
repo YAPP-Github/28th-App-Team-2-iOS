@@ -11,7 +11,6 @@ struct DSSelectBoxStyle: ToggleStyle {
                 .dsFont(specification.fontStyle)
                 .foregroundStyle(specification.foregroundAsset.swiftUIColor)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.vertical, specification.verticalPadding)
                 .padding(.horizontal, specification.horizontalPadding)
                 .frame(
                     maxWidth: .infinity,

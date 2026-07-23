@@ -7,7 +7,6 @@ struct DSSelectBoxSpecificationTests {
         let specification = DSSelectBox.specification(isSelected: isSelected)
 
         #expect(specification.height == 48)
-        #expect(specification.verticalPadding == 14)
         #expect(specification.horizontalPadding == 16)
         #expect(specification.borderWidth == 1)
         #expect(specification.shape == .roundedRectangle(cornerRadius: 12))

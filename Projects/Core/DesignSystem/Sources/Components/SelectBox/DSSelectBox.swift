@@ -4,7 +4,6 @@ import SwiftUI
 public struct DSSelectBox: View {
     public struct Specification: Sendable {
         public let height: CGFloat
-        public let verticalPadding: CGFloat
         public let horizontalPadding: CGFloat
         public let borderWidth: CGFloat
         public let shape: DSComponentShape
@@ -17,7 +16,6 @@ public struct DSSelectBox: View {
     public static func specification(isSelected: Bool) -> Specification {
         Specification(
             height: 48,
-            verticalPadding: 14,
             horizontalPadding: 16,
             borderWidth: 1,
             shape: .roundedRectangle(cornerRadius: 12),
