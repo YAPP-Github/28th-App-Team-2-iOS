@@ -10,6 +10,11 @@ struct DSChipButtonStyle: ButtonStyle {
             .padding(.horizontal, specification.horizontalPadding)
             .foregroundColor(specification.foregroundAsset.swiftUIColor)
             .background(specification.backgroundAsset.swiftUIColor)
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: specification.shape,
+                specification: specification.pressedOverlay
+            )
             .clipShape(specification.shape.swiftUIShape)
     }
 }

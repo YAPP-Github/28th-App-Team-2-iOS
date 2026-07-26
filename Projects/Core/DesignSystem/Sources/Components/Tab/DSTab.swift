@@ -8,6 +8,7 @@ public struct DSTab: View {
         public let backgroundAsset: DesignSystemColors
         public let textFont: FontStyle
         public let textColor: DesignSystemColors
+        public let pressedOverlay: DSPressedOverlay
     }
 
     public static func specification(isOn: Bool) -> Specification {
@@ -16,7 +17,8 @@ public struct DSTab: View {
             padding: EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16),
             backgroundAsset: isOn ? DesignSystemAsset.Colors.gray975 : DesignSystemAsset.Colors.coolGray100,
             textFont: isOn ? .body2Medium : .body2Regular,
-            textColor: isOn ? DesignSystemAsset.Colors.white : DesignSystemAsset.Colors.coolGray500
+            textColor: isOn ? DesignSystemAsset.Colors.white : DesignSystemAsset.Colors.coolGray500,
+            pressedOverlay: .standard
         )
     }
 
@@ -44,7 +46,7 @@ public struct DSTab: View {
                         .fill(spec.backgroundAsset.swiftUIColor)
                 )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSTabButtonStyle(specification: spec))
         .dsDebugGeometry("DSTab")
     }
 }

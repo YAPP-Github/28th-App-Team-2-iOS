@@ -10,6 +10,11 @@ struct DSButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .frame(height: specification.height)
             .background(specification.backgroundAsset.swiftUIColor)
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: specification.shape,
+                specification: specification.pressedOverlay
+            )
             .clipShape(specification.shape.swiftUIShape)
     }
 }

@@ -8,6 +8,8 @@ struct DSCheckboxSpecificationTests {
 
         #expect(specification.size == 20)
         #expect(specification.shape == .roundedRectangle(cornerRadius: 6))
+        expectColorEqual(specification.pressedOverlay.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.pressedOverlay.opacity == 0.16)
 
         if isOn {
             #expect(specification.borderWidth == nil)

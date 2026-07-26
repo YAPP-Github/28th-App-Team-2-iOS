@@ -9,6 +9,8 @@ struct DSChipSpecificationTests {
         #expect(specification.verticalPadding == 12)
         #expect(specification.horizontalPadding == 20)
         #expect(specification.shape == .capsule)
+        expectColorEqual(specification.pressedOverlay.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.pressedOverlay.opacity == 0.16)
 
         if isSelected {
             #expect(specification.fontStyle == .body2SemiBold)

@@ -24,10 +24,17 @@ struct TogglePlaygroundView: View {
                     DSSpecificationRow(title: "Size (W × H)", value: specification.size.ptDescription)
                     DSSpecificationRow(title: "Shape", value: specification.shape.specName)
                     DSSpecificationRow(title: "Background", value: specification.backgroundAsset.specDescription)
-                    DSSpecificationRow(title: "Handle Size (W × H)", value: specification.handleSize.squarePtDescription)
+                    DSSpecificationRow(
+                        title: "Handle Size (W × H)",
+                        value: specification.handleSize.squarePtDescription
+                    )
                     DSSpecificationRow(title: "Handle Shape", value: specification.handleShape.specName)
                     DSSpecificationRow(title: "Padding", value: specification.padding.ptDescription)
                     DSSpecificationRow(title: "Handle Color", value: specification.handleAsset.specDescription)
+                    DSSpecificationRow(
+                        title: "Pressed Overlay",
+                        value: specification.pressedOverlay.specDescription
+                    )
                 }
             }
         }

@@ -9,6 +9,7 @@ public struct DSProgressBar: View {
         public let backIconAsset: DSIconAsset
         public let backIconSize: CGSize
         public let backIconTintAsset: DesignSystemColors
+        public let backIconPressedOverlay: DSPressedOverlay
         public let trackHeight: CGFloat
         public let trackBackgroundGradient: [DesignSystemColors]
         public let trackBackgroundOpacity: Double
@@ -26,6 +27,7 @@ public struct DSProgressBar: View {
             backIconAsset: .chevronLeftPlain,
             backIconSize: CGSize(width: 12, height: 18),
             backIconTintAsset: DesignSystemAsset.Colors.gray400,
+            backIconPressedOverlay: .standard,
             trackHeight: 6,
             trackBackgroundGradient: [DesignSystemAsset.Colors.gray50, DesignSystemAsset.Colors.gray200],
             trackBackgroundOpacity: 0.5,
@@ -59,7 +61,13 @@ public struct DSProgressBar: View {
                 )
                 .foregroundColor(spec.backIconTintAsset.swiftUIColor)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(
+                DSIconButtonStyle(
+                    iconAsset: spec.backIconAsset,
+                    iconSize: spec.backIconSize,
+                    pressedOverlay: spec.backIconPressedOverlay
+                )
+            )
 
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {

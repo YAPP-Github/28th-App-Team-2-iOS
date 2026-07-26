@@ -65,6 +65,12 @@ struct ButtonPlaygroundView: View {
                     )
                     DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
                     DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
+                    if let pressedOverlay = specification.pressedOverlay {
+                        DSSpecificationRow(
+                            title: "Pressed Overlay",
+                            value: "\(pressedOverlay.asset.specDescription) (\(Int(pressedOverlay.opacity * 100))%)"
+                        )
+                    }
                 }
             }
         }

@@ -15,6 +15,8 @@ struct DSProgressBarSpecificationTests {
         #expect(specification.backIconAsset == .chevronLeftPlain)
         #expect(specification.backIconSize == CGSize(width: 12, height: 18))
         expectColorEqual(specification.backIconTintAsset, DesignSystemAsset.Colors.gray400)
+        expectColorEqual(specification.backIconPressedOverlay.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.backIconPressedOverlay.opacity == 0.16)
         #expect(specification.trackHeight == 6)
         #expect(specification.trackShape == .roundedRectangle(cornerRadius: 10))
         expectColorEqual(specification.trackBackgroundGradient[0], DesignSystemAsset.Colors.gray50)

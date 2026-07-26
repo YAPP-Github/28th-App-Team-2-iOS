@@ -37,6 +37,10 @@ struct TabPlaygroundView: View {
                     DSSpecificationRow(title: "Background", value: spec.backgroundAsset.specDescription)
                     DSSpecificationRow(title: "Text Font", value: spec.textFont.specName)
                     DSSpecificationRow(title: "Text Color", value: spec.textColor.specDescription)
+                    DSSpecificationRow(
+                        title: "Pressed Overlay",
+                        value: spec.pressedOverlay.specDescription
+                    )
                 }
 
                 Section(header: Text("Figma Specification Check (Unselected)")) {
@@ -45,6 +49,10 @@ struct TabPlaygroundView: View {
                     DSSpecificationRow(title: "Background", value: spec.backgroundAsset.specDescription)
                     DSSpecificationRow(title: "Text Font", value: spec.textFont.specName)
                     DSSpecificationRow(title: "Text Color", value: spec.textColor.specDescription)
+                    DSSpecificationRow(
+                        title: "Pressed Overlay",
+                        value: spec.pressedOverlay.specDescription
+                    )
                 }
             }
         }

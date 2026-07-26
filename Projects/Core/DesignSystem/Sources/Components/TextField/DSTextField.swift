@@ -27,6 +27,7 @@ public struct DSTextField: View {
         public let clearButtonIcon: DSIconAsset?
         public let clearButtonColor: DesignSystemColors
         public let clearButtonLeadingPadding: CGFloat
+        public let clearIconPressedOverlay: DSPressedOverlay?
 
         public let errorMessage: String?
         public let errorMessageFont: FontStyle?
@@ -59,11 +60,11 @@ public struct DSTextField: View {
         let isInsert = isFocused && hasText
         let isFocus = isFocused && !hasText
         let bgAsset: DesignSystemColors
-        var strokeAsset: DesignSystemColors? = nil
+        var strokeAsset: DesignSystemColors?
         let textFont: FontStyle = .body2Medium
         let textColor: DesignSystemColors = DesignSystemAsset.Colors.gray975
         var showsClearButton = false
-        var clearBtnIcon: DSIconAsset? = nil
+        var clearBtnIcon: DSIconAsset?
 
         if isError {
             bgAsset = DesignSystemAsset.Colors.red50
@@ -99,6 +100,7 @@ public struct DSTextField: View {
             clearButtonIcon: clearBtnIcon,
             clearButtonColor: DesignSystemAsset.Colors.gray300,
             clearButtonLeadingPadding: 10,
+            clearIconPressedOverlay: showsClearButton ? .standard : nil,
             errorMessage: errorMsg,
             errorMessageFont: isError ? .caption1Regular : nil,
             errorMessageColor: isError ? DesignSystemAsset.Colors.red500 : nil,
@@ -161,14 +163,23 @@ public struct DSTextField: View {
                 }
 
                 if spec.showsClearButton, let clearIcon = spec.clearButtonIcon {
-                    Button(action: {
-                        text = ""
-                    }) {
-                        DSIcon(clearIcon, width: spec.clearButtonSize, height: spec.clearButtonSize)
-                            .foregroundColor(spec.clearButtonColor.swiftUIColor)
-                            .dsDebugDetailGeometry("DSTextField.ClearButton")
-                    }
-                    .buttonStyle(.plain)
+                    Button(
+                        action: {
+                            text = ""
+                        },
+                        label: {
+                            DSIcon(clearIcon, width: spec.clearButtonSize, height: spec.clearButtonSize)
+                                .foregroundColor(spec.clearButtonColor.swiftUIColor)
+                                .dsDebugDetailGeometry("DSTextField.ClearButton")
+                        }
+                    )
+                    .buttonStyle(
+                        DSIconButtonStyle(
+                            iconAsset: clearIcon,
+                            iconSize: CGSize(width: spec.clearButtonSize, height: spec.clearButtonSize),
+                            pressedOverlay: spec.clearIconPressedOverlay
+                        )
+                    )
                     .padding(.leading, spec.clearButtonLeadingPadding)
                 }
             }
@@ -196,7 +207,9 @@ public struct DSTextField: View {
             }
             .dsDebugDetailGeometry("DSTextField.Container")
 
-            if let errorMsg = spec.errorMessage, let errorFont = spec.errorMessageFont, let errorColor = spec.errorMessageColor {
+            if let errorMsg = spec.errorMessage,
+               let errorFont = spec.errorMessageFont,
+               let errorColor = spec.errorMessageColor {
                 Text(errorMsg)
                     .dsFont(errorFont)
                     .foregroundColor(errorColor.swiftUIColor)

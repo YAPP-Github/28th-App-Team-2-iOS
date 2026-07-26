@@ -24,6 +24,10 @@ Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SS
 - selected·checked처럼 화면이 소유하는 상태는 값이나 `Binding`으로 입력받는다.
 - enabled/disabled처럼 SwiftUI가 제공하는 상태는 Environment를 사용하고, pressed 같은 순간 상태는 Style의 `Configuration`을 사용한다.
 - Figma에 정의되지 않은 pressed·disabled·loading 상태를 임의로 추가하지 않는다. 승인되면 Specification 입력과 테스트를 함께 확장한다.
+- `Button`·`Toggle` 등으로 눌림 입력을 받는 모든 DesignSystem 커스텀 인터랙티브 컨트롤에는 프로젝트의 공통 pressed 정책을 적용한다. 정적 표시 컴포넌트와 Disabled 상태에는 적용하지 않는다.
+- `.plain` 또는 플랫폼 기본 pressed 효과에 의존하지 말고 `ButtonStyle.Configuration.isPressed`로 명시적으로 렌더링한다. 표면형 컨트롤은 기존 shape 전체에, 아이콘 전용 버튼은 아이콘 이미지 자체에 적용하며 이 정책만으로 레이아웃이나 터치 영역을 변경하지 않는다.
+- `DSIcon` 자체에 pressed 효과를 일괄 적용하지 않는다. 실제 액션을 가진 아이콘 전용 `Button`에서만 공통 아이콘 ButtonStyle을 명시적으로 사용한다.
+- 공통 pressed 색상·opacity는 하나의 정책 값으로 정의하되, 각 컴포넌트 Specification이 resolved 값을 노출하고 Style·Example·테스트가 이를 소비하게 한다. 렌더링 helper 내부에 디자인 값을 숨기지 않는다.
 - 여러 독립 축을 하나의 조합 enum으로 합치지 않는다. variant, size, state를 독립 입력으로 유지한다.
 - 정적 표시 컴포넌트는 no-op action이나 불필요한 ButtonStyle을 만들지 않는다.
 - 인터랙티브 컴포넌트의 `ButtonStyle`/`ToggleStyle`은 internal로 두고 resolved Specification만 소비하게 한다.

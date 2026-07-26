@@ -4,6 +4,12 @@
 
 ![Button](../Images/Button.png)
 
+## Runtime Interaction Contract
+
+- 활성 Primary·Secondary 버튼은 누르는 동안 기존 배경 위에 `gray975` 색상을 `16%` opacity로 덮는다.
+- Disabled 버튼에는 pressed 오버레이를 적용하지 않는다.
+- 오버레이는 기존 버튼 영역에만 적용하며, 별도의 최소 크기나 터치 영역을 강제하지 않는다.
+
 ## 🏗️ Structure & Layout
 
 - 🟦 **Button** (COMPONENT_SET) `W: 1233.0, H: 236.0` [Radius: 5]

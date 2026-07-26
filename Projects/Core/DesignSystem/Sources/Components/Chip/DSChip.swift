@@ -9,6 +9,7 @@ public struct DSChip: View {
         public let fontStyle: FontStyle
         public let backgroundAsset: DesignSystemColors
         public let foregroundAsset: DesignSystemColors
+        public let pressedOverlay: DSPressedOverlay
     }
 
     public static func specification(isSelected: Bool) -> Specification {
@@ -22,7 +23,8 @@ public struct DSChip: View {
                 : DesignSystemAsset.Colors.gray25,
             foregroundAsset: isSelected
                 ? DesignSystemAsset.Colors.white
-                : DesignSystemAsset.Colors.coolGray700
+                : DesignSystemAsset.Colors.coolGray700,
+            pressedOverlay: .standard
         )
     }
 

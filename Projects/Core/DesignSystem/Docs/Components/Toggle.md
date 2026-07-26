@@ -4,6 +4,11 @@
 
 ![Toggle](../Images/Toggle.png)
 
+## Runtime Interaction Contract
+
+- On/Off 여부와 무관하게 누르는 동안 기존 Toggle 배경 위에 `gray975` 색상을 `16%` opacity로 덮는다.
+- 오버레이는 기존 `53×30pt` capsule 영역에만 적용하며 크기나 터치 영역을 변경하지 않는다.
+
 ## 🏗️ Structure & Layout
 
 - 🟦 **Toggle** (COMPONENT_SET) `W: 95.0, H: 120.0` [Radius: 5]

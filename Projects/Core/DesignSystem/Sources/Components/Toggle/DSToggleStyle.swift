@@ -16,8 +16,22 @@ struct DSToggleStyle: ToggleStyle {
                         .frame(width: specification.handleSize, height: specification.handleSize)
                         .dsDebugDetailGeometry("DSToggle.Handle")
                         .padding(specification.padding)
-                }
+            }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSToggleButtonStyle(specification: specification))
+    }
+}
+
+private struct DSToggleButtonStyle: ButtonStyle {
+    let specification: DSToggle.Specification
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: specification.shape,
+                specification: specification.pressedOverlay
+            )
+            .clipShape(specification.shape.swiftUIShape)
     }
 }

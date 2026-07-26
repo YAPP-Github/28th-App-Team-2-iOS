@@ -63,10 +63,16 @@ struct TextFieldPlaygroundView: View {
 
                     DSSpecificationRow(title: "Container Height", value: "\(Int(spec.containerHeight))pt")
                     DSSpecificationRow(title: "Container Shape", value: spec.containerShape.specName)
-                    DSSpecificationRow(title: "Content Horizontal Padding", value: "\(Int(spec.contentHorizontalPadding))pt")
+                    DSSpecificationRow(
+                        title: "Content Horizontal Padding",
+                        value: "\(Int(spec.contentHorizontalPadding))pt"
+                    )
                     DSSpecificationRow(title: "Background", value: spec.backgroundAsset.specDescription)
                     if let stroke = spec.strokeAsset {
-                        DSSpecificationRow(title: "Stroke", value: "\(stroke.specDescription) (\(Int(spec.strokeWidth))pt)")
+                        DSSpecificationRow(
+                            title: "Stroke",
+                            value: "\(stroke.specDescription) (\(Int(spec.strokeWidth))pt)"
+                        )
                     } else {
                         DSSpecificationRow(title: "Stroke", value: "None")
                     }
@@ -81,7 +87,16 @@ struct TextFieldPlaygroundView: View {
                         }
                         DSSpecificationRow(title: "Clear Icon Size", value: "\(Int(spec.clearButtonSize))pt")
                         DSSpecificationRow(title: "Clear Icon Color", value: spec.clearButtonColor.specDescription)
-                        DSSpecificationRow(title: "Clear Icon Leading Padding", value: "\(Int(spec.clearButtonLeadingPadding))pt")
+                        DSSpecificationRow(
+                            title: "Clear Icon Leading Padding",
+                            value: "\(Int(spec.clearButtonLeadingPadding))pt"
+                        )
+                        if let pressedOverlay = spec.clearIconPressedOverlay {
+                            DSSpecificationRow(
+                                title: "Clear Icon Pressed Overlay",
+                                value: pressedOverlay.specDescription
+                            )
+                        }
                     }
                     if let error = spec.errorMessage {
                         DSSpecificationRow(title: "Error Msg", value: error)
@@ -92,7 +107,10 @@ struct TextFieldPlaygroundView: View {
                             DSSpecificationRow(title: "Error Color", value: errorColor.specDescription)
                         }
                         DSSpecificationRow(title: "Error Top Spacing", value: "\(Int(spec.errorMessageTopSpacing))pt")
-                        DSSpecificationRow(title: "Error Horizontal Padding", value: "\(Int(spec.errorMessageHorizontalPadding))pt")
+                        DSSpecificationRow(
+                            title: "Error Horizontal Padding",
+                            value: "\(Int(spec.errorMessageHorizontalPadding))pt"
+                        )
                     }
                 }
             }

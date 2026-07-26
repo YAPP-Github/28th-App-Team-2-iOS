@@ -13,7 +13,9 @@ struct DSToggleSpecificationTests {
         #expect(specification.padding == EdgeInsets(top: 3, leading: 4, bottom: 3, trailing: 4))
         #expect(specification.handleSize == 24)
         #expect(specification.handleShape == .capsule)
-        
+        expectColorEqual(specification.pressedOverlay.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.pressedOverlay.opacity == 0.16)
+
         expectColorEqual(specification.handleAsset, DesignSystemAsset.Colors.white)
 
         if isOn {

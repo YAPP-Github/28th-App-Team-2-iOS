@@ -26,7 +26,13 @@ extension EdgeInsets {
             }
             return "H: \(leading.ptDescription), V: \(top.ptDescription)"
         }
-        return "T: \(top.ptDescription), B: \(bottom.ptDescription), L: \(leading.ptDescription), R: \(trailing.ptDescription)"
+        return [
+            "T: \(top.ptDescription)",
+            "B: \(bottom.ptDescription)",
+            "L: \(leading.ptDescription)",
+            "R: \(trailing.ptDescription)"
+        ]
+        .joined(separator: ", ")
     }
 }
 
@@ -92,6 +98,12 @@ extension DesignSystemColors {
 extension DSIconAsset {
     var specDescription: String {
         rawValue
+    }
+}
+
+extension DSPressedOverlay {
+    var specDescription: String {
+        "\(asset.specDescription) (\(Int(opacity * 100))%)"
     }
 }
 

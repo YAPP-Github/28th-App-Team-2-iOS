@@ -24,6 +24,7 @@ struct DSTextFieldSpecificationTests {
         #expect(specification.cursorColorHex == "#0040FF")
 
         #expect(specification.showsClearButton == false)
+        #expect(specification.clearIconPressedOverlay?.opacity == nil)
         #expect(specification.errorMessage == nil)
         #expect(specification.errorMessageTopSpacing == 8)
         #expect(specification.errorMessageHorizontalPadding == 4)
@@ -41,6 +42,7 @@ struct DSTextFieldSpecificationTests {
         expectColorEqual(specification.textColor, DesignSystemAsset.Colors.gray975)
 
         #expect(specification.showsClearButton == false)
+        #expect(specification.clearIconPressedOverlay?.opacity == nil)
     }
 
     @Test("TextField Insert 스펙 매핑 검증")
@@ -59,6 +61,8 @@ struct DSTextFieldSpecificationTests {
         #expect(specification.clearButtonIcon == .circleXFill)
         expectColorEqual(specification.clearButtonColor, DesignSystemAsset.Colors.gray300)
         #expect(specification.clearButtonLeadingPadding == 10)
+        expectColorEqual(specification.clearIconPressedOverlay?.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.clearIconPressedOverlay?.opacity == 0.16)
     }
 
     @Test("TextField Success 스펙 매핑 검증 (포커스 미이탈 시)")
@@ -73,6 +77,7 @@ struct DSTextFieldSpecificationTests {
         expectColorEqual(specification.textColor, DesignSystemAsset.Colors.gray975)
 
         #expect(specification.showsClearButton == false)
+        #expect(specification.clearIconPressedOverlay?.opacity == nil)
     }
 
     @Test("TextField 편집 중에는 success 피드백보다 insert 상태가 우선")
@@ -87,11 +92,17 @@ struct DSTextFieldSpecificationTests {
         expectColorEqual(specification.textColor, DesignSystemAsset.Colors.gray975)
 
         #expect(specification.showsClearButton == true)
+        expectColorEqual(specification.clearIconPressedOverlay?.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.clearIconPressedOverlay?.opacity == 0.16)
     }
 
     @Test("TextField Error 스펙 매핑 검증")
     func testErrorSpecification() {
-        let specification = DSTextField.specification(isFocused: false, hasText: true, validationState: .error(message: "에러 메시지"))
+        let specification = DSTextField.specification(
+            isFocused: false,
+            hasText: true,
+            validationState: .error(message: "에러 메시지")
+        )
 
         expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.red50)
         #expect(specification.strokeAsset == nil)
@@ -101,6 +112,7 @@ struct DSTextFieldSpecificationTests {
         expectColorEqual(specification.textColor, DesignSystemAsset.Colors.gray975)
 
         #expect(specification.showsClearButton == false)
+        #expect(specification.clearIconPressedOverlay?.opacity == nil)
         #expect(specification.errorMessage == "에러 메시지")
         #expect(specification.errorMessageFont == .caption1Regular)
         expectColorEqual(specification.errorMessageColor!, DesignSystemAsset.Colors.red500)

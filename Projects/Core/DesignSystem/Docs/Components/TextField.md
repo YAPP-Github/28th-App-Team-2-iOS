@@ -11,6 +11,7 @@
 - 사용자가 다시 편집하면 TextField는 별도의 상태 해제 호출 없이 `focus` 또는 `insert`로 전환된다.
 - 화면은 `@FocusState` 바인딩을 `isFocused`로 전달해, 필요할 때 화면 정책에 맞춰 포커스를 해제할 수 있다.
 - Figma의 `focus`/`insert`와 `success`/`error`는 동시에 표시되는 조합 상태가 아니므로, Playground 검증 결과는 blur 시 확정한다. 편집 중에는 `focus` 또는 `insert`를 표시한다.
+- `insert` 상태의 clear 아이콘은 누르는 동안 `20×20pt` 레이아웃을 유지하고, 아이콘 이미지 자체에 `gray975` 색상을 `16%` opacity로 덮는다. 이 정책으로 아이콘 크기나 터치 영역을 확장하지 않는다.
 
 ### Playground Validation Rule
 

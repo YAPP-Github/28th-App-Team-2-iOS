@@ -6,11 +6,12 @@ public struct DSToggle: View {
         public let size: CGSize
         public let shape: DSComponentShape
         public let backgroundAsset: DesignSystemColors
-        
+
         public let padding: EdgeInsets
         public let handleSize: CGFloat
         public let handleShape: DSComponentShape
         public let handleAsset: DesignSystemColors
+        public let pressedOverlay: DSPressedOverlay
     }
 
     public static func specification(isOn: Bool) -> Specification {
@@ -23,7 +24,8 @@ public struct DSToggle: View {
             padding: EdgeInsets(top: 3, leading: 4, bottom: 3, trailing: 4),
             handleSize: 24,
             handleShape: .capsule,
-            handleAsset: DesignSystemAsset.Colors.white
+            handleAsset: DesignSystemAsset.Colors.white,
+            pressedOverlay: .standard
         )
     }
 

@@ -60,9 +60,13 @@ struct DSButtonSpecificationTests {
                 expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary50)
                 expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.primary700)
             }
+
+            expectColorEqual(specification.pressedOverlay?.asset, DesignSystemAsset.Colors.gray975)
+            #expect(specification.pressedOverlay?.opacity == 0.16)
         } else {
             expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray100)
             expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.gray400)
+            #expect(specification.pressedOverlay?.opacity == nil)
         }
     }
 }
