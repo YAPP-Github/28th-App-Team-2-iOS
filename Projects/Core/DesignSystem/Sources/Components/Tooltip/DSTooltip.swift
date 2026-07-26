@@ -12,11 +12,9 @@ public struct DSTooltip: View {
         public let shape: DSComponentShape
         public let fontStyle: FontStyle
         public let backgroundAsset: DesignSystemColors
-        public let backgroundOpacity: Double
         public let foregroundAsset: DesignSystemColors
         public let arrowAsset: DSIconAsset
         public let arrowTintAsset: DesignSystemColors
-        public let arrowOpacity: Double
     }
 
     public static func specification() -> Specification {
@@ -29,12 +27,10 @@ public struct DSTooltip: View {
             arrowRotationDegrees: 180,
             shape: .capsule,
             fontStyle: .body3Medium,
-            backgroundAsset: DesignSystemAsset.Colors.black,
-            backgroundOpacity: 0.8,
+            backgroundAsset: DesignSystemAsset.Colors.opacity80,
             foregroundAsset: DesignSystemAsset.Colors.white,
             arrowAsset: .tooltipArrow,
-            arrowTintAsset: DesignSystemAsset.Colors.black,
-            arrowOpacity: 0.8
+            arrowTintAsset: DesignSystemAsset.Colors.opacity80
         )
     }
 
@@ -55,10 +51,7 @@ public struct DSTooltip: View {
                 .foregroundStyle(specification.foregroundAsset.swiftUIColor)
                 .padding(.horizontal, specification.horizontalPadding)
                 .frame(height: specification.bubbleHeight)
-                .background(
-                    specification.backgroundAsset.swiftUIColor
-                        .opacity(specification.backgroundOpacity)
-                )
+                .background(specification.backgroundAsset.swiftUIColor)
                 .clipShape(specification.shape.swiftUIShape)
                 .dsDebugDetailGeometry("DSTooltip.Bubble")
 
@@ -68,7 +61,6 @@ public struct DSTooltip: View {
                 height: specification.arrowHeight
             )
             .foregroundStyle(specification.arrowTintAsset.swiftUIColor)
-            .opacity(specification.arrowOpacity)
             .rotationEffect(.degrees(specification.arrowRotationDegrees))
             .frame(
                 width: specification.arrowFrameWidth,

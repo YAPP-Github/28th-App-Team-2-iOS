@@ -7,17 +7,8 @@ struct TooltipPlaygroundView: View {
 
     private let specification = DSTooltip.specification()
 
-    private var backgroundDescription: String {
-        let opacity = Int(specification.backgroundOpacity * 100)
-        return "\(specification.backgroundAsset.specDescription) / \(opacity)%"
-    }
-
     private var arrowFrameDescription: String {
         "\(specification.arrowFrameWidth.ptDescription) × \(specification.arrowHeight.ptDescription)"
-    }
-
-    private var arrowOpacityDescription: String {
-        "\(Int(specification.arrowOpacity * 100))%"
     }
 
     var body: some View {
@@ -44,7 +35,7 @@ struct TooltipPlaygroundView: View {
                     DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
                     DSSpecificationRow(
                         title: "Background",
-                        value: backgroundDescription
+                        value: specification.backgroundAsset.specDescription
                     )
                     DSSpecificationRow(
                         title: "Foreground",
@@ -59,7 +50,6 @@ struct TooltipPlaygroundView: View {
                         title: "Arrow Tint",
                         value: specification.arrowTintAsset.specDescription
                     )
-                    DSSpecificationRow(title: "Arrow Opacity", value: arrowOpacityDescription)
                 }
             }
         }
