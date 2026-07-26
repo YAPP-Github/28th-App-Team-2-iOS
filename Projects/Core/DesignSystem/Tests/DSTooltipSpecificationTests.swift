@@ -19,5 +19,6 @@ struct DSTooltipSpecificationTests {
         expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.white)
         #expect(specification.arrowAsset == .tooltipArrow)
         expectColorEqual(specification.arrowTintAsset, DesignSystemAsset.Colors.black)
+        #expect(specification.arrowOpacity == 0.8)
     }
 }

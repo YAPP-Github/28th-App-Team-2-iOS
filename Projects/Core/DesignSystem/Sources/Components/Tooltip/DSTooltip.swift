@@ -16,6 +16,7 @@ public struct DSTooltip: View {
         public let foregroundAsset: DesignSystemColors
         public let arrowAsset: DSIconAsset
         public let arrowTintAsset: DesignSystemColors
+        public let arrowOpacity: Double
     }
 
     public static func specification() -> Specification {
@@ -32,7 +33,8 @@ public struct DSTooltip: View {
             backgroundOpacity: 0.8,
             foregroundAsset: DesignSystemAsset.Colors.white,
             arrowAsset: .tooltipArrow,
-            arrowTintAsset: DesignSystemAsset.Colors.black
+            arrowTintAsset: DesignSystemAsset.Colors.black,
+            arrowOpacity: 0.8
         )
     }
 
@@ -66,6 +68,7 @@ public struct DSTooltip: View {
                 height: specification.arrowHeight
             )
             .foregroundStyle(specification.arrowTintAsset.swiftUIColor)
+            .opacity(specification.arrowOpacity)
             .rotationEffect(.degrees(specification.arrowRotationDegrees))
             .frame(
                 width: specification.arrowFrameWidth,

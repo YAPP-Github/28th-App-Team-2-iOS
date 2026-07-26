@@ -16,6 +16,10 @@ struct TooltipPlaygroundView: View {
         "\(specification.arrowFrameWidth.ptDescription) × \(specification.arrowHeight.ptDescription)"
     }
 
+    private var arrowOpacityDescription: String {
+        "\(Int(specification.arrowOpacity * 100))%"
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             DSPlaygroundPreviewCard(
@@ -51,6 +55,11 @@ struct TooltipPlaygroundView: View {
                         value: arrowFrameDescription
                     )
                     DSSpecificationRow(title: "Arrow Asset", value: specification.arrowAsset.name)
+                    DSSpecificationRow(
+                        title: "Arrow Tint",
+                        value: specification.arrowTintAsset.specDescription
+                    )
+                    DSSpecificationRow(title: "Arrow Opacity", value: arrowOpacityDescription)
                 }
             }
         }
