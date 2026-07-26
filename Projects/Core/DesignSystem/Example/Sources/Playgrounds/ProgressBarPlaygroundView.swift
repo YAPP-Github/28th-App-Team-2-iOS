@@ -53,9 +53,13 @@ struct ProgressBarPlaygroundView: View {
                     )
                     DSSpecificationRow(title: "Current Progress", value: "\(Int(progress * 100))%")
                     DSSpecificationRow(title: "Fill Gradient Coordinate", value: "Track width")
-                    ForEach(Array(spec.trackFillGradient.enumerated()), id: \.offset) { index, asset in
+                    ForEach(
+                        Array(zip(spec.trackFillGradientLocations, spec.trackFillGradient).enumerated()),
+                        id: \.offset
+                    ) { _, pair in
+                        let (location, asset) = pair
                         DSSpecificationRow(
-                            title: "Fill @ \(Int(spec.trackFillGradientLocations[index] * 100))%",
+                            title: "Fill @ \(Int(location * 100))%",
                             value: asset.specDescription
                         )
                     }

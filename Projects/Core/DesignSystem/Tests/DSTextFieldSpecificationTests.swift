@@ -45,6 +45,28 @@ struct DSTextFieldSpecificationTests {
         #expect(specification.clearIconPressedOverlay?.opacity == nil)
     }
 
+    @Test("TextField 빈 입력 포커스 상태는 validation보다 우선")
+    func testFocusedEmptyValidationPrecedence() {
+        let validationStates: [DSTextFieldValidationState] = [
+            .success,
+            .error(message: "에러 메시지")
+        ]
+
+        for validationState in validationStates {
+            let specification = DSTextField.specification(
+                isFocused: true,
+                hasText: false,
+                validationState: validationState
+            )
+
+            expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray25)
+            expectColorEqual(specification.strokeAsset!, DesignSystemAsset.Colors.gray975)
+            #expect(specification.strokeWidth == 1.0)
+            #expect(specification.showsClearButton == false)
+            #expect(specification.errorMessage == nil)
+        }
+    }
+
     @Test("TextField Insert 스펙 매핑 검증")
     func testInsertSpecification() {
         let specification = DSTextField.specification(isFocused: true, hasText: true, validationState: .none)

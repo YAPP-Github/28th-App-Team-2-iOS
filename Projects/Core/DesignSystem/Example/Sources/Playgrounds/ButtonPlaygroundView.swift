@@ -68,7 +68,7 @@ struct ButtonPlaygroundView: View {
                     if let pressedOverlay = specification.pressedOverlay {
                         DSSpecificationRow(
                             title: "Pressed Overlay",
-                            value: "\(pressedOverlay.asset.specDescription) (\(Int(pressedOverlay.opacity * 100))%)"
+                            value: pressedOverlay.specDescription
                         )
                     }
                 }
