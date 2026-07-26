@@ -4,6 +4,13 @@
 
 ![Progress bar](../Images/Progress_bar.png)
 
+## Runtime Layout Interpretation
+
+- Figma의 `W: 393.0`은 기준 캔버스 폭이다. 런타임 컴포넌트는 부모가 폭을 결정하며, 높이 `48pt`, leading inset `20pt`, trailing inset `21pt`, 아이콘 크기 `12×18pt`, 아이콘-트랙 간격 `24pt`만 고정한다.
+- 트랙은 남은 가로 폭을 채운다. 기준 캔버스에서는 `316pt`로 렌더링된다.
+- 트랙 배경은 `gray50 → gray200` 선형 그라데이션에 전체 opacity `50%`를 적용한다.
+- 진행 fill은 전체 트랙 폭을 기준으로 한 `sky400 → primary600 → primary400` 선형 그라데이션이며, 현재 진행 폭만큼만 왼쪽부터 mask한다.
+
 ## 🏗️ Structure & Layout
 
 - 🟦 **Progress bar** (COMPONENT_SET) `W: 433.0, H: 408.0` [Radius: 5]

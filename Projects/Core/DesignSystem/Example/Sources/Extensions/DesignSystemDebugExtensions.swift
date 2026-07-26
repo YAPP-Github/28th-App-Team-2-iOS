@@ -75,7 +75,7 @@ extension FontStyle {
             category = "Font"
         }
 
-        return "\(category)/\(weightName) (\(Int(size))pt)"
+        return "\(category)/\(weightName) (\(Int(size))pt / \(Int(lineHeight))pt)"
     }
 }
 
@@ -86,6 +86,12 @@ extension DesignSystemColors {
 
     var specDescription: String {
         "\(displayName) (\(color.hexString))"
+    }
+}
+
+extension DSIconAsset {
+    var specDescription: String {
+        rawValue
     }
 }
 

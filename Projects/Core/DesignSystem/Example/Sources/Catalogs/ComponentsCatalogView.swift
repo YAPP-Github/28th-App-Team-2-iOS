@@ -106,6 +106,54 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+            NavigationLink(destination: TextFieldPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "character.cursor.ibeam")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("TextField")
+                            .font(.headline)
+                        Text("텍스트 입력을 위한 인풋 컴포넌트")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            NavigationLink(destination: ProgressBarPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "chart.bar.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Progress Bar")
+                            .font(.headline)
+                        Text("진행 상태를 나타내는 게이지 컴포넌트")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            NavigationLink(destination: TabPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "capsule.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Tab")
+                            .font(.headline)
+                        Text("화면 간 이동을 위한 상단 탭 버튼")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }

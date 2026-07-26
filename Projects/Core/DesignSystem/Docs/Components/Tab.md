@@ -4,6 +4,12 @@
 
 ![Tab](../Images/Tab.png)
 
+## Runtime Layout Contract
+
+- Tab의 가로 폭은 텍스트 폭과 좌우 `16pt` 패딩으로 결정한다. Figma의 `W: 60.0`은 `전체` 레이블을 사용한 기준값이며 최소·고정 너비가 아니다.
+- Body2의 `24pt` line height와 상하 `6pt` 패딩으로 높이 `36pt`를 구성한다. 별도의 고정 높이는 두지 않는다.
+- 레이블은 한 줄로 표시한다.
+
 ## 🏗️ Structure & Layout
 
 - 🟦 **Tab** (COMPONENT_SET) `W: 100.0, H: 132.0` [Radius: 5]
