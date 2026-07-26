@@ -27,4 +27,13 @@ struct DSProgressBarSpecificationTests {
         expectColorEqual(specification.trackFillGradient[2], DesignSystemAsset.Colors.primary400)
         #expect(specification.trackFillGradientLocations == [0, 0.5, 1])
     }
+
+    @Test("ProgressBar progress 입력값을 0...1 범위로 정규화")
+    func testNormalizedProgress() {
+        #expect(DSProgressBar.normalizedProgress(-0.1) == 0)
+        #expect(DSProgressBar.normalizedProgress(0) == 0)
+        #expect(DSProgressBar.normalizedProgress(0.5) == 0.5)
+        #expect(DSProgressBar.normalizedProgress(1) == 1)
+        #expect(DSProgressBar.normalizedProgress(1.1) == 1)
+    }
 }

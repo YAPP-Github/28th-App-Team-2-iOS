@@ -96,6 +96,24 @@ struct DSTextFieldSpecificationTests {
         #expect(specification.clearIconPressedOverlay?.opacity == 0.16)
     }
 
+    @Test("TextField 편집 중에는 error 피드백보다 insert 상태가 우선")
+    func testErrorFocusedSpecification() {
+        let specification = DSTextField.specification(
+            isFocused: true,
+            hasText: true,
+            validationState: .error(message: "에러 메시지")
+        )
+
+        expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray25)
+        expectColorEqual(specification.strokeAsset!, DesignSystemAsset.Colors.gray975)
+        #expect(specification.strokeWidth == 1.0)
+        #expect(specification.showsClearButton == true)
+        #expect(specification.clearButtonIcon == .circleXFill)
+        #expect(specification.errorMessage == nil)
+        #expect(specification.errorMessageFont == nil)
+        #expect(specification.errorMessageColor == nil)
+    }
+
     @Test("TextField Error 스펙 매핑 검증")
     func testErrorSpecification() {
         let specification = DSTextField.specification(

@@ -41,11 +41,15 @@ public struct DSProgressBar: View {
         )
     }
 
+    static func normalizedProgress(_ progress: Double) -> Double {
+        min(max(progress, 0), 1)
+    }
+
     private let progress: Double // 0.0 to 1.0
     private let onBack: () -> Void
 
     public init(progress: Double, onBack: @escaping () -> Void) {
-        self.progress = max(0, min(1, progress))
+        self.progress = Self.normalizedProgress(progress)
         self.onBack = onBack
     }
 
