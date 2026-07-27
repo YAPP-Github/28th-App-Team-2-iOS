@@ -6,8 +6,11 @@ struct DSTooltipSpecificationTests {
     func testSpecification() {
         let specification = DSTooltip.specification()
 
-        #expect(specification.bubbleHeight == 30)
+        #expect(specification.minimumBubbleHeight == 30)
         #expect(specification.horizontalPadding == 16)
+        #expect(specification.verticalPadding == 5)
+        #expect(specification.lineLimit == nil)
+        #expect(specification.textAlignment == .center)
         #expect(specification.arrowFrameWidth == 8)
         #expect(specification.arrowWidth == 6.9282)
         #expect(specification.arrowHeight == 6)

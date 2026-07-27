@@ -11,6 +11,14 @@ struct TooltipPlaygroundView: View {
         "\(specification.arrowFrameWidth.ptDescription) × \(specification.arrowHeight.ptDescription)"
     }
 
+    private var lineLimitDescription: String {
+        specification.lineLimit.map(String.init) ?? "Unlimited"
+    }
+
+    private var textAlignmentDescription: String {
+        String(describing: specification.textAlignment).capitalized
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             DSPlaygroundPreviewCard(
@@ -18,6 +26,7 @@ struct TooltipPlaygroundView: View {
                 isDarkBackground: $isDarkBackground
             ) {
                 DSTooltip(message)
+                    .padding(.horizontal, 20)
             }
 
             Form {
@@ -26,11 +35,20 @@ struct TooltipPlaygroundView: View {
                 }
 
                 Section(header: Text("Figma Specification Check")) {
-                    DSSpecificationRow(title: "Bubble Height", value: specification.bubbleHeight.ptDescription)
+                    DSSpecificationRow(
+                        title: "Minimum Bubble Height",
+                        value: specification.minimumBubbleHeight.ptDescription
+                    )
                     DSSpecificationRow(
                         title: "Horizontal Padding",
                         value: specification.horizontalPadding.ptDescription
                     )
+                    DSSpecificationRow(
+                        title: "Vertical Padding",
+                        value: specification.verticalPadding.ptDescription
+                    )
+                    DSSpecificationRow(title: "Line Limit", value: lineLimitDescription)
+                    DSSpecificationRow(title: "Text Alignment", value: textAlignmentDescription)
                     DSSpecificationRow(title: "Shape", value: specification.shape.specName)
                     DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
                     DSSpecificationRow(

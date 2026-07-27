@@ -3,8 +3,11 @@ import SwiftUI
 // MARK: - Core Tooltip Component
 public struct DSTooltip: View {
     public struct Specification: Sendable {
-        public let bubbleHeight: CGFloat
+        public let minimumBubbleHeight: CGFloat
         public let horizontalPadding: CGFloat
+        public let verticalPadding: CGFloat
+        public let lineLimit: Int?
+        public let textAlignment: TextAlignment
         public let arrowFrameWidth: CGFloat
         public let arrowWidth: CGFloat
         public let arrowHeight: CGFloat
@@ -19,8 +22,11 @@ public struct DSTooltip: View {
 
     public static func specification() -> Specification {
         Specification(
-            bubbleHeight: 30,
+            minimumBubbleHeight: 30,
             horizontalPadding: 16,
+            verticalPadding: 5,
+            lineLimit: nil,
+            textAlignment: .center,
             arrowFrameWidth: 8,
             arrowWidth: 6.9282,
             arrowHeight: 6,
@@ -46,11 +52,12 @@ public struct DSTooltip: View {
         VStack(spacing: 0) {
             Text(message)
                 .dsFont(specification.fontStyle)
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
+                .lineLimit(specification.lineLimit)
+                .multilineTextAlignment(specification.textAlignment)
                 .foregroundStyle(specification.foregroundAsset.swiftUIColor)
                 .padding(.horizontal, specification.horizontalPadding)
-                .frame(height: specification.bubbleHeight)
+                .padding(.vertical, specification.verticalPadding)
+                .frame(minHeight: specification.minimumBubbleHeight)
                 .background(specification.backgroundAsset.swiftUIColor)
                 .clipShape(specification.shape.swiftUIShape)
                 .dsDebugDetailGeometry("DSTooltip.Bubble")
