@@ -109,7 +109,7 @@ public enum DesignSystemColor {
     public static let teal800 = DesignSystemAsset.Colors.teal800.swiftUIColor
     public static let teal900 = DesignSystemAsset.Colors.teal900.swiftUIColor
 
-    // Opacity (Black α - Base: #1B1B1B)
+    // Opacity (Black α - Base: #000000)
     public static let opacity05 = DesignSystemAsset.Colors.opacity05.swiftUIColor
     public static let opacity10 = DesignSystemAsset.Colors.opacity10.swiftUIColor
     public static let opacity20 = DesignSystemAsset.Colors.opacity20.swiftUIColor
