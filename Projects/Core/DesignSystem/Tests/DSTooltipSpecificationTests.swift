@@ -14,9 +14,9 @@ struct DSTooltipSpecificationTests {
         #expect(specification.arrowRotationDegrees == 180)
         #expect(specification.shape == .capsule)
         #expect(specification.fontStyle == .body3Medium)
-        expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.opacity80)
+        expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.opacity60)
         expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.white)
         #expect(specification.arrowAsset == .tooltipArrow)
-        expectColorEqual(specification.arrowTintAsset, DesignSystemAsset.Colors.opacity80)
+        expectColorEqual(specification.arrowTintAsset, DesignSystemAsset.Colors.opacity60)
     }
 }

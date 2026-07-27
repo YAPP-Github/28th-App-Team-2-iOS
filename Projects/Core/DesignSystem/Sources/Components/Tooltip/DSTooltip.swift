@@ -27,10 +27,10 @@ public struct DSTooltip: View {
             arrowRotationDegrees: 180,
             shape: .capsule,
             fontStyle: .body3Medium,
-            backgroundAsset: DesignSystemAsset.Colors.opacity80,
+            backgroundAsset: DesignSystemAsset.Colors.opacity60,
             foregroundAsset: DesignSystemAsset.Colors.white,
             arrowAsset: .tooltipArrow,
-            arrowTintAsset: DesignSystemAsset.Colors.opacity80
+            arrowTintAsset: DesignSystemAsset.Colors.opacity60
         )
     }
 
