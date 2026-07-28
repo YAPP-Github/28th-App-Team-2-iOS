@@ -55,4 +55,24 @@ struct DSWheelPickerSelectionResolverTests {
             ) == nil
         )
     }
+
+    @Test("Int 전체 범위에서도 overflow 없이 최근접 값 선택")
+    func testExtremeValues() {
+        let extremeItems = [Int.min, 0, Int.max].map {
+            DSWheelPickerItem(value: $0, title: String($0))
+        }
+
+        #expect(
+            DSWheelPickerSelectionResolver.nearestValue(
+                to: Int.min + 1,
+                in: extremeItems
+            ) == Int.min
+        )
+        #expect(
+            DSWheelPickerSelectionResolver.nearestValue(
+                to: Int.max - 1,
+                in: extremeItems
+            ) == Int.max
+        )
+    }
 }
