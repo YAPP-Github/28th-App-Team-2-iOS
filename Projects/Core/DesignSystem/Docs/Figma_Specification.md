@@ -87,11 +87,15 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/WheelPicker_multi02.md)
 
+구현 매핑: `DSWheelPickerPanel(layout: .date)` + `DSMultiWheelPicker(layout: .date)` — custom overlay Sheet, 3열 스크롤, 중앙 overlay 숫자 입력, 연도 4자리·월/일 2자리 자동 확정, 열 전환·휠 스크롤 시 키보드만 dismiss, inline 바깥 탭용 `dsWheelPickerDismissKeyboardOnTap()`, 최근접 유효값 보정
+
 ![WheelPicker_multi02](Images/WheelPicker_multi02.png)
 
 ### 🧩 WheelPicker_single [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=383-1630)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/WheelPicker_single.md)
+
+구현 매핑: `DSWheelPickerPanel(layout: .single)` + `DSSingleWheelPicker` — custom overlay Sheet와 외부 선택 상태를 사용하는 단일 열 스크롤
 
 ![WheelPicker_single](Images/WheelPicker_single.png)
 
@@ -105,7 +109,17 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/WheelPicker_multi.md)
 
+구현 매핑: `DSWheelPickerPanel(layout: .time)` + `DSMultiWheelPicker(layout: .time)` — custom overlay Sheet와 외부 선택 상태를 사용하는 시간 2열 스크롤
+
 ![WheelPicker_multi](Images/WheelPicker_multi.png)
+
+### 🧩 WheelPicker Panel
+
+📄 [공통 패널 및 Sheet presentation 명세 보기](Components/WheelPicker_panel.md)
+
+구현 매핑: `DSWheelPickerPanel` + `dsWheelPickerSheet` — Drag Indicator, 제목, 저장 버튼, 패널 배경, 즉시 표시되는 scrim과 Panel 전용 bottom transition을 갖는 custom overlay presentation
+
+![WheelPicker Panel](Images/WheelPicker_multi02.png)
 
 ### 🧩 Toast_Lucky action [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=2113-25892)
 
@@ -262,4 +276,3 @@
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Shadow_m.md)
 
 ![Shadow_m](Images/Shadow_m.png)
-
