@@ -327,15 +327,14 @@ private extension DSWheelPickerColumnView {
     ) {
         guard items.contains(where: { $0.value == value }) else { return }
 
-        if selection != value {
-            selection = value
-            return
-        }
-
         guard let targetPosition = position
             ?? self.position(for: value, cycle: preferredCycle)
         else {
             return
+        }
+
+        if selection != value {
+            selection = value
         }
 
         setScrollPosition(targetPosition, animated: animated)
