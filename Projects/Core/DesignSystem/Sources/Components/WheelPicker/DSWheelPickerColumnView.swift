@@ -93,13 +93,9 @@ struct DSWheelPickerColumnView: View {
                         }
                 )
                 .clipped()
-                .onAppear {
-                    Task { @MainActor in
-                        await Task.yield()
-                        normalizeSelection(animated: false, using: scrollProxy)
-                    }
-                }
-                .onChange(of: items) { _, _ in
+                .task(id: items) {
+                    await Task.yield()
+                    guard !Task.isCancelled else { return }
                     normalizeSelection(animated: false, using: scrollProxy)
                 }
                 .onChange(of: selection) { _, newValue in
