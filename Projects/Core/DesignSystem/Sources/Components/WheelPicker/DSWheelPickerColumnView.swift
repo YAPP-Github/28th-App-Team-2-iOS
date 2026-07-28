@@ -93,6 +93,12 @@ struct DSWheelPickerColumnView: View {
                         }
                 )
                 .clipped()
+                .onAppear {
+                    Task { @MainActor in
+                        await Task.yield()
+                        normalizeSelection(animated: false, using: scrollProxy)
+                    }
+                }
                 .onChange(of: items) { _, _ in
                     normalizeSelection(animated: false, using: scrollProxy)
                 }
@@ -120,9 +126,6 @@ struct DSWheelPickerColumnView: View {
         .accessibilityLabel(accessibilityLabel)
         .accessibilityValue(selectedItem?.title ?? "")
         .accessibilityAdjustableAction(adjustSelection)
-        .onAppear {
-            normalizeSelection(animated: false)
-        }
         .onChange(of: scrollPosition) { _, newValue in
             guard let newValue else { return }
 
