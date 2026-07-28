@@ -1,61 +1,57 @@
 import SwiftUI
 struct DSWheelPickerColumnView: View {
-    fileprivate struct Position: Hashable {
-        let value: Int
-        let cycle: Int
-    }
-
-    fileprivate struct DisplayItem: Identifiable {
-        let item: DSWheelPickerItem
-        let position: Position
-
-        // swiftlint:disable:next identifier_name
-        var id: Position {
-            position
-        }
-    }
-
     let items: [DSWheelPickerItem]
     @Binding var selection: Int
     let accessibilityLabel: String
-    let viewportHeight: CGFloat
-    let rowHeight: CGFloat
-    let selectedFontStyle: FontStyle
-    let adjacentFontStyle: FontStyle
-    let outerFontStyle: FontStyle
-    let selectedForegroundAsset: DesignSystemColors
-    let adjacentForegroundAsset: DesignSystemColors
-    let outerForegroundAsset: DesignSystemColors
-    let allowsDirectInput: Bool
-    let maximumInputDigits: Int?
-    let inputColumnIndex: Int?
+    let rendering: DSWheelPickerRenderingConfiguration
+    let directInput: DSWheelPickerDirectInputConfiguration?
     @Binding var activeInputColumnIndex: Int?
     let isCircular: Bool
 
-    @State private var scrollPosition: Position?
+    @State private var scrollPosition: DSWheelPickerPosition?
     @State private var isEditing = false
     @State private var draftInput = ""
     @FocusState private var isInputFocused: Bool
 
+    init(
+        items: [DSWheelPickerItem],
+        selection: Binding<Int>,
+        accessibilityLabel: String,
+        rendering: DSWheelPickerRenderingConfiguration,
+        directInput: DSWheelPickerDirectInputConfiguration?,
+        isCircular: Bool
+    ) {
+        self.items = items
+        self._selection = selection
+        self.accessibilityLabel = accessibilityLabel
+        self.rendering = rendering
+        self.directInput = directInput
+        self._activeInputColumnIndex = directInput?.activeColumnIndex ?? .constant(nil)
+        self.isCircular = isCircular
+    }
+
     private var verticalInset: CGFloat {
-        max(0, (viewportHeight - rowHeight) / 2)
+        max(0, (rendering.viewportHeight - rendering.rowHeight) / 2)
+    }
+
+    private var maximumInputDigits: Int? {
+        directInput?.maximumDigits
+    }
+
+    private var inputColumnIndex: Int? {
+        directInput?.columnIndex
+    }
+
+    private var nextInputColumnIndex: Int? {
+        directInput?.nextColumnIndex
     }
 
     private var selectedItem: DSWheelPickerItem? {
         items.first { $0.value == selection }
     }
 
-    private var displayItems: [DisplayItem] {
-        let cycles = isCircular && items.count > 1 ? Array(0...2) : [0]
-
-        return cycles.flatMap { cycle in
-            items.map {
-                DisplayItem(
-                    item: $0,
-                    position: Position(value: $0.value, cycle: cycle)
-                )
-            }
-        }
+    private var displayItems: [DSWheelPickerDisplayItem] {
+        DSWheelPickerDisplayItem.make(items: items, isCircular: isCircular)
     }
 
     private var preferredCycle: Int {
@@ -70,7 +66,7 @@ struct DSWheelPickerColumnView: View {
                         ForEach(displayItems) { displayItem in
                             row(displayItem)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: rowHeight)
+                                .frame(height: rendering.rowHeight)
                                 .contentShape(Rectangle())
                                 .id(displayItem.id)
                                 .onTapGesture {
@@ -108,13 +104,23 @@ struct DSWheelPickerColumnView: View {
                 TextField("", text: $draftInput)
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
-                    .dsFont(selectedFontStyle)
-                    .foregroundStyle(selectedForegroundAsset.swiftUIColor)
+                    .dsFont(rendering.selectedFontStyle)
+                    .foregroundStyle(rendering.selectedForegroundAsset.swiftUIColor)
                     .focused($isInputFocused)
                     .frame(maxWidth: .infinity)
-                    .frame(height: rowHeight)
+                    .frame(height: rendering.rowHeight)
                     .onChange(of: draftInput) { _, newValue in
                         handleInputChange(newValue)
+                    }
+                    .task {
+                        await Task.yield()
+                        guard
+                            isEditing,
+                            activeInputColumnIndex == inputColumnIndex
+                        else {
+                            return
+                        }
+                        isInputFocused = true
                     }
             }
         }
@@ -125,10 +131,6 @@ struct DSWheelPickerColumnView: View {
         .onChange(of: scrollPosition) { _, newValue in
             guard let newValue else { return }
 
-            if activeInputColumnIndex != inputColumnIndex {
-                activeInputColumnIndex = nil
-            }
-
             if newValue.value != selection {
                 selection = newValue.value
             }
@@ -137,11 +139,17 @@ struct DSWheelPickerColumnView: View {
         }
         .onChange(of: isInputFocused) { wasFocused, isFocused in
             if wasFocused, !isFocused, isEditing {
-                commitInput()
+                Task { @MainActor in
+                    await Task.yield()
+                    guard !isInputFocused, isEditing else { return }
+                    commitInput()
+                }
             }
         }
         .onChange(of: activeInputColumnIndex) { _, activeColumnIndex in
-            if isEditing, activeColumnIndex != inputColumnIndex {
+            if activeColumnIndex == inputColumnIndex, !isEditing {
+                beginInput()
+            } else if isEditing, activeColumnIndex != inputColumnIndex {
                 commitInput()
             }
         }
@@ -174,12 +182,19 @@ private extension DSWheelPickerColumnView {
         ) {
             Task { @MainActor in
                 guard isEditing, draftInput == normalizedInput else { return }
-                commitInput()
+                commitInput(activating: nextInputColumnIndex)
             }
         }
     }
 
-    func commitInput() {
+    func beginInput() {
+        guard directInput != nil, !isEditing else { return }
+
+        draftInput = ""
+        isEditing = true
+    }
+
+    func commitInput(activating nextColumnIndex: Int? = nil) {
         guard isEditing else { return }
 
         let proposedValue = Int(draftInput)
@@ -193,21 +208,21 @@ private extension DSWheelPickerColumnView {
         isEditing = false
         isInputFocused = false
 
-        if activeInputColumnIndex == inputColumnIndex {
-            activeInputColumnIndex = nil
-        }
-
         if let resolvedValue {
             select(resolvedValue, animated: true)
         } else {
             normalizeSelection(animated: true)
+        }
+
+        if activeInputColumnIndex == inputColumnIndex {
+            activeInputColumnIndex = nextColumnIndex
         }
     }
 }
 
 private extension DSWheelPickerColumnView {
     @ViewBuilder
-    func row(_ displayItem: DisplayItem) -> some View {
+    func row(_ displayItem: DSWheelPickerDisplayItem) -> some View {
         let style = rowStyle(for: displayItem)
 
         if isEditing, displayItem.position == scrollPosition {
@@ -222,7 +237,7 @@ private extension DSWheelPickerColumnView {
     }
 
     private func rowStyle(
-        for displayItem: DisplayItem
+        for displayItem: DSWheelPickerDisplayItem
     ) -> DSWheelPickerRowVisualStyle {
         guard
             let activePosition = scrollPosition
@@ -234,35 +249,37 @@ private extension DSWheelPickerColumnView {
                 $0.position == displayItem.position
             })
         else {
-            return .outer(fontStyle: outerFontStyle, foregroundAsset: outerForegroundAsset)
+            return .outer(
+                fontStyle: rendering.outerFontStyle,
+                foregroundAsset: rendering.outerForegroundAsset
+            )
         }
 
         switch abs(selectedIndex - itemIndex) {
         case 0:
-            return .selected(fontStyle: selectedFontStyle, foregroundAsset: selectedForegroundAsset)
+            return .selected(
+                fontStyle: rendering.selectedFontStyle,
+                foregroundAsset: rendering.selectedForegroundAsset
+            )
         case 1:
-            return .adjacent(fontStyle: adjacentFontStyle, foregroundAsset: adjacentForegroundAsset)
+            return .adjacent(
+                fontStyle: rendering.adjacentFontStyle,
+                foregroundAsset: rendering.adjacentForegroundAsset
+            )
         default:
-            return .outer(fontStyle: outerFontStyle, foregroundAsset: outerForegroundAsset)
+            return .outer(
+                fontStyle: rendering.outerFontStyle,
+                foregroundAsset: rendering.outerForegroundAsset
+            )
         }
     }
 
-    func handleTap(_ displayItem: DisplayItem) {
-        if allowsDirectInput, displayItem.position == scrollPosition {
-            if let activeInputColumnIndex, activeInputColumnIndex != inputColumnIndex {
-                self.activeInputColumnIndex = nil
-                return
-            }
-
-            activeInputColumnIndex = inputColumnIndex
-            draftInput = ""
-            isEditing = true
-
-            Task { @MainActor in
-                guard isEditing, activeInputColumnIndex == inputColumnIndex else {
-                    return
-                }
-                isInputFocused = true
+    func handleTap(_ displayItem: DSWheelPickerDisplayItem) {
+        if directInput != nil, displayItem.position == scrollPosition {
+            if activeInputColumnIndex == inputColumnIndex {
+                beginInput()
+            } else {
+                activeInputColumnIndex = inputColumnIndex
             }
             return
         }
@@ -305,7 +322,7 @@ private extension DSWheelPickerColumnView {
 
     func select(
         _ value: Int,
-        at position: Position? = nil,
+        at position: DSWheelPickerPosition? = nil,
         animated: Bool
     ) {
         guard items.contains(where: { $0.value == value }) else { return }
@@ -325,7 +342,9 @@ private extension DSWheelPickerColumnView {
     }
 
     func setScrollPosition(
-        _ position: Position, animated: Bool, using scrollProxy: ScrollViewProxy? = nil
+        _ position: DSWheelPickerPosition,
+        animated: Bool,
+        using scrollProxy: ScrollViewProxy? = nil
     ) {
         let updatePosition = {
             scrollPosition = position
@@ -343,12 +362,12 @@ private extension DSWheelPickerColumnView {
         }
     }
 
-    func position(for value: Int, cycle: Int) -> Position? {
+    func position(for value: Int, cycle: Int) -> DSWheelPickerPosition? {
         guard items.contains(where: { $0.value == value }) else { return nil }
-        return Position(value: value, cycle: cycle)
+        return DSWheelPickerPosition(value: value, cycle: cycle)
     }
 
-    func recenterCircularPositionIfNeeded(_ position: Position) {
+    func recenterCircularPositionIfNeeded(_ position: DSWheelPickerPosition) {
         guard isCircular, items.count > 1, position.cycle != preferredCycle else {
             return
         }
@@ -363,32 +382,15 @@ private extension DSWheelPickerColumnView {
     }
 
     func adjustSelection(_ direction: AccessibilityAdjustmentDirection) {
-        guard
-            let currentIndex = items.firstIndex(where: { $0.value == selection })
-        else {
+        guard let adjustedValue = DSWheelPickerSelectionResolver.adjustedValue(
+            from: selection,
+            direction: direction,
+            in: items,
+            isCircular: isCircular
+        ) else {
             normalizeSelection(animated: true)
             return
         }
-
-        let targetIndex: Int
-
-        switch direction {
-        case .increment:
-            if isCircular, currentIndex == items.index(before: items.endIndex) {
-                targetIndex = items.startIndex
-            } else {
-                targetIndex = min(items.index(before: items.endIndex), currentIndex + 1)
-            }
-        case .decrement:
-            if isCircular, currentIndex == items.startIndex {
-                targetIndex = items.index(before: items.endIndex)
-            } else {
-                targetIndex = max(items.startIndex, currentIndex - 1)
-            }
-        @unknown default:
-            return
-        }
-
-        select(items[targetIndex].value, animated: true)
+        select(adjustedValue, animated: true)
     }
 }

@@ -108,6 +108,7 @@ public struct DSWheelPickerPanel: View {
 
             header(specification)
                 .padding(.top, specification.dragIndicatorToHeaderSpacing)
+                .padding(.horizontal, specification.horizontalPadding)
 
             content
                 .padding(.top, specification.headerToPickerSpacing)
@@ -129,12 +130,12 @@ public struct DSWheelPickerPanel: View {
     private func header(_ specification: Specification) -> some View {
         HStack(spacing: specification.headerGap) {
             Text(title)
-                .lineLimit(1)
                 .dsFont(specification.titleFontStyle)
                 .foregroundStyle(specification.titleForegroundAsset.swiftUIColor)
                 .frame(
-                    width: specification.titleWidth,
-                    height: specification.headerHeight,
+                    maxWidth: .infinity,
+                    minHeight: specification.headerHeight,
+                    maxHeight: specification.headerHeight,
                     alignment: .leading
                 )
 

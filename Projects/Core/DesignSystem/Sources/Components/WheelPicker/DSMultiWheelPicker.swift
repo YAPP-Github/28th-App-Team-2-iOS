@@ -74,6 +74,16 @@ public struct DSMultiWheelPicker: View {
 
     public var body: some View {
         let specification = Self.specification(layout: layout)
+        let rendering = DSWheelPickerRenderingConfiguration(
+            viewportHeight: specification.viewportHeight,
+            rowHeight: specification.rowHeight,
+            selectedFontStyle: specification.selectedFontStyle,
+            adjacentFontStyle: specification.adjacentFontStyle,
+            outerFontStyle: specification.outerFontStyle,
+            selectedForegroundAsset: specification.selectedForegroundAsset,
+            adjacentForegroundAsset: specification.adjacentForegroundAsset,
+            outerForegroundAsset: specification.outerForegroundAsset
+        )
 
         ZStack {
             specification.shape.swiftUIShape
@@ -87,21 +97,8 @@ public struct DSMultiWheelPicker: View {
                         items: column.items,
                         selection: column.selection,
                         accessibilityLabel: column.accessibilityLabel,
-                        viewportHeight: specification.viewportHeight,
-                        rowHeight: specification.rowHeight,
-                        selectedFontStyle: specification.selectedFontStyle,
-                        adjacentFontStyle: specification.adjacentFontStyle,
-                        outerFontStyle: specification.outerFontStyle,
-                        selectedForegroundAsset: specification.selectedForegroundAsset,
-                        adjacentForegroundAsset: specification.adjacentForegroundAsset,
-                        outerForegroundAsset: specification.outerForegroundAsset,
-                        allowsDirectInput: layout.allowsDirectInput,
-                        maximumInputDigits: DSWheelPickerDirectInputPolicy.maximumDigits(
-                            for: layout,
-                            columnIndex: index
-                        ),
-                        inputColumnIndex: index,
-                        activeInputColumnIndex: $activeInputColumnIndex,
+                        rendering: rendering,
+                        directInput: directInputConfiguration(for: index),
                         isCircular: column.isCircular
                     )
                     .frame(width: specification.columnWidths[index])
@@ -115,5 +112,27 @@ public struct DSMultiWheelPicker: View {
         )
         .clipped()
         .dsDebugGeometry("DSMultiWheelPicker.\(String(describing: layout))")
+    }
+
+    private func directInputConfiguration(
+        for columnIndex: Int
+    ) -> DSWheelPickerDirectInputConfiguration? {
+        guard let maximumDigits = DSWheelPickerDirectInputPolicy.maximumDigits(
+            for: layout,
+            columnIndex: columnIndex
+        ) else {
+            return nil
+        }
+
+        return DSWheelPickerDirectInputConfiguration(
+            maximumDigits: maximumDigits,
+            columnIndex: columnIndex,
+            nextColumnIndex: DSWheelPickerDirectInputPolicy.nextColumnIndex(
+                for: layout,
+                columnIndex: columnIndex,
+                columnCount: columns.count
+            ),
+            activeColumnIndex: $activeInputColumnIndex
+        )
     }
 }

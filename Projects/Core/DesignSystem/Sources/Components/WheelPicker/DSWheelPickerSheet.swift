@@ -28,7 +28,9 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
     @State private var isHostPresented = false
     @State private var isPanelVisible = false
     @State private var isKeyboardPresented = false
-    @GestureState private var dragOffset: CGFloat = 0
+    @GestureState(
+        resetTransaction: Transaction(animation: .snappy)
+    ) private var dragOffset: CGFloat = 0
 
     let layout: DSWheelPickerPanelLayout
     let title: String
@@ -42,7 +44,6 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
             .fullScreenCover(isPresented: $isHostPresented) {
                 presentation
                     .presentationBackground(.clear)
-                    .interactiveDismissDisabled()
                     .task {
                         await Task.yield()
                         revealPanel()
@@ -112,7 +113,7 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
                 .offset(y: max(0, dragOffset))
                 .overlay(alignment: .top) {
                     Color.clear
-                        .frame(height: 44)
+                        .frame(height: dragHandleHeight(specification))
                         .contentShape(Rectangle())
                         .gesture(dismissGesture)
                         .accessibilityHidden(true)
@@ -196,5 +197,13 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
                     isPresented = false
                 }
             }
+    }
+
+    private func dragHandleHeight(
+        _ specification: DSWheelPickerPanel.Specification
+    ) -> CGFloat {
+        specification.topPadding
+            + specification.dragIndicatorHeight
+            + specification.dragIndicatorToHeaderSpacing
     }
 }

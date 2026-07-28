@@ -87,7 +87,7 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/WheelPicker_multi02.md)
 
-구현 매핑: `DSWheelPickerPanel(layout: .date)` + `DSMultiWheelPicker(layout: .date)` — custom overlay Sheet, 3열 스크롤, 중앙 overlay 숫자 입력, 연도 4자리·월/일 2자리 자동 확정, 열 전환·휠 스크롤 시 키보드만 dismiss, inline 바깥 탭용 `dsWheelPickerDismissKeyboardOnTap()`, 최근접 유효값 보정
+구현 매핑: `DSWheelPickerPanel(layout: .date)` + `DSMultiWheelPicker(layout: .date)` — custom overlay Sheet, 3열 스크롤, 중앙 overlay 숫자 입력, 연도 4자리·월/일 2자리 자동 확정, 연→월→일 자동 포커스 이동, 휠 스크롤 시 키보드 dismiss, inline 바깥 탭용 `dsWheelPickerDismissKeyboardOnTap()`, 최근접 유효값 보정
 
 ![WheelPicker_multi02](Images/WheelPicker_multi02.png)
 

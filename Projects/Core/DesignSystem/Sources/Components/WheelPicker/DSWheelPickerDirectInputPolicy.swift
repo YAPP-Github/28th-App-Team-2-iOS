@@ -24,4 +24,19 @@ enum DSWheelPickerDirectInputPolicy {
     ) -> Bool {
         input.count == maximumDigits
     }
+
+    static func nextColumnIndex(
+        for layout: DSMultiWheelPickerLayout,
+        columnIndex: Int,
+        columnCount: Int
+    ) -> Int? {
+        guard
+            maximumDigits(for: layout, columnIndex: columnIndex) != nil,
+            columnIndex + 1 < columnCount
+        else {
+            return nil
+        }
+
+        return columnIndex + 1
+    }
 }

@@ -89,6 +89,7 @@ private extension DSWheelPickerKeyboardDismissTapInstaller {
         }
 
         deinit {
+            uninstall()
             keyboardObservers.forEach(NotificationCenter.default.removeObserver)
         }
 
@@ -109,8 +110,27 @@ private extension DSWheelPickerKeyboardDismissTapInstaller {
             _ gestureRecognizer: UIGestureRecognizer,
             shouldReceive touch: UITouch
         ) -> Bool {
+            guard !belongsToTextInputHierarchy(touch.view) else {
+                shouldDismissForCurrentTap = false
+                return false
+            }
+
             shouldDismissForCurrentTap = isKeyboardPresented
             return true
+        }
+
+        private func belongsToTextInputHierarchy(_ view: UIView?) -> Bool {
+            var currentView = view
+
+            while let view = currentView {
+                if view is UITextField || view is UITextView {
+                    return true
+                }
+
+                currentView = view.superview
+            }
+
+            return false
         }
 
         @objc

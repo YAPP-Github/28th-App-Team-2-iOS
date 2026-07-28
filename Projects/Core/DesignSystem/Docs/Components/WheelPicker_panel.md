@@ -45,10 +45,12 @@ Figma 원본:
 - 시스템 `.sheet`를 사용하지 않고 투명한 full-screen modal host에 custom overlay를 합성하여 Liquid Glass presentation 표면이 개입하지 않게 합니다.
 - `opacity20` scrim과 흰색 Panel만 렌더링합니다.
 - full-screen modal host의 시스템 transition은 비활성화하여 scrim을 즉시 표시합니다.
-- Panel 표시 상태를 host와 분리하고 Panel에만 bottom move transition을 적용합니다.
+- Panel 표시 상태를 host와 분리하고 Panel에만 SwiftUI `snappy` 애니메이션을 사용한 bottom move transition을 적용합니다.
 - 닫을 때는 Panel transition이 끝난 뒤 scrim과 modal host를 제거합니다.
 - scrim 탭 또는 커스텀 Drag Indicator의 아래 방향 swipe로 닫을 수 있습니다.
-- scrim 탭은 Sheet 전체를 닫는 동작입니다. Picker 내부의 다른 열 탭·휠 스크롤은 직접 입력만 확정하고 키보드만 닫습니다.
+- Drag Indicator 영역은 Top padding, indicator height, indicator-to-header spacing의 합으로 계산합니다.
+- Drag Indicator를 dismiss 임계값인 `80pt` 미만으로 당겼다가 놓으면 SwiftUI `snappy` 애니메이션으로 원래 위치에 복귀합니다. 드래그 중 위치 갱신에는 애니메이션을 적용하지 않습니다.
+- scrim 탭은 Sheet 전체를 닫는 동작입니다. Picker 내부의 다른 날짜 열 탭은 현재 입력을 확정하고 해당 열로 포커스를 옮기며, 휠 스크롤은 직접 입력을 확정하고 키보드만 닫습니다.
 - inline 조합에서 Picker 바깥 탭으로 키보드만 닫으려면 호출 화면에 `dsWheelPickerDismissKeyboardOnTap()`을 적용합니다.
 - 키보드 표시 여부에 따라 패널 하단 간격만 `40pt`에서 `12pt`로 조정합니다.
 - Panel은 키보드 안전 영역 위에 배치하며, 표시 중에는 배경 콘텐츠를 접근성 트리에서 숨깁니다.

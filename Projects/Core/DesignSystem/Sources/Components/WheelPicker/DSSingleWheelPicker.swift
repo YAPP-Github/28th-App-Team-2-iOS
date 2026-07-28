@@ -54,6 +54,16 @@ public struct DSSingleWheelPicker: View {
 
     public var body: some View {
         let specification = Self.specification()
+        let rendering = DSWheelPickerRenderingConfiguration(
+            viewportHeight: specification.viewportHeight,
+            rowHeight: specification.rowHeight,
+            selectedFontStyle: specification.selectedFontStyle,
+            adjacentFontStyle: specification.adjacentFontStyle,
+            outerFontStyle: specification.outerFontStyle,
+            selectedForegroundAsset: specification.selectedForegroundAsset,
+            adjacentForegroundAsset: specification.adjacentForegroundAsset,
+            outerForegroundAsset: specification.outerForegroundAsset
+        )
 
         ZStack {
             specification.shape.swiftUIShape
@@ -65,18 +75,8 @@ public struct DSSingleWheelPicker: View {
                 items: items,
                 selection: $selection,
                 accessibilityLabel: accessibilityLabel,
-                viewportHeight: specification.viewportHeight,
-                rowHeight: specification.rowHeight,
-                selectedFontStyle: specification.selectedFontStyle,
-                adjacentFontStyle: specification.adjacentFontStyle,
-                outerFontStyle: specification.outerFontStyle,
-                selectedForegroundAsset: specification.selectedForegroundAsset,
-                adjacentForegroundAsset: specification.adjacentForegroundAsset,
-                outerForegroundAsset: specification.outerForegroundAsset,
-                allowsDirectInput: false,
-                maximumInputDigits: nil,
-                inputColumnIndex: nil,
-                activeInputColumnIndex: .constant(nil),
+                rendering: rendering,
+                directInput: nil,
                 isCircular: false
             )
         }

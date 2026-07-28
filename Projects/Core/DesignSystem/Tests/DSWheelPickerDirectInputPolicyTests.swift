@@ -34,6 +34,31 @@ struct DSWheelPickerDirectInputPolicyTests {
         )
     }
 
+    @Test("날짜 입력은 연도에서 월, 월에서 일로 이동")
+    func testDateNextColumnIndex() {
+        #expect(
+            DSWheelPickerDirectInputPolicy.nextColumnIndex(
+                for: .date,
+                columnIndex: 0,
+                columnCount: 3
+            ) == 1
+        )
+        #expect(
+            DSWheelPickerDirectInputPolicy.nextColumnIndex(
+                for: .date,
+                columnIndex: 1,
+                columnCount: 3
+            ) == 2
+        )
+        #expect(
+            DSWheelPickerDirectInputPolicy.nextColumnIndex(
+                for: .date,
+                columnIndex: 2,
+                columnCount: 3
+            ) == nil
+        )
+    }
+
     @Test(
         "숫자만 남기고 최대 자릿수로 제한",
         arguments: [
@@ -66,6 +91,12 @@ struct DSWheelPickerDirectInputPolicyTests {
         #expect(
             !DSWheelPickerDirectInputPolicy.shouldCommit(
                 "199",
+                maximumDigits: 4
+            )
+        )
+        #expect(
+            !DSWheelPickerDirectInputPolicy.shouldCommit(
+                "19999",
                 maximumDigits: 4
             )
         )
