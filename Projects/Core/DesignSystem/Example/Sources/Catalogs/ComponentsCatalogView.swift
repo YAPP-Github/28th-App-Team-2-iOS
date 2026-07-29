@@ -191,6 +191,23 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            NavigationLink(destination: PopoverPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "rectangle.on.rectangle.angled")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Popover")
+                            .font(.headline)
+                        Text("제목과 선택 동작을 연결하는 팝오버")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }
