@@ -1,8 +1,8 @@
 import Foundation
-import XCTest
+import Testing
 @testable import NetworkCore
 
-final class HTTPClientCancellationTests: XCTestCase {
+struct HTTPClientCancellationTests {
     private struct ResponseBody: Decodable, Sendable {
         let message: String
     }
@@ -22,15 +22,15 @@ final class HTTPClientCancellationTests: XCTestCase {
     }
 
     private final class DecodingGate: @unchecked Sendable {
-        private let started: XCTestExpectation
+        private let started: AsyncStream<Void>.Continuation
         private let resumeSemaphore = DispatchSemaphore(value: 0)
 
-        init(started: XCTestExpectation) {
+        init(started: AsyncStream<Void>.Continuation) {
             self.started = started
         }
 
         func startAndWait() {
-            started.fulfill()
+            started.yield()
             resumeSemaphore.wait()
         }
 
@@ -39,41 +39,35 @@ final class HTTPClientCancellationTests: XCTestCase {
         }
     }
 
-    func testRequestPreservesTaskCancellation() async throws {
+    @Test("Task 취소를 전송 오류로 변환하지 않는다")
+    func requestPreservesTaskCancellation() async throws {
         let client = makeClient { _ in
             throw CancellationError()
         }
 
-        do {
+        await #expect(throws: CancellationError.self) {
             let _: ResponseBody = try await client.request(.get("/cancelled"))
-            XCTFail("작업 취소는 transport error로 변환되면 안 됩니다.")
-        } catch is CancellationError {
-            // Expected
-        } catch {
-            XCTFail("예상하지 못한 에러: \(error)")
         }
     }
 
-    func testRequestMapsURLSessionCancellationToTaskCancellation() async throws {
+    @Test("URLSession 취소를 Task 취소로 변환한다")
+    func requestMapsURLSessionCancellationToTaskCancellation() async throws {
         let client = makeClient { _ in
             throw URLError(.cancelled)
         }
 
-        do {
+        await #expect(throws: CancellationError.self) {
             let _: ResponseBody = try await client.request(.get("/cancelled"))
-            XCTFail("URLSession 취소는 CancellationError로 전달되어야 합니다.")
-        } catch is CancellationError {
-            // Expected
-        } catch {
-            XCTFail("예상하지 못한 에러: \(error)")
         }
     }
 
-    func testDataStopsCancelledTaskWhenTransportIgnoresCancellation() async throws {
-        let transportStarted = expectation(description: "Transport started")
+    @Test("취소를 무시하는 Transport의 늦은 응답을 전달하지 않는다", .timeLimit(.minutes(1)))
+    func dataStopsCancelledTaskWhenTransportIgnoresCancellation() async throws {
+        let transportSignal = AsyncStream.makeStream(of: Void.self)
+        var signalIterator = transportSignal.stream.makeAsyncIterator()
         let responseData = try JSONEncoder().encode(["message": "늦은 응답"])
         let client = makeClient { request in
-            transportStarted.fulfill()
+            transportSignal.continuation.yield()
             try? await Task.sleep(for: .seconds(10))
             return (
                 responseData,
@@ -84,22 +78,19 @@ final class HTTPClientCancellationTests: XCTestCase {
             try await client.data(for: .get("/slow"))
         }
 
-        await fulfillment(of: [transportStarted], timeout: 1)
+        _ = await signalIterator.next()
         task.cancel()
 
-        do {
+        await #expect(throws: CancellationError.self) {
             _ = try await task.value
-            XCTFail("취소된 작업은 늦은 성공 응답을 전달하면 안 됩니다.")
-        } catch is CancellationError {
-            // Expected
-        } catch {
-            XCTFail("예상하지 못한 에러: \(error)")
         }
     }
 
-    func testRequestStopsWhenTaskIsCancelledDuringDecoding() async throws {
-        let decodingStarted = expectation(description: "Decoding started")
-        let gate = DecodingGate(started: decodingStarted)
+    @Test("디코딩 중 취소된 Task가 성공 응답을 전달하지 않는다", .timeLimit(.minutes(1)))
+    func requestStopsWhenTaskIsCancelledDuringDecoding() async throws {
+        let decodingSignal = AsyncStream.makeStream(of: Void.self)
+        var signalIterator = decodingSignal.stream.makeAsyncIterator()
+        let gate = DecodingGate(started: decodingSignal.continuation)
         let client = makeClient(
             makeDecoder: {
                 let decoder = JSONDecoder()
@@ -117,17 +108,12 @@ final class HTTPClientCancellationTests: XCTestCase {
             try await client.request(.get("/slow-decoding"), as: BlockingResponse.self)
         }
 
-        await fulfillment(of: [decodingStarted], timeout: 1)
+        _ = await signalIterator.next()
         task.cancel()
         gate.resume()
 
-        do {
+        await #expect(throws: CancellationError.self) {
             _ = try await task.value
-            XCTFail("디코딩 중 취소된 작업은 성공 응답을 전달하면 안 됩니다.")
-        } catch is CancellationError {
-            // Expected
-        } catch {
-            XCTFail("예상하지 못한 에러: \(error)")
         }
     }
 

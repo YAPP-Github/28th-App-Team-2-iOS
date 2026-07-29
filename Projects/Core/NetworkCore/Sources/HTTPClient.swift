@@ -11,10 +11,9 @@ public struct HTTPClient: Sendable {
     /// 테스트 더블 클로저를 주입할 수 있습니다.
     public typealias Transport = @Sendable (URLRequest) async throws -> (Data, URLResponse)
 
-    private let baseURL: URL
+    private let requestBuilder: URLRequestBuilder
     private let transport: Transport
     private let makeDecoder: @Sendable () -> JSONDecoder
-    private let defaultHeaders: @Sendable () async -> [String: String]
 
     /// 커스텀 Transport를 사용하는 HTTP Client를 생성합니다.
     ///
@@ -30,10 +29,12 @@ public struct HTTPClient: Sendable {
         makeDecoder: @escaping @Sendable () -> JSONDecoder = { JSONDecoder() },
         defaultHeaders: @escaping @Sendable () async -> [String: String] = { [:] }
     ) {
-        self.baseURL = baseURL
+        self.requestBuilder = URLRequestBuilder(
+            baseURL: baseURL,
+            defaultHeaders: defaultHeaders
+        )
         self.transport = transport
         self.makeDecoder = makeDecoder
-        self.defaultHeaders = defaultHeaders
     }
 
     /// `URLSession`을 사용하는 HTTP Client를 생성합니다.
@@ -111,14 +112,7 @@ public struct HTTPClient: Sendable {
     /// - Throws: 요청 생성, 전송 또는 상태 코드 검증에 실패하면 `HTTPClientError`를 던집니다.
     ///   작업이 취소되면 `CancellationError`를 그대로 전달합니다.
     public func data(for endpoint: Endpoint) async throws -> Data {
-        try Task.checkCancellation()
-        let headers = await defaultHeaders()
-        try Task.checkCancellation()
-
-        let request = try endpoint.urlRequest(
-            baseURL: baseURL,
-            defaultHeaders: headers
-        )
+        let request = try await requestBuilder.makeRequest(for: endpoint)
 
         do {
             let (data, response) = try await transport(request)
