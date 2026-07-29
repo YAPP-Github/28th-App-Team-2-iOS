@@ -1,13 +1,13 @@
 import SwiftUI
 
 public struct DSPopoverItem {
-    public let identifier: UUID
+    public let identifier: String
     public let title: String
 
     fileprivate let action: () -> Void
 
     public init(
-        identifier: UUID = UUID(),
+        identifier: String,
         title: String,
         action: @escaping () -> Void
     ) {

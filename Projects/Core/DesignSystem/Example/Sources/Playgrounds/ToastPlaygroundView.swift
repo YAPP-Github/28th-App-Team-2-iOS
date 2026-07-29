@@ -43,7 +43,7 @@ struct ToastPlaygroundView: View {
                 Section(header: Text("Specification Variant")) {
                     Picker("Variant", selection: $selectedVariant) {
                         ForEach(DSToastVariant.allCases, id: \.self) { variant in
-                            Text(String(describing: variant).capitalized)
+                            Text(variant.displayName)
                                 .tag(variant)
                         }
                     }
@@ -121,6 +121,19 @@ struct ToastPlaygroundView: View {
         }
         .navigationTitle("DSToast")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private extension DSToastVariant {
+    var displayName: String {
+        switch self {
+        case .standard:
+            "Standard"
+        case .compact:
+            "Compact"
+        case .luckyAction:
+            "Lucky Action"
+        }
     }
 }
 

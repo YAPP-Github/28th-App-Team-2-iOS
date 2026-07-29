@@ -16,10 +16,12 @@ struct PopoverPlaygroundView: View {
                 DSPopover(
                     items: [
                         DSPopoverItem(
+                            identifier: "edit",
                             title: "수정하기",
                             action: { selectedItem = "수정" }
                         ),
                         DSPopoverItem(
+                            identifier: "delete",
                             title: "삭제하기",
                             action: { selectedItem = "삭제" }
                         )

@@ -11,7 +11,7 @@
   - 모서리: `8pt`
   - 내부 여백: `8pt`
   - 콘텐츠 간격: `8pt`
-  - 메시지: `dsBody3Regular`, `gray50 (#F7F7F8)`, line height `20pt`, single line
+  - 메시지: `dsBody3Regular`, `gray50 (#F7F7F8)`, line height `20pt`
   - 닫기 버튼: `20 × 20pt`
   - 닫기 아이콘 프레임: `16 × 16pt`
   - 닫기 glyph: `13.3333 × 13.3333pt`, `gray50`
@@ -20,3 +20,4 @@
 
 - `DSToast(_:onClose:)`로 메시지와 닫기 동작을 호출 화면이 주입한다.
 - 너비는 콘텐츠가 결정하며 전역 표시 큐, 자동 제거 타이머와 singleton은 포함하지 않는다.
+- 호출부에서 가용 폭이 제한되어 메시지가 줄바꿈되면 전체 높이가 `36pt` 이상으로 자연스럽게 늘어난다.
