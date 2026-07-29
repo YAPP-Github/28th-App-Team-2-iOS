@@ -111,7 +111,7 @@ public struct DSToast: View {
                 intrinsicShadow: IntrinsicShadowSpecification(
                     colorHex: 0x9C8AF6,
                     opacity: 0.5,
-                    radius: 10,
+                    radius: 20,
                     offsetX: 0,
                     offsetY: 0
                 )

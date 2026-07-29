@@ -82,7 +82,7 @@ struct DSToastSpecificationTests {
         let shadow = try #require(specification.intrinsicShadow)
         #expect(shadow.colorHex == 0x9C8AF6)
         #expect(shadow.opacity == 0.5)
-        #expect(shadow.radius == 10)
+        #expect(shadow.radius == 20)
         #expect(shadow.offsetX == 0)
         #expect(shadow.offsetY == 0)
     }
