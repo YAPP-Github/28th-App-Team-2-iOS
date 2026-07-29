@@ -4,6 +4,8 @@ import SwiftUI
 public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
     case checkLine
     case edit
+    case circleXFill
+    case chevronLeftPlain
     case tooltipArrow
 
     /// 디버그 검사기와 Catalog에서 사용하는 안정적인 에셋 식별자입니다.
@@ -15,6 +17,10 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.checkLine.swiftUIImage
         case .edit:
             DesignSystemAsset.Icons.edit.swiftUIImage
+        case .circleXFill:
+            DesignSystemAsset.Icons.circleXFill.swiftUIImage
+        case .chevronLeftPlain:
+            DesignSystemAsset.Icons.chevronLeftPlain.swiftUIImage
         case .tooltipArrow:
             DesignSystemAsset.Icons.tooltipArrow.swiftUIImage
         }

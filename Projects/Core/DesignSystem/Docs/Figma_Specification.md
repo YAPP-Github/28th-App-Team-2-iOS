@@ -3,6 +3,12 @@
 이 문서는 Figma API를 통해 추출된 디자인 시스템 컴포넌트 명세입니다.
 에이전트는 디자인 시스템 컴포넌트(`Projects/Core/DesignSystem`) 구현 시 이 문서를 SSOT(Single Source of Truth)로 참조하십시오.
 
+## Runtime Interaction Override
+
+- 디자이너가 별도로 정의한 공통 pressed 정책: pressed 상태를 제공하는 모든 DesignSystem 커스텀 인터랙티브 컨트롤은 누르는 동안 기존 시각 영역 위에 `gray975` 색상을 `16%` opacity로 덮는다.
+- 오버레이는 각 컴포넌트의 기존 시각 영역에만 적용한다. 이 정책만으로 최소 크기나 터치 영역을 일괄 변경하지 않는다.
+- 아이콘 전용 컨트롤은 별도 배경 사각형이 아니라 아이콘 이미지 자체에만 같은 오버레이를 적용한다.
+
 ## 🔗 피그마 전체 컴포넌트 명세
 
 [Figma 전체 컴포넌트 명세 보러가기](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco/Yapp-2%EC%A1%B0--%ED%86%A0%EB%8B%A5%EC%9A%B4-?node-id=367-1011&t=zwfU9lrAWxiTaXjo-4)
@@ -262,4 +268,3 @@
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Shadow_m.md)
 
 ![Shadow_m](Images/Shadow_m.png)
-

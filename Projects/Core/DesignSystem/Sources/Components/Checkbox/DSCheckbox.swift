@@ -11,6 +11,7 @@ public struct DSCheckbox: View {
         public let borderAsset: DesignSystemColors?
         public let iconAsset: DesignSystemImages?
         public let iconTintAsset: DesignSystemColors?
+        public let pressedOverlay: DSPressedOverlay
     }
 
     public static func specification(isOn: Bool) -> Specification {
@@ -24,7 +25,8 @@ public struct DSCheckbox: View {
                 : DesignSystemAsset.Colors.white,
             borderAsset: isOn ? nil : DesignSystemAsset.Colors.coolGray300,
             iconAsset: isOn ? DesignSystemAsset.Icons.checkLine : nil,
-            iconTintAsset: isOn ? DesignSystemAsset.Colors.white : nil
+            iconTintAsset: isOn ? DesignSystemAsset.Colors.white : nil,
+            pressedOverlay: .standard
         )
     }
 

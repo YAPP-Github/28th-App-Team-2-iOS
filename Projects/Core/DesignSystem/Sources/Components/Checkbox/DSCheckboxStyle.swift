@@ -36,6 +36,20 @@ struct DSCheckboxStyle: ToggleStyle {
                 }
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSCheckboxButtonStyle(specification: specification))
+    }
+}
+
+private struct DSCheckboxButtonStyle: ButtonStyle {
+    let specification: DSCheckbox.Specification
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: specification.shape,
+                specification: specification.pressedOverlay
+            )
+            .clipShape(specification.shape.swiftUIShape)
     }
 }

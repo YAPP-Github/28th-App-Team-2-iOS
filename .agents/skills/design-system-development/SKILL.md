@@ -24,6 +24,10 @@ Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SS
 - selected·checked처럼 화면이 소유하는 상태는 값이나 `Binding`으로 입력받는다.
 - enabled/disabled처럼 SwiftUI가 제공하는 상태는 Environment를 사용하고, pressed 같은 순간 상태는 Style의 `Configuration`을 사용한다.
 - Figma에 정의되지 않은 pressed·disabled·loading 상태를 임의로 추가하지 않는다. 승인되면 Specification 입력과 테스트를 함께 확장한다.
+- pressed 상태를 제공하는 모든 DesignSystem 커스텀 인터랙티브 컨트롤에는 프로젝트의 공통 pressed 정책을 적용한다. 정적 표시 컴포넌트에는 적용하지 않는다.
+- `.plain` 또는 플랫폼 기본 pressed 효과에 의존하지 말고 `ButtonStyle.Configuration.isPressed`로 명시적으로 렌더링한다. 각 컴포넌트는 자신의 `Specification`이 제공하는 resolved pressed-overlay 값을 사용하고, Style·Example·테스트는 그 값을 직접 소비한다. 렌더링 helper 내부에 디자인 값을 숨기지 않는다.
+- 표면형 인터랙티브 컨트롤은 공통 `dsPressedOverlay` 경로로 기존 shape 전체에 pressed 상태를 렌더링한다. 이 정책만으로 레이아웃이나 터치 영역을 변경하지 않는다.
+- 아이콘 전용 액션은 `DSIconButtonStyle`을 사용해 아이콘 이미지 자체에만 pressed 상태를 렌더링한다. `DSIcon` 자체에 pressed 효과를 일괄 적용하지 않는다.
 - 여러 독립 축을 하나의 조합 enum으로 합치지 않는다. variant, size, state를 독립 입력으로 유지한다.
 - 정적 표시 컴포넌트는 no-op action이나 불필요한 ButtonStyle을 만들지 않는다.
 - 인터랙티브 컴포넌트의 `ButtonStyle`/`ToggleStyle`은 internal로 두고 resolved Specification만 소비하게 한다.
@@ -45,7 +49,7 @@ Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SS
 - DesignSystem 컴포넌트가 외곽과 내부의 의미 있는 영역을 자기 구현 안에서 보고한다.
 - 검사기 진입 API·구현 타입·상태·테스트는 모두 `#if DEBUG`에서만 컴파일한다.
 - 컴포넌트 호출부의 분기를 없애기 위해 internal geometry helper는 Release에서 이름을 평가하지 않고 `Self`를 반환하는 no-op을 제공한다. no-op에 View modifier나 상태를 추가하지 않는다.
-- 컴포넌트 디버그 이름은 저장 프로퍼티로 만들지 않고 private 계산 프로퍼티 또는 `@autoclosure` 표현식으로 둔다. 이름 문자열 보간과 계산 프로퍼티 접근은 geometry helper의 인자 위치에 직접 작성하고, `body`의 지역 `let`·`var`로 미리 계산하지 않는다. Text는 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 보고한다.
+- 컴포넌트 디버그 이름은 저장 프로퍼티로 만들지 않고 private 계산 프로퍼티 또는 `@autoclosure` 표현식으로 둔다. 이름 문자열 보간과 계산 프로퍼티 접근은 geometry helper의 인자 위치에 직접 작성하고, `body`의 지역 `let`·`var`로 미리 계산하지 않는다. 일반 `Text`는 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 자동으로 보고한다. 단, `TextField` 등 상하 패딩 부작용을 피해야 하는 입력 컨트롤은 `.font(.ds.font(style))`를 사용하고 명시적으로 `.dsDebugTypographyGeometry`를 부착한다.
 - App·Example처럼 DesignSystem 외부 모듈에서 호출하는 `dsDebugLayoutInspector()`만 DEBUG 빌드에서 public으로 선언한다. DesignSystem 내부에서만 사용하는 geometry helper와 구현 타입은 internal 또는 private로 제한한다.
 - DEBUG 전용 구현을 검사하는 테스트 파일은 전체를 `#if DEBUG`로 감싼다.
 
@@ -65,7 +69,7 @@ Figma 원본과 1:1로 연결된 마크다운 명세서(`Docs/`)를 디자인 SS
 2. **[필수] `Projects/Core/DesignSystem/Docs/Components/` 하위에 개별 마크다운 명세서를 생성/갱신하고, 전체 인덱스인 `Docs/Figma_Specification.md` 에도 링크와 썸네일을 반드시 업데이트한다. (각 명세서 최상단에 Figma 원본 링크(Node ID) 유지)**
 3. 컴포넌트 전용 public read-only Specification과 조회 API를 구현한다. (오직 마크다운 명세서만을 SSOT로 보고 구현)
 4. View/Style의 렌더링 디자인 값을 Specification에 연결한다.
-5. DEBUG 레이아웃 검사기에서 컴포넌트 외곽과 측정 가치가 있는 내부 영역을 구현 안에서 보고한다. 컴포넌트 외곽은 `dsDebugGeometry`, 행간을 포함한 Text 영역은 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 보고하고, 그 밖의 서로 다른 내부 레이아웃 영역은 `dsDebugDetailGeometry`를 사용한다. 내부의 모든 View에 기계적으로 적용하지 않고 아이콘·콘텐츠 그룹·상태 표시·슬롯 등 레이아웃 경계나 Specification 값을 확인할 수 있는 영역만 등록한다. 배경·테두리·그림자처럼 장식 목적이거나 기존 영역과 프레임이 같은 요소는 제외한다. 이미 geometry를 보고하는 하위 DesignSystem 컴포넌트를 조합할 때는 동일 영역을 부모에서 중복 등록하지 않고, 부모가 추가한 외곽·컨테이너·padding 경계만 등록한다. 각 helper의 Release no-op을 사용하므로 컴포넌트 호출부를 `#if DEBUG`로 분기하지 않는다.
+5. DEBUG 레이아웃 검사기에서 컴포넌트 외곽과 측정 가치가 있는 내부 영역을 구현 안에서 보고한다. 컴포넌트 외곽은 `dsDebugGeometry`, 행간을 포함한 일반 Text 영역은 기본 `dsFont(_:)`를 사용해 `Typography.*` 이름을 보고하고, `TextField` 등 입력 컨트롤은 `.dsDebugTypographyGeometry`를 명시적으로 부착하며, 그 밖의 서로 다른 내부 레이아웃 영역은 `dsDebugDetailGeometry`를 사용한다. 내부의 모든 View에 기계적으로 적용하지 않고 아이콘·콘텐츠 그룹·상태 표시·슬롯 등 레이아웃 경계나 Specification 값을 확인할 수 있는 영역만 등록한다. 배경·테두리·그림자처럼 장식 목적이거나 기존 영역과 프레임이 같은 요소는 제외한다. 이미 geometry를 보고하는 하위 DesignSystem 컴포넌트를 조합할 때는 동일 영역을 부모에서 중복 등록하지 않고, 부모가 추가한 외곽·컨테이너·padding 경계만 등록한다. 각 helper의 Release no-op을 사용하므로 컴포넌트 호출부를 `#if DEBUG`로 분기하지 않는다.
 6. 단일 컴포넌트 Playground와 사양표를 추가한다.
 7. Components Catalog에 등록한다.
 8. 컴포넌트별 테스트 파일에 모든 Specification 조합의 매핑 테스트를 추가한다.

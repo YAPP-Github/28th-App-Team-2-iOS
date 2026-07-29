@@ -12,6 +12,30 @@ extension CGFloat {
     }
 }
 
+extension CGSize {
+    var ptDescription: String {
+        "\(width.ptDescription) × \(height.ptDescription)"
+    }
+}
+
+extension EdgeInsets {
+    var ptDescription: String {
+        if top == bottom && leading == trailing {
+            if top == leading {
+                return "All \(top.ptDescription)"
+            }
+            return "H: \(leading.ptDescription), V: \(top.ptDescription)"
+        }
+        return [
+            "T: \(top.ptDescription)",
+            "B: \(bottom.ptDescription)",
+            "L: \(leading.ptDescription)",
+            "R: \(trailing.ptDescription)"
+        ]
+        .joined(separator: ", ")
+    }
+}
+
 extension DSComponentShape {
     var specName: String {
         switch self {
@@ -57,7 +81,7 @@ extension FontStyle {
             category = "Font"
         }
 
-        return "\(category)/\(weightName) (\(Int(size))pt)"
+        return "\(category)/\(weightName) (\(Int(size))pt / \(Int(lineHeight))pt)"
     }
 }
 
@@ -68,6 +92,18 @@ extension DesignSystemColors {
 
     var specDescription: String {
         "\(displayName) (\(color.hexString))"
+    }
+}
+
+extension DSIconAsset {
+    var specDescription: String {
+        rawValue
+    }
+}
+
+extension DSPressedOverlay {
+    var specDescription: String {
+        "\(asset.specDescription) (\(Int(opacity * 100))%)"
     }
 }
 

@@ -59,16 +59,26 @@ struct ChipPlaygroundView: View {
             let specification = DSChip.specification(isSelected: isSelected)
             DSSpecificationRow(title: "Shape", value: specification.shape.specName)
             DSSpecificationRow(title: "Padding (Vertical)", value: specification.verticalPadding.ptDescription)
-            DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+            DSSpecificationRow(
+                title: "Padding (Horizontal)",
+                value: specification.horizontalPadding.ptDescription
+            )
             DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
             DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
             DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)
+            DSSpecificationRow(
+                title: "Pressed Overlay",
+                value: specification.pressedOverlay.specDescription
+            )
 
         case .chip2:
             let specification = DSChip2.specification
             DSSpecificationRow(title: "Shape", value: specification.shape.specName)
             DSSpecificationRow(title: "Padding (Vertical)", value: specification.verticalPadding.ptDescription)
-            DSSpecificationRow(title: "Padding (Horizontal)", value: specification.horizontalPadding.ptDescription)
+            DSSpecificationRow(
+                title: "Padding (Horizontal)",
+                value: specification.horizontalPadding.ptDescription
+            )
             DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
             DSSpecificationRow(title: "Bg Color", value: specification.backgroundAsset.specDescription)
             DSSpecificationRow(title: "Text Color", value: specification.foregroundAsset.specDescription)

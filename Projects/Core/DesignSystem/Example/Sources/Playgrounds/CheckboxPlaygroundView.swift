@@ -35,6 +35,10 @@ struct CheckboxPlaygroundView: View {
                         title: "Icon Color",
                         value: specification.iconTintAsset?.specDescription ?? "None"
                     )
+                    DSSpecificationRow(
+                        title: "Pressed Overlay",
+                        value: specification.pressedOverlay.specDescription
+                    )
                 }
             }
         }

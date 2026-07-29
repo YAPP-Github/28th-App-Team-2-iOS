@@ -11,6 +11,7 @@ public struct DSButton: View {
         public let fontStyle: FontStyle
         public let backgroundAsset: DesignSystemColors
         public let foregroundAsset: DesignSystemColors
+        public let pressedOverlay: DSPressedOverlay?
     }
 
     public static func specification(
@@ -58,7 +59,8 @@ public struct DSButton: View {
             shape: .roundedRectangle(cornerRadius: 12),
             fontStyle: fontStyle,
             backgroundAsset: assets.background,
-            foregroundAsset: assets.foreground
+            foregroundAsset: assets.foreground,
+            pressedOverlay: isEnabled ? .standard : nil
         )
     }
 
