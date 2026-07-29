@@ -34,6 +34,14 @@ struct DSWheelPickerPanelSpecificationTests {
             DesignSystemAsset.Colors.white
         )
         expectColorEqual(
+            specification.shadowColorAsset,
+            DesignSystemAsset.Colors.black
+        )
+        #expect(specification.shadowOpacity == 0.05)
+        #expect(specification.shadowRadius == 20)
+        #expect(specification.shadowOffsetX == 0)
+        #expect(specification.shadowOffsetY == 0)
+        expectColorEqual(
             specification.dimmingAsset,
             DesignSystemAsset.Colors.opacity20
         )

@@ -23,6 +23,11 @@ public struct DSWheelPickerPanel: View {
         public let titleFontStyle: FontStyle
         public let actionFontStyle: FontStyle
         public let backgroundAsset: DesignSystemColors
+        public let shadowColorAsset: DesignSystemColors
+        public let shadowOpacity: CGFloat
+        public let shadowRadius: CGFloat
+        public let shadowOffsetX: CGFloat
+        public let shadowOffsetY: CGFloat
         public let dimmingAsset: DesignSystemColors
         public let dragIndicatorAsset: DesignSystemColors
         public let titleForegroundAsset: DesignSystemColors
@@ -65,6 +70,11 @@ public struct DSWheelPickerPanel: View {
             titleFontStyle: .heading3Bold,
             actionFontStyle: .body1Medium,
             backgroundAsset: DesignSystemAsset.Colors.white,
+            shadowColorAsset: DesignSystemAsset.Colors.black,
+            shadowOpacity: 0.05,
+            shadowRadius: 20,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
             dimmingAsset: DesignSystemAsset.Colors.opacity20,
             dragIndicatorAsset: DesignSystemAsset.Colors.gray200,
             titleForegroundAsset: DesignSystemAsset.Colors.black,
@@ -124,6 +134,13 @@ public struct DSWheelPickerPanel: View {
                 .fill(specification.backgroundAsset.swiftUIColor)
         )
         .clipShape(specification.containerShape.swiftUIShape)
+        .shadow(
+            color: specification.shadowColorAsset.swiftUIColor
+                .opacity(specification.shadowOpacity),
+            radius: specification.shadowRadius,
+            x: specification.shadowOffsetX,
+            y: specification.shadowOffsetY
+        )
         .dsDebugGeometry("DSWheelPickerPanel.\(String(describing: layout))")
     }
 

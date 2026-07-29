@@ -117,7 +117,7 @@
 
 📄 [공통 패널 및 Sheet presentation 명세 보기](Components/WheelPicker_panel.md)
 
-구현 매핑: `DSWheelPickerPanel` + `dsWheelPickerSheet` — Drag Indicator, 제목, 저장 버튼, 패널 배경, 즉시 표시되는 scrim과 Panel 전용 bottom transition을 갖는 custom overlay presentation
+구현 매핑: `DSWheelPickerPanel` + `dsWheelPickerSheet` — Drag Indicator, 제목, 저장 버튼, 패널 배경과 고유 그림자, 즉시 표시되는 scrim과 Panel 전용 bottom transition을 갖는 custom overlay presentation
 
 ![WheelPicker Panel](Images/WheelPicker_multi02.png)
 

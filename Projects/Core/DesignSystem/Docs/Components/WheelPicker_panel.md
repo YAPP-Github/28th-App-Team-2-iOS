@@ -26,6 +26,7 @@ Figma 원본:
   - Date: `322pt`
 - Container background: `white`
 - Container shape: radius `12pt`
+- Container shadow: `X: 0, Y: 0, Blur: 20, black 5%`
 - Horizontal content padding: `30pt`
 - Drag Indicator: `44 × 4pt`, `gray200`, capsule
 - Top → Drag Indicator: `14pt`

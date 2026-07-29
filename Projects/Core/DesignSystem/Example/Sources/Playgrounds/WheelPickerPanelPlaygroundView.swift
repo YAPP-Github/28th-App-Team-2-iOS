@@ -148,6 +148,16 @@ struct WheelPickerPanelPlaygroundView: View {
                         title: "Background",
                         value: specification.backgroundAsset.specDescription
                     )
+                    DSSpecificationRow(
+                        title: "Shadow",
+                        value: [
+                            specification.shadowColorAsset.specDescription,
+                            "X \(specification.shadowOffsetX.ptDescription)",
+                            "Y \(specification.shadowOffsetY.ptDescription)",
+                            "Blur \(specification.shadowRadius.ptDescription)",
+                            "\(Int(specification.shadowOpacity * 100))%"
+                        ].joined(separator: ", ")
+                    )
                 }
             }
         }
