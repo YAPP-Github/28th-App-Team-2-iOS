@@ -66,12 +66,13 @@ struct SelectFieldPlaygroundView: View {
                     )
                     DSSpecificationRow(title: "Text Font", value: specification.textFont.specName)
                     DSSpecificationRow(title: "Text Color", value: specification.textColor.specDescription)
-                    DSSpecificationRow(
-                        title: "Clear Icon",
-                        value: specification.clearButtonIcon?.specDescription ?? "None"
-                    )
-                    DSSpecificationRow(title: "Clear Icon Size", value: specification.clearButtonSize.ptDescription)
-                    DSSpecificationRow(title: "Clear Icon Color", value: specification.clearButtonColor.specDescription)
+                    if let clearButtonIcon = specification.clearButtonIcon,
+                       let clearButtonSize = specification.clearButtonSize,
+                       let clearButtonColor = specification.clearButtonColor {
+                        DSSpecificationRow(title: "Clear Icon", value: clearButtonIcon.specDescription)
+                        DSSpecificationRow(title: "Clear Icon Size", value: clearButtonSize.ptDescription)
+                        DSSpecificationRow(title: "Clear Icon Color", value: clearButtonColor.specDescription)
+                    }
                     DSSpecificationRow(title: "Chevron Icon", value: specification.chevronIcon.specDescription)
                     DSSpecificationRow(title: "Chevron Size", value: specification.chevronSize.ptDescription)
                     DSSpecificationRow(title: "Chevron Color", value: specification.chevronColor.specDescription)

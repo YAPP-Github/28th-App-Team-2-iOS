@@ -16,10 +16,10 @@ public struct DSSelectField: View {
         public let textColor: DesignSystemColors
 
         public let showsClearButton: Bool
-        public let clearButtonSize: CGFloat
+        public let clearButtonSize: CGFloat?
         public let clearButtonIcon: DSIconAsset?
-        public let clearButtonColor: DesignSystemColors
-        public let clearButtonLeadingPadding: CGFloat
+        public let clearButtonColor: DesignSystemColors?
+        public let clearButtonLeadingPadding: CGFloat?
         public let clearIconPressedOverlay: DSPressedOverlay?
 
         public let chevronIcon: DSIconAsset
@@ -50,10 +50,12 @@ public struct DSSelectField: View {
             textFont: .body2Medium,
             textColor: DesignSystemAsset.Colors.gray975,
             showsClearButton: hasSelection && !isFocused,
-            clearButtonSize: 20,
+            clearButtonSize: hasSelection && !isFocused ? 20 : nil,
             clearButtonIcon: hasSelection && !isFocused ? .circleXFill : nil,
-            clearButtonColor: DesignSystemAsset.Colors.gray300,
-            clearButtonLeadingPadding: 10,
+            clearButtonColor: hasSelection && !isFocused
+                ? DesignSystemAsset.Colors.gray300
+                : nil,
+            clearButtonLeadingPadding: hasSelection && !isFocused ? 10 : nil,
             clearIconPressedOverlay: hasSelection && !isFocused ? .standard : nil,
             chevronIcon: .chevronSmallBottom,
             chevronSize: 20,
@@ -103,22 +105,26 @@ public struct DSSelectField: View {
             }
             .buttonStyle(.plain)
 
-            if spec.showsClearButton, let clearIcon = spec.clearButtonIcon {
+            if spec.showsClearButton,
+               let clearIcon = spec.clearButtonIcon,
+               let clearButtonSize = spec.clearButtonSize,
+               let clearButtonColor = spec.clearButtonColor,
+               let clearButtonLeadingPadding = spec.clearButtonLeadingPadding {
                 Button {
                     selection = nil
                 } label: {
-                    DSIcon(clearIcon, width: spec.clearButtonSize, height: spec.clearButtonSize)
-                        .foregroundColor(spec.clearButtonColor.swiftUIColor)
+                    DSIcon(clearIcon, width: clearButtonSize, height: clearButtonSize)
+                        .foregroundColor(clearButtonColor.swiftUIColor)
                         .dsDebugDetailGeometry("DSSelectField.ClearButton")
                 }
                 .buttonStyle(
                     DSIconButtonStyle(
                         iconAsset: clearIcon,
-                        iconSize: CGSize(width: spec.clearButtonSize, height: spec.clearButtonSize),
+                        iconSize: CGSize(width: clearButtonSize, height: clearButtonSize),
                         pressedOverlay: spec.clearIconPressedOverlay
                     )
                 )
-                .padding(.leading, spec.clearButtonLeadingPadding)
+                .padding(.leading, clearButtonLeadingPadding)
             }
 
             Button(action: action) {
