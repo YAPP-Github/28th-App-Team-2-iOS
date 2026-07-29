@@ -175,6 +175,23 @@ struct ComponentsCatalogView: View {
                 .padding(.vertical, 4)
             }
 
+            NavigationLink(destination: SelectFieldPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "chevron.down.square.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("SelectField")
+                            .font(.headline)
+                        Text("선택 화면 진입과 선택값 삭제를 제공하는 필드 버튼")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
             NavigationLink(destination: TooltipPlaygroundView()) {
                 HStack(spacing: 12) {
                     Image(systemName: "text.bubble.fill")
