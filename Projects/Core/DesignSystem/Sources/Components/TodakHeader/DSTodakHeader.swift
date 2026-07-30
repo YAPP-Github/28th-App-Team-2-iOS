@@ -1,0 +1,173 @@
+import SwiftUI
+
+public struct DSTodakHeader: View {
+    public struct RightItem {
+        public let identifier: String
+        public let icon: DSIconAsset
+        let action: () -> Void
+
+        public init(
+            identifier: String,
+            icon: DSIconAsset,
+            action: @escaping () -> Void
+        ) {
+            self.identifier = identifier
+            self.icon = icon
+            self.action = action
+        }
+    }
+
+    public struct Specification: Sendable {
+        public let contentHeight: CGFloat
+        public let horizontalPadding: CGFloat
+        public let iconSize: CGSize
+        public let leftIconAsset: DSIconAsset
+        public let leftIconTintAsset: DesignSystemColors
+        public let leftIconPressedOverlay: DSPressedOverlay
+        public let rightIconGap: CGFloat
+        public let rightIconTintAsset: DesignSystemColors
+        public let rightIconPressedOverlay: DSPressedOverlay
+        public let titleFontStyle: FontStyle
+        public let titleTextAsset: DesignSystemColors
+        public let subtitleFontStyle: FontStyle
+        public let subtitleTextAsset: DesignSystemColors
+        public let remainingCountFontStyle: FontStyle
+        public let remainingCountTextAsset: DesignSystemColors
+        public let titleGroupGap: CGFloat
+        public let freeChatLimit: Int
+    }
+
+    public static func specification() -> Specification {
+        Specification(
+            contentHeight: 48,
+            horizontalPadding: 20,
+            iconSize: CGSize(width: 20, height: 20),
+            leftIconAsset: .deleteLine,
+            leftIconTintAsset: DesignSystemAsset.Colors.gray925,
+            leftIconPressedOverlay: .standard,
+            rightIconGap: 12,
+            rightIconTintAsset: DesignSystemAsset.Colors.coolGray975,
+            rightIconPressedOverlay: .standard,
+            titleFontStyle: .body2SemiBold,
+            titleTextAsset: DesignSystemAsset.Colors.black,
+            subtitleFontStyle: .body3Regular,
+            subtitleTextAsset: DesignSystemAsset.Colors.gray500,
+            remainingCountFontStyle: .body3Medium,
+            remainingCountTextAsset: DesignSystemAsset.Colors.gray800,
+            titleGroupGap: 4,
+            freeChatLimit: 3
+        )
+    }
+
+    private let remainingFreeChatCount: Int
+    private let rightItems: [RightItem]
+    private let onClose: () -> Void
+
+    public init(
+        remainingFreeChatCount: Int,
+        rightItems: [RightItem],
+        onClose: @escaping () -> Void
+    ) {
+        self.remainingFreeChatCount = remainingFreeChatCount
+        self.rightItems = rightItems
+        self.onClose = onClose
+    }
+
+    public var body: some View {
+        let spec = Self.specification()
+
+        ZStack {
+            titleGroup(spec: spec)
+
+            HStack {
+                iconButton(
+                    asset: spec.leftIconAsset,
+                    size: spec.iconSize,
+                    tintAsset: spec.leftIconTintAsset,
+                    pressedOverlay: spec.leftIconPressedOverlay,
+                    action: onClose
+                )
+
+                Spacer()
+
+                HStack(spacing: spec.rightIconGap) {
+                    ForEach(rightItems, id: \.identifier) { item in
+                        iconButton(
+                            asset: item.icon,
+                            size: spec.iconSize,
+                            tintAsset: spec.rightIconTintAsset,
+                            pressedOverlay: spec.rightIconPressedOverlay,
+                            action: item.action
+                        )
+                    }
+                }
+                .dsDebugDetailGeometry("DSTodakHeader.RightActions")
+            }
+            .padding(.horizontal, spec.horizontalPadding)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: spec.contentHeight)
+        .background(DesignSystemAsset.Colors.white.swiftUIColor)
+        .dsDebugGeometry("DSTodakHeader")
+    }
+
+    private func titleGroup(spec: Specification) -> some View {
+        HStack(alignment: .center, spacing: spec.titleGroupGap) {
+            Text("토닥이")
+                .dsFont(spec.titleFontStyle)
+                .foregroundColor(spec.titleTextAsset.swiftUIColor)
+                .fixedSize()
+
+            (
+                Text("오늘 무료 채팅 ")
+                    .font(.ds.font(spec.subtitleFontStyle))
+                    .foregroundColor(spec.subtitleTextAsset.swiftUIColor)
+                + Text("\(remainingFreeChatCount)")
+                    .font(.ds.font(spec.remainingCountFontStyle))
+                    .foregroundColor(spec.remainingCountTextAsset.swiftUIColor)
+                + Text("/\(spec.freeChatLimit)")
+                    .font(.ds.font(spec.remainingCountFontStyle))
+                    .foregroundColor(spec.subtitleTextAsset.swiftUIColor)
+            )
+            .modifier(
+                DSLineHeightModifier(
+                    fontSize: spec.subtitleFontStyle.size,
+                    lineHeight: spec.subtitleFontStyle.lineHeight,
+                    fontConvertible: spec.subtitleFontStyle.fontConvertible
+                )
+            )
+            .dsDebugTypographyGeometry(subtitleDebugTypographyName(spec: spec))
+            .fixedSize()
+        }
+        .dsDebugDetailGeometry("DSTodakHeader.TitleGroup")
+    }
+
+    private func subtitleDebugTypographyName(spec: Specification) -> String {
+        "Typography.\(String(describing: spec.subtitleFontStyle))"
+        + "/\(String(describing: spec.remainingCountFontStyle))"
+    }
+
+    private func iconButton(
+        asset: DSIconAsset,
+        size: CGSize,
+        tintAsset: DesignSystemColors,
+        pressedOverlay: DSPressedOverlay,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            DSIcon(
+                asset,
+                width: size.width,
+                height: size.height
+            )
+            .foregroundColor(tintAsset.swiftUIColor)
+        }
+        .buttonStyle(
+            DSIconButtonStyle(
+                iconAsset: asset,
+                iconSize: size,
+                pressedOverlay: pressedOverlay
+            )
+        )
+    }
+}

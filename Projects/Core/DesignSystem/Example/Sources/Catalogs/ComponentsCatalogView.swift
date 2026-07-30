@@ -191,6 +191,23 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            NavigationLink(destination: TodakHeaderPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "bubble.left.and.text.bubble.right.fill")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Todak Header")
+                            .font(.headline)
+                        Text("토닥이 채팅 화면의 상단 헤더와 무료 채팅 진행 상태")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }
