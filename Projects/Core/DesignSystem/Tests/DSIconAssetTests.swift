@@ -6,7 +6,16 @@ struct DSIconAssetTests {
     func testAssetNames() {
         #expect(
             DSIconAsset.allCases.map(\.name) ==
-            ["checkLine", "edit", "circleXFill", "chevronLeftPlain", "tooltipArrow"]
+            [
+                "chatAdd",
+                "checkLine",
+                "deleteLine",
+                "edit",
+                "circleXFill",
+                "chevronLeftPlain",
+                "notes",
+                "tooltipArrow"
+            ]
         )
     }
 }

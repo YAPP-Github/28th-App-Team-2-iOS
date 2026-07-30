@@ -48,6 +48,7 @@ public enum DesignSystemColor {
     public static let coolGray700 = DesignSystemAsset.Colors.coolGray700.swiftUIColor
     public static let coolGray800 = DesignSystemAsset.Colors.coolGray800.swiftUIColor
     public static let coolGray900 = DesignSystemAsset.Colors.coolGray900.swiftUIColor
+    public static let coolGray975 = DesignSystemAsset.Colors.coolGray975.swiftUIColor
 
     // Sky
     public static let sky50 = DesignSystemAsset.Colors.sky50.swiftUIColor
