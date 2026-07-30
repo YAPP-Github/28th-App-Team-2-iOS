@@ -2,9 +2,7 @@
 
 [🔗 Figma 원본 링크](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1244-15359)
 
-> Figma API quota 소진으로 TalkToFigma `swrp7aym` 채널의 현재 선택 노드(`1244:15359`)를 기준으로 작성했습니다.
-
-![Todak Header](../Images/Todak Header.png)
+![Todak Header](../Images/Todak%20Header.png)
 
 ## 🏗️ Structure & Layout
 
