@@ -18,6 +18,7 @@ public struct DSTodakHeader: View {
     }
 
     public struct Specification: Sendable {
+        public let backgroundAsset: DesignSystemColors
         public let contentHeight: CGFloat
         public let horizontalPadding: CGFloat
         public let iconSize: CGSize
@@ -39,6 +40,7 @@ public struct DSTodakHeader: View {
 
     public static func specification() -> Specification {
         Specification(
+            backgroundAsset: DesignSystemAsset.Colors.white,
             contentHeight: 48,
             horizontalPadding: 20,
             iconSize: CGSize(width: 20, height: 20),
@@ -107,7 +109,7 @@ public struct DSTodakHeader: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: spec.contentHeight)
-        .background(DesignSystemAsset.Colors.white.swiftUIColor)
+        .background(spec.backgroundAsset.swiftUIColor)
         .dsDebugGeometry("DSTodakHeader")
     }
 
@@ -136,15 +138,13 @@ public struct DSTodakHeader: View {
                     fontConvertible: spec.subtitleFontStyle.fontConvertible
                 )
             )
-            .dsDebugTypographyGeometry(subtitleDebugTypographyName(spec: spec))
+            .dsDebugTypographyGeometry(
+                "Typography.\(String(describing: spec.subtitleFontStyle))"
+                + "/\(String(describing: spec.remainingCountFontStyle))"
+            )
             .fixedSize()
         }
         .dsDebugDetailGeometry("DSTodakHeader.TitleGroup")
-    }
-
-    private func subtitleDebugTypographyName(spec: Specification) -> String {
-        "Typography.\(String(describing: spec.subtitleFontStyle))"
-        + "/\(String(describing: spec.remainingCountFontStyle))"
     }
 
     private func iconButton(

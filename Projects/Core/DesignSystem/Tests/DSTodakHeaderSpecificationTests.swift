@@ -8,6 +8,7 @@ struct DSTodakHeaderSpecificationTests {
     func testSpecification() {
         let specification = DSTodakHeader.specification()
 
+        expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.white)
         #expect(specification.contentHeight == 48)
         #expect(specification.horizontalPadding == 20)
         #expect(specification.iconSize == CGSize(width: 20, height: 20))

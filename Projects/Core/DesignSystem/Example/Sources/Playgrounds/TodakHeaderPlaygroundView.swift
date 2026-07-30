@@ -44,6 +44,7 @@ struct TodakHeaderPlaygroundView: View {
                 Section(header: Text("Figma Specification Check")) {
                     let spec = DSTodakHeader.specification()
 
+                    DSSpecificationRow(title: "Background", value: spec.backgroundAsset.specDescription)
                     DSSpecificationRow(title: "Content Height", value: spec.contentHeight.ptDescription)
                     DSSpecificationRow(title: "Horizontal Padding", value: spec.horizontalPadding.ptDescription)
                     DSSpecificationRow(title: "Icon Size", value: spec.iconSize.ptDescription)
