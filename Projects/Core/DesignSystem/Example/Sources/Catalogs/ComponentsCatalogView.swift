@@ -127,7 +127,7 @@ struct ComponentsCatalogView: View {
                         .font(.headline)
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.ds.gray600)
                 }
             }
             .padding(.vertical, 4)
