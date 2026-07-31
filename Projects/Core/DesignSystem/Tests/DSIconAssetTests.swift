@@ -12,7 +12,8 @@ struct DSIconAssetTests {
                 "circleXFill",
                 "chevronLeftPlain",
                 "chevronSmallBottom",
-                "tooltipArrow"
+                "tooltipArrow",
+                "closeLine"
             ]
         )
     }
