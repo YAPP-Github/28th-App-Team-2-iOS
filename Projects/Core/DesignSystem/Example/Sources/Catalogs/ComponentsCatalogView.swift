@@ -191,6 +191,57 @@ struct ComponentsCatalogView: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            NavigationLink(destination: SingleWheelPickerPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "filemenu.and.selection")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Single WheelPicker")
+                            .font(.headline)
+                        Text("외부 선택 상태로 제어하는 단일 열 WheelPicker")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            NavigationLink(destination: MultiWheelPickerPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "rectangle.split.3x1")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Multi WheelPicker")
+                            .font(.headline)
+                        Text("시간 2열과 직접 입력 가능한 생년월일 3열 WheelPicker")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            NavigationLink(destination: WheelPickerPanelPlaygroundView()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "rectangle.bottomhalf.inset.filled")
+                        .foregroundColor(.ds.primary600)
+                        .imageScale(.large)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("WheelPicker Panel")
+                            .font(.headline)
+                        Text("Custom overlay Sheet로 표시하는 Picker 패널")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
     }
 }

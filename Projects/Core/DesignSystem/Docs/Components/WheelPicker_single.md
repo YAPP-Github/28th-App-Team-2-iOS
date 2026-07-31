@@ -4,6 +4,31 @@
 
 ![WheelPicker_single](../Images/WheelPicker_single.png)
 
+## 구현 범위
+
+- `DSSingleWheelPicker`는 292pt 너비의 wheel 선택 영역을 구현합니다.
+- Figma 루트는 `DSWheelPickerPanel(layout: .single)`과 조합해 Drag Indicator, 제목, 저장 버튼과 흰색 패널까지 완성합니다.
+- `dsWheelPickerSheet`의 custom overlay로 Liquid Glass 없이 dimming, swipe dismiss와 키보드 안전 영역 대응을 제공합니다.
+- 표시 항목과 선택값은 외부에서 입력하며, 컴포넌트는 도메인 값 변환을 수행하지 않습니다.
+- 유한 목록의 첫 항목과 마지막 항목도 중앙 선택 영역까지 스크롤할 수 있습니다.
+- 스크롤을 놓으면 가장 가까운 항목의 중심이 중앙 선택 영역의 중심에 맞춰집니다.
+- 중앙 선택 항목이 바뀔 때 행의 타이포그래피와 색상은 `0.14초 easeOut`으로 보간합니다.
+
+## Motion Specification
+
+- 중앙 행 강조 전환: `easeOut`, `0.14초`
+- 중앙 행 탭, 외부 selection 변경, 접근성 증감처럼 선택 위치를 프로그램적으로 변경할 때: SwiftUI `snappy`
+- 사용자가 휠을 직접 스크롤하는 동안에는 별도 위치 애니메이션을 추가하지 않아 손가락 이동을 그대로 따릅니다.
+
+## Runtime Specification
+
+- Container: `292 × 175pt`
+- Row stride: `34pt`
+- Selected background: `292 × 47pt`, `primary50`, radius `8pt`
+- Selected: `body1Medium`, `black`
+- Adjacent: `body2Regular`, `gray700`
+- Outer: `body3Regular`, `gray400`
+
 ## 🏗️ Structure & Layout
 
 - 🖼️ **WheelPicker_single** (COMPONENT) `W: 352.0, H: 319.0` [Fill: white (#ffffff) (op: 1.00) | Radius: 12]
