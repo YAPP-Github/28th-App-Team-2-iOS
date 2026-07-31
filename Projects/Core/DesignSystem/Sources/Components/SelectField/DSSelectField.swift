@@ -7,6 +7,7 @@ public struct DSSelectField: View {
         public let backgroundAsset: DesignSystemColors
         public let strokeAsset: DesignSystemColors?
         public let strokeWidth: CGFloat
+        public let pressedOverlay: DSPressedOverlay
         public let contentSpacing: CGFloat
         public let contentHorizontalPadding: CGFloat
 
@@ -43,6 +44,7 @@ public struct DSSelectField: View {
             backgroundAsset: DesignSystemAsset.Colors.gray25,
             strokeAsset: strokeAsset,
             strokeWidth: strokeAsset == nil ? 0.0 : 1.0,
+            pressedOverlay: .standard,
             contentSpacing: 0,
             contentHorizontalPadding: 16,
             placeholderFont: .body2Regular,
@@ -90,8 +92,12 @@ public struct DSSelectField: View {
             hasSelection: selection != nil
         )
 
-        HStack(spacing: spec.contentSpacing) {
-            Button(action: action) {
+        Button(action: action) {
+            Color.clear
+        }
+        .buttonStyle(DSSelectFieldButtonStyle(specification: spec))
+        .overlay {
+            HStack(spacing: spec.contentSpacing) {
                 Text(selection ?? placeholder)
                     .dsFont(selection == nil ? spec.placeholderFont : spec.textFont)
                     .foregroundStyle(
@@ -102,54 +108,66 @@ public struct DSSelectField: View {
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+                    .allowsHitTesting(false)
 
-            if spec.showsClearButton,
-               let clearIcon = spec.clearButtonIcon,
-               let clearButtonSize = spec.clearButtonSize,
-               let clearButtonColor = spec.clearButtonColor,
-               let clearButtonLeadingPadding = spec.clearButtonLeadingPadding {
-                Button {
-                    selection = nil
-                } label: {
-                    DSIcon(clearIcon, width: clearButtonSize, height: clearButtonSize)
-                        .foregroundColor(clearButtonColor.swiftUIColor)
-                        .dsDebugDetailGeometry("DSSelectField.ClearButton")
-                }
-                .buttonStyle(
-                    DSIconButtonStyle(
-                        iconAsset: clearIcon,
-                        iconSize: CGSize(width: clearButtonSize, height: clearButtonSize),
-                        pressedOverlay: spec.clearIconPressedOverlay
+                if spec.showsClearButton,
+                   let clearIcon = spec.clearButtonIcon,
+                   let clearButtonSize = spec.clearButtonSize,
+                   let clearButtonColor = spec.clearButtonColor,
+                   let clearButtonLeadingPadding = spec.clearButtonLeadingPadding {
+                    Button {
+                        selection = nil
+                    } label: {
+                        DSIcon(clearIcon, width: clearButtonSize, height: clearButtonSize)
+                            .foregroundColor(clearButtonColor.swiftUIColor)
+                            .dsDebugDetailGeometry("DSSelectField.ClearButton")
+                    }
+                    .buttonStyle(
+                        DSIconButtonStyle(
+                            iconAsset: clearIcon,
+                            iconSize: CGSize(width: clearButtonSize, height: clearButtonSize),
+                            pressedOverlay: spec.clearIconPressedOverlay
+                        )
                     )
-                )
-                .padding(.leading, clearButtonLeadingPadding)
-            }
+                    .padding(.leading, clearButtonLeadingPadding)
+                }
 
-            Button(action: action) {
                 DSIcon(spec.chevronIcon, width: spec.chevronSize, height: spec.chevronSize)
                     .foregroundColor(spec.chevronColor.swiftUIColor)
                     .rotationEffect(.degrees(spec.chevronRotationDegrees))
                     .dsDebugDetailGeometry("DSSelectField.Chevron")
+                    .allowsHitTesting(false)
+                    .padding(.leading, spec.chevronLeadingPadding)
             }
-            .buttonStyle(.plain)
-            .padding(.leading, spec.chevronLeadingPadding)
+            .padding(.horizontal, spec.contentHorizontalPadding)
         }
-        .padding(.horizontal, spec.contentHorizontalPadding)
-        .frame(maxWidth: .infinity)
-        .frame(height: spec.containerHeight)
-        .background(
-            spec.containerShape.swiftUIShape
-                .fill(spec.backgroundAsset.swiftUIColor)
-        )
-        .overlay {
-            if let stroke = spec.strokeAsset, spec.strokeWidth > 0 {
-                spec.containerShape.strokeBorder(stroke.swiftUIColor, lineWidth: spec.strokeWidth)
-            }
-        }
-        .clipShape(spec.containerShape.swiftUIShape)
         .dsDebugDetailGeometry("DSSelectField.Container")
         .dsDebugGeometry("DSSelectField")
+    }
+}
+
+struct DSSelectFieldButtonStyle: ButtonStyle {
+    let specification: DSSelectField.Specification
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity)
+            .frame(height: specification.containerHeight)
+            .background(specification.backgroundAsset.swiftUIColor)
+            .contentShape(specification.containerShape.swiftUIShape)
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: specification.containerShape,
+                specification: specification.pressedOverlay
+            )
+            .overlay {
+                if let stroke = specification.strokeAsset, specification.strokeWidth > 0 {
+                    specification.containerShape.strokeBorder(
+                        stroke.swiftUIColor,
+                        lineWidth: specification.strokeWidth
+                    )
+                }
+            }
+            .clipShape(specification.containerShape.swiftUIShape)
     }
 }

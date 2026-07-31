@@ -11,6 +11,7 @@
 - `isFocused`는 wheel picker 등 선택 화면이 열린 상태를 부모가 표시하기 위한 값이며, focused 상태에서는 stroke를 표시한다.
 - focused 상태에서는 chevron을 위 방향으로 회전하고 색상을 gray975로 표시한다.
 - `isFocused == true`가 우선이고, `isFocused == false && selection != nil`일 때 success 상태로 해석한다.
+- pressed 상태는 DesignSystem 공통 `DSPressedOverlay.standard`를 SelectField surface 전체에 적용한다.
 
 ## 🏗️ Structure & Layout
 

@@ -61,6 +61,8 @@ struct DSSelectFieldSpecificationTests {
         #expect(specification.containerHeight == 48)
         #expect(specification.containerShape == .roundedRectangle(cornerRadius: 12))
         expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray25)
+        expectColorEqual(specification.pressedOverlay.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.pressedOverlay.opacity == 0.16)
         #expect(specification.contentSpacing == 0)
         #expect(specification.contentHorizontalPadding == 16)
 

@@ -7,7 +7,6 @@ struct SelectFieldPlaygroundView: View {
     @State private var isFocused: Bool = false
     @State private var isDarkBackground: Bool = false
     @State private var containerWidth: Double = 353
-    @State private var selectionCount: Int = 0
 
     private var specification: DSSelectField.Specification {
         DSSelectField.specification(
@@ -27,7 +26,6 @@ struct SelectFieldPlaygroundView: View {
                     placeholder: placeholder,
                     isFocused: isFocused
                 ) {
-                    selectionCount += 1
                     isFocused.toggle()
                 }
                 .frame(width: containerWidth)
@@ -38,7 +36,6 @@ struct SelectFieldPlaygroundView: View {
                     TextField("Placeholder", text: $placeholder)
                     Toggle("Has Selection", isOn: hasSelectionBinding)
                     Toggle("Is Focused", isOn: $isFocused)
-                    DSSpecificationRow(title: "Selection Action Count", value: "\(selectionCount)")
                     VStack(alignment: .leading) {
                         Text("Parent Width: \(containerWidth, specifier: "%.1f")pt")
                         Slider(value: $containerWidth, in: 180...353, step: 0.5)
@@ -53,6 +50,7 @@ struct SelectFieldPlaygroundView: View {
                         value: specification.contentHorizontalPadding.ptDescription
                     )
                     DSSpecificationRow(title: "Background", value: specification.backgroundAsset.specDescription)
+                    DSSpecificationRow(title: "Pressed Overlay", value: specification.pressedOverlay.specDescription)
                     DSSpecificationRow(
                         title: "Stroke",
                         value: specification.strokeAsset.map {
@@ -68,10 +66,15 @@ struct SelectFieldPlaygroundView: View {
                     DSSpecificationRow(title: "Text Color", value: specification.textColor.specDescription)
                     if let clearButtonIcon = specification.clearButtonIcon,
                        let clearButtonSize = specification.clearButtonSize,
-                       let clearButtonColor = specification.clearButtonColor {
+                       let clearButtonColor = specification.clearButtonColor,
+                       let clearIconPressedOverlay = specification.clearIconPressedOverlay {
                         DSSpecificationRow(title: "Clear Icon", value: clearButtonIcon.specDescription)
                         DSSpecificationRow(title: "Clear Icon Size", value: clearButtonSize.ptDescription)
                         DSSpecificationRow(title: "Clear Icon Color", value: clearButtonColor.specDescription)
+                        DSSpecificationRow(
+                            title: "Clear Icon Pressed Overlay",
+                            value: clearIconPressedOverlay.specDescription
+                        )
                     }
                     DSSpecificationRow(title: "Chevron Icon", value: specification.chevronIcon.specDescription)
                     DSSpecificationRow(title: "Chevron Size", value: specification.chevronSize.ptDescription)
