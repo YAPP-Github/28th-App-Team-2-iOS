@@ -67,10 +67,15 @@ struct SelectFieldPlaygroundView: View {
                     if let clearButtonIcon = specification.clearButtonIcon,
                        let clearButtonSize = specification.clearButtonSize,
                        let clearButtonColor = specification.clearButtonColor,
+                       let clearButtonLeadingPadding = specification.clearButtonLeadingPadding,
                        let clearIconPressedOverlay = specification.clearIconPressedOverlay {
                         DSSpecificationRow(title: "Clear Icon", value: clearButtonIcon.specDescription)
                         DSSpecificationRow(title: "Clear Icon Size", value: clearButtonSize.ptDescription)
                         DSSpecificationRow(title: "Clear Icon Color", value: clearButtonColor.specDescription)
+                        DSSpecificationRow(
+                            title: "Clear Icon Leading Padding",
+                            value: clearButtonLeadingPadding.ptDescription
+                        )
                         DSSpecificationRow(
                             title: "Clear Icon Pressed Overlay",
                             value: clearIconPressedOverlay.specDescription
@@ -82,6 +87,10 @@ struct SelectFieldPlaygroundView: View {
                     DSSpecificationRow(
                         title: "Chevron Rotation",
                         value: "\(Int(specification.chevronRotationDegrees))deg"
+                    )
+                    DSSpecificationRow(
+                        title: "Chevron Leading Padding",
+                        value: specification.chevronLeadingPadding.ptDescription
                     )
                 }
             }
