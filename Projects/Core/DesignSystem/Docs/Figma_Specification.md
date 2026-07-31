@@ -127,7 +127,7 @@
 
 ![WheelPicker Panel](Images/WheelPicker_multi02.png)
 
-### 🧩 Toast_Lucky action [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=2113-25892)
+### 🧩 Toast_Lucky action (DSToast Lucky Action) [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=2113-25892)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Toast_Lucky_action.md)
 
@@ -145,13 +145,13 @@
 
 ![SelectField](Images/SelectField.png)
 
-### 🧩 Toast [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1284-5826)
+### 🧩 Toast (DSToast Standard) [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1284-5826)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Toast.md)
 
 ![Toast](Images/Toast.png)
 
-### 🧩 Toast_Type2 (짧은 폭, X버튼 없음) [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1318-12830)
+### 🧩 Toast_Type2 (DSToast Compact, 닫기 버튼 없음) [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1318-12830)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Toast_Type2.md)
 

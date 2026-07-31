@@ -6,10 +6,22 @@
 
 ## 🏗️ Structure & Layout
 
-- 🖼️ **Toast_Lucky action** (COMPONENT) `W: 353.0, H: 44.0` [Radius: 8]
-  - 🟦 **Contents** (FRAME) `W: 353.0, H: 44.0` [X: 0.0, Y: 0.0]
-    - 📝 **행운 액션 완료! 오늘의 관계운이 올랐어요 🍀** (TEXT) `W: 291.0, H: 20.0` [X: 18.0, Y: 12.0 | Font: dsBody3Regular | Color: #f7f7f8 (op: 1.00)]
-    - 🟦 **Button** (FRAME) `W: 20.0, H: 20.0` [X: 317.0, Y: 12.0]
-      - 🟦 **Icon/Navigation/Close** (FRAME) `W: 16.0, H: 16.0` [X: 2.0, Y: 2.0]
-        - 🟦 **content** (GROUP) `W: 13.3, H: 13.3` [X: 1.3, Y: 1.3]
-          - 🟦 **Rectangle 939** (RECTANGLE) `W: 13.3, H: 13.3` [X: 0.0, Y: 0.0 | Fill: whiteOpacity60 (#ffffff) (op: 0.60)]
+- 🖼️ **Toast / Lucky Action** (COMPONENT) `Parent W: 353.0, Minimum H: 44.0`
+  - 너비: 부모의 가용 폭 채움
+  - 배경 그라디언트: `primary600 (#7F73EA) → primary800 (#4545B8) → sky600 (#7592F2)`
+  - 그라디언트 위치: `0% / 50% / 100%`, leading → trailing
+  - 모서리: `8pt`
+  - 내부 여백: leading `18pt`, trailing `16pt`, vertical `12pt`
+  - 메시지와 닫기 버튼 간격: `8pt`
+  - 메시지: `dsBody3Regular`, `gray50 (#F7F7F8)`, line height `20pt`, 줄 수 제한 없음
+  - 닫기 버튼: `20 × 20pt`
+  - 닫기 아이콘 프레임: `16 × 16pt`
+  - 닫기 glyph: `13.3333 × 13.3333pt`, `whiteOpacity60`
+  - 고유 그림자: `X: 0, Y: 0, Blur: 20, Spread: 0, #9C8AF6 50%`
+
+## 🔎 구현 해석
+
+- `DSToast(luckyAction:onClose:)`로 메시지와 닫기 동작을 호출 화면이 주입한다.
+- 메시지는 leading에서 `18pt`, 닫기 버튼은 trailing에서 `16pt`를 유지하며 메시지 영역이 남은 폭을 채운다.
+- 메시지는 가용 폭을 초과하면 자동으로 줄바꿈되며, 줄 수에 맞춰 전체 높이가 `44pt` 이상으로 자연스럽게 늘어난다.
+- 별도 공용 Shadow modifier는 만들지 않는다. 위 그림자는 Lucky Action Toast 자체 Specification에만 속한다.

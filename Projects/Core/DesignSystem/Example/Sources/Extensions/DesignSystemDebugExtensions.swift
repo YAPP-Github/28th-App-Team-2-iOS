@@ -18,6 +18,12 @@ extension CGSize {
     }
 }
 
+extension UInt {
+    var hexColorDescription: String {
+        String(format: "#%06lX", self)
+    }
+}
+
 extension EdgeInsets {
     var ptDescription: String {
         if top == bottom && leading == trailing {
