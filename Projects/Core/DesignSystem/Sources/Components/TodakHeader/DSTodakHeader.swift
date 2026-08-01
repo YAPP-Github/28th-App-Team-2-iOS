@@ -66,24 +66,24 @@ public struct DSTodakHeader: View {
             titleGroup(spec: spec)
 
             HStack {
-                iconButton(
-                    asset: spec.leftIconAsset,
-                    size: spec.iconSize,
+                DSHeaderActionButton(
+                    icon: spec.leftIconAsset,
+                    action: onClose,
+                    iconSize: spec.iconSize,
                     tintAsset: spec.leftIconTintAsset,
-                    pressedOverlay: spec.leftIconPressedOverlay,
-                    action: onClose
+                    pressedOverlay: spec.leftIconPressedOverlay
                 )
 
                 Spacer()
 
                 HStack(spacing: spec.rightIconGap) {
                     ForEach(rightItems, id: \.identifier) { item in
-                        iconButton(
-                            asset: item.icon,
-                            size: spec.iconSize,
+                        DSHeaderActionButton(
+                            icon: item.icon,
+                            action: item.action,
+                            iconSize: spec.iconSize,
                             tintAsset: spec.rightIconTintAsset,
-                            pressedOverlay: spec.rightIconPressedOverlay,
-                            action: item.action
+                            pressedOverlay: spec.rightIconPressedOverlay
                         )
                     }
                 }
@@ -129,29 +129,5 @@ public struct DSTodakHeader: View {
             .fixedSize()
         }
         .dsDebugDetailGeometry("DSTodakHeader.TitleGroup")
-    }
-
-    private func iconButton(
-        asset: DSIconAsset,
-        size: CGSize,
-        tintAsset: DesignSystemColors,
-        pressedOverlay: DSPressedOverlay,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            DSIcon(
-                asset,
-                width: size.width,
-                height: size.height
-            )
-            .foregroundColor(tintAsset.swiftUIColor)
-        }
-        .buttonStyle(
-            DSIconButtonStyle(
-                iconAsset: asset,
-                iconSize: size,
-                pressedOverlay: pressedOverlay
-            )
-        )
     }
 }
