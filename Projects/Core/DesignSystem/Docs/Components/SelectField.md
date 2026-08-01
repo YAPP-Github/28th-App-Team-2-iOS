@@ -4,6 +4,15 @@
 
 ![SelectField](../Images/SelectField.png)
 
+## 구현 메모
+
+- SelectField는 직접 입력 필드가 아니라 선택 화면 진입 버튼으로 구현한다.
+- `selection`은 외부 `Binding<String?>`으로 제어하며, 값이 있을 때 clear 버튼으로 `nil`을 전달한다.
+- `isFocused`는 wheel picker 등 선택 화면이 열린 상태를 부모가 표시하기 위한 값이며, focused 상태에서는 stroke를 표시한다.
+- focused 상태에서는 chevron을 위 방향으로 회전하고 색상을 gray975로 표시한다.
+- `isFocused == true`가 우선이고, `isFocused == false && selection != nil`일 때 success 상태로 해석한다.
+- pressed 상태는 DesignSystem 공통 `DSPressedOverlay.standard`를 SelectField surface 전체에 적용한다.
+
 ## 🏗️ Structure & Layout
 
 - 🟦 **SelectField** (COMPONENT_SET) `W: 393.0, H: 224.0` [Radius: 5]

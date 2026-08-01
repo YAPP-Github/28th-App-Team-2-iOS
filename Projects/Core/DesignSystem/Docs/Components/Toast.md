@@ -6,11 +6,18 @@
 
 ## 🏗️ Structure & Layout
 
-- 🖼️ **Toast** (COMPONENT) `W: 212.0, H: 36.0` [Fill: black (#000000) (op: 0.80) | Radius: 8]
-  - 🟦 **Container** (FRAME) `W: 212.0, H: 36.0` [X: 0.0, Y: 0.0]
-    - 🟦 **Contents** (FRAME) `W: 212.0, H: 36.0` [X: 0.0, Y: 0.0]
-      - 📝 **메시지에 마침표를 찍어주세요.** (TEXT) `W: 168.0, H: 20.0` [X: 8.0, Y: 8.0 | Font: dsBody3Regular (Figma LH: 20.0px) | Color: #f7f7f8 (op: 1.00)]
-      - 🟦 **Button** (FRAME) `W: 20.0, H: 20.0` [X: 184.0, Y: 8.0]
-        - 🟦 **Icon/Navigation/Close** (FRAME) `W: 16.0, H: 16.0` [X: 2.0, Y: 2.0]
-          - 🟦 **content** (GROUP) `W: 13.3, H: 13.3` [X: 1.3, Y: 1.3]
-            - 🟦 **Rectangle 939** (RECTANGLE) `W: 13.3, H: 13.3` [X: 0.0, Y: 0.0 | Fill: #f7f7f8 (op: 1.00)]
+- 🖼️ **Toast / Standard** (COMPONENT) `Intrinsic W: 212.0, H: 36.0`
+  - 배경: `opacity80 (#000000 80%)`
+  - 모서리: `8pt`
+  - 내부 여백: `8pt`
+  - 콘텐츠 간격: `8pt`
+  - 메시지: `dsBody3Regular`, `gray50 (#F7F7F8)`, line height `20pt`
+  - 닫기 버튼: `20 × 20pt`
+  - 닫기 아이콘 프레임: `16 × 16pt`
+  - 닫기 glyph: `13.3333 × 13.3333pt`, `gray50`
+
+## 🔎 구현 해석
+
+- `DSToast(_:onClose:)`로 메시지와 닫기 동작을 호출 화면이 주입한다.
+- 너비는 콘텐츠가 결정하며 전역 표시 큐, 자동 제거 타이머와 singleton은 포함하지 않는다.
+- 호출부에서 가용 폭이 제한되어 메시지가 줄바꿈되면 전체 높이가 `36pt` 이상으로 자연스럽게 늘어난다.

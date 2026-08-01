@@ -6,7 +6,15 @@
 
 ## 🏗️ Structure & Layout
 
-- 🖼️ **Toast** (INSTANCE) `W: 184.0, H: 36.0` [Fill: #000000 (op: 0.80) | Radius: 8]
-  - 🟦 **Container** (FRAME) `W: 184.0, H: 36.0` [X: 0.0, Y: 0.0]
-    - 🟦 **Contents** (FRAME) `W: 184.0, H: 36.0` [X: 0.0, Y: 0.0]
-      - 📝 **메시지에 마침표를 찍어주세요.** (TEXT) `W: 168.0, H: 20.0` [X: 8.0, Y: 8.0 | Font: Pretendard Variable 400 14px (LineHeight: 20.0px) | Color: #f7f7f8 (op: 1.00)]
+- 🖼️ **Toast / Compact** (INSTANCE) `Intrinsic W: 184.0, H: 36.0`
+  - 배경: `opacity80 (#000000 80%)`
+  - 모서리: `8pt`
+  - 내부 여백: `8pt`
+  - 메시지: `dsBody3Regular`, `gray50 (#F7F7F8)`, line height `20pt`
+  - 닫기 버튼: 없음
+
+## 🔎 구현 해석
+
+- `DSToast(compact:)`는 직접 interaction이 없는 정적 표시 형태다.
+- 너비는 콘텐츠가 결정한다.
+- 호출부에서 가용 폭이 제한되어 메시지가 줄바꿈되면 전체 높이가 `36pt` 이상으로 자연스럽게 늘어난다.
