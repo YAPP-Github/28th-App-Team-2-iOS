@@ -1,3 +1,4 @@
+import CoreGraphics
 import Testing
 @testable import DesignSystem
 
@@ -36,6 +37,14 @@ struct DSBottomNavigationSpecificationTests {
         #expect(specification.iconAsset == unselectedIconAsset(for: item))
         #expect(specification.titleFont == .caption3Medium)
         expectColorEqual(specification.titleColor, DesignSystemAsset.Colors.gray500)
+    }
+
+    @Test("Bottom Navigation 아이템 hit area는 세로로만 확장")
+    func testItemHitAreaExpandsVerticallyOnly() {
+        let originalRect = CGRect(x: 12, y: 10, width: 82, height: 41)
+        let shape = DSBottomNavigationVerticalOutsetShape(verticalOutset: 1.5)
+
+        #expect(shape.path(in: originalRect).boundingRect == CGRect(x: 12, y: 8.5, width: 82, height: 44))
     }
 
     private func selectedIconAsset(for item: DSBottomNavigationItem) -> DSIconAsset {

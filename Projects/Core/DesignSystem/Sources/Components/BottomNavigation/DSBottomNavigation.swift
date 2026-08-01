@@ -141,7 +141,9 @@ public struct DSBottomNavigation: View {
         }
         .buttonStyle(DSBottomNavigationButtonStyle())
         .contentShape(
-            Rectangle().inset(by: -Self.itemHitAreaVerticalOutset(for: specification))
+            DSBottomNavigationVerticalOutsetShape(
+                verticalOutset: Self.itemHitAreaVerticalOutset(for: specification)
+            )
         )
         .accessibilityLabel(item.title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -160,5 +162,20 @@ public struct DSBottomNavigation: View {
 private struct DSBottomNavigationButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+    }
+}
+
+struct DSBottomNavigationVerticalOutsetShape: Shape {
+    let verticalOutset: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        Path(
+            CGRect(
+                x: rect.minX,
+                y: rect.minY - verticalOutset,
+                width: rect.width,
+                height: rect.height + (verticalOutset * 2)
+            )
+        )
     }
 }
