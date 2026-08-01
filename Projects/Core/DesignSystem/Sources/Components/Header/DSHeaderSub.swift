@@ -47,6 +47,7 @@ public struct DSHeaderSub: View {
                 .dsFont(spec.titleFontStyle)
                 .foregroundColor(spec.titleTextAsset.swiftUIColor)
                 .fixedSize()
+                .dsDebugDetailGeometry("DSHeaderSub.Title")
 
             HStack(spacing: 0) {
                 if let leftItem {
@@ -57,6 +58,7 @@ public struct DSHeaderSub: View {
                         tintAsset: spec.actionIconTintAsset,
                         pressedOverlay: spec.actionIconPressedOverlay
                     )
+                    .dsDebugDetailGeometry("DSHeaderSub.LeftAction")
                 }
 
                 Spacer(minLength: 0)
