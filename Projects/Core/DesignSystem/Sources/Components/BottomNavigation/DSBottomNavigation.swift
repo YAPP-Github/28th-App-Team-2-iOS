@@ -140,8 +140,20 @@ public struct DSBottomNavigation: View {
             .dsDebugDetailGeometry("DSBottomNavigation.Item.\(item.title)")
         }
         .buttonStyle(DSBottomNavigationButtonStyle())
+        .contentShape(
+            Rectangle().inset(by: -Self.itemHitAreaVerticalOutset(for: specification))
+        )
         .accessibilityLabel(item.title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private static func itemHitAreaVerticalOutset(for specification: Specification) -> CGFloat {
+        let itemLayoutHeight = specification.height
+            - (specification.contentVerticalPadding * 2)
+            - specification.itemTopPadding
+        let minimumHitTargetHeight: CGFloat = 44
+
+        return max(0, (minimumHitTargetHeight - itemLayoutHeight) / 2)
     }
 }
 
