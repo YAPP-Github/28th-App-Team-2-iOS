@@ -2,12 +2,14 @@ import SwiftUI
 
 /// DesignSystem 에셋 카탈로그에 등록된 아이콘을 식별합니다.
 public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
+    case bell
     case chatAdd
     case checkLine
     case deleteLine
     case edit
     case circleXFill
     case chevronLeftPlain
+    case chevronLeftNarrow
     case notes
     case chevronSmallBottom
     case tooltipArrow
@@ -18,6 +20,8 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
 
     var image: Image {
         switch self {
+        case .bell:
+            DesignSystemAsset.Icons.bell.swiftUIImage
         case .chatAdd:
             DesignSystemAsset.Icons.chatAdd.swiftUIImage
         case .checkLine:
@@ -30,6 +34,8 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.circleXFill.swiftUIImage
         case .chevronLeftPlain:
             DesignSystemAsset.Icons.chevronLeftPlain.swiftUIImage
+        case .chevronLeftNarrow:
+            DesignSystemAsset.Icons.chevronLeftNarrow.swiftUIImage
         case .notes:
             DesignSystemAsset.Icons.notes.swiftUIImage
         case .chevronSmallBottom:
