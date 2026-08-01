@@ -69,4 +69,16 @@ struct DSButtonSpecificationTests {
             #expect(specification.pressedOverlay?.opacity == nil)
         }
     }
+
+    @Test("Button 타이포그래피 override를 Specification에 반영")
+    func testTypographyOverride() {
+        let specification = DSButton.specification(
+            variant: .primary,
+            size: .medium,
+            isEnabled: true,
+            fontStyleOverride: .body3SemiBold
+        )
+
+        #expect(specification.fontStyle == .body3SemiBold)
+    }
 }
