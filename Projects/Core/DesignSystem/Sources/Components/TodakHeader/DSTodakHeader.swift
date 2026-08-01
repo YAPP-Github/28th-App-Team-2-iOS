@@ -1,22 +1,6 @@
 import SwiftUI
 
 public struct DSTodakHeader: View {
-    public struct RightItem {
-        public let identifier: String
-        public let icon: DSIconAsset
-        let action: () -> Void
-
-        public init(
-            identifier: String,
-            icon: DSIconAsset,
-            action: @escaping () -> Void
-        ) {
-            self.identifier = identifier
-            self.icon = icon
-            self.action = action
-        }
-    }
-
     public struct Specification: Sendable {
         public let backgroundAsset: DesignSystemColors
         public let contentHeight: CGFloat
@@ -62,12 +46,12 @@ public struct DSTodakHeader: View {
     }
 
     private let remainingFreeChatCount: Int
-    private let rightItems: [RightItem]
+    private let rightItems: [DSHeaderActionItem]
     private let onClose: () -> Void
 
     public init(
         remainingFreeChatCount: Int,
-        rightItems: [RightItem],
+        rightItems: [DSHeaderActionItem],
         onClose: @escaping () -> Void
     ) {
         self.remainingFreeChatCount = remainingFreeChatCount

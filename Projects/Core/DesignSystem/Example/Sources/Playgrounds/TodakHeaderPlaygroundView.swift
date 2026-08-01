@@ -15,10 +15,10 @@ struct TodakHeaderPlaygroundView: View {
                 DSTodakHeader(
                     remainingFreeChatCount: remainingFreeChatCount,
                     rightItems: [
-                        DSTodakHeader.RightItem(identifier: "newChat", icon: .chatAdd) {
+                        DSHeaderActionItem(identifier: "newChat", icon: .chatAdd) {
                             lastTappedButton = "우측 새 채팅 버튼"
                         },
-                        DSTodakHeader.RightItem(identifier: "notes", icon: .notes) {
+                        DSHeaderActionItem(identifier: "notes", icon: .notes) {
                             lastTappedButton = "우측 기록/노트 버튼"
                         }
                     ],

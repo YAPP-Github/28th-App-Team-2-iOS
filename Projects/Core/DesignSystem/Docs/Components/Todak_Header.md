@@ -45,7 +45,7 @@
 - DesignSystem 컴포넌트는 비즈니스 동작을 직접 소유하지 않습니다.
 - 좌측 닫기 버튼과 우측 액션 버튼의 action closure는 외부에서 주입받습니다.
 - 우측 액션 버튼의 아이콘 색상은 `coolGray975`입니다.
-- 우측 액션은 `DSTodakHeader.RightItem(identifier:icon:action:)`로 전달하되, 버튼 크기·색상·pressed 상태·간격은 DesignSystem 컴포넌트가 소유합니다.
+- 우측 액션은 공통 헤더 액션 모델인 `DSHeaderActionItem(identifier:icon:action:)`로 전달하되, 버튼 크기·색상·pressed 상태·간격은 DesignSystem 컴포넌트가 소유합니다.
 - 스크롤, expanded/collapsed, shadow, 투명도 변화 상태는 없습니다.
 - pressed 상태가 필요한 경우 프로젝트 공통 pressed 정책을 따릅니다.
 
