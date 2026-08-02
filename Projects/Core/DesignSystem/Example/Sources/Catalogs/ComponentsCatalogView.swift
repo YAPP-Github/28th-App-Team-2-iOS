@@ -113,6 +113,12 @@ struct ComponentsCatalogView: View {
                 title: "Chat Type Box",
                 subtitle: "질문 입력과 전송 동작을 제공하는 채팅 입력창"
             )
+            catalogLink(
+                destination: UserChatPlaygroundView(),
+                systemImage: "bubble.right.fill",
+                title: "User Chat",
+                subtitle: "사용자 발화 내용을 우측 정렬로 표시하는 말풍선"
+            )
         }
     }
 
