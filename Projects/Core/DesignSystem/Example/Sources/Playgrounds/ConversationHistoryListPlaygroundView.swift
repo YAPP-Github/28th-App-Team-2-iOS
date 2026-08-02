@@ -36,7 +36,10 @@ struct ConversationHistoryListPlaygroundView: View {
 
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Height", value: specification.height.ptDescription)
-                    DSSpecificationRow(title: "Horizontal Padding", value: specification.horizontalPadding.ptDescription)
+                    DSSpecificationRow(
+                        title: "Horizontal Padding",
+                        value: specification.horizontalPadding.ptDescription
+                    )
                     DSSpecificationRow(title: "Unread Indicator", value: specification.indicatorSize.ptDescription)
                     DSSpecificationRow(title: "Delete Icon", value: specification.deleteIcon.specDescription)
                 }

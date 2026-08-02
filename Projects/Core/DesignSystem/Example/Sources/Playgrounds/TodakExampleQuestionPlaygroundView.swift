@@ -35,7 +35,11 @@ struct TodakExampleQuestionPlaygroundView: View {
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Height", value: specification.height.ptDescription)
                     DSSpecificationRow(title: "Shape", value: specification.shape.specName)
-                    DSSpecificationRow(title: "Padding", value: "H \(specification.horizontalPadding.ptDescription), V \(specification.verticalPadding.ptDescription)")
+                    DSSpecificationRow(
+                        title: "Padding",
+                        value: "H \(specification.horizontalPadding.ptDescription), "
+                            + "V \(specification.verticalPadding.ptDescription)"
+                    )
                     DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
                 }
             }

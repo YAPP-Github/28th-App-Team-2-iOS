@@ -34,11 +34,22 @@ struct ChatTypeBoxPlaygroundView: View {
                 }
 
                 Section(header: Text("Figma Specification Check")) {
-                    DSSpecificationRow(title: "Height", value: "\(Int(specification.minimumHeight))–\(Int(specification.maximumHeight))pt")
+                    DSSpecificationRow(
+                        title: "Height",
+                        value: "\(Int(specification.minimumHeight))–\(Int(specification.maximumHeight))pt"
+                    )
                     DSSpecificationRow(title: "Shape", value: specification.shape.specName)
-                    DSSpecificationRow(title: "Text Leading Padding", value: specification.textLeadingPadding.ptDescription)
+                    DSSpecificationRow(
+                        title: "Text Leading Padding",
+                        value: specification.textLeadingPadding.ptDescription
+                    )
                     DSSpecificationRow(title: "Send Button", value: specification.sendButtonSize.ptDescription)
-                    DSSpecificationRow(title: "Shadow", value: "Y \(specification.shadowOffsetY.ptDescription), Blur \(specification.shadowRadius.ptDescription), \(Int(specification.shadowOpacity * 100))%")
+                    DSSpecificationRow(
+                        title: "Shadow",
+                        value: "Y \(specification.shadowOffsetY.ptDescription), "
+                            + "Blur \(specification.shadowRadius.ptDescription), "
+                            + "\(Int(specification.shadowOpacity * 100))%"
+                    )
                 }
             }
         }

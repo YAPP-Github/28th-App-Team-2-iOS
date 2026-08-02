@@ -24,8 +24,18 @@ struct UserChatPlaygroundView: View {
 
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Height", value: specification.height.ptDescription)
-                    DSSpecificationRow(title: "Corner Radius", value: "TL \(specification.topLeadingRadius.ptDescription), TR \(specification.topTrailingRadius.ptDescription), BL \(specification.bottomLeadingRadius.ptDescription), BR \(specification.bottomTrailingRadius.ptDescription)")
-                    DSSpecificationRow(title: "Padding", value: "H \(specification.horizontalPadding.ptDescription), V \(specification.verticalPadding.ptDescription)")
+                    DSSpecificationRow(
+                        title: "Corner Radius",
+                        value: "TL \(specification.topLeadingRadius.ptDescription), "
+                            + "TR \(specification.topTrailingRadius.ptDescription), "
+                            + "BL \(specification.bottomLeadingRadius.ptDescription), "
+                            + "BR \(specification.bottomTrailingRadius.ptDescription)"
+                    )
+                    DSSpecificationRow(
+                        title: "Padding",
+                        value: "H \(specification.horizontalPadding.ptDescription), "
+                            + "V \(specification.verticalPadding.ptDescription)"
+                    )
                     DSSpecificationRow(title: "Typography", value: specification.fontStyle.specName)
                 }
             }

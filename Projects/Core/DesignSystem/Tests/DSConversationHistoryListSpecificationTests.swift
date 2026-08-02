@@ -1,7 +1,7 @@
 import Testing
 @testable import DesignSystem
 
-struct DSConversationHistoryListSpecificationTests {
+struct DSConversationHistoryListSpecTests {
     @Test("Conversation History List 스펙 매핑 검증")
     func testSpecification() {
         let specification = DSConversationHistoryList.specification

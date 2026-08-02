@@ -60,7 +60,7 @@ public struct DSTodakExampleQuestion: View {
     }
 
     private func questionText(specification: Specification) -> Text {
-        segments.reduce(into: Text("")) { text, segment in
+        segments.reduce(Text("")) { text, segment in
             let fontStyle = segment.isBold
                 ? specification.emphasizedFontStyle
                 : specification.fontStyle
@@ -68,7 +68,7 @@ public struct DSTodakExampleQuestion: View {
                 ? specification.emphasizedForegroundAsset
                 : specification.foregroundAsset
 
-            text = text + Text(segment.text)
+            return text + Text(segment.text)
                 .font(.ds.font(fontStyle))
                 .foregroundStyle(foregroundAsset.swiftUIColor)
         }
