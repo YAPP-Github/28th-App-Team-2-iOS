@@ -24,7 +24,7 @@ public struct DSTooltip: View {
         Specification(
             minimumBubbleHeight: 30,
             horizontalPadding: 16,
-            verticalPadding: 5,
+            verticalPadding: 6,
             lineLimit: nil,
             textAlignment: .center,
             arrowFrameWidth: 8,
@@ -33,10 +33,10 @@ public struct DSTooltip: View {
             arrowRotationDegrees: 180,
             shape: .capsule,
             fontStyle: .body3Medium,
-            backgroundAsset: DesignSystemAsset.Colors.opacity60,
+            backgroundAsset: DesignSystemAsset.Colors.opacity80,
             foregroundAsset: DesignSystemAsset.Colors.white,
             arrowAsset: .tooltipArrow,
-            arrowTintAsset: DesignSystemAsset.Colors.opacity60
+            arrowTintAsset: DesignSystemAsset.Colors.opacity80
         )
     }
 
@@ -49,7 +49,7 @@ public struct DSTooltip: View {
     public var body: some View {
         let specification = Self.specification()
 
-        VStack(spacing: 0) {
+        VStack(spacing: -2) {
             Text(message)
                 .dsFont(specification.fontStyle)
                 .lineLimit(specification.lineLimit)
@@ -71,7 +71,7 @@ public struct DSTooltip: View {
             .rotationEffect(.degrees(specification.arrowRotationDegrees))
             .frame(
                 width: specification.arrowFrameWidth,
-                height: specification.arrowHeight
+                height: specification.arrowFrameWidth
             )
         }
         .dsDebugGeometry("DSTooltip")
