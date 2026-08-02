@@ -119,6 +119,12 @@ struct ComponentsCatalogView: View {
                 title: "User Chat",
                 subtitle: "사용자 발화 내용을 우측 정렬로 표시하는 말풍선"
             )
+            catalogLink(
+                destination: TodakExampleQuestionPlaygroundView(),
+                systemImage: "sparkles",
+                title: "Todak Example Question",
+                subtitle: "토닥이에게 보낼 예시 질문을 표시하는 말풍선"
+            )
         }
     }
 
