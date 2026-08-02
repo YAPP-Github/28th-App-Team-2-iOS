@@ -15,6 +15,7 @@ public struct DSChatTypeBox: View {
         public let textLeadingPadding: CGFloat
         public let textTrailingPadding: CGFloat
         public let textVerticalPadding: CGFloat
+        public let sendIcon: DSIconAsset
         public let sendButtonSize: CGFloat
         public let sendIconSize: CGFloat
         public let sendButtonBackgroundAsset: DesignSystemColors
@@ -40,6 +41,7 @@ public struct DSChatTypeBox: View {
             textLeadingPadding: 22,
             textTrailingPadding: 20,
             textVerticalPadding: 16,
+            sendIcon: .arrowUpward,
             sendButtonSize: 32,
             sendIconSize: 24,
             sendButtonBackgroundAsset: isFilled
@@ -160,7 +162,7 @@ public struct DSChatTypeBox: View {
 
                 Button(action: onSend) {
                     DSIcon(
-                        .arrowUpward,
+                        specification.sendIcon,
                         width: specification.sendIconSize,
                         height: specification.sendIconSize
                     )
@@ -175,7 +177,7 @@ public struct DSChatTypeBox: View {
                 }
                 .buttonStyle(
                     DSIconButtonStyle(
-                        iconAsset: .arrowUpward,
+                        iconAsset: specification.sendIcon,
                         iconSize: CGSize(width: specification.sendIconSize, height: specification.sendIconSize),
                         pressedOverlay: .standard
                     )

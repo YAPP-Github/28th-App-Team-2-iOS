@@ -46,6 +46,17 @@ struct DSChatTypeBoxSpecificationTests {
         #expect(multiLine.contentAlignment == .bottom)
         #expect(!multiLine.exceedsMaximumTextHeight)
 
+        let maximumHeight = DSChatTypeBox.layoutMetrics(
+            specification: specification,
+            textContentHeight: 72
+        )
+        #expect(maximumHeight.textEditorHeight == 72)
+        #expect(maximumHeight.contentHeight == 72)
+        #expect(maximumHeight.topPadding == 16)
+        #expect(maximumHeight.boxHeight == 104)
+        #expect(maximumHeight.contentAlignment == .bottom)
+        #expect(!maximumHeight.exceedsMaximumTextHeight)
+
         let overflowing = DSChatTypeBox.layoutMetrics(
             specification: specification,
             textContentHeight: 96
@@ -72,6 +83,7 @@ struct DSChatTypeBoxSpecificationTests {
         #expect(specification.textLeadingPadding == 22)
         #expect(specification.textTrailingPadding == 20)
         #expect(specification.textVerticalPadding == 16)
+        #expect(specification.sendIcon == .arrowUpward)
         #expect(specification.sendButtonSize == 32)
         #expect(specification.sendIconSize == 24)
         expectColorEqual(specification.shadowColorAsset, DesignSystemAsset.Colors.black)
