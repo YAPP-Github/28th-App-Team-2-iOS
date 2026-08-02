@@ -4,8 +4,11 @@ import DesignSystem
 struct TooltipPlaygroundView: View {
     @State private var message: String = "오늘 이 사람과 어디를 갈까?"
     @State private var isDarkBackground: Bool = false
+    @State private var variant: DSTooltipVariant = .standard
 
-    private let specification = DSTooltip.specification()
+    private var specification: DSTooltip.Specification {
+        DSTooltip.specification(variant: variant)
+    }
 
     private var arrowFrameDescription: String {
         "\(specification.arrowFrameWidth.ptDescription) × \(specification.arrowHeight.ptDescription)"
@@ -25,19 +28,27 @@ struct TooltipPlaygroundView: View {
                 title: String(describing: DSTooltip.self),
                 isDarkBackground: $isDarkBackground
             ) {
-                DSTooltip(message)
+                DSTooltip(message, variant: variant)
                     .padding(.horizontal, 20)
             }
 
             Form {
                 Section(header: Text("Content")) {
                     TextField("Tooltip message", text: $message)
+                    Picker("Variant", selection: $variant) {
+                        Text("Standard").tag(DSTooltipVariant.standard)
+                        Text("White").tag(DSTooltipVariant.white)
+                    }
                 }
 
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(
                         title: "Minimum Bubble Height",
                         value: specification.minimumBubbleHeight.ptDescription
+                    )
+                    DSSpecificationRow(
+                        title: "Maximum Bubble Width",
+                        value: specification.maximumBubbleWidth?.ptDescription ?? "Parent constrained"
                     )
                     DSSpecificationRow(
                         title: "Horizontal Padding",
@@ -67,6 +78,10 @@ struct TooltipPlaygroundView: View {
                     DSSpecificationRow(
                         title: "Arrow Tint",
                         value: specification.arrowTintAsset.specDescription
+                    )
+                    DSSpecificationRow(
+                        title: "Arrow Placement",
+                        value: String(describing: specification.arrowPlacement).capitalized
                     )
                 }
             }
