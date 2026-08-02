@@ -9,7 +9,7 @@
 - **박스 라운드(Corner Radius):** 24px
 - **여백(Margin):** 좌측 22px, 우측 20px
 - **긴 텍스트 처리:** 3줄 초과 시 텍스트 박스 내에서 위로 스크롤되며 가려짐. 가려지는 부분에 `#FFFFFF` 60% 레이어 씌움.
-| 그림자 | black 6%, blur 20pt, y 4pt |
+- **그림자:** black 6%, blur 20pt, y 4pt
 
 ## 🏗️ Structure & Layout
 

@@ -55,6 +55,53 @@ public struct DSChatTypeBox: View {
         )
     }
 
+    struct LayoutMetrics {
+        enum ContentAlignment: Equatable {
+            case center
+            case bottom
+        }
+
+        let textEditorHeight: CGFloat
+        let contentHeight: CGFloat
+        let topPadding: CGFloat
+        let boxHeight: CGFloat
+        let contentAlignment: ContentAlignment
+        let exceedsMaximumTextHeight: Bool
+    }
+
+    static func layoutMetrics(
+        specification: Specification,
+        textContentHeight: CGFloat
+    ) -> LayoutMetrics {
+        let maximumTextHeight = specification.maximumHeight - (specification.textVerticalPadding * 2)
+        let measuredTextHeight = max(specification.textLineHeight, textContentHeight)
+        let visibleTextHeight = min(measuredTextHeight, maximumTextHeight)
+        let exceedsMaximumTextHeight = measuredTextHeight > maximumTextHeight
+        let overflowViewportHeight = specification.maximumHeight - specification.textVerticalPadding
+        let textEditorHeight = exceedsMaximumTextHeight
+            ? overflowViewportHeight
+            : visibleTextHeight
+        let contentHeight = exceedsMaximumTextHeight
+            ? overflowViewportHeight
+            : max(visibleTextHeight, specification.sendButtonSize)
+        let topPadding = exceedsMaximumTextHeight ? 0 : specification.textVerticalPadding
+        let boxHeight = exceedsMaximumTextHeight
+            ? specification.maximumHeight
+            : max(
+                specification.minimumHeight,
+                contentHeight + topPadding + specification.textVerticalPadding
+            )
+
+        return LayoutMetrics(
+            textEditorHeight: textEditorHeight,
+            contentHeight: contentHeight,
+            topPadding: topPadding,
+            boxHeight: boxHeight,
+            contentAlignment: measuredTextHeight <= specification.textLineHeight ? .center : .bottom,
+            exceedsMaximumTextHeight: exceedsMaximumTextHeight
+        )
+    }
+
     @Binding private var text: String
     private let placeholder: String
     private let onSend: () -> Void
@@ -72,27 +119,18 @@ public struct DSChatTypeBox: View {
     }
 
     public var body: some View {
-        let specification = Self.specification(isFilled: !text.isEmpty)
-        let maximumTextHeight = specification.maximumHeight - (specification.textVerticalPadding * 2)
-        let measuredTextHeight = max(specification.textLineHeight, textContentHeight)
-        let visibleTextHeight = min(measuredTextHeight, maximumTextHeight)
-        let exceedsMaximumTextHeight = measuredTextHeight > maximumTextHeight
-        let textEditorHeight = exceedsMaximumTextHeight
-            ? measuredTextHeight
-            : visibleTextHeight
-        let isSingleLine = measuredTextHeight <= specification.textLineHeight
-        let contentHeight = max(visibleTextHeight, specification.sendButtonSize)
-        let topPadding = exceedsMaximumTextHeight ? 0 : specification.textVerticalPadding
-        let boxHeight = exceedsMaximumTextHeight
-            ? specification.maximumHeight
-            : max(
-                specification.minimumHeight,
-                contentHeight + topPadding + specification.textVerticalPadding
-            )
-        let contentAlignment: VerticalAlignment = isSingleLine ? .center : .bottom
+        let isFilled = !text.isEmpty
+        let specification = Self.specification(isFilled: isFilled)
+        let metrics = Self.layoutMetrics(
+            specification: specification,
+            textContentHeight: textContentHeight
+        )
 
         ZStack(alignment: .bottom) {
-            HStack(alignment: contentAlignment, spacing: 0) {
+            HStack(
+                alignment: metrics.contentAlignment == .center ? .center : .bottom,
+                spacing: 0
+            ) {
                 ZStack(alignment: .leading) {
                     if text.isEmpty && !isTextEditorFocused {
                         Text(placeholder)
@@ -114,8 +152,8 @@ public struct DSChatTypeBox: View {
                     )
                     .frame(
                         maxWidth: .infinity,
-                        minHeight: textEditorHeight,
-                        maxHeight: textEditorHeight
+                        minHeight: metrics.textEditorHeight,
+                        maxHeight: metrics.textEditorHeight
                     )
                     .dsDebugTypographyGeometry("Typography.\(String(describing: specification.textFont))")
                 }
@@ -142,18 +180,19 @@ public struct DSChatTypeBox: View {
                         pressedOverlay: .standard
                     )
                 )
+                .disabled(!isFilled)
             }
-            .frame(height: contentHeight, alignment: .bottom)
+            .frame(height: metrics.contentHeight, alignment: .bottom)
             .padding(.leading, specification.textLeadingPadding)
             .padding(.trailing, specification.textTrailingPadding)
-            .padding(.top, topPadding)
+            .padding(.top, metrics.topPadding)
             .padding(.bottom, specification.textVerticalPadding)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: boxHeight)
+        .frame(height: metrics.boxHeight)
         .background(specification.backgroundAsset.swiftUIColor)
         .overlay(alignment: .top) {
-            if exceedsMaximumTextHeight {
+            if metrics.exceedsMaximumTextHeight {
                 specification.backgroundAsset.swiftUIColor
                     .opacity(0.6)
                     .frame(height: specification.textVerticalPadding)
@@ -241,7 +280,7 @@ private struct DSChatTextEditor: UIViewRepresentable {
             DispatchQueue.main.async {
                 let textLength = (textView.text as NSString).length
                 textView.scrollRangeToVisible(
-                    NSRange(location: max(0, textLength - 1), length: 0)
+                    NSRange(location: textLength, length: 0)
                 )
             }
         }

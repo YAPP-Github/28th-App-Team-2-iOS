@@ -20,6 +20,44 @@ struct DSChatTypeBoxSpecificationTests {
         expectColorEqual(specification.sendIconColorAsset, DesignSystemAsset.Colors.white)
     }
 
+    @Test("Chat Type Box 레이아웃 메트릭은 단일 줄부터 최대 높이 초과까지 일관되게 계산한다")
+    func testLayoutMetrics() {
+        let specification = DSChatTypeBox.specification(isFilled: true)
+
+        let singleLine = DSChatTypeBox.layoutMetrics(
+            specification: specification,
+            textContentHeight: 0
+        )
+        #expect(singleLine.textEditorHeight == 24)
+        #expect(singleLine.contentHeight == 32)
+        #expect(singleLine.topPadding == 16)
+        #expect(singleLine.boxHeight == 64)
+        #expect(singleLine.contentAlignment == .center)
+        #expect(!singleLine.exceedsMaximumTextHeight)
+
+        let multiLine = DSChatTypeBox.layoutMetrics(
+            specification: specification,
+            textContentHeight: 48
+        )
+        #expect(multiLine.textEditorHeight == 48)
+        #expect(multiLine.contentHeight == 48)
+        #expect(multiLine.topPadding == 16)
+        #expect(multiLine.boxHeight == 80)
+        #expect(multiLine.contentAlignment == .bottom)
+        #expect(!multiLine.exceedsMaximumTextHeight)
+
+        let overflowing = DSChatTypeBox.layoutMetrics(
+            specification: specification,
+            textContentHeight: 96
+        )
+        #expect(overflowing.textEditorHeight == 88)
+        #expect(overflowing.contentHeight == 88)
+        #expect(overflowing.topPadding == 0)
+        #expect(overflowing.boxHeight == 104)
+        #expect(overflowing.contentAlignment == .bottom)
+        #expect(overflowing.exceedsMaximumTextHeight)
+    }
+
     private func expectCommonSpecification(_ specification: DSChatTypeBox.Specification) {
         #expect(specification.minimumHeight == 64)
         #expect(specification.maximumHeight == 104)

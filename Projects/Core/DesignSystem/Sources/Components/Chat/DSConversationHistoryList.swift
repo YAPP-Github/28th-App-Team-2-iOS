@@ -8,11 +8,13 @@ public struct DSConversationHistoryList: View {
         public let bottomPadding: CGFloat
         public let titleFont: FontStyle
         public let titleColorAsset: DesignSystemColors
+        public let titleLineLimit: Int
         public let indicatorSize: CGFloat
         public let indicatorColorAsset: DesignSystemColors
         public let titleIndicatorSpacing: CGFloat
         public let deleteIcon: DSIconAsset
         public let deleteIconSize: CGFloat
+        public let deleteIconColorAsset: DesignSystemColors
         public let timeFont: FontStyle
         public let timeColorAsset: DesignSystemColors
         public let titleTimeSpacing: CGFloat
@@ -25,11 +27,13 @@ public struct DSConversationHistoryList: View {
         bottomPadding: 20,
         titleFont: .body1Medium,
         titleColorAsset: DesignSystemAsset.Colors.black,
+        titleLineLimit: 1,
         indicatorSize: 6,
         indicatorColorAsset: DesignSystemAsset.Colors.red400,
         titleIndicatorSpacing: 6,
         deleteIcon: .delete,
         deleteIconSize: 23,
+        deleteIconColorAsset: DesignSystemAsset.Colors.gray600,
         timeFont: .body3Regular,
         timeColorAsset: DesignSystemAsset.Colors.gray600,
         titleTimeSpacing: 10
@@ -61,7 +65,7 @@ public struct DSConversationHistoryList: View {
                     Text(title)
                         .dsFont(specification.titleFont)
                         .foregroundStyle(specification.titleColorAsset.swiftUIColor)
-                        .lineLimit(1)
+                        .lineLimit(specification.titleLineLimit)
 
                     if showsUnreadIndicator {
                         Circle()
@@ -80,7 +84,7 @@ public struct DSConversationHistoryList: View {
                         width: specification.deleteIconSize,
                         height: specification.deleteIconSize
                     )
-                    .foregroundStyle(specification.timeColorAsset.swiftUIColor)
+                    .foregroundStyle(specification.deleteIconColorAsset.swiftUIColor)
                     .dsDebugDetailGeometry("DSConversationHistoryList.Delete")
                 }
                 .buttonStyle(
