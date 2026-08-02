@@ -125,6 +125,12 @@ struct ComponentsCatalogView: View {
                 title: "Todak Example Question",
                 subtitle: "토닥이에게 보낼 예시 질문을 표시하는 말풍선"
             )
+            catalogLink(
+                destination: ConversationHistoryListPlaygroundView(),
+                systemImage: "text.line.first.and.arrowtriangle.forward",
+                title: "Conversation History List",
+                subtitle: "대화 제목, 시간, 읽지 않은 상태와 삭제 동작을 표시하는 행"
+            )
         }
     }
 

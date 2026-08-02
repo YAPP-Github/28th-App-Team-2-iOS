@@ -10,6 +10,7 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
     case tooltipArrow
     case closeLine
     case arrowUpward
+    case delete
 
     /// 디버그 검사기와 Catalog에서 사용하는 안정적인 에셋 식별자입니다.
     public var name: String { rawValue }
@@ -32,6 +33,8 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.closeLine.swiftUIImage
         case .arrowUpward:
             DesignSystemAsset.Icons.arrowUpward.swiftUIImage
+        case .delete:
+            DesignSystemAsset.Icons.delete.swiftUIImage
         }
     }
 }

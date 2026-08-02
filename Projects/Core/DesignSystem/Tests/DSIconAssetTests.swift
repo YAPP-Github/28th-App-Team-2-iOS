@@ -14,7 +14,8 @@ struct DSIconAssetTests {
                 "chevronSmallBottom",
                 "tooltipArrow",
                 "closeLine",
-                "arrowUpward"
+                "arrowUpward",
+                "delete"
             ]
         )
     }
