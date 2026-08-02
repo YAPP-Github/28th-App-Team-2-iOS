@@ -107,6 +107,12 @@ struct ComponentsCatalogView: View {
                 title: "Toast",
                 subtitle: "Standard, Compact, Lucky Action 알림 컴포넌트"
             )
+            catalogLink(
+                destination: ChatTypeBoxPlaygroundView(),
+                systemImage: "arrow.up.circle.fill",
+                title: "Chat Type Box",
+                subtitle: "질문 입력과 전송 동작을 제공하는 채팅 입력창"
+            )
         }
     }
 

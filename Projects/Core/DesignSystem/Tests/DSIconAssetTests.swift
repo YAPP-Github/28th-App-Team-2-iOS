@@ -13,7 +13,8 @@ struct DSIconAssetTests {
                 "chevronLeftPlain",
                 "chevronSmallBottom",
                 "tooltipArrow",
-                "closeLine"
+                "closeLine",
+                "arrowUpward"
             ]
         )
     }
