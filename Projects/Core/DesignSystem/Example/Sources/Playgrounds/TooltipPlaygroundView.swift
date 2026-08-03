@@ -11,7 +11,7 @@ struct TooltipPlaygroundView: View {
     }
 
     private var arrowFrameDescription: String {
-        "\(specification.arrowFrameWidth.ptDescription) × \(specification.arrowHeight.ptDescription)"
+        "\(specification.arrowFrameWidth.ptDescription) × \(specification.arrowFrameWidth.ptDescription)"
     }
 
     private var lineLimitDescription: String {
