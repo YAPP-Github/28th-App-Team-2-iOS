@@ -32,7 +32,7 @@ public struct DSTodakHeader: View {
             leftIconTintAsset: DesignSystemAsset.Colors.gray925,
             leftIconPressedOverlay: .standard,
             rightIconGap: 12,
-            rightIconTintAsset: DesignSystemAsset.Colors.coolGray975,
+            rightIconTintAsset: DesignSystemAsset.Colors.gray975,
             rightIconPressedOverlay: .standard,
             titleFontStyle: .body2SemiBold,
             titleTextAsset: DesignSystemAsset.Colors.black,

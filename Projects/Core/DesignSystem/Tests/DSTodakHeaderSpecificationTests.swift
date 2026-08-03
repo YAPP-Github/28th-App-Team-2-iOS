@@ -17,7 +17,7 @@ struct DSTodakHeaderSpecificationTests {
         expectColorEqual(specification.leftIconPressedOverlay.asset, DesignSystemAsset.Colors.gray975)
         #expect(specification.leftIconPressedOverlay.opacity == 0.16)
         #expect(specification.rightIconGap == 12)
-        expectColorEqual(specification.rightIconTintAsset, DesignSystemAsset.Colors.coolGray975)
+        expectColorEqual(specification.rightIconTintAsset, DesignSystemAsset.Colors.gray975)
         expectColorEqual(specification.rightIconPressedOverlay.asset, DesignSystemAsset.Colors.gray975)
         #expect(specification.rightIconPressedOverlay.opacity == 0.16)
         #expect(specification.titleFontStyle == .body2SemiBold)

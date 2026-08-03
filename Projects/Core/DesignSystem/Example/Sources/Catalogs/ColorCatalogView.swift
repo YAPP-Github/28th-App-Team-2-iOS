@@ -28,8 +28,7 @@ struct ColorCatalogView: View {
         DesignSystemAsset.Colors.coolGray600,
         DesignSystemAsset.Colors.coolGray700,
         DesignSystemAsset.Colors.coolGray800,
-        DesignSystemAsset.Colors.coolGray900,
-        DesignSystemAsset.Colors.coolGray975
+        DesignSystemAsset.Colors.coolGray900
     ]
 
     private let skyScale: [DesignSystemColors] = [

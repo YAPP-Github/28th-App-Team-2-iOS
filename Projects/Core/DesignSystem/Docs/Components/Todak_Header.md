@@ -14,8 +14,8 @@
       - 📝 **토닥이** (TEXT) `W: 42.0, H: 24.0` [X: 0.0, Y: 0.0 | Font: dsBody2SemiBold | Color: black (#000000) (op: 1.00)]
       - 📝 **오늘 무료 채팅 2/3** (TEXT) `W: 106.0, H: 20.0` [X: 46.0, Y: 2.0 | Prefix Font: dsBody3Regular | Count/Limit Font: dsBody3Medium | Prefix Color: gray500 (#9a9a9a) (op: 1.00) | Remaining Count Color: gray800]
     - 🟦 **Frame 1430106404** (FRAME) `W: 52.0, H: 20.0` [X: 321.0, Y: 14.0]
-      - 🖼️ **Chat / add chat** (INSTANCE) `W: 20.0, H: 20.0` [X: 0.0, Y: 0.0 | Color: coolGray975]
-      - 🖼️ **notes** (INSTANCE) `W: 20.0, H: 20.0` [X: 32.0, Y: 0.0 | Color: coolGray975]
+      - 🖼️ **Chat / add chat** (INSTANCE) `W: 20.0, H: 20.0` [X: 0.0, Y: 0.0 | Color: gray975]
+      - 🖼️ **notes** (INSTANCE) `W: 20.0, H: 20.0` [X: 32.0, Y: 0.0 | Color: gray975]
 
 ## 📐 Layout Contract
 
@@ -44,7 +44,7 @@
 
 - DesignSystem 컴포넌트는 비즈니스 동작을 직접 소유하지 않습니다.
 - 좌측 닫기 버튼과 우측 액션 버튼의 action closure는 외부에서 주입받습니다.
-- 우측 액션 버튼의 아이콘 색상은 `coolGray975`입니다.
+- 우측 액션 버튼의 아이콘 색상은 `gray975`입니다.
 - 우측 액션은 공통 헤더 액션 모델인 `DSHeaderActionItem(identifier:icon:action:)`로 전달하되, 버튼 크기·색상·pressed 상태·간격은 DesignSystem 컴포넌트가 소유합니다.
 - 스크롤, expanded/collapsed, shadow, 투명도 변화 상태는 없습니다.
 - pressed 상태가 필요한 경우 프로젝트 공통 pressed 정책을 따릅니다.
