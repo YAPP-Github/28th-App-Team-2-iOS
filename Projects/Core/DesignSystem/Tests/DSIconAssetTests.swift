@@ -7,10 +7,13 @@ struct DSIconAssetTests {
         #expect(
             DSIconAsset.allCases.map(\.name) ==
             [
+                "chatAdd",
                 "checkLine",
+                "deleteLine",
                 "edit",
                 "circleXFill",
                 "chevronLeftPlain",
+                "notes",
                 "chevronSmallBottom",
                 "tooltipArrow",
                 "closeLine"

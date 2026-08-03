@@ -72,6 +72,12 @@ struct ComponentsCatalogView: View {
                 subtitle: "선택 화면 진입과 선택값 삭제를 제공하는 필드 버튼"
             )
             catalogLink(
+                destination: TodakHeaderPlaygroundView(),
+                systemImage: "bubble.left.and.text.bubble.right.fill",
+                title: "Todak Header",
+                subtitle: "AI 채팅 화면 상단에서 무료 채팅 횟수와 액션을 표시하는 헤더"
+            )
+            catalogLink(
                 destination: TooltipPlaygroundView(),
                 systemImage: "text.bubble.fill",
                 title: "Tooltip",
