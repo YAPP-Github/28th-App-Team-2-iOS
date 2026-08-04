@@ -18,7 +18,15 @@ struct DSIconAssetTests {
                 "notes",
                 "chevronSmallBottom",
                 "tooltipArrow",
-                "closeLine"
+                "closeLine",
+                "naviLuckyOn",
+                "naviLuckyOff",
+                "naviAiOn",
+                "naviAiOff",
+                "naviActionOn",
+                "naviActionOff",
+                "naviMyOn",
+                "naviMyOff"
             ]
         )
     }

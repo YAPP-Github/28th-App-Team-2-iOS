@@ -60,6 +60,12 @@ struct ComponentsCatalogView: View {
                 subtitle: "화면 간 이동을 위한 상단 탭 버튼"
             )
             catalogLink(
+                destination: BottomNavigationPlaygroundView(),
+                systemImage: "rectangle.bottomthird.inset.filled",
+                title: "Bottom Navigation",
+                subtitle: "선택 상태를 외부 Binding으로 제어하는 하단 네비게이션"
+            )
+            catalogLink(
                 destination: SelectBoxPlaygroundView(),
                 systemImage: "checkmark.rectangle.stack.fill",
                 title: "SelectBox",

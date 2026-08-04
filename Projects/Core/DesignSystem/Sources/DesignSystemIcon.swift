@@ -14,6 +14,14 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
     case chevronSmallBottom
     case tooltipArrow
     case closeLine
+    case naviLuckyOn
+    case naviLuckyOff
+    case naviAiOn
+    case naviAiOff
+    case naviActionOn
+    case naviActionOff
+    case naviMyOn
+    case naviMyOff
 
     /// 디버그 검사기와 Catalog에서 사용하는 안정적인 에셋 식별자입니다.
     public var name: String { rawValue }
@@ -44,6 +52,22 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.tooltipArrow.swiftUIImage
         case .closeLine:
             DesignSystemAsset.Icons.closeLine.swiftUIImage
+        case .naviLuckyOn:
+            DesignSystemAsset.Icons.naviLuckyOn.swiftUIImage
+        case .naviLuckyOff:
+            DesignSystemAsset.Icons.naviLuckyOff.swiftUIImage
+        case .naviAiOn:
+            DesignSystemAsset.Icons.naviAiOn.swiftUIImage
+        case .naviAiOff:
+            DesignSystemAsset.Icons.naviAiOff.swiftUIImage
+        case .naviActionOn:
+            DesignSystemAsset.Icons.naviActionOn.swiftUIImage
+        case .naviActionOff:
+            DesignSystemAsset.Icons.naviActionOff.swiftUIImage
+        case .naviMyOn:
+            DesignSystemAsset.Icons.naviMyOn.swiftUIImage
+        case .naviMyOff:
+            DesignSystemAsset.Icons.naviMyOff.swiftUIImage
         }
     }
 }
