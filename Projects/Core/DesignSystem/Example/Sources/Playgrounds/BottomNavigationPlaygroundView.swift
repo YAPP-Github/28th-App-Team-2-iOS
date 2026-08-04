@@ -58,7 +58,10 @@ struct BottomNavigationPlaygroundView: View {
                         title: "Selected Text Color",
                         value: itemSpecification.titleColor.specDescription
                     )
-                    DSSpecificationRow(title: "Unselected Text Font", value: unselectedItemSpecification.titleFont.specName)
+                    DSSpecificationRow(
+                        title: "Unselected Text Font",
+                        value: unselectedItemSpecification.titleFont.specName
+                    )
                     DSSpecificationRow(
                         title: "Unselected Text Color",
                         value: unselectedItemSpecification.titleColor.specDescription
