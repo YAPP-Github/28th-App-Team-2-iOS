@@ -74,7 +74,6 @@ public struct DSHeaderMain: View {
                     tintAsset: spec.actionIconTintAsset,
                     pressedOverlay: spec.actionIconPressedOverlay
                 )
-                .dsDebugDetailGeometry("DSHeaderMain.RightAction")
             }
         }
         .padding(.horizontal, spec.horizontalPadding)

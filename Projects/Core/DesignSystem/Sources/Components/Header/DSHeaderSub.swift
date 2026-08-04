@@ -58,7 +58,6 @@ public struct DSHeaderSub: View {
                         tintAsset: spec.actionIconTintAsset,
                         pressedOverlay: spec.actionIconPressedOverlay
                     )
-                    .dsDebugDetailGeometry("DSHeaderSub.LeftAction")
                 }
 
                 Spacer(minLength: 0)
@@ -71,7 +70,6 @@ public struct DSHeaderSub: View {
                         tintAsset: spec.actionIconTintAsset,
                         pressedOverlay: spec.actionIconPressedOverlay
                     )
-                    .dsDebugDetailGeometry("DSHeaderSub.RightAction")
                 }
             }
             .padding(.horizontal, spec.horizontalPadding)
