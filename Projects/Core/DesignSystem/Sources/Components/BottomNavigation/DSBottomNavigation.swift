@@ -45,6 +45,7 @@ public struct DSBottomNavigation: View {
         public let iconSize: CGFloat
         public let shape: DSComponentShape
         public let backgroundColor: DesignSystemColors
+        public let pressedOverlay: DSPressedOverlay?
         public let shadowColor: DesignSystemColors
         public let shadowOpacity: CGFloat
         public let shadowRadius: CGFloat
@@ -60,6 +61,7 @@ public struct DSBottomNavigation: View {
         iconSize: 24,
         shape: .unevenRoundedRectangle(topCornerRadius: 24),
         backgroundColor: DesignSystemAsset.Colors.white,
+        pressedOverlay: .standard,
         shadowColor: DesignSystemAsset.Colors.black,
         shadowOpacity: 0.06,
         shadowRadius: 20,
@@ -130,10 +132,14 @@ public struct DSBottomNavigation: View {
                     .dsFont(itemSpecification.titleFont)
                     .foregroundColor(itemSpecification.titleColor.swiftUIColor)
             }
+            .buttonStyle(
+                DSBottomNavigationButtonStyle(
+                    pressedOverlay: specification.pressedOverlay
+                )
+            )
             .frame(maxWidth: .infinity)
             .dsDebugDetailGeometry("DSBottomNavigation.Item.\(item.title)")
         }
-        .buttonStyle(DSBottomNavigationButtonStyle())
         .contentShape(
             DSBottomNavigationVerticalOutsetShape(
                 verticalOutset: Self.itemHitAreaVerticalOutset(for: specification)
@@ -154,8 +160,15 @@ public struct DSBottomNavigation: View {
 }
 
 private struct DSBottomNavigationButtonStyle: ButtonStyle {
+    let pressedOverlay: DSPressedOverlay?
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: .roundedRectangle(cornerRadius: 0),
+                specification: pressedOverlay
+            )
     }
 }
 
