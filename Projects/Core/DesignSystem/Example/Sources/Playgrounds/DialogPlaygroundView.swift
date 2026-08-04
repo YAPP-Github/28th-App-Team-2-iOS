@@ -58,8 +58,12 @@ struct DialogPlaygroundView: View {
                     DSSpecificationRow(title: "Title Typography", value: specification.titleFont.specName)
                     DSSpecificationRow(title: "Title Color", value: specification.titleColor.specDescription)
                     DSSpecificationRow(
-                        title: "Message",
+                        title: "Message Typography",
                         value: specification.messageFont?.specName ?? "None"
+                    )
+                    DSSpecificationRow(
+                        title: "Message Color",
+                        value: specification.messageColor?.specDescription ?? "None"
                     )
                     DSSpecificationRow(
                         title: "Action Layout",
