@@ -4,7 +4,7 @@ import Testing
 
 struct DSBottomNavigationSpecificationTests {
     @Test("Bottom Navigation 컨테이너 스펙 매핑 검증")
-    func testContainerSpecification() {
+    func testContainerSpecification() throws {
         let specification = DSBottomNavigation.specification
 
         #expect(specification.height == 56)
@@ -14,6 +14,9 @@ struct DSBottomNavigationSpecificationTests {
         #expect(specification.itemSpacing == 4)
         #expect(specification.iconSize == 24)
         #expect(specification.shape == .unevenRoundedRectangle(topCornerRadius: 24))
+        let pressedOverlay = try #require(specification.pressedOverlay)
+        expectColorEqual(pressedOverlay.asset, DesignSystemAsset.Colors.gray975)
+        #expect(pressedOverlay.opacity == 0.16)
         expectColorEqual(specification.backgroundColor, DesignSystemAsset.Colors.white)
         expectColorEqual(specification.shadowColor, DesignSystemAsset.Colors.black)
         #expect(specification.shadowOpacity == 0.06)
@@ -41,10 +44,29 @@ struct DSBottomNavigationSpecificationTests {
 
     @Test("Bottom Navigation 아이템 hit area는 세로로만 확장")
     func testItemHitAreaExpandsVerticallyOnly() {
-        let originalRect = CGRect(x: 12, y: 10, width: 82, height: 41)
-        let shape = DSBottomNavigationVerticalOutsetShape(verticalOutset: 1.5)
+        let specification = DSBottomNavigation.specification
+        let verticalOutset = DSBottomNavigation.itemHitAreaVerticalOutset(for: specification)
 
-        #expect(shape.path(in: originalRect).boundingRect == CGRect(x: 12, y: 8.5, width: 82, height: 44))
+        #expect(verticalOutset == 1.5)
+
+        let originalRect = CGRect(
+            x: 12,
+            y: 10,
+            width: 82,
+            height: specification.height
+                - (specification.contentVerticalPadding * 2)
+                - specification.itemTopPadding
+        )
+        let shape = DSBottomNavigationVerticalOutsetShape(verticalOutset: verticalOutset)
+
+        #expect(
+            shape.path(in: originalRect).boundingRect == CGRect(
+                x: 12,
+                y: 8.5,
+                width: 82,
+                height: 44
+            )
+        )
     }
 
     private func selectedIconAsset(for item: DSBottomNavigationItem) -> DSIconAsset {

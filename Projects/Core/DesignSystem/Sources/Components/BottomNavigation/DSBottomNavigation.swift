@@ -132,24 +132,24 @@ public struct DSBottomNavigation: View {
                     .dsFont(itemSpecification.titleFont)
                     .foregroundColor(itemSpecification.titleColor.swiftUIColor)
             }
-            .buttonStyle(
-                DSBottomNavigationButtonStyle(
-                    pressedOverlay: specification.pressedOverlay
+            .dsDebugDetailGeometry("DSBottomNavigation.Item.\(item.title)")
+            .frame(maxWidth: .infinity)
+            .contentShape(
+                DSBottomNavigationVerticalOutsetShape(
+                    verticalOutset: Self.itemHitAreaVerticalOutset(for: specification)
                 )
             )
-            .frame(maxWidth: .infinity)
-            .dsDebugDetailGeometry("DSBottomNavigation.Item.\(item.title)")
         }
-        .contentShape(
-            DSBottomNavigationVerticalOutsetShape(
-                verticalOutset: Self.itemHitAreaVerticalOutset(for: specification)
+        .buttonStyle(
+            DSBottomNavigationButtonStyle(
+                pressedOverlay: specification.pressedOverlay
             )
         )
         .accessibilityLabel(item.title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    private static func itemHitAreaVerticalOutset(for specification: Specification) -> CGFloat {
+    static func itemHitAreaVerticalOutset(for specification: Specification) -> CGFloat {
         let itemLayoutHeight = specification.height
             - (specification.contentVerticalPadding * 2)
             - specification.itemTopPadding
@@ -164,9 +164,8 @@ private struct DSBottomNavigationButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .dsPressedOverlay(
+            .dsPressedContentOverlay(
                 isPressed: configuration.isPressed,
-                shape: .roundedRectangle(cornerRadius: 0),
                 specification: pressedOverlay
             )
     }

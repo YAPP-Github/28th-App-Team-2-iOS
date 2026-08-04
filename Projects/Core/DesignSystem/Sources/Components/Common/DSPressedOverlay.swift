@@ -30,6 +30,20 @@ extension View {
             }
         }
     }
+
+    func dsPressedContentOverlay(
+        isPressed: Bool,
+        specification: DSPressedOverlay?
+    ) -> some View {
+        overlay {
+            if isPressed,
+               let specification {
+                specification.asset.swiftUIColor
+                    .opacity(specification.opacity)
+                    .mask(self)
+            }
+        }
+    }
 }
 
 struct DSIconButtonStyle: ButtonStyle {
