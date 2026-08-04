@@ -47,6 +47,8 @@ extension DSComponentShape {
         switch self {
         case let .roundedRectangle(cornerRadius):
             "Rounded Rectangle (\(cornerRadius.ptDescription))"
+        case let .unevenRoundedRectangle(topCornerRadius):
+            "Top Rounded Rectangle (\(topCornerRadius.ptDescription))"
         case .capsule:
             "Capsule"
         }

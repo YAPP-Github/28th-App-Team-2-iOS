@@ -43,7 +43,7 @@ public struct DSBottomNavigation: View {
         public let itemTopPadding: CGFloat
         public let itemSpacing: CGFloat
         public let iconSize: CGFloat
-        public let topCornerRadius: CGFloat
+        public let shape: DSComponentShape
         public let backgroundColor: DesignSystemColors
         public let shadowColor: DesignSystemColors
         public let shadowOpacity: CGFloat
@@ -58,7 +58,7 @@ public struct DSBottomNavigation: View {
         itemTopPadding: 4,
         itemSpacing: 4,
         iconSize: 24,
-        topCornerRadius: 24,
+        shape: .unevenRoundedRectangle(topCornerRadius: 24),
         backgroundColor: DesignSystemAsset.Colors.white,
         shadowColor: DesignSystemAsset.Colors.black,
         shadowOpacity: 0.06,
@@ -98,13 +98,7 @@ public struct DSBottomNavigation: View {
         .padding(.vertical, specification.contentVerticalPadding)
         .frame(height: specification.height, alignment: .top)
         .background {
-            UnevenRoundedRectangle(
-                topLeadingRadius: specification.topCornerRadius,
-                bottomLeadingRadius: 0,
-                bottomTrailingRadius: 0,
-                topTrailingRadius: specification.topCornerRadius,
-                style: .continuous
-            )
+            specification.shape.swiftUIShape
             .fill(specification.backgroundColor.swiftUIColor)
             .shadow(
                 color: specification.shadowColor.swiftUIColor.opacity(specification.shadowOpacity),

@@ -13,7 +13,7 @@ struct DSBottomNavigationSpecificationTests {
         #expect(specification.itemTopPadding == 4)
         #expect(specification.itemSpacing == 4)
         #expect(specification.iconSize == 24)
-        #expect(specification.topCornerRadius == 24)
+        #expect(specification.shape == .unevenRoundedRectangle(topCornerRadius: 24))
         expectColorEqual(specification.backgroundColor, DesignSystemAsset.Colors.white)
         expectColorEqual(specification.shadowColor, DesignSystemAsset.Colors.black)
         #expect(specification.shadowOpacity == 0.06)

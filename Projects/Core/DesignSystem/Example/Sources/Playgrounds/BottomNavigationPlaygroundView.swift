@@ -30,6 +30,10 @@ struct BottomNavigationPlaygroundView: View {
                         for: selectedItem,
                         isSelected: true
                     )
+                    let unselectedItemSpecification = DSBottomNavigation.itemSpecification(
+                        for: selectedItem,
+                        isSelected: false
+                    )
 
                     DSSpecificationRow(title: "Height", value: "\(specification.height.ptDescription)")
                     DSSpecificationRow(
@@ -45,14 +49,19 @@ struct BottomNavigationPlaygroundView: View {
                         value: "\(specification.itemTopPadding.ptDescription)"
                     )
                     DSSpecificationRow(
-                        title: "Top Corner Radius",
-                        value: "\(specification.topCornerRadius.ptDescription)"
+                        title: "Shape",
+                        value: "\(specification.shape.specName)"
                     )
                     DSSpecificationRow(title: "Selected Icon", value: itemSpecification.iconAsset.name)
                     DSSpecificationRow(title: "Selected Text Font", value: itemSpecification.titleFont.specName)
                     DSSpecificationRow(
                         title: "Selected Text Color",
                         value: itemSpecification.titleColor.specDescription
+                    )
+                    DSSpecificationRow(title: "Unselected Text Font", value: unselectedItemSpecification.titleFont.specName)
+                    DSSpecificationRow(
+                        title: "Unselected Text Color",
+                        value: unselectedItemSpecification.titleColor.specDescription
                     )
                     DSSpecificationRow(
                         title: "Shadow Blur",
