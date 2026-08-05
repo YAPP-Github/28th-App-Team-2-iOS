@@ -1,5 +1,49 @@
 import SwiftUI
 
+private struct DSMaxWidthHuggingLayout: Layout {
+    let maxWidth: CGFloat
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) -> CGSize {
+        guard let subview = subviews.first else { return .zero }
+
+        return subview.sizeThatFits(
+            ProposedViewSize(
+                width: min(proposal.width ?? maxWidth, maxWidth),
+                height: proposal.height
+            )
+        )
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) {
+        guard let subview = subviews.first else { return }
+
+        let size = subview.sizeThatFits(
+            ProposedViewSize(
+                width: min(bounds.width, maxWidth),
+                height: bounds.height
+            )
+        )
+
+        subview.place(
+            at: CGPoint(
+                x: bounds.midX - (size.width / 2),
+                y: bounds.midY - (size.height / 2)
+            ),
+            anchor: .topLeading,
+            proposal: ProposedViewSize(size)
+        )
+    }
+}
+
 // MARK: - Core Tooltip Component
 public struct DSTooltip: View {
     public enum ArrowPlacement: Equatable, Sendable {
@@ -97,6 +141,21 @@ public struct DSTooltip: View {
     }
 
     private func bubble(_ specification: Specification) -> some View {
+        Group {
+            if let maximumBubbleWidth = specification.maximumBubbleWidth {
+                DSMaxWidthHuggingLayout(maxWidth: maximumBubbleWidth) {
+                    bubbleContent(specification)
+                }
+            } else {
+                bubbleContent(specification)
+            }
+        }
+            .background(specification.backgroundAsset.swiftUIColor)
+            .clipShape(specification.shape.swiftUIShape)
+            .dsDebugDetailGeometry("DSTooltip.Bubble")
+    }
+
+    private func bubbleContent(_ specification: Specification) -> some View {
         Text(message)
             .dsFont(specification.fontStyle)
             .lineLimit(specification.lineLimit)
@@ -104,10 +163,6 @@ public struct DSTooltip: View {
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)
             .padding(.horizontal, specification.horizontalPadding)
             .padding(.vertical, specification.verticalPadding)
-            .frame(maxWidth: specification.maximumBubbleWidth)
-            .background(specification.backgroundAsset.swiftUIColor)
-            .clipShape(specification.shape.swiftUIShape)
-            .dsDebugDetailGeometry("DSTooltip.Bubble")
     }
 
     private func arrow(_ specification: Specification) -> some View {
