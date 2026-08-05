@@ -87,6 +87,9 @@ struct DSChatTypeBoxSpecificationTests {
 
         let twoLineTextView = makeChatTextView(text: "토닥운\n안녕", lineHeight: lineHeight)
         #expect(twoLineTextView.resolvedContentHeight() == 48)
+
+        let trailingNewlineTextView = makeChatTextView(text: "토닥운\n", lineHeight: lineHeight)
+        #expect(trailingNewlineTextView.resolvedContentHeight() == 48)
     }
 
     private func expectCommonSpecification(_ specification: DSChatTypeBox.Specification) {
