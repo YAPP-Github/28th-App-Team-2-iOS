@@ -42,6 +42,14 @@ struct ChatTypeBoxPlaygroundView: View {
                     DSSpecificationRow(title: "Background", value: specification.backgroundAsset.specDescription)
                     DSSpecificationRow(title: "Stroke", value: specification.strokeAsset.specDescription)
                     DSSpecificationRow(title: "Stroke Width", value: specification.strokeWidth.ptDescription)
+                    DSSpecificationRow(
+                        title: "Fade Overlay Opacity",
+                        value: "\(Int(specification.fadeOverlayOpacity * 100))%"
+                    )
+                    DSSpecificationRow(
+                        title: "Fade Overlay Height",
+                        value: specification.textVerticalPadding.ptDescription
+                    )
                     DSSpecificationRow(title: "Text Font", value: specification.textFont.specName)
                     DSSpecificationRow(title: "Text Color", value: specification.textColor.specDescription)
                     DSSpecificationRow(

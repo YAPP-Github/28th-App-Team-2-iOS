@@ -96,6 +96,7 @@ struct DSChatTypeBoxSpecificationTests {
         expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.white)
         expectColorEqual(specification.strokeAsset, DesignSystemAsset.Colors.gray50)
         #expect(specification.strokeWidth == 1)
+        #expect(specification.fadeOverlayOpacity == 0.6)
         #expect(specification.textFont == .body2Regular)
         expectColorEqual(specification.textColor, DesignSystemAsset.Colors.black)
         expectColorEqual(specification.placeholderColor, DesignSystemAsset.Colors.gray500)

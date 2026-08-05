@@ -25,6 +25,14 @@ struct UserChatPlaygroundView: View {
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(title: "Height", value: specification.height.ptDescription)
                     DSSpecificationRow(
+                        title: "Background",
+                        value: specification.backgroundAsset.specDescription
+                    )
+                    DSSpecificationRow(
+                        title: "Text Color",
+                        value: specification.foregroundAsset.specDescription
+                    )
+                    DSSpecificationRow(
                         title: "Corner Radius",
                         value: "TL \(specification.topLeadingRadius.ptDescription), "
                             + "TR \(specification.topTrailingRadius.ptDescription), "
