@@ -35,13 +35,45 @@ struct ConversationHistoryListPlaygroundView: View {
                 }
 
                 Section(header: Text("Figma Specification Check")) {
-                    DSSpecificationRow(title: "Height", value: specification.height.ptDescription)
+                    DSSpecificationRow(title: "Content Width", value: specification.contentWidth.ptDescription)
                     DSSpecificationRow(
                         title: "Horizontal Padding",
                         value: specification.horizontalPadding.ptDescription
                     )
-                    DSSpecificationRow(title: "Unread Indicator", value: specification.indicatorSize.ptDescription)
+                    DSSpecificationRow(title: "Top Padding", value: specification.topPadding.ptDescription)
+                    DSSpecificationRow(title: "Bottom Padding", value: specification.bottomPadding.ptDescription)
+                    DSSpecificationRow(title: "Title Font", value: specification.titleFont.specName)
+                    DSSpecificationRow(title: "Title Color", value: specification.titleColorAsset.specDescription)
+                    DSSpecificationRow(title: "Title Line Limit", value: "\(specification.titleLineLimit)")
+                    DSSpecificationRow(
+                        title: "Title Indicator Width",
+                        value: specification.titleIndicatorWidth.ptDescription
+                    )
+                    DSSpecificationRow(title: "Unread Indicator Size", value: specification.indicatorSize.ptDescription)
+                    DSSpecificationRow(
+                        title: "Unread Indicator Color",
+                        value: specification.indicatorColorAsset.specDescription
+                    )
+                    DSSpecificationRow(
+                        title: "Title Indicator Spacing",
+                        value: specification.titleIndicatorSpacing.ptDescription
+                    )
                     DSSpecificationRow(title: "Delete Icon", value: specification.deleteIcon.specDescription)
+                    DSSpecificationRow(title: "Delete Icon Size", value: specification.deleteIconSize.ptDescription)
+                    DSSpecificationRow(
+                        title: "Delete Icon Color",
+                        value: specification.deleteIconColorAsset.specDescription
+                    )
+                    DSSpecificationRow(
+                        title: "Title Delete Spacing",
+                        value: specification.titleDeleteSpacing.ptDescription
+                    )
+                    DSSpecificationRow(title: "Time Font", value: specification.timeFont.specName)
+                    DSSpecificationRow(title: "Time Color", value: specification.timeColorAsset.specDescription)
+                    DSSpecificationRow(
+                        title: "Title Time Spacing",
+                        value: specification.titleTimeSpacing.ptDescription
+                    )
                 }
             }
         }
