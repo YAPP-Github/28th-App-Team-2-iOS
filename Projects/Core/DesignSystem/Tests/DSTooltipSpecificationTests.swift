@@ -6,7 +6,6 @@ struct DSTooltipSpecificationTests {
     func testSpecification() {
         let specification = DSTooltip.specification(variant: .standard)
 
-        #expect(specification.minimumBubbleHeight == 30)
         #expect(specification.maximumBubbleWidth == nil)
         #expect(specification.horizontalPadding == 16)
         #expect(specification.verticalPadding == 6)
@@ -30,7 +29,6 @@ struct DSTooltipSpecificationTests {
     func testWhiteSpecification() {
         let specification = DSTooltip.specification(variant: .white)
 
-        #expect(specification.minimumBubbleHeight == 30)
         #expect(specification.maximumBubbleWidth == 200)
         #expect(specification.horizontalPadding == 16)
         #expect(specification.verticalPadding == 6)

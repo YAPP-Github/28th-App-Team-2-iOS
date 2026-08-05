@@ -43,10 +43,6 @@ struct TooltipPlaygroundView: View {
 
                 Section(header: Text("Figma Specification Check")) {
                     DSSpecificationRow(
-                        title: "Minimum Bubble Height",
-                        value: specification.minimumBubbleHeight.ptDescription
-                    )
-                    DSSpecificationRow(
                         title: "Maximum Bubble Width",
                         value: specification.maximumBubbleWidth?.ptDescription ?? "Parent constrained"
                     )

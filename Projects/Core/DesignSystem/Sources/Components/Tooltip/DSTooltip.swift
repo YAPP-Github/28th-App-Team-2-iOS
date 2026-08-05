@@ -8,7 +8,6 @@ public struct DSTooltip: View {
     }
 
     public struct Specification: Sendable {
-        public let minimumBubbleHeight: CGFloat
         public let maximumBubbleWidth: CGFloat?
         public let horizontalPadding: CGFloat
         public let verticalPadding: CGFloat
@@ -32,7 +31,6 @@ public struct DSTooltip: View {
         switch variant {
         case .standard:
             Specification(
-                minimumBubbleHeight: 30,
                 maximumBubbleWidth: nil,
                 horizontalPadding: 16,
                 verticalPadding: 6,
@@ -53,7 +51,6 @@ public struct DSTooltip: View {
             )
         case .white:
             Specification(
-                minimumBubbleHeight: 30,
                 maximumBubbleWidth: 200,
                 horizontalPadding: 16,
                 verticalPadding: 6,
@@ -107,7 +104,6 @@ public struct DSTooltip: View {
             .foregroundStyle(specification.foregroundAsset.swiftUIColor)
             .padding(.horizontal, specification.horizontalPadding)
             .padding(.vertical, specification.verticalPadding)
-            .frame(minHeight: specification.minimumBubbleHeight)
             .frame(maxWidth: specification.maximumBubbleWidth)
             .background(specification.backgroundAsset.swiftUIColor)
             .clipShape(specification.shape.swiftUIShape)
