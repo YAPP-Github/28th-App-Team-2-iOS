@@ -7,10 +7,14 @@ struct DSUserChatSpecificationTests {
         let specification = DSUserChat.specification
 
         #expect(specification.height == 48)
-        #expect(specification.topLeadingRadius == 12)
-        #expect(specification.topTrailingRadius == 0)
-        #expect(specification.bottomLeadingRadius == 12)
-        #expect(specification.bottomTrailingRadius == 12)
+        #expect(
+            specification.shape == .unevenRoundedRectangle(
+                topLeadingRadius: 12,
+                topTrailingRadius: 0,
+                bottomLeadingRadius: 12,
+                bottomTrailingRadius: 12
+            )
+        )
         expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.gray50)
         #expect(specification.fontStyle == .body2Medium)
         expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.black)

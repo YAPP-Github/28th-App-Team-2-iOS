@@ -32,13 +32,7 @@ struct UserChatPlaygroundView: View {
                         title: "Text Color",
                         value: specification.foregroundAsset.specDescription
                     )
-                    DSSpecificationRow(
-                        title: "Corner Radius",
-                        value: "TL \(specification.topLeadingRadius.ptDescription), "
-                            + "TR \(specification.topTrailingRadius.ptDescription), "
-                            + "BL \(specification.bottomLeadingRadius.ptDescription), "
-                            + "BR \(specification.bottomTrailingRadius.ptDescription)"
-                    )
+                    DSSpecificationRow(title: "Shape", value: specification.shape.specName)
                     DSSpecificationRow(
                         title: "Padding",
                         value: "H \(specification.horizontalPadding.ptDescription), "

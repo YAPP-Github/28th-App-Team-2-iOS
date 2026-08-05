@@ -47,8 +47,16 @@ extension DSComponentShape {
         switch self {
         case let .roundedRectangle(cornerRadius):
             "Rounded Rectangle (\(cornerRadius.ptDescription))"
-        case let .unevenRoundedRectangle(topCornerRadius):
-            "Top Rounded Rectangle (\(topCornerRadius.ptDescription))"
+        case let .unevenRoundedRectangle(
+            topLeadingRadius,
+            topTrailingRadius,
+            bottomLeadingRadius,
+            bottomTrailingRadius
+        ):
+            "Uneven Rounded Rectangle (TL \(topLeadingRadius.ptDescription), "
+                + "TR \(topTrailingRadius.ptDescription), "
+                + "BL \(bottomLeadingRadius.ptDescription), "
+                + "BR \(bottomTrailingRadius.ptDescription))"
         case .capsule:
             "Capsule"
         }
