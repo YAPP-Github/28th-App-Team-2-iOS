@@ -16,7 +16,7 @@
 - 🟦 **Chat Type box** (COMPONENT_SET) `W: 1194.0, H: 188.0` [Radius: 5]
   - 🖼️ **Variant: Default** (COMPONENT) `W: 353.0, H: 64.0` [X: 20.0, Y: 20.0 | Fill: white (#ffffff) (op: 1.00) | Stroke: gray50 (#f5f5f5) (op: 1.00) | Radius: 24]
     - 🟦 **Frame 1430106199** (FRAME) `W: 267.0, H: 23.0` [X: 22.0, Y: 20.5]
-      - 📝 **토닥이에게 운세 물어보기** (TEXT) `W: 161.0, H: 24.0` [X: 0.0, Y: -1.0 | Font: dsBody2Regular | Color: gray400 (#b8b8b8) (op: 1.00)]
+      - 📝 **토닥이에게 운세 물어보기** (TEXT) `W: 161.0, H: 24.0` [X: 0.0, Y: -1.0 | Font: dsBody2Regular | Color: gray500 (#9a9a9a) (op: 1.00)]
     - 🟦 **Group 1171275304** (GROUP) `W: 32.0, H: 32.0` [X: 301.0, Y: 16.0]
       - 🟦 **Ellipse 57** (ELLIPSE) `W: 32.0, H: 32.0` [X: 0.0, Y: 0.0 | Fill: gray50 (#f5f5f5) (op: 1.00)]
       - 🖼️ **arrow_upward** (INSTANCE) `W: 24.0, H: 24.0` [X: 4.0, Y: 4.0]

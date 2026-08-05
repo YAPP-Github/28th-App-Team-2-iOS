@@ -78,7 +78,7 @@ struct DSChatTypeBoxSpecificationTests {
         #expect(specification.strokeWidth == 1)
         #expect(specification.textFont == .body2Regular)
         expectColorEqual(specification.textColor, DesignSystemAsset.Colors.black)
-        expectColorEqual(specification.placeholderColor, DesignSystemAsset.Colors.gray400)
+        expectColorEqual(specification.placeholderColor, DesignSystemAsset.Colors.gray500)
         #expect(specification.textLineHeight == 24)
         #expect(specification.textLeadingPadding == 22)
         #expect(specification.textTrailingPadding == 20)

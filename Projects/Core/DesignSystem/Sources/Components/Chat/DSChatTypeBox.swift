@@ -36,7 +36,7 @@ public struct DSChatTypeBox: View {
             strokeWidth: 1,
             textFont: .body2Regular,
             textColor: DesignSystemAsset.Colors.black,
-            placeholderColor: DesignSystemAsset.Colors.gray400,
+            placeholderColor: DesignSystemAsset.Colors.gray500,
             textLineHeight: 24,
             textLeadingPadding: 22,
             textTrailingPadding: 20,
