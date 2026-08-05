@@ -1,4 +1,5 @@
 import Testing
+import UIKit
 @testable import DesignSystem
 
 struct DSChatTypeBoxSpecificationTests {
@@ -69,6 +70,25 @@ struct DSChatTypeBoxSpecificationTests {
         #expect(overflowing.exceedsMaximumTextHeight)
     }
 
+    @Test("Chat Type Box 텍스트 높이는 줄 수와 명세 행간으로 계산한다")
+    func testResolvedTextContentHeight() {
+        #expect(DSChatTypeBox.resolvedTextContentHeight(lineCount: 0, lineHeight: 24) == 24)
+        #expect(DSChatTypeBox.resolvedTextContentHeight(lineCount: 1, lineHeight: 24) == 24)
+        #expect(DSChatTypeBox.resolvedTextContentHeight(lineCount: 2, lineHeight: 24) == 48)
+        #expect(DSChatTypeBox.resolvedTextContentHeight(lineCount: 3, lineHeight: 24) == 72)
+    }
+
+    @Test("Chat Text View는 UIKit fitting 높이 대신 명세 행간 단위로 측정한다")
+    @MainActor
+    func testTextViewResolvedContentHeight() {
+        let lineHeight: CGFloat = 24
+        let singleLineTextView = makeChatTextView(text: "토닥운", lineHeight: lineHeight)
+        #expect(singleLineTextView.resolvedContentHeight() == 24)
+
+        let twoLineTextView = makeChatTextView(text: "토닥운\n안녕", lineHeight: lineHeight)
+        #expect(twoLineTextView.resolvedContentHeight() == 48)
+    }
+
     private func expectCommonSpecification(_ specification: DSChatTypeBox.Specification) {
         #expect(specification.minimumHeight == 64)
         #expect(specification.maximumHeight == 104)
@@ -90,5 +110,28 @@ struct DSChatTypeBoxSpecificationTests {
         #expect(specification.shadowOpacity == 0.06)
         #expect(specification.shadowRadius == 20)
         #expect(specification.shadowOffsetY == 4)
+    }
+
+    @MainActor
+    private func makeChatTextView(text: String, lineHeight: CGFloat) -> DSChatTextView {
+        let textView = DSChatTextView()
+        let font = UIFont.systemFont(ofSize: 16)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.minimumLineHeight = lineHeight
+        paragraphStyle.maximumLineHeight = lineHeight
+
+        textView.lineHeight = lineHeight
+        textView.textContainerInset = .zero
+        textView.textContainer.lineFragmentPadding = 0
+        textView.attributedText = NSAttributedString(
+            string: text,
+            attributes: [
+                .font: font,
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+        textView.frame = CGRect(x: 0, y: 0, width: 267, height: 104)
+        textView.layoutIfNeeded()
+        return textView
     }
 }

@@ -104,6 +104,13 @@ public struct DSChatTypeBox: View {
         )
     }
 
+    static func resolvedTextContentHeight(
+        lineCount: Int,
+        lineHeight: CGFloat
+    ) -> CGFloat {
+        max(lineHeight, CGFloat(lineCount) * lineHeight)
+    }
+
     @Binding private var text: String
     private let placeholder: String
     private let onSend: () -> Void
@@ -131,7 +138,7 @@ public struct DSChatTypeBox: View {
         ZStack(alignment: .bottom) {
             HStack(
                 alignment: metrics.contentAlignment == .center ? .center : .bottom,
-                spacing: 0
+                spacing: 12
             ) {
                 ZStack(alignment: .leading) {
                     if text.isEmpty && !isTextEditorFocused {
@@ -229,7 +236,7 @@ private struct DSChatTextEditor: UIViewRepresentable {
         Coordinator(text: $text, isFocused: $isFocused)
     }
 
-    func makeUIView(context: Context) -> UITextView {
+    func makeUIView(context: Context) -> DSChatTextView {
         let textView = DSChatTextView()
         textView.backgroundColor = .clear
         textView.delegate = context.coordinator
@@ -245,7 +252,7 @@ private struct DSChatTextEditor: UIViewRepresentable {
         return textView
     }
 
-    func updateUIView(_ textView: UITextView, context: Context) {
+    func updateUIView(_ textView: DSChatTextView, context: Context) {
         if textView.text != text {
             textView.text = text
         }
@@ -253,10 +260,11 @@ private struct DSChatTextEditor: UIViewRepresentable {
         textView.setNeedsLayout()
     }
 
-    private func configure(_ textView: UITextView) {
+    private func configure(_ textView: DSChatTextView) {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.minimumLineHeight = lineHeight
         paragraphStyle.maximumLineHeight = lineHeight
+        textView.lineHeight = lineHeight
         textView.font = font
         textView.textColor = textColor
         textView.typingAttributes = [
@@ -280,10 +288,21 @@ private struct DSChatTextEditor: UIViewRepresentable {
             textView.setNeedsLayout()
 
             DispatchQueue.main.async {
+                guard let chatTextView = textView as? DSChatTextView else { return }
+
                 let textLength = (textView.text as NSString).length
-                textView.scrollRangeToVisible(
-                    NSRange(location: textLength, length: 0)
-                )
+                let contentOverflows = chatTextView.resolvedContentHeight() > textView.bounds.height
+
+                if contentOverflows {
+                    textView.scrollRangeToVisible(
+                        NSRange(location: textLength, length: 0)
+                    )
+                } else {
+                    textView.setContentOffset(
+                        CGPoint(x: textView.contentOffset.x, y: 0),
+                        animated: false
+                    )
+                }
             }
         }
 
@@ -297,8 +316,9 @@ private struct DSChatTextEditor: UIViewRepresentable {
     }
 }
 
-private final class DSChatTextView: UITextView {
+final class DSChatTextView: UITextView {
     var onContentHeightChange: ((CGFloat) -> Void)?
+    var lineHeight: CGFloat = 0
     private var lastReportedContentHeight: CGFloat = 0
 
     override func layoutSubviews() {
@@ -306,12 +326,36 @@ private final class DSChatTextView: UITextView {
 
         guard bounds.width > 0 else { return }
 
-        let contentHeight = sizeThatFits(
-            CGSize(width: bounds.width, height: .greatestFiniteMagnitude)
-        ).height
+        let contentHeight = resolvedContentHeight()
+
+        if contentHeight <= bounds.height {
+            setContentOffset(
+                CGPoint(x: contentOffset.x, y: 0),
+                animated: false
+            )
+        }
 
         guard abs(lastReportedContentHeight - contentHeight) > 0.5 else { return }
         lastReportedContentHeight = contentHeight
         onContentHeightChange?(contentHeight)
+    }
+
+    func resolvedContentHeight() -> CGFloat {
+        layoutManager.ensureLayout(for: textContainer)
+
+        let glyphRange = layoutManager.glyphRange(for: textContainer)
+        var lineCount = 0
+        layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { _, _, _, _, _ in
+            lineCount += 1
+        }
+
+        if text.hasSuffix("\n") {
+            lineCount += 1
+        }
+
+        return DSChatTypeBox.resolvedTextContentHeight(
+            lineCount: lineCount,
+            lineHeight: lineHeight
+        )
     }
 }
