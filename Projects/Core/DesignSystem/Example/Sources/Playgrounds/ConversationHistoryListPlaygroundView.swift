@@ -46,6 +46,10 @@ struct ConversationHistoryListPlaygroundView: View {
                     DSSpecificationRow(title: "Title Color", value: specification.titleColorAsset.specDescription)
                     DSSpecificationRow(title: "Title Line Limit", value: "\(specification.titleLineLimit)")
                     DSSpecificationRow(
+                        title: "Title Truncation Mode",
+                        value: String(describing: specification.titleTruncationMode)
+                    )
+                    DSSpecificationRow(
                         title: "Title Indicator Width",
                         value: specification.titleIndicatorWidth.ptDescription
                     )

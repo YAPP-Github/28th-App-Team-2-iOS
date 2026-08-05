@@ -9,6 +9,7 @@ public struct DSConversationHistoryList: View {
         public let titleFont: FontStyle
         public let titleColorAsset: DesignSystemColors
         public let titleLineLimit: Int
+        public let titleTruncationMode: Text.TruncationMode
         public let titleIndicatorWidth: CGFloat
         public let indicatorSize: CGFloat
         public let indicatorColorAsset: DesignSystemColors
@@ -30,6 +31,7 @@ public struct DSConversationHistoryList: View {
         titleFont: .body1Medium,
         titleColorAsset: DesignSystemAsset.Colors.black,
         titleLineLimit: 1,
+        titleTruncationMode: .tail,
         titleIndicatorWidth: 320,
         indicatorSize: 6,
         indicatorColorAsset: DesignSystemAsset.Colors.red400,
@@ -70,7 +72,7 @@ public struct DSConversationHistoryList: View {
                         .dsFont(specification.titleFont)
                         .foregroundStyle(specification.titleColorAsset.swiftUIColor)
                         .lineLimit(specification.titleLineLimit)
-                        .truncationMode(.tail)
+                        .truncationMode(specification.titleTruncationMode)
 
                     if showsUnreadIndicator {
                         Circle()

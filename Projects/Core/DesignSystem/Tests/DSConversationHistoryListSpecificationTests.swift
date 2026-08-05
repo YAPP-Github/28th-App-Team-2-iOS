@@ -13,6 +13,7 @@ struct DSConversationHistoryListSpecTests {
         #expect(specification.titleFont == .body1Medium)
         expectColorEqual(specification.titleColorAsset, DesignSystemAsset.Colors.black)
         #expect(specification.titleLineLimit == 1)
+        #expect(specification.titleTruncationMode == .tail)
         #expect(specification.titleIndicatorWidth == 320)
         #expect(specification.indicatorSize == 6)
         expectColorEqual(specification.indicatorColorAsset, DesignSystemAsset.Colors.red400)
