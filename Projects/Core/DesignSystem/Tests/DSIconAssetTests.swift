@@ -7,15 +7,28 @@ struct DSIconAssetTests {
         #expect(
             DSIconAsset.allCases.map(\.name) ==
             [
+                "bell",
+                "chatAdd",
                 "checkLine",
+                "deleteLine",
                 "edit",
                 "circleXFill",
                 "chevronLeftPlain",
+                "chevronLeftNarrow",
+                "notes",
                 "chevronSmallBottom",
                 "tooltipArrow",
                 "closeLine",
                 "arrowUpward",
-                "delete"
+                "delete",
+                "naviLuckyOn",
+                "naviLuckyOff",
+                "naviAiOn",
+                "naviAiOff",
+                "naviActionOn",
+                "naviActionOff",
+                "naviMyOn",
+                "naviMyOff"
             ]
         )
     }

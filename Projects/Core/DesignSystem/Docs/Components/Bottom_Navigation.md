@@ -1,34 +1,34 @@
-# 🧩 Bottom_Navigation 상세 명세서
+# 🧩 Bottom Navigation 상세 명세서
 
 [🔗 Figma 원본 링크](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=380-2848)
 
-![Bottom_Navigation](../Images/Bottom_Navigation.png)
+![Bottom Navigation](../Images/Bottom_Navigation.png)
 
-## 🏗️ Structure & Layout
+## API
 
-- 🖼️ **Bottom_Navigation** (COMPONENT) `W: 393.0, H: 90.0`
-  - 🟦 **iOS** (FRAME) `W: 393.0, H: 56.0` [X: 0.0, Y: 0.0]
-    - 🟦 **Bottom Navigation/Container** (FRAME) `W: 393.0, H: 56.0` [X: 0.0, Y: 0.0 | Fill: white (#ffffff) (op: 1.00)]
-      - 🟦 **Contents** (FRAME) `W: 369.0, H: 45.0` [X: 12.0, Y: 5.5]
-        - 🟦 **Tab** (FRAME) `W: 92.2, H: 41.0` [X: 0.0, Y: 4.0 | Fill: white (#ffffff) (op: 1.00)]
-          - 🖼️ **ic_navi_lucky** (INSTANCE) `W: 24.0, H: 24.0` [X: 34.1, Y: 0.0]
-            - 🟦 **Subtract** (BOOLEAN_OPERATION) `W: 20.0, H: 20.0` [X: 2.0, Y: 2.0 | Fill: gray975 (#171717) (op: 1.00)]
-              - 🟦 **Ellipse 46** (ELLIPSE) `W: 20.0, H: 20.0` [X: 0.0, Y: 0.0]
-              - 🟦 **Group 1171275297** (GROUP) `W: 7.5, H: 12.8` [X: 3.2, Y: 3.2]
-            - 🟦 **Union** (BOOLEAN_OPERATION) `W: 0.0, H: 0.0` [X: 29247.9, Y: 26733.5 | Fill: gray975 (#171717) (op: 1.00)]
-          - 📝 **운세** (TEXT) `W: 92.2, H: 13.0` [X: 0.0, Y: 28.0 | Font: dsCaption3SemiBold | Color: gray975 (#171717) (op: 1.00)]
-        - 🟦 **Tab** (FRAME) `W: 92.2, H: 41.0` [X: 92.2, Y: 4.0 | Fill: white (#ffffff) (op: 1.00)]
-          - 🖼️ **ic_navi_ai** (INSTANCE) `W: 24.0, H: 24.0` [X: 34.1, Y: 0.0]
-            - 🟦 **Group 1171275307** (GROUP) `W: 8.4, H: 1.8` [X: 7.8, Y: 11.0]
-          - 📝 **토닥이** (TEXT) `W: 92.2, H: 13.0` [X: 0.0, Y: 28.0 | Font: dsCaption3Medium | Color: gray500 (#9a9a9a) (op: 1.00)]
-        - 🟦 **Tab** (FRAME) `W: 92.2, H: 41.0` [X: 184.5, Y: 4.0 | Fill: white (#ffffff) (op: 1.00)]
-          - 🖼️ **ic_navi_action** (INSTANCE) `W: 24.0, H: 24.0` [X: 34.1, Y: 0.0]
-            - 🟦 **Group 1171275295** (GROUP) `W: 20.0, H: 20.0` [X: 2.0, Y: 2.0]
-          - 📝 **행운 액션** (TEXT) `W: 92.2, H: 13.0` [X: 0.0, Y: 28.0 | Font: dsCaption3Medium | Color: gray500 (#9a9a9a) (op: 1.00)]
-        - 🟦 **Tab** (FRAME) `W: 92.2, H: 41.0` [X: 276.8, Y: 4.0 | Fill: white (#ffffff) (op: 1.00)]
-          - 🖼️ **ic_navi_my** (INSTANCE) `W: 24.0, H: 24.0` [X: 34.1, Y: 0.0]
-            - 🟦 **Union** (BOOLEAN_OPERATION) `W: 0.0, H: 0.0` [X: 28971.1, Y: 26733.5 | Fill: coolGray600 (#6b7486) (op: 1.00)]
-            - 🟦 **Union** (BOOLEAN_OPERATION) `W: 19.3, H: 19.4` [X: 2.4, Y: 2.3 | Fill: coolGray600 (#6b7486) (op: 1.00)]
-          - 📝 **마이** (TEXT) `W: 92.2, H: 13.0` [X: 0.0, Y: 28.0 | Font: dsCaption3Medium | Color: gray500 (#9a9a9a) (op: 1.00)]
-  - 🟦 **HomeIndicator** (FRAME) `W: 393.0, H: 34.0` [X: 0.0, Y: 56.0 | Fill: white (#ffffff) (op: 1.00)]
-    - 🟦 **Home Indicator** (RECTANGLE) `W: 134.0, H: 5.0` [X: 130.0, Y: 21.0 | Fill: black (#000000) (op: 1.00) | Radius: 100]
+`DSBottomNavigation(selectedItem:)`은 선택된 탭을 `Binding<DSBottomNavigationItem>`으로 받습니다. 탭 전환에 따른 화면 라우팅은 App 레이어가 담당하며, 이 컴포넌트는 선택 상태 표시와 Binding 갱신만 담당합니다.
+
+## Layout
+
+| 항목 | 값 |
+| --- | --- |
+| 컨테이너 높이 | 56pt |
+| 가로 패딩 | 12pt |
+| Items HStack 상·하단 패딩 | 5.5pt |
+| HStack 내부 Item 상단 패딩 | 4pt |
+| 상단 모서리 반경 | 24pt |
+| 아이콘 | 24 × 24pt |
+| 아이콘–텍스트 간격 | 4pt |
+| 배경 | white |
+| 그림자 | black 6%, blur 20pt, y -4pt |
+
+## Items & States
+
+| 탭 | 기본 아이콘 | 선택 아이콘 | 기본 텍스트 | 선택 텍스트 |
+| --- | --- | --- | --- | --- |
+| 운세 | `navi_lucky_off` | `navi_lucky_on` | caption3Medium / gray500 | caption3SemiBold / gray975 |
+| 토닥이 | `navi_ai_off` | `navi_ai_on` | caption3Medium / gray500 | caption3SemiBold / gray975 |
+| 행운 액션 | `navi_action_off` | `navi_action_on` | caption3Medium / gray500 | caption3SemiBold / gray975 |
+| 마이 | `navi_my_off` | `navi_my_on` | caption3Medium / gray500 | caption3SemiBold / gray975 |
+
+아이콘은 선택 상태에 따라 형태도 달라지므로 template tint가 아닌 원본 SVG 색상으로 렌더링합니다.
