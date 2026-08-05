@@ -48,7 +48,7 @@ struct ChatTypeBoxPlaygroundView: View {
                     )
                     DSSpecificationRow(
                         title: "Fade Overlay Height",
-                        value: specification.textVerticalPadding.ptDescription
+                        value: specification.fadeOverlayHeight.ptDescription
                     )
                     DSSpecificationRow(title: "Text Font", value: specification.textFont.specName)
                     DSSpecificationRow(title: "Text Color", value: specification.textColor.specDescription)
@@ -82,6 +82,10 @@ struct ChatTypeBoxPlaygroundView: View {
                     DSSpecificationRow(
                         title: "Send Icon Color",
                         value: specification.sendIconColorAsset.specDescription
+                    )
+                    DSSpecificationRow(
+                        title: "Send Button Pressed Overlay",
+                        value: specification.sendButtonPressedOverlay.specDescription
                     )
                     DSSpecificationRow(
                         title: "Shadow",

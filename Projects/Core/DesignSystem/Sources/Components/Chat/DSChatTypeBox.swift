@@ -9,6 +9,7 @@ public struct DSChatTypeBox: View {
         public let strokeAsset: DesignSystemColors
         public let strokeWidth: CGFloat
         public let fadeOverlayOpacity: CGFloat
+        public let fadeOverlayHeight: CGFloat
         public let textFont: FontStyle
         public let textColor: DesignSystemColors
         public let placeholderColor: DesignSystemColors
@@ -21,6 +22,7 @@ public struct DSChatTypeBox: View {
         public let sendIconSize: CGFloat
         public let sendButtonBackgroundAsset: DesignSystemColors
         public let sendIconColorAsset: DesignSystemColors
+        public let sendButtonPressedOverlay: DSPressedOverlay
         public let shadowColorAsset: DesignSystemColors
         public let shadowOpacity: CGFloat
         public let shadowRadius: CGFloat
@@ -36,6 +38,7 @@ public struct DSChatTypeBox: View {
             strokeAsset: DesignSystemAsset.Colors.gray50,
             strokeWidth: 1,
             fadeOverlayOpacity: 0.6,
+            fadeOverlayHeight: 16,
             textFont: .body2Regular,
             textColor: DesignSystemAsset.Colors.black,
             placeholderColor: DesignSystemAsset.Colors.gray500,
@@ -52,6 +55,7 @@ public struct DSChatTypeBox: View {
             sendIconColorAsset: isFilled
                 ? DesignSystemAsset.Colors.white
                 : DesignSystemAsset.Colors.gray400,
+            sendButtonPressedOverlay: .standard,
             shadowColorAsset: DesignSystemAsset.Colors.black,
             shadowOpacity: 0.06,
             shadowRadius: 20,
@@ -188,7 +192,7 @@ public struct DSChatTypeBox: View {
                     DSIconButtonStyle(
                         iconAsset: specification.sendIcon,
                         iconSize: CGSize(width: specification.sendIconSize, height: specification.sendIconSize),
-                        pressedOverlay: .standard,
+                        pressedOverlay: specification.sendButtonPressedOverlay,
                         pressedOverlayTarget: .button
                     )
                 )
@@ -207,7 +211,7 @@ public struct DSChatTypeBox: View {
             if metrics.exceedsMaximumTextHeight {
                 specification.backgroundAsset.swiftUIColor
                     .opacity(specification.fadeOverlayOpacity)
-                    .frame(height: specification.textVerticalPadding)
+                    .frame(height: specification.fadeOverlayHeight)
                     .dsDebugDetailGeometry("DSChatTypeBox.FadeOverlay")
                     .allowsHitTesting(false)
             }
