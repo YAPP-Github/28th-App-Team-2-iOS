@@ -186,7 +186,8 @@ public struct DSChatTypeBox: View {
                     DSIconButtonStyle(
                         iconAsset: specification.sendIcon,
                         iconSize: CGSize(width: specification.sendIconSize, height: specification.sendIconSize),
-                        pressedOverlay: .standard
+                        pressedOverlay: .standard,
+                        pressedOverlayTarget: .button
                     )
                 )
                 .disabled(!isFilled)

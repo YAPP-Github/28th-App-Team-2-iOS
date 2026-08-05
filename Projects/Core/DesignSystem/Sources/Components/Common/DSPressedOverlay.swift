@@ -32,23 +32,48 @@ extension View {
     }
 }
 
+enum DSIconButtonPressedOverlayTarget {
+    case icon
+    case button
+}
+
 struct DSIconButtonStyle: ButtonStyle {
     let iconAsset: DSIconAsset
     let iconSize: CGSize
     let pressedOverlay: DSPressedOverlay?
+    let pressedOverlayTarget: DSIconButtonPressedOverlayTarget
+
+    init(
+        iconAsset: DSIconAsset,
+        iconSize: CGSize,
+        pressedOverlay: DSPressedOverlay?,
+        pressedOverlayTarget: DSIconButtonPressedOverlayTarget = .icon
+    ) {
+        self.iconAsset = iconAsset
+        self.iconSize = iconSize
+        self.pressedOverlay = pressedOverlay
+        self.pressedOverlayTarget = pressedOverlayTarget
+    }
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .overlay {
                 if configuration.isPressed,
                    let pressedOverlay {
-                    DSIcon(
-                        iconAsset,
-                        width: iconSize.width,
-                        height: iconSize.height
-                    )
-                    .foregroundColor(pressedOverlay.asset.swiftUIColor)
-                    .opacity(pressedOverlay.opacity)
+                    switch pressedOverlayTarget {
+                    case .icon:
+                        DSIcon(
+                            iconAsset,
+                            width: iconSize.width,
+                            height: iconSize.height
+                        )
+                        .foregroundColor(pressedOverlay.asset.swiftUIColor)
+                        .opacity(pressedOverlay.opacity)
+                    case .button:
+                        Circle()
+                            .fill(pressedOverlay.asset.swiftUIColor)
+                            .opacity(pressedOverlay.opacity)
+                    }
                 }
             }
     }
