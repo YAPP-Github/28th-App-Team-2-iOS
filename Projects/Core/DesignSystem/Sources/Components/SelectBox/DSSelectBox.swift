@@ -11,6 +11,7 @@ public struct DSSelectBox: View {
         public let backgroundAsset: DesignSystemColors
         public let borderAsset: DesignSystemColors
         public let foregroundAsset: DesignSystemColors
+        public let pressedOverlay: DSPressedOverlay
     }
 
     public static func specification(isSelected: Bool) -> Specification {
@@ -28,7 +29,8 @@ public struct DSSelectBox: View {
                 : DesignSystemAsset.Colors.coolGray300,
             foregroundAsset: isSelected
                 ? DesignSystemAsset.Colors.primary700
-                : DesignSystemAsset.Colors.coolGray800
+                : DesignSystemAsset.Colors.coolGray800,
+            pressedOverlay: .standard
         )
     }
 

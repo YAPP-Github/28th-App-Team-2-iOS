@@ -11,6 +11,8 @@ struct DSSelectBoxSpecificationTests {
         #expect(specification.borderWidth == 1)
         #expect(specification.shape == .roundedRectangle(cornerRadius: 12))
         #expect(specification.fontStyle == .body1Medium)
+        expectColorEqual(specification.pressedOverlay.asset, DesignSystemAsset.Colors.gray975)
+        #expect(specification.pressedOverlay.opacity == 0.16)
 
         if isSelected {
             expectColorEqual(specification.backgroundAsset, DesignSystemAsset.Colors.primary50)

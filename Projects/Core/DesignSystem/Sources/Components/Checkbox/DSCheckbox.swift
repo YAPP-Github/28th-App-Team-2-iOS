@@ -31,16 +31,43 @@ public struct DSCheckbox: View {
     }
 
     @Binding private var isOn: Bool
+    private let label: AnyView
+    private let labelSpacing: CGFloat
+    private let contentInsets: EdgeInsets
+    private let showsLabel: Bool
 
     public init(isOn: Binding<Bool>) {
         self._isOn = isOn
+        self.label = AnyView(EmptyView())
+        self.labelSpacing = 0
+        self.contentInsets = EdgeInsets()
+        self.showsLabel = false
+    }
+
+    public init<Label: View>(
+        isOn: Binding<Bool>,
+        labelSpacing: CGFloat,
+        contentInsets: EdgeInsets = EdgeInsets(),
+        @ViewBuilder label: () -> Label
+    ) {
+        self._isOn = isOn
+        self.label = AnyView(label())
+        self.labelSpacing = labelSpacing
+        self.contentInsets = contentInsets
+        self.showsLabel = true
     }
 
     public var body: some View {
         Toggle(isOn: $isOn) {
-            EmptyView()
+            label
         }
-        .toggleStyle(DSCheckboxStyle())
+        .toggleStyle(
+            DSCheckboxStyle(
+                labelSpacing: labelSpacing,
+                contentInsets: contentInsets,
+                showsLabel: showsLabel
+            )
+        )
         .dsDebugGeometry("DSCheckbox")
     }
 }

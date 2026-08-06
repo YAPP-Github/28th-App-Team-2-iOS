@@ -7,7 +7,9 @@
 ## Runtime Interaction Contract
 
 - On/Off 여부와 무관하게 누르는 동안 기존 Checkbox 배경 위에 `gray975` 색상을 `16%` opacity로 덮는다.
-- 오버레이는 기존 `20×20pt` 사각 영역에만 적용하며 크기나 터치 영역을 변경하지 않는다.
+- 기본 `DSCheckbox(isOn:)`은 Figma와 동일한 `20×20pt` 컨트롤입니다.
+- 라벨 조합이 필요하면 `labelSpacing`, `contentInsets`, `@ViewBuilder label`을 전달합니다. indicator와 라벨은 중첩 컨트롤 없이 하나의 Toggle interaction을 공유하며, 터치 영역은 조합된 content 전체로 확장됩니다.
+- 조합형에서도 pressed overlay는 기존 `20×20pt` indicator에만 적용하며 크기나 터치 영역을 변경하지 않습니다. 라벨 간격·내부 여백·배경은 사용하는 상위 컴포넌트가 소유합니다.
 
 ## 🏗️ Structure & Layout
 
