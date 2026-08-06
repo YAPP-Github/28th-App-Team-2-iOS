@@ -5,6 +5,7 @@ struct TodakHeaderPlaygroundView: View {
     @State private var remainingFreeChatCount: Int = 2
     @State private var lastTappedButton: String = "아직 눌린 버튼이 없습니다."
     @State private var isDarkBackground: Bool = false
+    private let freeChatLimit = 3
 
     var body: some View {
         VStack(spacing: 0) {
@@ -14,6 +15,7 @@ struct TodakHeaderPlaygroundView: View {
             ) {
                 DSTodakHeader(
                     remainingFreeChatCount: remainingFreeChatCount,
+                    freeChatLimit: freeChatLimit,
                     rightItems: [
                         DSHeaderActionItem(identifier: "newChat", icon: .chatAdd) {
                             lastTappedButton = "우측 새 채팅 버튼"
@@ -31,9 +33,9 @@ struct TodakHeaderPlaygroundView: View {
             Form {
                 Section(header: Text("Interactive State")) {
                     Stepper(
-                        "오늘 무료 채팅: \(remainingFreeChatCount)/\(DSTodakHeader.specification().freeChatLimit)",
+                        "오늘 무료 채팅: \(remainingFreeChatCount)/\(freeChatLimit)",
                         value: $remainingFreeChatCount,
-                        in: 0...DSTodakHeader.specification().freeChatLimit
+                        in: 0...freeChatLimit
                     )
 
                     Text(lastTappedButton)
@@ -61,7 +63,6 @@ struct TodakHeaderPlaygroundView: View {
                         title: "Remaining Count Text",
                         value: spec.remainingCountTextAsset.specDescription
                     )
-                    DSSpecificationRow(title: "Free Chat Limit", value: "\(spec.freeChatLimit)")
                 }
             }
         }

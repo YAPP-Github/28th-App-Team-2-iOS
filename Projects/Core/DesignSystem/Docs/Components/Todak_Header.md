@@ -32,12 +32,12 @@
 ## 🧾 Content Contract
 
 - 타이틀 문구는 Figma 기준 `토닥이`로 고정합니다.
-- 보조 문구는 `오늘 무료 채팅 n/3` 형식입니다.
-- `오늘 무료 채팅` 뒤에 공백을 포함한 문구는 `body3Regular`, `n/3` 영역은 `body3Medium`입니다.
+- 보조 문구는 `오늘 무료 채팅 remainingFreeChatCount/freeChatLimit` 형식입니다.
+- `오늘 무료 채팅` 뒤에 공백을 포함한 문구는 `body3Regular`, `remainingFreeChatCount/freeChatLimit` 영역은 `body3Medium`입니다.
 - 보조 문구 전체 기본 색상은 `gray500`이며, `n`에 해당하는 `remainingFreeChatCount` 숫자만 `gray800`으로 표시합니다.
 - `n`은 서버 또는 상위 Feature 상태에서 주입되는 오늘의 무료 채팅 잔여 횟수입니다.
-- 기본 일일 무료 채팅 총량은 `3`으로 고정합니다.
-- `n`의 유효 범위 `0...3` 보장은 서버 또는 상위 Feature 상태의 책임입니다. DesignSystem 컴포넌트는 전달받은 값을 조용히 보정하지 않습니다.
+- 무료 채팅 총량 `freeChatLimit`은 서버 또는 상위 Feature가 주입하는 도메인 정책입니다. DesignSystem은 `remainingFreeChatCount/freeChatLimit`을 렌더링할 뿐 기본값을 소유하지 않습니다.
+- `remainingFreeChatCount`의 유효 범위 `0...freeChatLimit` 보장은 서버 또는 상위 Feature 상태의 책임입니다. DesignSystem 컴포넌트는 전달받은 값을 조용히 보정하지 않습니다.
 - `n`은 채팅 사용 후 감소할 수 있습니다.
 
 ## 🎛️ Interaction Contract

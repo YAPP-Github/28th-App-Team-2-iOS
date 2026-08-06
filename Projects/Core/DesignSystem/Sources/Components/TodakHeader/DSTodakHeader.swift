@@ -19,7 +19,6 @@ public struct DSTodakHeader: View {
         public let remainingCountFontStyle: FontStyle
         public let remainingCountTextAsset: DesignSystemColors
         public let titleGroupGap: CGFloat
-        public let freeChatLimit: Int
     }
 
     public static func specification() -> Specification {
@@ -40,21 +39,23 @@ public struct DSTodakHeader: View {
             subtitleTextAsset: DesignSystemAsset.Colors.gray500,
             remainingCountFontStyle: .body3Medium,
             remainingCountTextAsset: DesignSystemAsset.Colors.gray800,
-            titleGroupGap: 4,
-            freeChatLimit: 3
+            titleGroupGap: 4
         )
     }
 
     private let remainingFreeChatCount: Int
+    private let freeChatLimit: Int
     private let rightItems: [DSHeaderActionItem]
     private let onClose: () -> Void
 
     public init(
         remainingFreeChatCount: Int,
+        freeChatLimit: Int,
         rightItems: [DSHeaderActionItem],
         onClose: @escaping () -> Void
     ) {
         self.remainingFreeChatCount = remainingFreeChatCount
+        self.freeChatLimit = freeChatLimit
         self.rightItems = rightItems
         self.onClose = onClose
     }
@@ -111,7 +112,7 @@ public struct DSTodakHeader: View {
                 + Text("\(remainingFreeChatCount)")
                     .font(.ds.font(spec.remainingCountFontStyle))
                     .foregroundColor(spec.remainingCountTextAsset.swiftUIColor)
-                + Text("/\(spec.freeChatLimit)")
+                + Text("/\(freeChatLimit)")
                     .font(.ds.font(spec.remainingCountFontStyle))
                     .foregroundColor(spec.subtitleTextAsset.swiftUIColor)
             )

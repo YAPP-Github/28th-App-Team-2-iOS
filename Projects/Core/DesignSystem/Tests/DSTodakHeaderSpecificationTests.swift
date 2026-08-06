@@ -27,6 +27,5 @@ struct DSTodakHeaderSpecificationTests {
         #expect(specification.remainingCountFontStyle == .body3Medium)
         expectColorEqual(specification.remainingCountTextAsset, DesignSystemAsset.Colors.gray800)
         #expect(specification.titleGroupGap == 4)
-        #expect(specification.freeChatLimit == 3)
     }
 }
