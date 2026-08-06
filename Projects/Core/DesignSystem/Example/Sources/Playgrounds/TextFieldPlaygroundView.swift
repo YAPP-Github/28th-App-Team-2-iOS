@@ -80,7 +80,6 @@ struct TextFieldPlaygroundView: View {
                     DSSpecificationRow(title: "Placeholder Color", value: spec.placeholderColor.specDescription)
                     DSSpecificationRow(title: "Text Font", value: spec.textFont.specName)
                     DSSpecificationRow(title: "Text Color", value: spec.textColor.specDescription)
-                    DSSpecificationRow(title: "Cursor Color", value: spec.cursorColorHex)
                     if spec.showsClearButton {
                         if let clearIcon = spec.clearButtonIcon {
                             DSSpecificationRow(title: "Clear Icon", value: clearIcon.specDescription)

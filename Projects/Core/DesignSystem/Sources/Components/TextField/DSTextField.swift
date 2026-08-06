@@ -34,8 +34,6 @@ public struct DSTextField: View {
         public let errorMessageColor: DesignSystemColors?
         public let errorMessageTopSpacing: CGFloat
         public let errorMessageHorizontalPadding: CGFloat
-        public let cursorColorHex: String
-        public let cursorColor: Color
     }
 
     public static func specification(
@@ -105,9 +103,7 @@ public struct DSTextField: View {
             errorMessageFont: isError ? .caption1Regular : nil,
             errorMessageColor: isError ? DesignSystemAsset.Colors.red500 : nil,
             errorMessageTopSpacing: 8,
-            errorMessageHorizontalPadding: 4,
-            cursorColorHex: "#0040FF",
-            cursorColor: Color(hex: 0x0040FF)
+            errorMessageHorizontalPadding: 4
         )
     }
 
@@ -157,7 +153,6 @@ public struct DSTextField: View {
                         .focused(focusBinding ?? $internalFocus)
                         .font(.ds.font(spec.textFont))
                         .foregroundColor(spec.textColor.swiftUIColor)
-                        .tint(spec.cursorColor)
                         .frame(height: spec.textFont.lineHeight)
                         .dsDebugTypographyGeometry("Typography.\(String(describing: spec.textFont))")
                 }
@@ -225,17 +220,5 @@ public struct DSTextField: View {
             onFocusChange?(newValue)
         }
         .dsDebugGeometry("DSTextField")
-    }
-}
-
-fileprivate extension Color {
-    init(hex: UInt, alpha: Double = 1.0) {
-        self.init(
-            .sRGB,
-            red: Double((hex >> 16) & 0xff) / 255,
-            green: Double((hex >> 08) & 0xff) / 255,
-            blue: Double((hex >> 00) & 0xff) / 255,
-            opacity: alpha
-        )
     }
 }
