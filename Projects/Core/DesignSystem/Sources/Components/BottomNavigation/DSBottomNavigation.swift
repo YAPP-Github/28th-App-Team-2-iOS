@@ -59,7 +59,12 @@ public struct DSBottomNavigation: View {
         itemTopPadding: 4,
         itemSpacing: 4,
         iconSize: 24,
-        shape: .unevenRoundedRectangle(topCornerRadius: 24),
+        shape: .unevenRoundedRectangle(
+            topLeadingRadius: 24,
+            topTrailingRadius: 24,
+            bottomLeadingRadius: 0,
+            bottomTrailingRadius: 0
+        ),
         backgroundColor: DesignSystemAsset.Colors.white,
         pressedOverlay: .standard,
         shadowColor: DesignSystemAsset.Colors.black,

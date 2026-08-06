@@ -13,7 +13,14 @@ struct DSBottomNavigationSpecificationTests {
         #expect(specification.itemTopPadding == 4)
         #expect(specification.itemSpacing == 4)
         #expect(specification.iconSize == 24)
-        #expect(specification.shape == .unevenRoundedRectangle(topCornerRadius: 24))
+        #expect(
+            specification.shape == .unevenRoundedRectangle(
+                topLeadingRadius: 24,
+                topTrailingRadius: 24,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0
+            )
+        )
         let pressedOverlay = try #require(specification.pressedOverlay)
         expectColorEqual(pressedOverlay.asset, DesignSystemAsset.Colors.gray975)
         #expect(pressedOverlay.opacity == 0.16)

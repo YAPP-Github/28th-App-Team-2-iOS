@@ -125,6 +125,30 @@ struct ComponentsCatalogView: View {
                 title: "Toast",
                 subtitle: "Standard, Compact, Lucky Action 알림 컴포넌트"
             )
+            catalogLink(
+                destination: ChatTypeBoxPlaygroundView(),
+                systemImage: "arrow.up.circle.fill",
+                title: "Chat Type Box",
+                subtitle: "질문 입력과 전송 동작을 제공하는 채팅 입력창"
+            )
+            catalogLink(
+                destination: UserChatPlaygroundView(),
+                systemImage: "bubble.right.fill",
+                title: "User Chat",
+                subtitle: "사용자 발화 내용을 우측 정렬로 표시하는 말풍선"
+            )
+            catalogLink(
+                destination: TodakExampleQuestionPlaygroundView(),
+                systemImage: "sparkles",
+                title: "Todak Example Question",
+                subtitle: "토닥이에게 보낼 예시 질문을 표시하는 말풍선"
+            )
+            catalogLink(
+                destination: ConversationHistoryListPlaygroundView(),
+                systemImage: "text.line.first.and.arrowtriangle.forward",
+                title: "Conversation History List",
+                subtitle: "대화 제목, 시간, 읽지 않은 상태와 삭제 동작을 표시하는 행"
+            )
         }
     }
 

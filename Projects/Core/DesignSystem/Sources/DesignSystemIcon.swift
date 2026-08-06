@@ -14,6 +14,8 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
     case chevronSmallBottom
     case tooltipArrow
     case closeLine
+    case arrowUpward
+    case delete
     case naviLuckyOn
     case naviLuckyOff
     case naviAiOn
@@ -52,6 +54,10 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.tooltipArrow.swiftUIImage
         case .closeLine:
             DesignSystemAsset.Icons.closeLine.swiftUIImage
+        case .arrowUpward:
+            DesignSystemAsset.Icons.arrowUpward.swiftUIImage
+        case .delete:
+            DesignSystemAsset.Icons.delete.swiftUIImage
         case .naviLuckyOn:
             DesignSystemAsset.Icons.naviLuckyOn.swiftUIImage
         case .naviLuckyOff:
