@@ -17,26 +17,25 @@ public struct DSButton: View {
     public static func specification(
         variant: DSButtonVariant,
         size: DSButtonSize,
-        isEnabled: Bool,
-        fontStyleOverride: FontStyle? = nil
+        isEnabled: Bool
     ) -> Specification {
         let height: CGFloat
         let iconSize: CGFloat
-        let defaultFontStyle: FontStyle
+        let fontStyle: FontStyle
 
         switch size {
         case .large:
             height = 52
             iconSize = 20
-            defaultFontStyle = isEnabled ? .body2SemiBold : .body2Medium
+            fontStyle = isEnabled ? .body2SemiBold : .body2Medium
         case .medium:
             height = 44
             iconSize = 16
-            defaultFontStyle = .body3Medium
+            fontStyle = isEnabled ? .body3SemiBold : .body3Medium
         case .small:
             height = 32
             iconSize = 14
-            defaultFontStyle = isEnabled ? .caption1SemiBold : .caption1Medium
+            fontStyle = isEnabled ? .caption1SemiBold : .caption1Medium
         }
 
         let assets: (background: DesignSystemColors, foreground: DesignSystemColors)
@@ -58,7 +57,7 @@ public struct DSButton: View {
             contentGap: 8,
             iconSize: iconSize,
             shape: .roundedRectangle(cornerRadius: 12),
-            fontStyle: fontStyleOverride ?? defaultFontStyle,
+            fontStyle: fontStyle,
             backgroundAsset: assets.background,
             foregroundAsset: assets.foreground,
             pressedOverlay: isEnabled ? .standard : nil
@@ -70,7 +69,6 @@ public struct DSButton: View {
     private let rightIcon: DSIconAsset?
     private let variant: DSButtonVariant
     private let size: DSButtonSize
-    private let fontStyleOverride: FontStyle?
     private let action: () -> Void
 
     @Environment(\.isEnabled) private var isEnabled
@@ -81,7 +79,6 @@ public struct DSButton: View {
         rightIcon: DSIconAsset? = nil,
         variant: DSButtonVariant = .primary,
         size: DSButtonSize = .large,
-        fontStyleOverride: FontStyle? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -89,7 +86,6 @@ public struct DSButton: View {
         self.rightIcon = rightIcon
         self.variant = variant
         self.size = size
-        self.fontStyleOverride = fontStyleOverride
         self.action = action
     }
 
@@ -114,8 +110,7 @@ public struct DSButton: View {
         let specification = Self.specification(
             variant: variant,
             size: size,
-            isEnabled: isEnabled,
-            fontStyleOverride: fontStyleOverride
+            isEnabled: isEnabled
         )
 
         let content = HStack(alignment: .center, spacing: specification.contentGap) {

@@ -44,7 +44,7 @@ struct DSButtonSpecificationTests {
         case .medium:
             #expect(specification.height == 44)
             #expect(specification.iconSize == 16)
-            #expect(specification.fontStyle == .body3Medium)
+            #expect(specification.fontStyle == (input.isEnabled ? .body3SemiBold : .body3Medium))
         case .small:
             #expect(specification.height == 32)
             #expect(specification.iconSize == 14)
@@ -68,17 +68,5 @@ struct DSButtonSpecificationTests {
             expectColorEqual(specification.foregroundAsset, DesignSystemAsset.Colors.gray400)
             #expect(specification.pressedOverlay?.opacity == nil)
         }
-    }
-
-    @Test("Button 타이포그래피 override를 Specification에 반영")
-    func testTypographyOverride() {
-        let specification = DSButton.specification(
-            variant: .primary,
-            size: .medium,
-            isEnabled: true,
-            fontStyleOverride: .body3SemiBold
-        )
-
-        #expect(specification.fontStyle == .body3SemiBold)
     }
 }

@@ -18,6 +18,14 @@ struct DialogPlaygroundView: View {
         )
     }
 
+    private var actionButtonSpecification: DSButton.Specification {
+        DSButton.specification(
+            variant: .primary,
+            size: specification.actionButtonSize,
+            isEnabled: true
+        )
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             DSPlaygroundPreviewCard(
@@ -74,14 +82,8 @@ struct DialogPlaygroundView: View {
                     DSSpecificationRow(
                         title: "Action Button",
                         value: [
-                            DSButton.specification(
-                                variant: .primary,
-                                size: specification.actionButtonSize,
-                                isEnabled: true,
-                                fontStyleOverride: specification.actionButtonFontStyle
-                            )
-                            .height.ptDescription,
-                            specification.actionButtonFontStyle.specName
+                            actionButtonSpecification.height.ptDescription,
+                            actionButtonSpecification.fontStyle.specName
                         ]
                         .joined(separator: " / ")
                     )

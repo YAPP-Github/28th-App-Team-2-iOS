@@ -34,6 +34,5 @@ struct DSDialogSpecificationTests {
         #expect(specification.actionSpacing == (hasSecondaryAction ? 8 : nil))
 
         #expect(specification.actionButtonSize == .medium)
-        #expect(specification.actionButtonFontStyle == .body3SemiBold)
     }
 }

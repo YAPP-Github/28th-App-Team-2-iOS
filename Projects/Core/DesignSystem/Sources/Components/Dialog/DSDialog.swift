@@ -24,7 +24,6 @@ public struct DSDialog: View {
         public let actionBottomPadding: CGFloat
         public let actionSpacing: CGFloat?
         public let actionButtonSize: DSButtonSize
-        public let actionButtonFontStyle: FontStyle
         public let shape: DSComponentShape
         public let backgroundAsset: DesignSystemColors
     }
@@ -46,7 +45,6 @@ public struct DSDialog: View {
             actionBottomPadding: 20,
             actionSpacing: hasSecondaryAction ? 8 : nil,
             actionButtonSize: .medium,
-            actionButtonFontStyle: .body3SemiBold,
             shape: .roundedRectangle(cornerRadius: 12),
             backgroundAsset: DesignSystemAsset.Colors.white
         )
@@ -130,7 +128,6 @@ public struct DSDialog: View {
             action.title,
             variant: variant,
             size: specification.actionButtonSize,
-            fontStyleOverride: specification.actionButtonFontStyle,
             action: action.handler
         )
     }
