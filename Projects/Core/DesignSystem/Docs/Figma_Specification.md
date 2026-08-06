@@ -137,6 +137,8 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/SelectBox.md)
 
+구현 매핑: `DSSelectBox` — 선택 상태별 Figma 색상과 공통 pressed overlay를 컨테이너 전체에 적용
+
 ![SelectBox](Images/SelectBox.png)
 
 ### 🧩 SelectField [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1086-16782)
@@ -169,11 +171,15 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Enter_Name.md)
 
+구현 매핑: `DSEnterName` + `DSTextField` — 외부 text·validation·focus 상태와 고정 이름 placeholder를 사용하는 이름 입력 폼
+
 ![Enter Name](Images/Enter_Name.png)
 
 ### 🧩 Enter the time of birth [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=383-1123)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Enter_the_time_of_birth.md)
+
+구현 매핑: `DSEnterTimeOfBirth` + `DSSelectField` + `DSCheckbox` Specification + Model `BirthTimePeriod` — 시간 구간은 Model, 표시 포맷은 DesignSystem, Picker 표시·저장은 호출부가 소유하는 출생시간 입력 폼
 
 ![Enter the time of birth](Images/Enter_the_time_of_birth.png)
 
@@ -181,11 +187,15 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Enter_date_of_birth.md)
 
+구현 매핑: `DSEnterDateOfBirth` + `DSSelectField` + Model `BirthDate` — 날짜 Picker와 달력 검증 정책은 호출부가 소유하는 생년월일 입력 폼
+
 ![Enter date of birth](Images/Enter_date_of_birth.png)
 
 ### 🧩 Select Lunar or solar calendar [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=381-2400)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Select_Lunar_or_solar_calendar.md)
+
+구현 매핑: `DSSelectLunarOrSolarCalendar` + `DSSelectBox` + Model `BirthDateCalendar` — optional 단일 선택과 재탭 유지 정책
 
 ![Select Lunar or solar calendar](Images/Select_Lunar_or_solar_calendar.png)
 
@@ -193,11 +203,15 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Select_relationship.md)
 
+구현 매핑: `DSSelectRelationship` + `DSSelectBox` + Model `Relationship` — optional 단일 선택과 재탭 유지 정책
+
 ![Select relationship](Images/Select_relationship.png)
 
 ### 🧩 Select Gender [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=381-2391)
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Select_Gender.md)
+
+구현 매핑: `DSSelectGender` + `DSSelectBox` + Model `Gender` — optional 단일 선택과 재탭 유지 정책
 
 ![Select Gender](Images/Select_Gender.png)
 
