@@ -34,7 +34,7 @@ Figma 원본:
 - Header: `292 × 32pt`
 - Title: `220pt`, `heading3Bold`, `black`
 - Header gap: `28pt`
-- Save action: `body1Medium`, `primary700`, 가로 `6pt`·세로 `2.5pt` 콘텐츠 여백, capsule; 기본 `저장` 텍스트에서는 결과 크기가 `44 × 31pt`입니다. pressed 시 현재 콘텐츠 영역에 공통 `gray975` 16% overlay를 적용합니다.
+- Save action: 높이 `31pt`, `body1Medium`, `primary700`, 가로 `6pt` 콘텐츠 여백, capsule; 세로 콘텐츠 여백 없이 텍스트를 중앙 정렬합니다. 기본 `저장` 텍스트에서는 결과 크기가 `44 × 31pt`이며, pressed 시 현재 콘텐츠 영역에 공통 `gray975` 16% overlay를 적용합니다.
 - Header → Picker: `28pt`
 - Picker → Panel bottom: `40pt`
 - Panel → Sheet bottom: `40pt`

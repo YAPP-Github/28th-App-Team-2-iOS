@@ -20,7 +20,7 @@ struct DSWheelPickerPanelSpecificationTests {
         #expect(specification.titleWidth == 220)
         #expect(specification.headerGap == 28)
         #expect(specification.actionHorizontalPadding == 6)
-        #expect(specification.actionVerticalPadding == 2.5)
+        #expect(specification.actionHeight == 31)
         #expect(specification.actionShape == .capsule)
         #expect(specification.headerToPickerSpacing == 28)
         #expect(specification.bottomPadding == 40)
