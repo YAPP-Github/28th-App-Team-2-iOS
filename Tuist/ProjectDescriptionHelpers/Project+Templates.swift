@@ -86,15 +86,44 @@ public extension Project {
         dependencies: [TargetDependency] = [],
         resources: ResourceFileElements? = ["Resources/**"]
     ) -> Project {
-        let targets = makeTargets(
-            name: name,
-            product: .app,
-            bundleId: bundleIdPrefix,
-            dependencies: dependencies,
-            resources: resources,
-            hasTests: false,
-            hasExample: false
-        )
+        let targets = [
+            Target.target(
+                name: name,
+                destinations: .iOS,
+                product: .app,
+                bundleId: bundleIdPrefix,
+                deploymentTargets: .iOS("17.0"),
+                infoPlist: .extendingDefault(with: [
+                    "UILaunchScreen": [:],
+                    "API_BASE_URL": "$(API_BASE_URL)",
+                    "GOOGLE_IOS_CLIENT_ID": "$(GOOGLE_IOS_CLIENT_ID)",
+                    "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLSchemes": [
+                                "$(GOOGLE_REVERSED_CLIENT_ID)",
+                                "kakao$(KAKAO_NATIVE_APP_KEY)"
+                            ]
+                        ]
+                    ]
+                ]),
+                sources: ["Sources/**"],
+                resources: resources,
+                dependencies: dependencies,
+                settings: .settings(
+                    configurations: [
+                        .debug(
+                            name: "Debug",
+                            xcconfig: .relativeToRoot("Configuration/Debug.xcconfig")
+                        ),
+                        .release(
+                            name: "Release",
+                            xcconfig: .relativeToRoot("Configuration/Release.xcconfig")
+                        )
+                    ]
+                )
+            )
+        ]
         return Project(name: name, targets: targets)
     }
 

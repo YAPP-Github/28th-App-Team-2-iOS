@@ -25,3 +25,6 @@ Packages/
 Package.pins
 Package.resolved
 scratch/
+
+# OAuth local configuration
+Configuration/Secrets.xcconfig

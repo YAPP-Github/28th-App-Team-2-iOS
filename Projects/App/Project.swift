@@ -5,6 +5,10 @@ let project = Project.makeApp(
     name: "Todakun",
     dependencies: [
         .external(name: "ComposableArchitecture"),
+        .external(name: "GoogleSignIn"),
+        .external(name: "KakaoSDKAuth"),
+        .external(name: "KakaoSDKCommon"),
+        .project(target: "NetworkCore", path: .relativeToRoot("Projects/Core/NetworkCore")),
         .project(target: "OnboardingFeature", path: .relativeToRoot("Projects/Feature/OnboardingFeature")),
         .project(target: "FortuneFeature", path: .relativeToRoot("Projects/Feature/FortuneFeature")),
         .project(target: "TodakFeature", path: .relativeToRoot("Projects/Feature/TodakFeature")),
