@@ -13,7 +13,7 @@ public struct DSWheelPickerPanel: View {
         public let titleWidth: CGFloat
         public let headerGap: CGFloat
         public let actionHorizontalPadding: CGFloat
-        public let actionHeight: CGFloat
+        public let actionVerticalPadding: CGFloat
         public let actionShape: DSComponentShape
         public let headerToPickerSpacing: CGFloat
         public let bottomPadding: CGFloat
@@ -62,7 +62,7 @@ public struct DSWheelPickerPanel: View {
             titleWidth: 220,
             headerGap: 28,
             actionHorizontalPadding: 6,
-            actionHeight: 31,
+            actionVerticalPadding: 2.5,
             actionShape: .capsule,
             headerToPickerSpacing: 28,
             bottomPadding: 40,
@@ -153,10 +153,11 @@ public struct DSWheelPickerPanel: View {
             Text(title)
                 .dsFont(specification.titleFontStyle)
                 .foregroundStyle(specification.titleForegroundAsset.swiftUIColor)
+                .lineLimit(1)
+                .truncationMode(.tail)
                 .frame(
-                    maxWidth: .infinity,
-                    minHeight: specification.headerHeight,
-                    maxHeight: specification.headerHeight,
+                    width: specification.titleWidth,
+                    height: specification.headerHeight,
                     alignment: .leading
                 )
 
@@ -178,7 +179,7 @@ private struct DSWheelPickerPanelActionButtonStyle: ButtonStyle {
             .dsFont(specification.actionFontStyle)
             .foregroundStyle(specification.actionForegroundAsset.swiftUIColor)
             .padding(.horizontal, specification.actionHorizontalPadding)
-            .frame(height: specification.actionHeight)
+            .padding(.vertical, specification.actionVerticalPadding)
             .contentShape(specification.actionShape.swiftUIShape)
             .dsPressedOverlay(
                 isPressed: configuration.isPressed,
