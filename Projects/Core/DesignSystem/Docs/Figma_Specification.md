@@ -163,6 +163,12 @@
 
 ![Tooltip](Images/Tooltip.png)
 
+### 🧩 Tooltip_white [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco/Yapp-2%EC%A1%B0--%ED%86%A0%EB%8B%A5%EC%9A%B4-?node-id=3179-37583&t=Y0VDu0wefCwPEnTJ-4)
+
+📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Tooltip_white.md)
+
+![Tooltip_white](Images/Tooltip_white.png)
+
 ## 3. 피그마 명세 입력 폼 (#28)
 
 ### 🧩 Enter Name [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=381-2376)
@@ -267,7 +273,15 @@
 
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Header.md)
 
+구현 매핑: `DSHeaderMain` + `DSHeaderSub` — 호출부가 `DSHeaderActionItem`으로 필요한 액션을 주입하고 Header가 variant별 배치·크기·색상·pressed 정책을 소유
+
 ![Header](Images/Header.png)
+
+### 🧩 Todak Header [🔗 Figma](https://www.figma.com/design/bLZr7Nh53PmRHuEjX7gNco?node-id=1244-15359)
+
+📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Todak_Header.md)
+
+![Todak Header](Images/Todak%20Header.png)
 
 ## 6. 그림자 스타일 (Shadows)
 

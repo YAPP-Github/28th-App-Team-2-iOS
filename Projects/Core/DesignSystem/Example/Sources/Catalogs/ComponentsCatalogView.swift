@@ -60,6 +60,12 @@ struct ComponentsCatalogView: View {
                 subtitle: "화면 간 이동을 위한 상단 탭 버튼"
             )
             catalogLink(
+                destination: BottomNavigationPlaygroundView(),
+                systemImage: "rectangle.bottomthird.inset.filled",
+                title: "Bottom Navigation",
+                subtitle: "선택 상태를 외부 Binding으로 제어하는 하단 네비게이션"
+            )
+            catalogLink(
                 destination: SelectBoxPlaygroundView(),
                 systemImage: "checkmark.rectangle.stack.fill",
                 title: "SelectBox",
@@ -70,6 +76,18 @@ struct ComponentsCatalogView: View {
                 systemImage: "chevron.down.square.fill",
                 title: "SelectField",
                 subtitle: "선택 화면 진입과 선택값 삭제를 제공하는 필드 버튼"
+            )
+            catalogLink(
+                destination: HeaderPlaygroundView(),
+                systemImage: "rectangle.topthird.inset.filled",
+                title: "Header",
+                subtitle: "화면이 필요한 액션을 주입하는 Main, Sub 상단 헤더"
+            )
+            catalogLink(
+                destination: TodakHeaderPlaygroundView(),
+                systemImage: "bubble.left.and.text.bubble.right.fill",
+                title: "Todak Header",
+                subtitle: "AI 채팅 화면 상단에서 무료 채팅 횟수와 액션을 표시하는 헤더"
             )
             catalogLink(
                 destination: TooltipPlaygroundView(),
@@ -112,6 +130,28 @@ struct ComponentsCatalogView: View {
                 systemImage: "rectangle.center.inset.filled",
                 title: "Dialog",
                 subtitle: "본문과 보조 버튼을 선택적으로 제공하는 다이얼로그"
+                destination: ChatTypeBoxPlaygroundView(),
+                systemImage: "arrow.up.circle.fill",
+                title: "Chat Type Box",
+                subtitle: "질문 입력과 전송 동작을 제공하는 채팅 입력창"
+            )
+            catalogLink(
+                destination: UserChatPlaygroundView(),
+                systemImage: "bubble.right.fill",
+                title: "User Chat",
+                subtitle: "사용자 발화 내용을 우측 정렬로 표시하는 말풍선"
+            )
+            catalogLink(
+                destination: TodakExampleQuestionPlaygroundView(),
+                systemImage: "sparkles",
+                title: "Todak Example Question",
+                subtitle: "토닥이에게 보낼 예시 질문을 표시하는 말풍선"
+            )
+            catalogLink(
+                destination: ConversationHistoryListPlaygroundView(),
+                systemImage: "text.line.first.and.arrowtriangle.forward",
+                title: "Conversation History List",
+                subtitle: "대화 제목, 시간, 읽지 않은 상태와 삭제 동작을 표시하는 행"
             )
         }
     }
