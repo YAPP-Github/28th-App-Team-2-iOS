@@ -12,8 +12,9 @@ public struct DSWheelPickerPanel: View {
         public let headerHeight: CGFloat
         public let titleWidth: CGFloat
         public let headerGap: CGFloat
-        public let actionWidth: CGFloat
-        public let actionHeight: CGFloat
+        public let actionHorizontalPadding: CGFloat
+        public let actionVerticalPadding: CGFloat
+        public let actionShape: DSComponentShape
         public let headerToPickerSpacing: CGFloat
         public let bottomPadding: CGFloat
         public let sheetBottomSpacing: CGFloat
@@ -32,6 +33,7 @@ public struct DSWheelPickerPanel: View {
         public let dragIndicatorAsset: DesignSystemColors
         public let titleForegroundAsset: DesignSystemColors
         public let actionForegroundAsset: DesignSystemColors
+        public let actionPressedOverlay: DSPressedOverlay
     }
 
     public static func specification(
@@ -59,8 +61,9 @@ public struct DSWheelPickerPanel: View {
             headerHeight: 32,
             titleWidth: 220,
             headerGap: 28,
-            actionWidth: 44,
-            actionHeight: 31,
+            actionHorizontalPadding: 6,
+            actionVerticalPadding: 2.5,
+            actionShape: .capsule,
             headerToPickerSpacing: 28,
             bottomPadding: 40,
             sheetBottomSpacing: 40,
@@ -78,7 +81,8 @@ public struct DSWheelPickerPanel: View {
             dimmingAsset: DesignSystemAsset.Colors.opacity20,
             dragIndicatorAsset: DesignSystemAsset.Colors.gray200,
             titleForegroundAsset: DesignSystemAsset.Colors.black,
-            actionForegroundAsset: DesignSystemAsset.Colors.primary700
+            actionForegroundAsset: DesignSystemAsset.Colors.primary700,
+            actionPressedOverlay: .standard
         )
     }
 
@@ -149,23 +153,39 @@ public struct DSWheelPickerPanel: View {
             Text(title)
                 .dsFont(specification.titleFontStyle)
                 .foregroundStyle(specification.titleForegroundAsset.swiftUIColor)
+                .lineLimit(1)
+                .truncationMode(.tail)
                 .frame(
-                    maxWidth: .infinity,
-                    minHeight: specification.headerHeight,
-                    maxHeight: specification.headerHeight,
+                    width: specification.titleWidth,
+                    height: specification.headerHeight,
                     alignment: .leading
                 )
 
-            Button(actionTitle, action: onSave)
-                .buttonStyle(.plain)
-                .dsFont(specification.actionFontStyle)
-                .foregroundStyle(specification.actionForegroundAsset.swiftUIColor)
-                .frame(
-                    width: specification.actionWidth,
-                    height: specification.actionHeight
-                )
+            Button(action: onSave) {
+                Text(actionTitle)
+            }
+            .buttonStyle(DSWheelPickerPanelActionButtonStyle(specification: specification))
         }
         .frame(height: specification.headerHeight)
         .dsDebugDetailGeometry("DSWheelPickerPanel.Header")
+    }
+}
+
+private struct DSWheelPickerPanelActionButtonStyle: ButtonStyle {
+    let specification: DSWheelPickerPanel.Specification
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .dsFont(specification.actionFontStyle)
+            .foregroundStyle(specification.actionForegroundAsset.swiftUIColor)
+            .padding(.horizontal, specification.actionHorizontalPadding)
+            .padding(.vertical, specification.actionVerticalPadding)
+            .contentShape(specification.actionShape.swiftUIShape)
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: specification.actionShape,
+                specification: specification.actionPressedOverlay
+            )
+            .clipShape(specification.actionShape.swiftUIShape)
     }
 }

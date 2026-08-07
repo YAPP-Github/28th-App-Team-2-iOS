@@ -19,8 +19,9 @@ struct DSWheelPickerPanelSpecificationTests {
         #expect(specification.headerHeight == 32)
         #expect(specification.titleWidth == 220)
         #expect(specification.headerGap == 28)
-        #expect(specification.actionWidth == 44)
-        #expect(specification.actionHeight == 31)
+        #expect(specification.actionHorizontalPadding == 6)
+        #expect(specification.actionVerticalPadding == 2.5)
+        #expect(specification.actionShape == .capsule)
         #expect(specification.headerToPickerSpacing == 28)
         #expect(specification.bottomPadding == 40)
         #expect(specification.sheetBottomSpacing == 40)
@@ -57,6 +58,11 @@ struct DSWheelPickerPanelSpecificationTests {
             specification.actionForegroundAsset,
             DesignSystemAsset.Colors.primary700
         )
+        expectColorEqual(
+            specification.actionPressedOverlay.asset,
+            DesignSystemAsset.Colors.gray975
+        )
+        #expect(specification.actionPressedOverlay.opacity == 0.16)
     }
 
     @Test(

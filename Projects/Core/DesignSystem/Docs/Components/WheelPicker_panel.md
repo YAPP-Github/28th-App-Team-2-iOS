@@ -12,7 +12,7 @@ Figma 원본:
 
 - `DSWheelPickerPanel`은 Figma 루트 컴포넌트의 흰색 패널, Drag Indicator, 제목, 저장 버튼과 내부 Picker 배치를 구현합니다.
 - `.single`, `.time`, `.date` 레이아웃을 제공하며 각각 `DSSingleWheelPicker` 또는 `DSMultiWheelPicker`를 콘텐츠로 조합합니다.
-- 패널 제목과 저장 동작은 외부에서 입력합니다.
+- 패널 제목과 저장 동작은 외부에서 입력합니다. `actionTitle`은 `저장`, `완료`처럼 compact header에 맞는 짧은 한 줄 액션 문구로 사용합니다.
 - `dsWheelPickerSheet`는 화면 전체 modal host 안에 custom overlay로 패널을 표시합니다.
 - Sheet 표시 상태, 저장 이후 처리, 날짜 유효성 정책과 도메인 모델은 사용하는 Feature가 소유합니다.
 - 커스텀 Drag Indicator를 사용하므로 별도 벡터 에셋은 사용하지 않습니다.
@@ -34,7 +34,7 @@ Figma 원본:
 - Header: `292 × 32pt`
 - Title: `220pt`, `heading3Bold`, `black`
 - Header gap: `28pt`
-- Save action: `44 × 31pt`, `body1Medium`, `primary700`
+- Save action: `body1Medium`, `primary700`, 가로 `6pt`·세로 `2.5pt` 콘텐츠 여백, capsule; 고정 프레임 없이 텍스트 intrinsic size와 콘텐츠 여백으로 크기를 결정합니다. 기본 `저장` 텍스트에서는 결과 크기가 `44 × 31pt`이며, pressed 시 현재 콘텐츠 영역에 공통 `gray975` 16% overlay를 적용합니다.
 - Header → Picker: `28pt`
 - Picker → Panel bottom: `40pt`
 - Panel → Sheet bottom: `40pt`

@@ -21,7 +21,6 @@ struct DSTextFieldSpecificationTests {
 
         #expect(specification.placeholderFont == .body2Regular)
         expectColorEqual(specification.placeholderColor, DesignSystemAsset.Colors.gray600)
-        #expect(specification.cursorColorHex == "#0040FF")
 
         #expect(specification.showsClearButton == false)
         #expect(specification.clearIconPressedOverlay?.opacity == nil)

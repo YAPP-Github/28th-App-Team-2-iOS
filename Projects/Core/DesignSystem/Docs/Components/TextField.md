@@ -12,6 +12,7 @@
 - 화면은 `@FocusState` 바인딩을 `isFocused`로 전달해, 필요할 때 화면 정책에 맞춰 포커스를 해제할 수 있다.
 - Figma의 `focus`/`insert`와 `success`/`error`는 동시에 표시되는 조합 상태가 아니므로, Playground 검증 결과는 blur 시 확정한다. 편집 중에는 `focus` 또는 `insert`를 표시한다.
 - `insert` 상태의 clear 아이콘은 누르는 동안 `20×20pt` 레이아웃을 유지하고, 아이콘 이미지 자체에 `gray975` 색상을 `16%` opacity로 덮는다. 이 정책으로 아이콘 크기나 터치 영역을 확장하지 않는다.
+- Caret과 텍스트 선택 tint는 런타임에서 지정하지 않고 iOS의 기본 설정과 접근성·시스템 tint를 따릅니다. Figma에 보이는 `#0040FF` caret은 원본 디자인 상태 기록이며 앱이 강제하는 토큰이 아닙니다.
 
 ### Playground Validation Rule
 
