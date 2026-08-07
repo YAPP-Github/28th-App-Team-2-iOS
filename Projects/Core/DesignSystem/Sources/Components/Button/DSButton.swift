@@ -31,7 +31,7 @@ public struct DSButton: View {
         case .medium:
             height = 44
             iconSize = 16
-            fontStyle = .body3Medium
+            fontStyle = isEnabled ? .body3SemiBold : .body3Medium
         case .small:
             height = 32
             iconSize = 14

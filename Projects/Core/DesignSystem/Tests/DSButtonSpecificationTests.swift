@@ -44,7 +44,7 @@ struct DSButtonSpecificationTests {
         case .medium:
             #expect(specification.height == 44)
             #expect(specification.iconSize == 16)
-            #expect(specification.fontStyle == .body3Medium)
+            #expect(specification.fontStyle == (input.isEnabled ? .body3SemiBold : .body3Medium))
         case .small:
             #expect(specification.height == 32)
             #expect(specification.iconSize == 14)
