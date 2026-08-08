@@ -9,6 +9,29 @@ public struct OnboardingFeature {
         public var route: Route = .login
         public var loginPhase: LoginPhase = .idle
         public var onboardingToken: String?
+        public var onboardingStep: OnboardingStep = .terms
+        public var terms = OnboardingTerm.defaultTerms
+        public var selectedTermDetail: OnboardingTerm?
+        public var isOnboardingExitConfirmationPresented = false
+        public var onboardingName = ""
+
+        public var isAllTermsAgreed: Bool {
+            terms.allSatisfy(\.isAgreed)
+        }
+
+        public var areRequiredTermsAgreed: Bool {
+            terms
+                .filter(\.isRequired)
+                .allSatisfy(\.isAgreed)
+        }
+
+        public var isOnboardingNameValid: Bool {
+            onboardingName.count >= 1
+                && onboardingName.count <= 10
+                && onboardingName.unicodeScalars.allSatisfy { scalar in
+                    (0xAC00...0xD7A3).contains(scalar.value)
+                }
+        }
 
         public init() {}
     }
@@ -20,6 +43,17 @@ public struct OnboardingFeature {
         case tokenStorageSucceeded
         case tokenStorageFailed(TokenStoreError)
         case retryButtonTapped
+        case allTermsAgreementToggled(Bool)
+        case termAgreementToggled(OnboardingTerm.ID, Bool)
+        case termDetailButtonTapped(OnboardingTerm.ID)
+        case termDetailDismissed
+        case termsNextButtonTapped
+        case onboardingExitButtonTapped
+        case onboardingExitConfirmationDismissed
+        case onboardingExitConfirmed
+        case onboardingNameChanged(String)
+        case onboardingNameNextButtonTapped
+        case onboardingBackButtonTapped
         case debugPreviewButtonTapped(DebugPreview)
     }
 
@@ -65,6 +99,8 @@ public struct OnboardingFeature {
             case let .loginResponse(.success(.newMember(onboardingToken))):
                 state.onboardingToken = onboardingToken
                 state.route = .onboarding
+                state.onboardingStep = .terms
+                state.terms = OnboardingTerm.defaultTerms
                 state.loginPhase = .idle
                 return .none
 
@@ -97,9 +133,78 @@ public struct OnboardingFeature {
                 state.loginPhase = .idle
                 return .none
 
+            case let .allTermsAgreementToggled(isAgreed):
+                state.terms = state.terms.map { term in
+                    var updatedTerm = term
+                    updatedTerm.isAgreed = isAgreed
+                    return updatedTerm
+                }
+                return .none
+
+            case let .termAgreementToggled(termID, isAgreed):
+                guard let index = state.terms.firstIndex(where: { $0.id == termID }) else {
+                    return .none
+                }
+                state.terms[index].isAgreed = isAgreed
+                return .none
+
+            case let .termDetailButtonTapped(termID):
+                state.selectedTermDetail = state.terms.first(where: { $0.id == termID })
+                return .none
+
+            case .termDetailDismissed:
+                state.selectedTermDetail = nil
+                return .none
+
+            case .termsNextButtonTapped:
+                guard state.areRequiredTermsAgreed else { return .none }
+                state.onboardingStep = .name
+                return .none
+
+            case .onboardingExitButtonTapped:
+                state.isOnboardingExitConfirmationPresented = true
+                return .none
+
+            case .onboardingExitConfirmationDismissed:
+                state.isOnboardingExitConfirmationPresented = false
+                return .none
+
+            case .onboardingExitConfirmed:
+                // 임시 회원 삭제 API와 소셜 제공자 세션 해제 정책은 서버 계약 확인 후 연결한다.
+                // 여기서는 앱에만 보관된 온보딩 상태를 폐기한다.
+                state.route = .login
+                state.onboardingToken = nil
+                state.onboardingStep = .terms
+                state.terms = OnboardingTerm.defaultTerms
+                state.selectedTermDetail = nil
+                state.onboardingName = ""
+                state.isOnboardingExitConfirmationPresented = false
+                return .none
+
+            case let .onboardingNameChanged(name):
+                state.onboardingName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                return .none
+
+            case .onboardingNameNextButtonTapped:
+                // 운세 정보 입력 단계는 #60의 후속 화면 구현과 함께 연결한다.
+                return .none
+
+            case .onboardingBackButtonTapped:
+                switch state.onboardingStep {
+                case .terms:
+                    state.isOnboardingExitConfirmationPresented = true
+                case .name:
+                    state.onboardingStep = .terms
+                }
+                return .none
+
             case .debugPreviewButtonTapped(.newMember):
                 state.onboardingToken = nil
+                state.onboardingName = ""
                 state.route = .onboarding
+                state.onboardingStep = .terms
+                state.terms = OnboardingTerm.defaultTerms
+                state.selectedTermDetail = nil
                 return .none
 
             case .debugPreviewButtonTapped(.existingMember):
@@ -162,4 +267,60 @@ public enum LoginFailure: Equatable, Sendable {
 public enum DebugPreview: Equatable, Sendable {
     case newMember
     case existingMember
+}
+
+public enum OnboardingStep: Equatable, Sendable {
+    case terms
+    case name
+}
+
+public struct OnboardingTerm: Equatable, Identifiable, Sendable {
+    // swiftlint:disable:next identifier_name
+    public let id: String
+    public let title: String
+    public let detailURLString: String
+    public let isRequired: Bool
+    public var isAgreed: Bool
+
+    public init(
+        termID: String,
+        title: String,
+        detailURLString: String,
+        isRequired: Bool,
+        isAgreed: Bool = false
+    ) {
+        self.id = termID
+        self.title = title
+        self.detailURLString = detailURLString
+        self.isRequired = isRequired
+        self.isAgreed = isAgreed
+    }
+
+    // 서버의 약관 목록 API 계약이 확정되면 이 카탈로그를 TermsClient의 응답으로 교체한다.
+    public static let defaultTerms = [
+        OnboardingTerm(
+            termID: "service",
+            title: "서비스 이용약관 동의",
+            detailURLString: "https://app.notion.com/p/3b081c67484680aca6e5ec1d463c670d?source=copy_link",
+            isRequired: true
+        ),
+        OnboardingTerm(
+            termID: "privacy",
+            title: "개인정보 수집 및 이용",
+            detailURLString: "https://app.notion.com/p/3b081c6748468045a408eb20d27e2342?source=copy_link",
+            isRequired: true
+        ),
+        OnboardingTerm(
+            termID: "ai-personal-information-transfer",
+            title: "AI 사주 분석을 위한 개인정보 국외 이전 동의",
+            detailURLString: "https://app.notion.com/p/AI-3b281c67484680aaad1bf2c384d016e1?source=copy_link",
+            isRequired: true
+        ),
+        OnboardingTerm(
+            termID: "marketing",
+            title: "마케팅 정보 수신",
+            detailURLString: "https://app.notion.com/p/3b281c67484680e1812acb94654fdc31?source=copy_link",
+            isRequired: false
+        )
+    ]
 }
