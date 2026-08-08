@@ -172,6 +172,8 @@ struct ComponentsCatalogView: View {
                 systemImage: "rectangle.center.inset.filled",
                 title: "Dialog",
                 subtitle: "본문과 보조 버튼을 선택적으로 제공하는 다이얼로그"
+            )
+            catalogLink(
                 destination: ChatTypeBoxPlaygroundView(),
                 systemImage: "arrow.up.circle.fill",
                 title: "Chat Type Box",
