@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Model
 
 @Reducer
 public struct OnboardingFeature {
@@ -14,6 +15,11 @@ public struct OnboardingFeature {
         public var selectedTermDetail: OnboardingTerm?
         public var isOnboardingExitConfirmationPresented = false
         public var onboardingName = ""
+        public var gender: Gender?
+        public var birthDateCalendar: BirthDateCalendar?
+        public var birthDate: BirthDate?
+        public var birthTimePeriod: BirthTimePeriod?
+        public var isBirthTimeUnknown = false
 
         public var isAllTermsAgreed: Bool {
             terms.allSatisfy(\.isAgreed)
@@ -31,6 +37,13 @@ public struct OnboardingFeature {
                 && onboardingName.unicodeScalars.allSatisfy { scalar in
                     (0xAC00...0xD7A3).contains(scalar.value)
                 }
+        }
+
+        public var isFortuneInformationValid: Bool {
+            gender != nil
+                && birthDateCalendar != nil
+                && birthDate != nil
+                && (birthTimePeriod != nil || isBirthTimeUnknown)
         }
 
         public init() {}
@@ -53,6 +66,12 @@ public struct OnboardingFeature {
         case onboardingExitConfirmed
         case onboardingNameChanged(String)
         case onboardingNameNextButtonTapped
+        case genderChanged(Gender?)
+        case birthDateCalendarChanged(BirthDateCalendar?)
+        case birthDateChanged(BirthDate?)
+        case birthTimePeriodChanged(BirthTimePeriod?)
+        case birthTimeUnknownChanged(Bool)
+        case fortuneInformationNextButtonTapped
         case onboardingBackButtonTapped
         case debugPreviewButtonTapped(DebugPreview)
     }
@@ -101,6 +120,13 @@ public struct OnboardingFeature {
                 state.route = .onboarding
                 state.onboardingStep = .terms
                 state.terms = OnboardingTerm.defaultTerms
+                state.selectedTermDetail = nil
+                state.onboardingName = ""
+                state.gender = nil
+                state.birthDateCalendar = nil
+                state.birthDate = nil
+                state.birthTimePeriod = nil
+                state.isBirthTimeUnknown = false
                 state.loginPhase = .idle
                 return .none
 
@@ -178,6 +204,11 @@ public struct OnboardingFeature {
                 state.terms = OnboardingTerm.defaultTerms
                 state.selectedTermDetail = nil
                 state.onboardingName = ""
+                state.gender = nil
+                state.birthDateCalendar = nil
+                state.birthDate = nil
+                state.birthTimePeriod = nil
+                state.isBirthTimeUnknown = false
                 state.isOnboardingExitConfirmationPresented = false
                 return .none
 
@@ -186,7 +217,39 @@ public struct OnboardingFeature {
                 return .none
 
             case .onboardingNameNextButtonTapped:
-                // 운세 정보 입력 단계는 #60의 후속 화면 구현과 함께 연결한다.
+                guard state.isOnboardingNameValid else { return .none }
+                state.onboardingStep = .fortuneInformation
+                return .none
+
+            case let .genderChanged(gender):
+                state.gender = gender
+                return .none
+
+            case let .birthDateCalendarChanged(calendar):
+                state.birthDateCalendar = calendar
+                return .none
+
+            case let .birthDateChanged(birthDate):
+                state.birthDate = birthDate
+                return .none
+
+            case let .birthTimePeriodChanged(period):
+                state.birthTimePeriod = period
+                if period != nil {
+                    state.isBirthTimeUnknown = false
+                }
+                return .none
+
+            case let .birthTimeUnknownChanged(isUnknown):
+                state.isBirthTimeUnknown = isUnknown
+                if isUnknown {
+                    state.birthTimePeriod = nil
+                }
+                return .none
+
+            case .fortuneInformationNextButtonTapped:
+                guard state.isFortuneInformationValid else { return .none }
+                // 사용자 상태 입력 화면은 다음 #60 구현 단계에서 연결한다.
                 return .none
 
             case .onboardingBackButtonTapped:
@@ -195,12 +258,19 @@ public struct OnboardingFeature {
                     state.isOnboardingExitConfirmationPresented = true
                 case .name:
                     state.onboardingStep = .terms
+                case .fortuneInformation:
+                    state.onboardingStep = .name
                 }
                 return .none
 
             case .debugPreviewButtonTapped(.newMember):
                 state.onboardingToken = nil
                 state.onboardingName = ""
+                state.gender = nil
+                state.birthDateCalendar = nil
+                state.birthDate = nil
+                state.birthTimePeriod = nil
+                state.isBirthTimeUnknown = false
                 state.route = .onboarding
                 state.onboardingStep = .terms
                 state.terms = OnboardingTerm.defaultTerms
@@ -272,6 +342,7 @@ public enum DebugPreview: Equatable, Sendable {
 public enum OnboardingStep: Equatable, Sendable {
     case terms
     case name
+    case fortuneInformation
 }
 
 public struct OnboardingTerm: Equatable, Identifiable, Sendable {

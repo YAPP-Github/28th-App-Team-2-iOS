@@ -28,6 +28,8 @@ public struct OnboardingView: View {
             termsAgreementView
         case .name:
             onboardingNameView
+        case .fortuneInformation:
+            FortuneInformationView(store: store)
         }
     }
 

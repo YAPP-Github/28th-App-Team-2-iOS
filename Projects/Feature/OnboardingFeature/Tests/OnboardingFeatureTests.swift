@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Model
 import XCTest
 @testable import OnboardingFeature
 
@@ -169,5 +170,42 @@ final class OnboardingFeatureTests: XCTestCase {
             $0.onboardingName = "Todakun"
         }
         XCTAssertFalse(store.state.isOnboardingNameValid)
+    }
+
+    func testNameNextMovesToFortuneInformation() async {
+        var initialState = OnboardingFeature.State()
+        initialState.onboardingStep = .name
+        initialState.onboardingName = "홍길동"
+        let store = TestStore(initialState: initialState) {
+            OnboardingFeature()
+        }
+
+        await store.send(.onboardingNameNextButtonTapped) {
+            $0.onboardingStep = .fortuneInformation
+        }
+    }
+
+    func testFortuneInformationRequiresTimeOrUnknownTime() async {
+        var initialState = OnboardingFeature.State()
+        initialState.onboardingStep = .fortuneInformation
+        let store = TestStore(initialState: initialState) {
+            OnboardingFeature()
+        }
+
+        await store.send(.genderChanged(.female)) {
+            $0.gender = .female
+        }
+        await store.send(.birthDateCalendarChanged(.solar)) {
+            $0.birthDateCalendar = .solar
+        }
+        await store.send(.birthDateChanged(BirthDate(year: 1999, month: 2, day: 13))) {
+            $0.birthDate = BirthDate(year: 1999, month: 2, day: 13)
+        }
+        XCTAssertFalse(store.state.isFortuneInformationValid)
+
+        await store.send(.birthTimeUnknownChanged(true)) {
+            $0.isBirthTimeUnknown = true
+        }
+        XCTAssertTrue(store.state.isFortuneInformationValid)
     }
 }
