@@ -210,8 +210,6 @@ public struct DSEnterTimeOfBirth: View {
             Text("시간 모름")
                 .dsFont(specification.labelFontStyle)
                 .foregroundStyle(specification.labelForegroundAsset.swiftUIColor)
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
         }
         .background(
             specification.shape.swiftUIShape
