@@ -27,4 +27,25 @@ struct DSCheckboxSpecificationTests {
             #expect(specification.iconTintAsset == nil)
         }
     }
+
+    @Test("Checkbox Row 레이아웃 스펙 매핑 검증")
+    func testRowSpecification() {
+        let specification = DSCheckboxRow.specification(
+            indicatorPlacement: .trailing,
+            minimumIndicatorSpacing: 12
+        )
+
+        #expect(specification.indicatorPlacement == .trailing)
+        #expect(specification.minimumIndicatorSpacing == 12)
+    }
+
+    @Test("Checkbox Row 최소 간격을 음수가 아닌 값으로 정규화")
+    func testRowMinimumIndicatorSpacingNormalization() {
+        let specification = DSCheckboxRow.specification(
+            indicatorPlacement: .leading,
+            minimumIndicatorSpacing: -1
+        )
+
+        #expect(specification.minimumIndicatorSpacing == 0)
+    }
 }

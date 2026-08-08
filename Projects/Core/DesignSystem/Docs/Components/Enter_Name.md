@@ -4,6 +4,14 @@
 
 ![Enter Name](../Images/Enter_Name.png)
 
+## Runtime Contract
+
+- 구현 타입은 `DSEnterName`이며 이름 문자열, validation 상태와 선택적 focus binding을 외부에서 입력받습니다.
+- 레이블은 `이름`, placeholder는 `예) 홍길동`으로 고정하며 호출자가 다른 문구를 주입하지 않습니다.
+- 입력, focus, clear, success, error 렌더링은 하위 `DSTextField`에 위임합니다.
+- validation에 따른 오류 문구와 추가 높이는 `DSTextField` 계약을 따르며 이 컴포넌트가 별도로 재정의하지 않습니다.
+- 컴포넌트 너비는 고정하지 않고 부모가 제안한 너비를 채웁니다.
+
 ## 🏗️ Structure & Layout
 
 - 🖼️ **Enter Name** (COMPONENT) `W: 353.0, H: 90.0`

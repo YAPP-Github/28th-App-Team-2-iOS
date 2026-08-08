@@ -30,6 +30,12 @@ struct ComponentsCatalogView: View {
                 subtitle: "단일 선택 여부를 토글하는 체크박스 컴포넌트"
             )
             catalogLink(
+                destination: CheckboxRowPlaygroundView(),
+                systemImage: "checkmark.rectangle.stack.fill",
+                title: "Checkbox Row",
+                subtitle: "행 전체 탭과 leading·trailing checkbox 배치를 제공하는 조합 컨트롤"
+            )
+            catalogLink(
                 destination: DividerPlaygroundView(),
                 systemImage: "minus",
                 title: "Divider",
@@ -88,6 +94,42 @@ struct ComponentsCatalogView: View {
                 systemImage: "bubble.left.and.text.bubble.right.fill",
                 title: "Todak Header",
                 subtitle: "AI 채팅 화면 상단에서 무료 채팅 횟수와 액션을 표시하는 헤더"
+            )
+            catalogLink(
+                destination: EnterNamePlaygroundView(),
+                systemImage: "person.text.rectangle.fill",
+                title: "Enter Name",
+                subtitle: "이름 레이블과 TextField를 조합한 입력 폼"
+            )
+            catalogLink(
+                destination: SelectGenderPlaygroundView(),
+                systemImage: "person.2.fill",
+                title: "Select Gender",
+                subtitle: "남성·여성 중 하나를 선택하는 입력 폼"
+            )
+            catalogLink(
+                destination: SelectRelationshipPlaygroundView(),
+                systemImage: "person.3.fill",
+                title: "Select Relationship",
+                subtitle: "연인·친구·동료 관계를 선택하는 입력 폼"
+            )
+            catalogLink(
+                destination: SelectLunarOrSolarCalendarPlaygroundView(),
+                systemImage: "calendar.badge.clock",
+                title: "Select Lunar or Solar Calendar",
+                subtitle: "양력·음력 중 하나를 선택하는 입력 폼"
+            )
+            catalogLink(
+                destination: EnterDateOfBirthPlaygroundView(),
+                systemImage: "calendar",
+                title: "Enter Date of Birth",
+                subtitle: "생년월일 SelectField와 날짜 WheelPicker 조합"
+            )
+            catalogLink(
+                destination: EnterTimeOfBirthPlaygroundView(),
+                systemImage: "clock.fill",
+                title: "Enter Time of Birth",
+                subtitle: "출생시간 SelectField, Checkbox와 시간 WheelPicker 조합"
             )
             catalogLink(
                 destination: TooltipPlaygroundView(),

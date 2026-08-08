@@ -26,6 +26,19 @@ struct DSSelectBoxStyle: ToggleStyle {
                     )
                 }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSSelectBoxButtonStyle(specification: specification))
+    }
+}
+
+private struct DSSelectBoxButtonStyle: ButtonStyle {
+    let specification: DSSelectBox.Specification
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: specification.shape,
+                specification: specification.pressedOverlay
+            )
     }
 }

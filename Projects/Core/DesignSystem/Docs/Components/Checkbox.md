@@ -7,7 +7,11 @@
 ## Runtime Interaction Contract
 
 - On/Off 여부와 무관하게 누르는 동안 기존 Checkbox 배경 위에 `gray975` 색상을 `16%` opacity로 덮는다.
-- 오버레이는 기존 `20×20pt` 사각 영역에만 적용하며 크기나 터치 영역을 변경하지 않는다.
+- 기본 `DSCheckbox(isOn:)`은 Figma와 동일한 `20×20pt` 컨트롤입니다.
+- 라벨 조합이 필요하면 `DSCheckbox`에 `labelSpacing`, `contentInsets`, `@ViewBuilder label`을 전달합니다. indicator와 라벨은 중첩 컨트롤 없이 하나의 Toggle interaction을 공유하며, 터치 영역은 조합된 content 전체로 확장됩니다. 이는 `DSEnterTimeOfBirth`처럼 내용의 intrinsic width를 사용하는 compact 조합에 적합합니다.
+- 부모 너비를 채우고 indicator를 행의 양 끝 중 하나에 고정해야 하면 `DSCheckboxRow`를 사용합니다. `indicatorPlacement`과 0 이상인 `minimumIndicatorSpacing`을 전달하며, 여유 폭은 label이 차지하고 지정한 간격보다 가까워지지 않습니다. 행 전체는 하나의 Toggle interaction을 공유합니다.
+- `DSCheckboxRow`는 행운 액션처럼 카드 내부 콘텐츠와 checkbox를 배치하는 layout component입니다. 카드의 배경·padding·label 내부 구성은 호출부가 소유합니다.
+- 두 조합형 모두 pressed overlay는 기존 `20×20pt` indicator에만 적용하며 크기나 터치 영역을 변경하지 않습니다.
 
 ## 🏗️ Structure & Layout
 

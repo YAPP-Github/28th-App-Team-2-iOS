@@ -19,4 +19,5 @@
 - 텍스트는 `Body1/Medium (18/26)`을 사용하며 48pt 컨테이너 안에서 수직 중앙 정렬합니다.
 - 좌우 콘텐츠 인셋은 16pt이며, 상하 padding보다 48pt 고정 높이를 우선합니다.
 - 고정 너비를 갖지 않으며 부모가 제안한 너비를 채웁니다. 사용처는 `frame(width:)` 등으로 너비를 결정합니다.
-- Figma에 정의되지 않은 pressed·disabled 상태는 추가하지 않습니다.
+- `ButtonStyle.Configuration.isPressed`를 사용해 전체 컨테이너에 공통 pressed overlay(`gray975`, opacity 0.16)를 렌더링합니다. 레이아웃과 터치 영역은 바꾸지 않습니다.
+- Figma에 정의되지 않은 disabled 상태는 추가하지 않습니다.
