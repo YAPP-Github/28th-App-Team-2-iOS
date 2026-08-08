@@ -30,6 +30,12 @@ struct ComponentsCatalogView: View {
                 subtitle: "단일 선택 여부를 토글하는 체크박스 컴포넌트"
             )
             catalogLink(
+                destination: CheckboxRowPlaygroundView(),
+                systemImage: "checkmark.rectangle.stack.fill",
+                title: "Checkbox Row",
+                subtitle: "행 전체 탭과 leading·trailing checkbox 배치를 제공하는 조합 컨트롤"
+            )
+            catalogLink(
                 destination: DividerPlaygroundView(),
                 systemImage: "minus",
                 title: "Divider",

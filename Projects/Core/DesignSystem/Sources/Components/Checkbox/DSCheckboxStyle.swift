@@ -82,17 +82,101 @@ private struct DSCheckboxButtonStyle: ButtonStyle {
     let showsLabel: Bool
 
     func makeBody(configuration: Configuration) -> some View {
-        HStack(spacing: showsLabel ? labelSpacing : 0) {
-            DSCheckbox.indicator(
-                isOn: isOn,
-                isPressed: configuration.isPressed
+        DSCheckboxControlContent(
+            isOn: isOn,
+            isPressed: configuration.isPressed,
+            indicatorPlacement: .leading,
+            indicatorSpacing: showsLabel ? labelSpacing : 0,
+            contentInsets: contentInsets,
+            expandsLabel: false,
+            showsLabel: showsLabel,
+            label: showsLabel
+                ? AnyView(configuration.label)
+                : AnyView(EmptyView())
+        )
+    }
+}
+
+struct DSCheckboxRowStyle: ToggleStyle {
+    let specification: DSCheckboxRow.Specification
+
+    func makeBody(configuration: Configuration) -> some View {
+        Button {
+            configuration.isOn.toggle()
+        } label: {
+            configuration.label
+        }
+        .buttonStyle(
+            DSCheckboxRowButtonStyle(
+                isOn: configuration.isOn,
+                specification: specification
             )
+        )
+        .accessibilityValue(configuration.isOn ? "선택됨" : "선택 안 됨")
+    }
+}
+
+private struct DSCheckboxRowButtonStyle: ButtonStyle {
+    let isOn: Bool
+    let specification: DSCheckboxRow.Specification
+
+    func makeBody(configuration: Configuration) -> some View {
+        DSCheckboxControlContent(
+            isOn: isOn,
+            isPressed: configuration.isPressed,
+            indicatorPlacement: specification.indicatorPlacement,
+            indicatorSpacing: specification.minimumIndicatorSpacing,
+            contentInsets: EdgeInsets(),
+            expandsLabel: true,
+            showsLabel: true,
+            label: AnyView(configuration.label)
+        )
+    }
+}
+
+private struct DSCheckboxControlContent: View {
+    let isOn: Bool
+    let isPressed: Bool
+    let indicatorPlacement: DSCheckboxRow.IndicatorPlacement
+    let indicatorSpacing: CGFloat
+    let contentInsets: EdgeInsets
+    let expandsLabel: Bool
+    let showsLabel: Bool
+    let label: AnyView
+
+    var body: some View {
+        HStack(spacing: indicatorSpacing) {
+            if indicatorPlacement == .leading {
+                indicator
+            }
 
             if showsLabel {
-                configuration.label
+                label
+                    .frame(
+                        maxWidth: expandsLabel ? .infinity : nil,
+                        alignment: .leading
+                    )
+                    .dsDebugDetailGeometry(
+                        expandsLabel ? "DSCheckboxRow.Label" : "DSCheckbox.Label"
+                    )
+            }
+
+            if indicatorPlacement == .trailing {
+                indicator
             }
         }
         .padding(contentInsets)
+        .frame(
+            maxWidth: expandsLabel ? .infinity : nil,
+            alignment: .leading
+        )
         .contentShape(Rectangle())
+    }
+
+    private var indicator: some View {
+        DSCheckbox.indicator(
+            isOn: isOn,
+            isPressed: isPressed
+        )
     }
 }

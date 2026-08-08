@@ -71,3 +71,63 @@ public struct DSCheckbox: View {
         .dsDebugGeometry("DSCheckbox")
     }
 }
+
+/// 부모가 제공하는 너비를 채우며 checkbox indicator를 행의 양 끝 중 하나에 배치하는 조합 컨트롤입니다.
+///
+/// 행의 배경, 여백, 레이블 내부 구성은 호출부가 소유합니다.
+public struct DSCheckboxRow: View {
+    public enum IndicatorPlacement: CaseIterable, Hashable, Sendable {
+        case leading
+        case trailing
+    }
+
+    public struct Specification: Sendable {
+        public let indicatorPlacement: IndicatorPlacement
+        public let minimumIndicatorSpacing: CGFloat
+    }
+
+    public static func specification(
+        indicatorPlacement: IndicatorPlacement,
+        minimumIndicatorSpacing: CGFloat
+    ) -> Specification {
+        Specification(
+            indicatorPlacement: indicatorPlacement,
+            minimumIndicatorSpacing: max(0, minimumIndicatorSpacing)
+        )
+    }
+
+    @Binding private var isOn: Bool
+    private let label: AnyView
+    private let indicatorPlacement: IndicatorPlacement
+    private let minimumIndicatorSpacing: CGFloat
+
+    public init<Label: View>(
+        isOn: Binding<Bool>,
+        indicatorPlacement: IndicatorPlacement = .leading,
+        minimumIndicatorSpacing: CGFloat,
+        @ViewBuilder label: () -> Label
+    ) {
+        self._isOn = isOn
+        self.label = AnyView(label())
+        self.indicatorPlacement = indicatorPlacement
+        self.minimumIndicatorSpacing = minimumIndicatorSpacing
+    }
+
+    public var body: some View {
+        let specification = Self.specification(
+            indicatorPlacement: indicatorPlacement,
+            minimumIndicatorSpacing: minimumIndicatorSpacing
+        )
+
+        Toggle(isOn: $isOn) {
+            label
+        }
+        .toggleStyle(
+            DSCheckboxRowStyle(
+                specification: specification
+            )
+        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .dsDebugGeometry("DSCheckboxRow")
+    }
+}
