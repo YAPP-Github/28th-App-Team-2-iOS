@@ -29,6 +29,12 @@ public extension AuthClient {
 
     static func live(httpClient: HTTPClient) -> Self {
         Self { credential in
+            authDebugLog(
+                "로그인 요청 시작 | provider=\(credential.provider.rawValue) | "
+                    + "OAuth credential 수신=\(!credential.oauthAccessToken.isEmpty) | "
+                    + "authorization code 수신=\(credential.authorizationCode != nil)"
+            )
+
             let endpoint = try Endpoint.post(
                 "/api/v1/auth/login",
                 body: LoginRequestDTO(credential: credential)
@@ -38,17 +44,36 @@ public extension AuthClient {
                 let response: CommonResponseDTO<LoginResponseDTO> = try await httpClient.request(endpoint)
 
                 guard response.success, let data = response.data else {
+                    authDebugLog(
+                        "로그인 응답 형식 확인 실패 | success=\(response.success) | data 존재=\(response.data != nil)"
+                    )
                     throw AuthClientError.invalidResponse
                 }
 
-                return try data.toDomain()
+                let result = try data.toDomain()
+                switch result {
+                case .newMember:
+                    authDebugLog("로그인 응답 수신 | 신규 회원 | onboardingToken 수신=true")
+                case .existingMember:
+                    authDebugLog("로그인 응답 수신 | 기존 회원 | access/refresh token 수신=true")
+                }
+
+                return result
             } catch let error as HTTPClientError {
+                if case let .unacceptableStatusCode(code, _) = error {
+                    authDebugLog("로그인 요청 실패 | HTTP status=\(code)")
+                } else {
+                    authDebugLog("로그인 요청 실패 | 네트워크 또는 응답 디코딩 오류")
+                }
                 throw AuthClientError(error)
             } catch let error as AuthClientError {
+                authDebugLog("로그인 요청 실패 | 인증 응답 검증 오류=\(String(describing: error))")
                 throw error
             } catch is CancellationError {
+                authDebugLog("로그인 요청 취소")
                 throw AuthClientError.cancelled
             } catch {
+                authDebugLog("로그인 요청 실패 | 알 수 없는 오류")
                 throw AuthClientError.requestFailed
             }
         }
@@ -132,4 +157,10 @@ private struct LoginResponseDTO: Decodable {
 
         throw AuthClientError.invalidResponse
     }
+}
+
+private func authDebugLog(_ message: String) {
+#if DEBUG
+    print("[Auth] \(message)")
+#endif
 }

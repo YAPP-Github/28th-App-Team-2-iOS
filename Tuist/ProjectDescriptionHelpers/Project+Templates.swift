@@ -109,8 +109,14 @@ public extension Project {
                 ]),
                 sources: ["Sources/**"],
                 resources: resources,
+                entitlements: .file(path: .relativeToRoot("Projects/App/Todakun.entitlements")),
                 dependencies: dependencies,
                 settings: .settings(
+                    base: [
+                        // GoogleSignIn의 AppAuth는 Objective-C category로 iOS authorization
+                        // presenter를 제공합니다. 정적 링크 시 category object가 제거되지 않도록 합니다.
+                        "OTHER_LDFLAGS": "$(inherited) -ObjC"
+                    ],
                     configurations: [
                         .debug(
                             name: "Debug",
