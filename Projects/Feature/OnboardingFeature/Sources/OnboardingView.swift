@@ -4,7 +4,11 @@ import SwiftUI
 import WebKit
 
 public struct OnboardingView: View {
-    @Bindable private var store: StoreOf<OnboardingFeature>
+    @Bindable var store: StoreOf<OnboardingFeature>
+
+    #if DEBUG
+    @State var isDebugPreviewSheetPresented = false
+    #endif
 
     public init(store: StoreOf<OnboardingFeature>) {
         self.store = store
@@ -103,9 +107,6 @@ public struct OnboardingView: View {
                 .padding(.top, 20)
             }
 
-            #if DEBUG
-            debugPreviewButtons
-            #endif
         }
         .padding(.horizontal, 20)
         .padding(.top, 52)
@@ -118,6 +119,14 @@ public struct OnboardingView: View {
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
             }
         }
+        #if DEBUG
+        .overlay(alignment: .topTrailing) {
+            debugPreviewMenuButton
+        }
+        .sheet(isPresented: $isDebugPreviewSheetPresented) {
+            debugPreviewSheet
+        }
+        #endif
     }
 
     private func socialLoginButton(_ configuration: SocialLoginButtonConfiguration) -> some View {
@@ -194,25 +203,6 @@ public struct OnboardingView: View {
         return title
     }
 
-    #if DEBUG
-    private var debugPreviewButtons: some View {
-        VStack(spacing: 8) {
-            Text("개발용 흐름 미리 보기")
-                .dsCaption1Medium
-                .foregroundStyle(Color.ds.gray500)
-            Button("신규 회원 온보딩 보기") {
-                store.send(.debugPreviewButtonTapped(.newMember))
-            }
-            Button("기존 회원 홈 보기") {
-                store.send(.debugPreviewButtonTapped(.existingMember))
-            }
-            Button("회원가입 처리 화면 보기") {
-                store.send(.debugPreviewButtonTapped(.signupLoading))
-            }
-        }
-        .padding(.top, 24)
-    }
-    #endif
 }
 
 private struct SocialLoginButtonConfiguration {
