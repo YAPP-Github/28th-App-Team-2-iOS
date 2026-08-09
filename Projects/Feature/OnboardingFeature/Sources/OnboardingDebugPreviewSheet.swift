@@ -17,7 +17,13 @@ extension OnboardingView {
         .accessibilityLabel("개발용 흐름 미리 보기")
     }
 
-    var debugPreviewSheet: some View {
+}
+
+struct DebugPreviewSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let onSelect: (DebugPreview) -> Void
+
+    var body: some View {
         NavigationStack {
             List {
                 Section("흐름 미리 보기") {
@@ -31,7 +37,7 @@ extension OnboardingView {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("닫기") {
-                        isDebugPreviewSheetPresented = false
+                        dismiss()
                     }
                 }
             }
@@ -41,8 +47,8 @@ extension OnboardingView {
 
     private func debugPreviewAction(_ title: String, destination: DebugPreview) -> some View {
         Button(title) {
-            isDebugPreviewSheetPresented = false
-            store.send(.debugPreviewButtonTapped(destination))
+            onSelect(destination)
+            dismiss()
         }
     }
 }

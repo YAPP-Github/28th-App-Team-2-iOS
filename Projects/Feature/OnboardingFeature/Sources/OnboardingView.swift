@@ -8,6 +8,7 @@ public struct OnboardingView: View {
 
     #if DEBUG
     @State var isDebugPreviewSheetPresented = false
+    @State var pendingDebugPreview: DebugPreview?
     #endif
 
     public init(store: StoreOf<OnboardingFeature>) {
@@ -15,6 +16,21 @@ public struct OnboardingView: View {
     }
 
     public var body: some View {
+        onboardingContent
+        #if DEBUG
+            .sheet(
+                isPresented: $isDebugPreviewSheetPresented,
+                onDismiss: applyPendingDebugPreview
+            ) {
+                DebugPreviewSheet { preview in
+                    pendingDebugPreview = preview
+                }
+            }
+        #endif
+    }
+
+    @ViewBuilder
+    private var onboardingContent: some View {
         switch store.route {
         case .login:
             loginView
@@ -111,7 +127,8 @@ public struct OnboardingView: View {
         .padding(.horizontal, 20)
         .padding(.top, 52)
         .padding(.bottom, 78)
-        .background(Color.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.white.ignoresSafeArea())
         .overlay {
             if store.loginPhase.isLoading {
                 ProgressView("로그인 중…")
@@ -122,12 +139,19 @@ public struct OnboardingView: View {
         #if DEBUG
         .overlay(alignment: .topTrailing) {
             debugPreviewMenuButton
-        }
-        .sheet(isPresented: $isDebugPreviewSheetPresented) {
-            debugPreviewSheet
+                .padding(.top, 12)
+                .padding(.trailing, 20)
         }
         #endif
     }
+
+    #if DEBUG
+    private func applyPendingDebugPreview() {
+        guard let pendingDebugPreview else { return }
+        self.pendingDebugPreview = nil
+        store.send(.debugPreviewButtonTapped(pendingDebugPreview))
+    }
+    #endif
 
     private func socialLoginButton(_ configuration: SocialLoginButtonConfiguration) -> some View {
         Button {
