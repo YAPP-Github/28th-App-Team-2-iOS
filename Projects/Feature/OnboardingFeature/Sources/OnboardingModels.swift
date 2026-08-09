@@ -1,3 +1,5 @@
+import AuthSession
+
 public enum Route: Equatable, Sendable {
     case login
     case onboarding
@@ -64,7 +66,7 @@ public enum SignupFailure: Equatable, Sendable {
 public enum LoginFailure: Equatable, Sendable {
     case socialLogin(SocialLoginError)
     case serverLogin(AuthClientError)
-    case tokenStorage(TokenStoreError)
+    case tokenStorage(AuthSessionError)
 
     public var message: String {
         switch self {

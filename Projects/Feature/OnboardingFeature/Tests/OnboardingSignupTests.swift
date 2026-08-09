@@ -1,3 +1,4 @@
+import AuthSession
 import ComposableArchitecture
 import Foundation
 import Model
@@ -29,7 +30,7 @@ final class OnboardingSignupTests: XCTestCase {
                 return tokens
             }
             $0.notificationAuthorizationClient.requestAuthorization = { true }
-            $0.tokenStore.save = { savedTokens in
+            $0.authSession.save = { savedTokens in
                 XCTAssertEqual(savedTokens, tokens)
             }
         }
@@ -50,6 +51,7 @@ final class OnboardingSignupTests: XCTestCase {
             $0.signupPhase = .idle
             $0.route = .home
         }
+        await store.receive(.delegate(.authenticationCompleted))
     }
 
     func testNotificationAuthorizationDenialStillCompletesOnboarding() async {
@@ -70,6 +72,7 @@ final class OnboardingSignupTests: XCTestCase {
             $0.signupPhase = .idle
             $0.route = .home
         }
+        await store.receive(.delegate(.authenticationCompleted))
     }
 
     func testLiveSignupClientEncodesSwaggerSchema() async throws {
@@ -103,6 +106,39 @@ final class OnboardingSignupTests: XCTestCase {
 
         let payload = try JSONDecoder().decode(SignupRequestBody.self, from: try XCTUnwrap(request?.httpBody))
         XCTAssertEqual(payload, SignupRequestBody(input: expectedSignupInput))
+    }
+
+    func testLiveRefreshClientRotatesSessionTokens() async throws {
+        let recorder = RequestRecorder()
+        let httpClient = HTTPClient(
+            baseURL: try XCTUnwrap(URL(string: "https://api-dev.todakun.com")),
+            transport: { request in
+                await recorder.record(request)
+                let responseData = Data(
+                    """
+                    {"success":true,"data":{"accessToken":"new-access","refreshToken":"new-refresh"}}
+                    """.utf8
+                )
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(fileURLWithPath: "/"),
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (responseData, response)
+            }
+        )
+
+        let tokens = try await AuthClient.live(httpClient: httpClient).refresh("old-refresh")
+
+        XCTAssertEqual(tokens, SessionTokens(accessToken: "new-access", refreshToken: "new-refresh"))
+        let request = await recorder.value()
+        XCTAssertEqual(request?.url?.path, "/api/v1/auth/refresh")
+        let body = try JSONDecoder().decode(
+            RefreshRequestBody.self,
+            from: try XCTUnwrap(request?.httpBody)
+        )
+        XCTAssertEqual(body.refreshToken, "old-refresh")
     }
 }
 
@@ -149,4 +185,8 @@ private struct SignupRequestBody: Decodable, Equatable {
         job = input.job
         relationshipStatus = input.relationshipStatus
     }
+}
+
+private struct RefreshRequestBody: Decodable, Equatable {
+    let refreshToken: String
 }

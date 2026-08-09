@@ -1,3 +1,4 @@
+import AuthSession
 import ComposableArchitecture
 import Model
 
@@ -73,7 +74,7 @@ public struct OnboardingFeature {
         case socialLoginResponse(Result<SocialCredential, SocialLoginError>)
         case loginResponse(Result<AuthLoginResult, AuthClientError>)
         case tokenStorageSucceeded
-        case tokenStorageFailed(TokenStoreError)
+        case tokenStorageFailed(AuthSessionError)
         case retryButtonTapped
         case allTermsAgreementToggled(Bool)
         case termAgreementToggled(OnboardingTerm.ID, Bool)
@@ -96,18 +97,23 @@ public struct OnboardingFeature {
         case userStatusNextButtonTapped
         case signupResponse(Result<SessionTokens, AuthClientError>)
         case signupTokenStorageSucceeded
-        case signupTokenStorageFailed(TokenStoreError)
+        case signupTokenStorageFailed(AuthSessionError)
         case notificationAuthorizationResponse(Bool)
         case signupRetryButtonTapped
         case onboardingBackButtonTapped
         case debugPreviewButtonTapped(DebugPreview)
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case authenticationCompleted
+        }
     }
 
     @Dependency(\.authClient) var authClient
+    @Dependency(\.authSession) var authSession
     @Dependency(\.date.now) var now
     @Dependency(\.notificationAuthorizationClient) var notificationAuthorizationClient
     @Dependency(\.socialLoginClient) private var socialLoginClient
-    @Dependency(\.tokenStore) var tokenStore
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -210,10 +216,10 @@ private extension OnboardingFeature {
 
             return .run { send in
                 do {
-                    try tokenStore.save(tokens)
+                    try await authSession.save(tokens)
                     await send(.tokenStorageSucceeded)
                 } catch {
-                    await send(.tokenStorageFailed(TokenStoreError(error)))
+                    await send(.tokenStorageFailed(AuthSessionError(error, fallback: .saveFailed)))
                 }
             }
 
@@ -224,7 +230,7 @@ private extension OnboardingFeature {
         case .tokenStorageSucceeded:
             state.route = .home
             state.loginPhase = .idle
-            return .none
+            return .send(.delegate(.authenticationCompleted))
 
         case let .tokenStorageFailed(error):
             state.loginPhase = .failed(.tokenStorage(error))
@@ -359,7 +365,7 @@ private extension OnboardingFeature {
         case .debugPreviewButtonTapped(.existingMember):
             state.onboardingToken = nil
             state.route = .home
-            return .none
+            return .send(.delegate(.authenticationCompleted))
 
         case .debugPreviewButtonTapped(.signupLoading):
             state.pendingSignupTokens = nil

@@ -1,3 +1,4 @@
+import AuthSession
 import ComposableArchitecture
 import Foundation
 import NetworkCore
@@ -5,15 +6,20 @@ import NetworkCore
 public struct AuthClient: Sendable {
     public var login: @Sendable (SocialCredential) async throws -> AuthLoginResult
     public var signup: @Sendable (SignupInput) async throws -> SessionTokens
+    public var refresh: @Sendable (String) async throws -> SessionTokens
 
     public init(
         login: @escaping @Sendable (SocialCredential) async throws -> AuthLoginResult,
         signup: @escaping @Sendable (SignupInput) async throws -> SessionTokens = { _ in
             throw AuthClientError.notConfigured
+        },
+        refresh: @escaping @Sendable (String) async throws -> SessionTokens = { _ in
+            throw AuthClientError.notConfigured
         }
     ) {
         self.login = login
         self.signup = signup
+        self.refresh = refresh
     }
 }
 
@@ -37,8 +43,34 @@ public extension AuthClient {
     static func live(httpClient: HTTPClient) -> Self {
         Self(
             login: { try await performLogin(httpClient: httpClient, credential: $0) },
-            signup: { try await performSignup(httpClient: httpClient, input: $0) }
+            signup: { try await performSignup(httpClient: httpClient, input: $0) },
+            refresh: { try await performRefresh(httpClient: httpClient, refreshToken: $0) }
         )
+    }
+}
+
+private func performRefresh(
+    httpClient: HTTPClient,
+    refreshToken: String
+) async throws -> SessionTokens {
+    let endpoint = try Endpoint.post(
+        "/api/v1/auth/refresh",
+        body: RefreshRequestDTO(refreshToken: refreshToken)
+    )
+
+    do {
+        let response: CommonResponseDTO<RefreshResponseDTO> = try await httpClient.request(endpoint)
+
+        guard response.success,
+              let data = response.data,
+              !data.accessToken.isEmpty,
+              !data.refreshToken.isEmpty else {
+            throw AuthClientError.invalidResponse
+        }
+
+        return SessionTokens(accessToken: data.accessToken, refreshToken: data.refreshToken)
+    } catch {
+        throw mapAuthRequestError(error, operation: "토큰 갱신")
     }
 }
 
@@ -133,16 +165,6 @@ private extension AuthLoginResult {
     }
 }
 
-public struct SessionTokens: Equatable, Sendable {
-    public let accessToken: String
-    public let refreshToken: String
-
-    public init(accessToken: String, refreshToken: String) {
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
-    }
-}
-
 public struct SignupInput: Equatable, Sendable {
     public let onboardingToken: String
     public let name: String
@@ -230,6 +252,10 @@ private struct SignupRequestDTO: Encodable {
     }
 }
 
+private struct RefreshRequestDTO: Encodable {
+    let refreshToken: String
+}
+
 private struct CommonResponseDTO<Data: Decodable>: Decodable {
     let success: Bool
     let data: Data?
@@ -261,6 +287,11 @@ private struct LoginResponseDTO: Decodable {
 }
 
 private struct SignupResponseDTO: Decodable {
+    let accessToken: String
+    let refreshToken: String
+}
+
+private struct RefreshResponseDTO: Decodable {
     let accessToken: String
     let refreshToken: String
 }

@@ -1,3 +1,4 @@
+import AuthSession
 import ComposableArchitecture
 import Foundation
 import Model
@@ -37,7 +38,7 @@ final class OnboardingFeatureTests: XCTestCase {
         } withDependencies: {
             $0.socialLoginClient.signIn = { _ in credential }
             $0.authClient.login = { _ in .existingMember(tokens) }
-            $0.tokenStore.save = { savedTokens in
+            $0.authSession.save = { savedTokens in
                 XCTAssertEqual(savedTokens, tokens)
             }
         }
@@ -55,6 +56,7 @@ final class OnboardingFeatureTests: XCTestCase {
             $0.loginPhase = .idle
             $0.route = .home
         }
+        await store.receive(.delegate(.authenticationCompleted))
     }
 
     func testCancelledSocialLoginReturnsToIdleWithoutError() async {

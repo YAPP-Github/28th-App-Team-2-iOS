@@ -85,9 +85,10 @@ public extension Project {
     static func makeApp(
         name: String,
         dependencies: [TargetDependency] = [],
-        resources: ResourceFileElements? = ["Resources/**"]
+        resources: ResourceFileElements? = ["Resources/**"],
+        hasTests: Bool = false
     ) -> Project {
-        let targets = [
+        var targets = [
             Target.target(
                 name: name,
                 destinations: .iOS,
@@ -133,6 +134,22 @@ public extension Project {
                 )
             )
         ]
+
+        if hasTests {
+            targets.append(
+                .target(
+                    name: "\(name)Tests",
+                    destinations: .iOS,
+                    product: .unitTests,
+                    bundleId: "\(bundleIdPrefix).Tests",
+                    deploymentTargets: .iOS("17.0"),
+                    infoPlist: .default,
+                    sources: ["Tests/**"],
+                    dependencies: [.target(name: name)]
+                )
+            )
+        }
+
         return Project(name: name, targets: targets)
     }
 
@@ -189,6 +206,7 @@ public extension Project {
             .target(name: interfaceName),
             .project(target: "DesignSystem", path: .relativeToRoot("Projects/Core/DesignSystem")),
             .project(target: "NetworkCore", path: .relativeToRoot("Projects/Core/NetworkCore")),
+            .project(target: "AuthSession", path: .relativeToRoot("Projects/Core/AuthSession")),
             .project(target: "Model", path: .relativeToRoot("Projects/Core/Model")),
             .project(target: "Utils", path: .relativeToRoot("Projects/Core/Utils")),
             .external(name: "ComposableArchitecture")

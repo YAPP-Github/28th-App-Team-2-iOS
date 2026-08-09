@@ -1,3 +1,4 @@
+import AuthSession
 import ComposableArchitecture
 import Foundation
 import Model
@@ -30,7 +31,7 @@ extension OnboardingFeature {
         case .notificationAuthorizationResponse:
             state.signupPhase = .idle
             state.route = .home
-            return .none
+            return .send(.delegate(.authenticationCompleted))
 
         case .signupTokenStorageFailed:
             state.signupPhase = .failed(.tokenStorage)
@@ -69,10 +70,10 @@ extension OnboardingFeature {
     func saveSignupTokensEffect(_ tokens: SessionTokens) -> Effect<Action> {
         .run { send in
             do {
-                try tokenStore.save(tokens)
+                try await authSession.save(tokens)
                 await send(.signupTokenStorageSucceeded)
             } catch {
-                await send(.signupTokenStorageFailed(TokenStoreError(error)))
+                await send(.signupTokenStorageFailed(AuthSessionError(error, fallback: .saveFailed)))
             }
         }
     }

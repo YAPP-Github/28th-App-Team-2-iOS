@@ -1,3 +1,4 @@
+import AuthSession
 import ComposableArchitecture
 import OnboardingFeature
 import SwiftUI
@@ -11,7 +12,7 @@ struct ExampleContentView: View {
         } withDependencies: {
             $0.authClient = .onboardingExample
             $0.socialLoginClient = .onboardingExample
-            $0.tokenStore = .onboardingExample
+            $0.authSession = .noSession
         }
     }
 
@@ -67,8 +68,4 @@ private extension SocialLoginClient {
             authorizationCode: provider == .apple ? "example-authorization-code" : nil
         )
     }
-}
-
-private extension TokenStore {
-    static let onboardingExample = Self { _ in }
 }
