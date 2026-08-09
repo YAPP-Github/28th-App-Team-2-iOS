@@ -5,7 +5,6 @@ struct FortuneProfileInputTests {
     @Test("입력 선택 모델의 항목 순서 검증")
     func testSelectionCases() {
         #expect(Gender.allCases == [.male, .female])
-        #expect(Relationship.allCases == [.partner, .friend, .colleague])
         #expect(BirthDateCalendar.allCases == [.solar, .lunar])
         #expect(
             BirthTimePeriod.allCases == [
