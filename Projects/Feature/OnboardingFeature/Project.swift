@@ -10,5 +10,8 @@ let project = Project.makeFeature(
         .external(name: "KakaoSDKUser")
     ],
     resources: ["Resources/**"],
-    hasExample: true
+    hasExample: true,
+    exampleInfoPlist: .extendingDefault(with: [
+        "CFBundleDisplayName": "토닥운"
+    ])
 )

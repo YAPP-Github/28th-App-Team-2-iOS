@@ -15,7 +15,8 @@ public extension Project {
         hasTests: Bool = true,
         testDependencies: [TargetDependency] = [],
         hasExample: Bool = false,
-        exampleDependencies: [TargetDependency] = []
+        exampleDependencies: [TargetDependency] = [],
+        exampleInfoPlist: InfoPlist? = nil
     ) -> [Target] {
         var targets: [Target] = []
 
@@ -66,7 +67,7 @@ public extension Project {
                     product: .app,
                     bundleId: "\(bundleId)Example",
                     deploymentTargets: deploymentTargets,
-                    infoPlist: .extendingDefault(with: [
+                    infoPlist: exampleInfoPlist ?? .extendingDefault(with: [
                         "UILaunchScreen": [:]
                     ]),
                     sources: ["Example/Sources/**"],
@@ -140,7 +141,8 @@ public extension Project {
         dependencies: [TargetDependency] = [],
         resources: ResourceFileElements? = nil,
         hasTesting: Bool = true,
-        hasExample: Bool = true
+        hasExample: Bool = true,
+        exampleInfoPlist: InfoPlist? = nil
     ) -> Project {
         let targetBundleId = "\(bundleIdPrefix).\(name)"
         var projectTargets: [Target] = []
@@ -201,7 +203,8 @@ public extension Project {
             hasTests: true,
             testDependencies: testDependencies,
             hasExample: hasExample,
-            exampleDependencies: exampleDependencies
+            exampleDependencies: exampleDependencies,
+            exampleInfoPlist: exampleInfoPlist
         )
         projectTargets.append(contentsOf: implementationTargets)
 

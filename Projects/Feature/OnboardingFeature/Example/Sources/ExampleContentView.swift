@@ -3,22 +3,42 @@ import OnboardingFeature
 import SwiftUI
 
 struct ExampleContentView: View {
-    private let store: StoreOf<OnboardingFeature>
+    @Bindable private var store: StoreOf<OnboardingFeature>
 
     init() {
         store = Store(initialState: OnboardingFeature.State()) {
             OnboardingFeature()
         } withDependencies: {
             $0.authClient = .onboardingExample
-            $0.notificationAuthorizationClient = .onboardingExample
             $0.socialLoginClient = .onboardingExample
             $0.tokenStore = .onboardingExample
         }
     }
 
     var body: some View {
-        OnboardingView(store: store)
-            .preferredColorScheme(.light)
+        Group {
+            switch store.route {
+            case .home:
+                completionView
+            case .login, .onboarding:
+                OnboardingView(store: store)
+            }
+        }
+        .preferredColorScheme(.light)
+    }
+
+    private var completionView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.green)
+            Text("데모 가입이 완료됐어요")
+                .font(.title2.bold())
+            Text("앱을 다시 실행하면 처음부터 반복할 수 있어요.")
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.white)
     }
 }
 
@@ -28,7 +48,8 @@ private extension AuthClient {
             .newMember(onboardingToken: "example-onboarding-token")
         },
         signup: { _ in
-            SessionTokens(
+            try await Task.sleep(for: .seconds(1))
+            return SessionTokens(
                 accessToken: "example-access-token",
                 refreshToken: "example-refresh-token"
             )
@@ -48,8 +69,4 @@ private extension SocialLoginClient {
 
 private extension TokenStore {
     static let onboardingExample = Self { _ in }
-}
-
-private extension NotificationAuthorizationClient {
-    static let onboardingExample = Self { false }
 }
