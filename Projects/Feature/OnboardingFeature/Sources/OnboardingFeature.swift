@@ -9,7 +9,9 @@ public struct OnboardingFeature {
     public struct State: Equatable {
         public var route: Route = .login
         public var loginPhase: LoginPhase = .idle
+        public var signupPhase: SignupPhase = .idle
         public var onboardingToken: String?
+        public var pendingSignupTokens: SessionTokens?
         public var onboardingStep: OnboardingStep = .terms
         public var terms = OnboardingTerm.defaultTerms
         public var selectedTermDetail: OnboardingTerm?
@@ -18,8 +20,11 @@ public struct OnboardingFeature {
         public var gender: Gender?
         public var birthDateCalendar: BirthDateCalendar?
         public var birthDate: BirthDate?
+        public var birthDateAgeValidationMessage: String?
         public var birthTimePeriod: BirthTimePeriod?
         public var isBirthTimeUnknown = false
+        public var dailyRoutine: DailyRoutine?
+        public var romanticRelationshipStatus: RomanticRelationshipStatus?
 
         public var isAllTermsAgreed: Bool {
             terms.allSatisfy(\.isAgreed)
@@ -32,18 +37,32 @@ public struct OnboardingFeature {
         }
 
         public var isOnboardingNameValid: Bool {
-            onboardingName.count >= 1
-                && onboardingName.count <= 10
-                && onboardingName.unicodeScalars.allSatisfy { scalar in
-                    (0xAC00...0xD7A3).contains(scalar.value)
-                }
+            !onboardingName.isEmpty && onboardingNameValidationMessage == nil
+        }
+
+        public var onboardingNameValidationMessage: String? {
+            guard onboardingName.count <= 10 else {
+                return "이름은 최대 10글자까지 가능해요."
+            }
+            guard onboardingName.unicodeScalars.allSatisfy({ scalar in
+                (0xAC00 ... 0xD7A3).contains(scalar.value)
+            }) else {
+                return "이름은 한글만 가능해요."
+            }
+            return nil
         }
 
         public var isFortuneInformationValid: Bool {
-            gender != nil
-                && birthDateCalendar != nil
-                && birthDate != nil
-                && (birthTimePeriod != nil || isBirthTimeUnknown)
+            gender != nil && birthDateCalendar != nil && birthDate != nil
+                && birthDateAgeValidationMessage == nil && (birthTimePeriod != nil || isBirthTimeUnknown)
+        }
+
+        public var isUserStatusValid: Bool {
+            dailyRoutine != nil && romanticRelationshipStatus != nil
+        }
+
+        public var isSignupReady: Bool {
+            signupInput != nil
         }
 
         public init() {}
@@ -72,326 +91,300 @@ public struct OnboardingFeature {
         case birthTimePeriodChanged(BirthTimePeriod?)
         case birthTimeUnknownChanged(Bool)
         case fortuneInformationNextButtonTapped
+        case dailyRoutineChanged(DailyRoutine)
+        case romanticRelationshipStatusChanged(RomanticRelationshipStatus)
+        case userStatusNextButtonTapped
+        case signupResponse(Result<SessionTokens, AuthClientError>)
+        case signupTokenStorageSucceeded
+        case signupTokenStorageFailed(TokenStoreError)
+        case signupRetryButtonTapped
         case onboardingBackButtonTapped
         case debugPreviewButtonTapped(DebugPreview)
     }
 
-    @Dependency(\.authClient) private var authClient
+    @Dependency(\.authClient) var authClient
+    @Dependency(\.date.now) var now
     @Dependency(\.socialLoginClient) private var socialLoginClient
-    @Dependency(\.tokenStore) private var tokenStore
+    @Dependency(\.tokenStore) var tokenStore
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
-            switch action {
-            case let .socialLoginButtonTapped(provider):
-                state.loginPhase = .authenticating(provider)
+            reduceSocialLogin(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceServerSession(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceTerms(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceName(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceFortuneInformation(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceUserStatus(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceSignup(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceSignupRetry(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceNavigation(into: &state, action: action)
+        }
+        Reduce { state, action in
+            reduceBackNavigation(into: &state, action: action)
+        }
+    }
+}
 
-                return .run { send in
-                    await send(
-                        .socialLoginResponse(
-                            Result { try await socialLoginClient.signIn(provider) }
-                                .mapError(SocialLoginError.init)
-                        )
+private extension OnboardingFeature {
+    func reduceSocialLogin(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case let .socialLoginButtonTapped(provider):
+            state.loginPhase = .authenticating(provider)
+
+            return .run { send in
+                await send(
+                    .socialLoginResponse(
+                        Result { try await socialLoginClient.signIn(provider) }
+                            .mapError(SocialLoginError.init)
                     )
-                }
+                )
+            }
 
-            case let .socialLoginResponse(.success(credential)):
-                state.loginPhase = .authenticatingWithServer
+        case let .socialLoginResponse(.success(credential)):
+            state.loginPhase = .authenticatingWithServer
 
-                return .run { send in
-                    await send(
-                        .loginResponse(
-                            Result { try await authClient.login(credential) }
-                                .mapError(AuthClientError.init)
-                        )
+            return .run { send in
+                await send(
+                    .loginResponse(
+                        Result { try await authClient.login(credential) }
+                            .mapError(AuthClientError.init)
                     )
+                )
+            }
+
+        case .socialLoginResponse(.failure(.cancelled)):
+            state.loginPhase = .idle
+            return .none
+
+        case let .socialLoginResponse(.failure(error)):
+            state.loginPhase = .failed(.socialLogin(error))
+            return .none
+
+        default:
+            return .none
+        }
+    }
+
+    func reduceServerSession(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case let .loginResponse(.success(.newMember(onboardingToken))):
+            state.onboardingToken = onboardingToken
+            state.pendingSignupTokens = nil
+            state.signupPhase = .idle
+            state.route = .onboarding
+            state.onboardingStep = .terms
+            state.terms = OnboardingTerm.defaultTerms
+            state.selectedTermDetail = nil
+            state.onboardingName = ""
+            state.gender = nil
+            state.birthDateCalendar = nil
+            state.birthDate = nil
+            state.birthDateAgeValidationMessage = nil
+            state.birthTimePeriod = nil
+            state.isBirthTimeUnknown = false
+            state.dailyRoutine = nil
+            state.romanticRelationshipStatus = nil
+            state.loginPhase = .idle
+            return .none
+
+        case let .loginResponse(.success(.existingMember(tokens))):
+            state.loginPhase = .savingSession
+
+            return .run { send in
+                do {
+                    try tokenStore.save(tokens)
+                    await send(.tokenStorageSucceeded)
+                } catch {
+                    await send(.tokenStorageFailed(TokenStoreError(error)))
                 }
+            }
 
-            case .socialLoginResponse(.failure(.cancelled)):
-                state.loginPhase = .idle
-                return .none
+        case let .loginResponse(.failure(error)):
+            state.loginPhase = .failed(.serverLogin(error))
+            return .none
 
-            case let .socialLoginResponse(.failure(error)):
-                state.loginPhase = .failed(.socialLogin(error))
-                return .none
+        case .tokenStorageSucceeded:
+            state.route = .home
+            state.loginPhase = .idle
+            return .none
 
-            case let .loginResponse(.success(.newMember(onboardingToken))):
-                state.onboardingToken = onboardingToken
-                state.route = .onboarding
-                state.onboardingStep = .terms
-                state.terms = OnboardingTerm.defaultTerms
-                state.selectedTermDetail = nil
-                state.onboardingName = ""
-                state.gender = nil
-                state.birthDateCalendar = nil
-                state.birthDate = nil
-                state.birthTimePeriod = nil
-                state.isBirthTimeUnknown = false
-                state.loginPhase = .idle
-                return .none
+        case let .tokenStorageFailed(error):
+            state.loginPhase = .failed(.tokenStorage(error))
+            return .none
 
-            case let .loginResponse(.success(.existingMember(tokens))):
-                state.loginPhase = .savingSession
+        case .retryButtonTapped:
+            state.loginPhase = .idle
+            return .none
 
-                return .run { send in
-                    do {
-                        try tokenStore.save(tokens)
-                        await send(.tokenStorageSucceeded)
-                    } catch {
-                        await send(.tokenStorageFailed(TokenStoreError(error)))
-                    }
-                }
+        default:
+            return .none
+        }
+    }
 
-            case let .loginResponse(.failure(error)):
-                state.loginPhase = .failed(.serverLogin(error))
-                return .none
+    func reduceTerms(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case let .allTermsAgreementToggled(isAgreed):
+            state.terms = state.terms.map { term in
+                var updatedTerm = term
+                updatedTerm.isAgreed = isAgreed
+                return updatedTerm
+            }
+            return .none
 
-            case .tokenStorageSucceeded:
-                state.route = .home
-                state.loginPhase = .idle
-                return .none
-
-            case let .tokenStorageFailed(error):
-                state.loginPhase = .failed(.tokenStorage(error))
-                return .none
-
-            case .retryButtonTapped:
-                state.loginPhase = .idle
-                return .none
-
-            case let .allTermsAgreementToggled(isAgreed):
-                state.terms = state.terms.map { term in
-                    var updatedTerm = term
-                    updatedTerm.isAgreed = isAgreed
-                    return updatedTerm
-                }
-                return .none
-
-            case let .termAgreementToggled(termID, isAgreed):
-                guard let index = state.terms.firstIndex(where: { $0.id == termID }) else {
-                    return .none
-                }
-                state.terms[index].isAgreed = isAgreed
-                return .none
-
-            case let .termDetailButtonTapped(termID):
-                state.selectedTermDetail = state.terms.first(where: { $0.id == termID })
-                return .none
-
-            case .termDetailDismissed:
-                state.selectedTermDetail = nil
-                return .none
-
-            case .termsNextButtonTapped:
-                guard state.areRequiredTermsAgreed else { return .none }
-                state.onboardingStep = .name
-                return .none
-
-            case .onboardingExitButtonTapped:
-                state.isOnboardingExitConfirmationPresented = true
-                return .none
-
-            case .onboardingExitConfirmationDismissed:
-                state.isOnboardingExitConfirmationPresented = false
-                return .none
-
-            case .onboardingExitConfirmed:
-                // 임시 회원 삭제 API와 소셜 제공자 세션 해제 정책은 서버 계약 확인 후 연결한다.
-                // 여기서는 앱에만 보관된 온보딩 상태를 폐기한다.
-                state.route = .login
-                state.onboardingToken = nil
-                state.onboardingStep = .terms
-                state.terms = OnboardingTerm.defaultTerms
-                state.selectedTermDetail = nil
-                state.onboardingName = ""
-                state.gender = nil
-                state.birthDateCalendar = nil
-                state.birthDate = nil
-                state.birthTimePeriod = nil
-                state.isBirthTimeUnknown = false
-                state.isOnboardingExitConfirmationPresented = false
-                return .none
-
-            case let .onboardingNameChanged(name):
-                state.onboardingName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-                return .none
-
-            case .onboardingNameNextButtonTapped:
-                guard state.isOnboardingNameValid else { return .none }
-                state.onboardingStep = .fortuneInformation
-                return .none
-
-            case let .genderChanged(gender):
-                state.gender = gender
-                return .none
-
-            case let .birthDateCalendarChanged(calendar):
-                state.birthDateCalendar = calendar
-                return .none
-
-            case let .birthDateChanged(birthDate):
-                state.birthDate = birthDate
-                return .none
-
-            case let .birthTimePeriodChanged(period):
-                state.birthTimePeriod = period
-                if period != nil {
-                    state.isBirthTimeUnknown = false
-                }
-                return .none
-
-            case let .birthTimeUnknownChanged(isUnknown):
-                state.isBirthTimeUnknown = isUnknown
-                if isUnknown {
-                    state.birthTimePeriod = nil
-                }
-                return .none
-
-            case .fortuneInformationNextButtonTapped:
-                guard state.isFortuneInformationValid else { return .none }
-                // 사용자 상태 입력 화면은 다음 #60 구현 단계에서 연결한다.
-                return .none
-
-            case .onboardingBackButtonTapped:
-                switch state.onboardingStep {
-                case .terms:
-                    state.isOnboardingExitConfirmationPresented = true
-                case .name:
-                    state.onboardingStep = .terms
-                case .fortuneInformation:
-                    state.onboardingStep = .name
-                }
-                return .none
-
-            case .debugPreviewButtonTapped(.newMember):
-                state.onboardingToken = nil
-                state.onboardingName = ""
-                state.gender = nil
-                state.birthDateCalendar = nil
-                state.birthDate = nil
-                state.birthTimePeriod = nil
-                state.isBirthTimeUnknown = false
-                state.route = .onboarding
-                state.onboardingStep = .terms
-                state.terms = OnboardingTerm.defaultTerms
-                state.selectedTermDetail = nil
-                return .none
-
-            case .debugPreviewButtonTapped(.existingMember):
-                state.onboardingToken = nil
-                state.route = .home
+        case let .termAgreementToggled(termID, isAgreed):
+            guard let index = state.terms.firstIndex(where: { $0.id == termID }) else {
                 return .none
             }
+            state.terms[index].isAgreed = isAgreed
+            return .none
+
+        case let .termDetailButtonTapped(termID):
+            state.selectedTermDetail = state.terms.first(where: { $0.id == termID })
+            return .none
+
+        case .termDetailDismissed:
+            state.selectedTermDetail = nil
+            return .none
+
+        case .termsNextButtonTapped:
+            guard state.areRequiredTermsAgreed else { return .none }
+            state.onboardingStep = .name
+            return .none
+
+        default:
+            return .none
         }
     }
-}
 
-public enum Route: Equatable, Sendable {
-    case login
-    case onboarding
-    case home
-}
+    func reduceName(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case let .onboardingNameChanged(name):
+            state.onboardingName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            return .none
 
-public enum LoginPhase: Equatable, Sendable {
-    case idle
-    case authenticating(SocialProvider)
-    case authenticatingWithServer
-    case savingSession
-    case failed(LoginFailure)
+        case .onboardingNameNextButtonTapped:
+            guard state.isOnboardingNameValid else { return .none }
+            state.onboardingStep = .fortuneInformation
+            return .none
 
-    public var isLoading: Bool {
-        switch self {
-        case .authenticating, .authenticatingWithServer, .savingSession:
-            true
-        case .idle, .failed:
-            false
+        default:
+            return .none
         }
     }
-}
 
-public enum LoginFailure: Equatable, Sendable {
-    case socialLogin(SocialLoginError)
-    case serverLogin(AuthClientError)
-    case tokenStorage(TokenStoreError)
+    func reduceUserStatus(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case let .dailyRoutineChanged(routine):
+            state.dailyRoutine = routine
+            return .none
 
-    public var message: String {
-        switch self {
-        case .socialLogin(.notConfigured):
-            "로그인 설정이 아직 준비되지 않았어요. 설정 후 다시 시도해 주세요."
-        case .socialLogin(.cancelled):
-            "로그인이 취소되었어요."
-        case .socialLogin:
-            "소셜 로그인을 완료하지 못했어요. 다시 시도해 주세요."
-        case .serverLogin(.expired):
-            "로그인 정보가 만료되었어요. 다시 로그인해 주세요."
-        case .serverLogin(.notConfigured):
-            "서버 주소 설정이 필요해요."
-        case .serverLogin:
-            "서버와 연결하지 못했어요. 잠시 후 다시 시도해 주세요."
-        case .tokenStorage:
-            "로그인 정보를 안전하게 저장하지 못했어요. 다시 시도해 주세요."
+        case let .romanticRelationshipStatusChanged(status):
+            state.romanticRelationshipStatus = status
+            return .none
+
+        default:
+            return .none
         }
     }
-}
 
-public enum DebugPreview: Equatable, Sendable {
-    case newMember
-    case existingMember
-}
+    func reduceNavigation(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .onboardingExitButtonTapped:
+            state.isOnboardingExitConfirmationPresented = true
+            return .none
 
-public enum OnboardingStep: Equatable, Sendable {
-    case terms
-    case name
-    case fortuneInformation
-}
+        case .onboardingExitConfirmationDismissed:
+            state.isOnboardingExitConfirmationPresented = false
+            return .none
 
-public struct OnboardingTerm: Equatable, Identifiable, Sendable {
-    // swiftlint:disable:next identifier_name
-    public let id: String
-    public let title: String
-    public let detailURLString: String
-    public let isRequired: Bool
-    public var isAgreed: Bool
+        case .onboardingExitConfirmed:
+            // 임시 회원 삭제 API와 소셜 제공자 세션 해제 정책은 서버 계약 확인 후 연결한다.
+            // 여기서는 앱에만 보관된 온보딩 상태를 폐기한다.
+            state.route = .login
+            state.onboardingToken = nil
+            state.pendingSignupTokens = nil
+            state.signupPhase = .idle
+            state.onboardingStep = .terms
+            state.terms = OnboardingTerm.defaultTerms
+            state.selectedTermDetail = nil
+            state.onboardingName = ""
+            state.gender = nil
+            state.birthDateCalendar = nil
+            state.birthDate = nil
+            state.birthDateAgeValidationMessage = nil
+            state.birthTimePeriod = nil
+            state.isBirthTimeUnknown = false
+            state.dailyRoutine = nil
+            state.romanticRelationshipStatus = nil
+            state.isOnboardingExitConfirmationPresented = false
+            return .none
 
-    public init(
-        termID: String,
-        title: String,
-        detailURLString: String,
-        isRequired: Bool,
-        isAgreed: Bool = false
-    ) {
-        self.id = termID
-        self.title = title
-        self.detailURLString = detailURLString
-        self.isRequired = isRequired
-        self.isAgreed = isAgreed
+        case .debugPreviewButtonTapped(.newMember):
+            state.onboardingToken = nil
+            state.pendingSignupTokens = nil
+            state.signupPhase = .idle
+            state.onboardingName = ""
+            state.gender = nil
+            state.birthDateCalendar = nil
+            state.birthDate = nil
+            state.birthDateAgeValidationMessage = nil
+            state.birthTimePeriod = nil
+            state.isBirthTimeUnknown = false
+            state.dailyRoutine = nil
+            state.romanticRelationshipStatus = nil
+            state.route = .onboarding
+            state.onboardingStep = .terms
+            state.terms = OnboardingTerm.defaultTerms
+            state.selectedTermDetail = nil
+            return .none
+
+        case .debugPreviewButtonTapped(.existingMember):
+            state.onboardingToken = nil
+            state.route = .home
+            return .none
+
+        case .debugPreviewButtonTapped(.signupLoading):
+            state.pendingSignupTokens = nil
+            state.route = .onboarding
+            state.onboardingStep = .userStatus
+            state.signupPhase = .signingUp
+            return .none
+
+        default:
+            return .none
+        }
     }
 
-    // 서버의 약관 목록 API 계약이 확정되면 이 카탈로그를 TermsClient의 응답으로 교체한다.
-    public static let defaultTerms = [
-        OnboardingTerm(
-            termID: "service",
-            title: "서비스 이용약관 동의",
-            detailURLString: "https://app.notion.com/p/3b081c67484680aca6e5ec1d463c670d?source=copy_link",
-            isRequired: true
-        ),
-        OnboardingTerm(
-            termID: "privacy",
-            title: "개인정보 수집 및 이용",
-            detailURLString: "https://app.notion.com/p/3b081c6748468045a408eb20d27e2342?source=copy_link",
-            isRequired: true
-        ),
-        OnboardingTerm(
-            termID: "ai-personal-information-transfer",
-            title: "AI 사주 분석을 위한 개인정보 국외 이전 동의",
-            detailURLString: "https://app.notion.com/p/AI-3b281c67484680aaad1bf2c384d016e1?source=copy_link",
-            isRequired: true
-        ),
-        OnboardingTerm(
-            termID: "marketing",
-            title: "마케팅 정보 수신",
-            detailURLString: "https://app.notion.com/p/3b281c67484680e1812acb94654fdc31?source=copy_link",
-            isRequired: false
-        )
-    ]
+    func reduceBackNavigation(into state: inout State, action: Action) -> Effect<Action> {
+        guard case .onboardingBackButtonTapped = action else { return .none }
+
+        switch state.onboardingStep {
+        case .terms:
+            state.isOnboardingExitConfirmationPresented = true
+        case .name:
+            state.onboardingStep = .terms
+        case .fortuneInformation:
+            state.onboardingStep = .name
+        case .userStatus:
+            state.onboardingStep = .fortuneInformation
+        }
+        return .none
+    }
+
 }

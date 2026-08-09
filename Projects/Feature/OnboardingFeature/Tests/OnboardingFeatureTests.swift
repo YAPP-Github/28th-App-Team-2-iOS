@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Foundation
 import Model
 import XCTest
 @testable import OnboardingFeature
@@ -170,6 +171,19 @@ final class OnboardingFeatureTests: XCTestCase {
             $0.onboardingName = "Todakun"
         }
         XCTAssertFalse(store.state.isOnboardingNameValid)
+        XCTAssertEqual(store.state.onboardingNameValidationMessage, "이름은 한글만 가능해요.")
+
+        await store.send(.onboardingNameChanged("가나다라마바사아자차카")) {
+            $0.onboardingName = "가나다라마바사아자차카"
+        }
+        XCTAssertFalse(store.state.isOnboardingNameValid)
+        XCTAssertEqual(store.state.onboardingNameValidationMessage, "이름은 최대 10글자까지 가능해요.")
+
+        await store.send(.onboardingNameChanged("홍길동!")) {
+            $0.onboardingName = "홍길동!"
+        }
+        XCTAssertFalse(store.state.isOnboardingNameValid)
+        XCTAssertEqual(store.state.onboardingNameValidationMessage, "이름은 한글만 가능해요.")
     }
 
     func testNameNextMovesToFortuneInformation() async {
@@ -190,6 +204,8 @@ final class OnboardingFeatureTests: XCTestCase {
         initialState.onboardingStep = .fortuneInformation
         let store = TestStore(initialState: initialState) {
             OnboardingFeature()
+        } withDependencies: {
+            $0.date.now = Date(timeIntervalSince1970: 1_800_000_000)
         }
 
         await store.send(.genderChanged(.female)) {
@@ -207,5 +223,39 @@ final class OnboardingFeatureTests: XCTestCase {
             $0.isBirthTimeUnknown = true
         }
         XCTAssertTrue(store.state.isFortuneInformationValid)
+
+        await store.send(.fortuneInformationNextButtonTapped) {
+            $0.onboardingStep = .userStatus
+        }
+    }
+
+    func testUserStatusRequiresBothAnswers() async {
+        var initialState = OnboardingFeature.State()
+        initialState.onboardingStep = .userStatus
+        let store = TestStore(initialState: initialState) {
+            OnboardingFeature()
+        }
+
+        await store.send(.dailyRoutineChanged(.employed)) {
+            $0.dailyRoutine = .employed
+        }
+        XCTAssertFalse(store.state.isUserStatusValid)
+
+        await store.send(.romanticRelationshipStatusChanged(.single)) {
+            $0.romanticRelationshipStatus = .single
+        }
+        XCTAssertTrue(store.state.isUserStatusValid)
+    }
+
+    func testDebugSignupLoadingPreviewUsesProductionLoadingState() async {
+        let store = TestStore(initialState: OnboardingFeature.State()) {
+            OnboardingFeature()
+        }
+
+        await store.send(.debugPreviewButtonTapped(.signupLoading)) {
+            $0.route = .onboarding
+            $0.onboardingStep = .userStatus
+            $0.signupPhase = .signingUp
+        }
     }
 }

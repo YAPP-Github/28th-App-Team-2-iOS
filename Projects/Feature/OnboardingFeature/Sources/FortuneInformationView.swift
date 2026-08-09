@@ -26,18 +26,26 @@ struct FortuneInformationView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-                    Text("정확한 운세를 위해,\n태어난 정보가 필요해요.")
+                    Text(fortuneInformationTitle)
                         .dsHeading2SemiBold
-                        .foregroundStyle(Color.ds.gray975)
 
                     DSSelectGender(selection: genderBinding)
                     DSSelectLunarOrSolarCalendar(selection: birthDateCalendarBinding)
-                    DSEnterDateOfBirth(
-                        selection: birthDateBinding,
-                        isFocused: isBirthDatePickerPresented
-                    ) {
-                        prepareBirthDatePicker()
-                        isBirthDatePickerPresented = true
+                    VStack(alignment: .leading, spacing: 8) {
+                        DSEnterDateOfBirth(
+                            selection: birthDateBinding,
+                            isFocused: isBirthDatePickerPresented
+                        ) {
+                            prepareBirthDatePicker()
+                            isBirthDatePickerPresented = true
+                        }
+
+                        if let message = store.birthDateAgeValidationMessage {
+                            Text(message)
+                                .dsCaption1Regular
+                                .foregroundStyle(Color.ds.red500)
+                                .padding(.horizontal, 4)
+                        }
                     }
                     DSEnterTimeOfBirth(
                         selection: birthTimePeriodBinding,
@@ -116,6 +124,19 @@ struct FortuneInformationView: View {
 }
 
 private extension FortuneInformationView {
+    var fortuneInformationTitle: AttributedString {
+        var title = AttributedString("정확한 운세를 위해,\n태어난 정보가 필요해요.")
+        title.font = .ds.font(.heading2SemiBold)
+        title.foregroundColor = Color.ds.gray975
+
+        if let birthInformationRange = title.range(of: "태어난 정보") {
+            title[birthInformationRange].font = .ds.font(.heading2Bold)
+            title[birthInformationRange].foregroundColor = Color.ds.primary700
+        }
+
+        return title
+    }
+
     var genderBinding: Binding<Gender?> {
         Binding(
             get: { store.gender },

@@ -52,7 +52,7 @@ private struct RootView: View {
             VStack(spacing: 12) {
                 Text("홈")
                     .font(.title.bold())
-                Text("기존 회원 로그인 완료")
+                Text("로그인이 완료되었어요")
                     .foregroundStyle(.secondary)
             }
         case .login, .onboarding:

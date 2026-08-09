@@ -30,6 +30,8 @@ public struct OnboardingView: View {
             onboardingNameView
         case .fortuneInformation:
             FortuneInformationView(store: store)
+        case .userStatus:
+            UserStatusView(store: store)
         }
     }
 
@@ -37,35 +39,54 @@ public struct OnboardingView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: 10) {
-                Text("토닥운")
-                    .dsHeading1ExtraBold
-                    .foregroundStyle(Color.ds.primary600)
-                Text("당신의 운세 도우미")
-                    .dsBody1Medium
-                    .foregroundStyle(Color.ds.gray700)
-            }
+            OnboardingFeatureAsset.Brand.onboardingCharacter.swiftUIImage
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 164, height: 160)
+
+            OnboardingFeatureAsset.Brand.typoLogoColor.swiftUIImage
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 226, height: 66)
+                .padding(.top, 29)
+
+            Text("당신의 운세 도우미, 토닥운")
+                .dsBody1Medium
+                .foregroundStyle(Color(red: 55 / 255, green: 60 / 255, blue: 70 / 255))
+                .padding(.top, 18)
 
             Spacer()
 
             VStack(spacing: 12) {
                 socialLoginButton(
-                    title: "카카오톡으로 시작하기",
-                    provider: .kakao,
-                    backgroundColor: Color(red: 250 / 255, green: 227 / 255, blue: 1 / 255),
-                    foregroundColor: .black
+                    SocialLoginButtonConfiguration(
+                        title: "카카오톡으로 시작하기",
+                        provider: .kakao,
+                        iconAsset: OnboardingFeatureAsset.Icons.oauthKakao,
+                        iconSize: CGSize(width: 21, height: 20),
+                        backgroundColor: Color(red: 250 / 255, green: 227 / 255, blue: 1 / 255),
+                        foregroundColor: .black
+                    )
                 )
                 socialLoginButton(
-                    title: "Google로 시작하기",
-                    provider: .google,
-                    backgroundColor: Color.ds.gray100,
-                    foregroundColor: Color.ds.gray900
+                    SocialLoginButtonConfiguration(
+                        title: "Google로 시작하기",
+                        provider: .google,
+                        iconAsset: OnboardingFeatureAsset.Icons.oauthGoogle,
+                        iconSize: CGSize(width: 20, height: 20),
+                        backgroundColor: Color(red: 241 / 255, green: 243 / 255, blue: 245 / 255),
+                        foregroundColor: Color(red: 33 / 255, green: 33 / 255, blue: 33 / 255)
+                    )
                 )
                 socialLoginButton(
-                    title: "Apple로 시작하기",
-                    provider: .apple,
-                    backgroundColor: .black,
-                    foregroundColor: .white
+                    SocialLoginButtonConfiguration(
+                        title: "Apple로 시작하기",
+                        provider: .apple,
+                        iconAsset: OnboardingFeatureAsset.Icons.oauthApple,
+                        iconSize: CGSize(width: 24, height: 24),
+                        backgroundColor: .black,
+                        foregroundColor: .white
+                    )
                 )
             }
 
@@ -87,7 +108,9 @@ public struct OnboardingView: View {
             #endif
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 48)
+        .padding(.top, 52)
+        .padding(.bottom, 78)
+        .background(Color.white)
         .overlay {
             if store.loginPhase.isLoading {
                 ProgressView("로그인 중…")
@@ -97,22 +120,25 @@ public struct OnboardingView: View {
         }
     }
 
-    private func socialLoginButton(
-        title: String,
-        provider: SocialProvider,
-        backgroundColor: Color,
-        foregroundColor: Color
-    ) -> some View {
+    private func socialLoginButton(_ configuration: SocialLoginButtonConfiguration) -> some View {
         Button {
-            store.send(.socialLoginButtonTapped(provider))
+            store.send(.socialLoginButtonTapped(configuration.provider))
         } label: {
-            Text(title)
-                .dsBody2Medium
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .foregroundStyle(foregroundColor)
-                .background(backgroundColor, in: RoundedRectangle(cornerRadius: 8))
+            HStack(spacing: 14) {
+                configuration.iconAsset.swiftUIImage
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: configuration.iconSize.width, height: configuration.iconSize.height)
+
+                Text(configuration.title)
+                    .dsBody2Medium
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .foregroundStyle(configuration.foregroundColor)
+            .background(configuration.backgroundColor, in: RoundedRectangle(cornerRadius: 8))
         }
+        .buttonStyle(.plain)
         .disabled(store.loginPhase.isLoading)
     }
 
@@ -123,15 +149,15 @@ public struct OnboardingView: View {
             }
 
             VStack(alignment: .leading, spacing: 32) {
-                Text("안녕하세요!\n이름을 입력해 주세요.")
+                Text(onboardingNameTitle)
                     .dsHeading2SemiBold
-                    .foregroundStyle(Color.ds.gray975)
 
                 DSEnterName(
                     text: Binding(
                         get: { store.onboardingName },
                         set: { store.send(.onboardingNameChanged($0)) }
-                    )
+                    ),
+                    validationState: nameValidationState
                 )
             }
             .padding(.horizontal, 20)
@@ -148,6 +174,26 @@ public struct OnboardingView: View {
         }
     }
 
+    private var nameValidationState: DSTextFieldValidationState {
+        guard let message = store.onboardingNameValidationMessage else {
+            return .none
+        }
+        return .error(message: message)
+    }
+
+    private var onboardingNameTitle: AttributedString {
+        var title = AttributedString("안녕하세요!\n이름을 입력해 주세요.")
+        title.font = .ds.font(.heading2SemiBold)
+        title.foregroundColor = Color.ds.gray975
+
+        if let nameRange = title.range(of: "이름") {
+            title[nameRange].font = .ds.font(.heading2Bold)
+            title[nameRange].foregroundColor = Color.ds.primary700
+        }
+
+        return title
+    }
+
     #if DEBUG
     private var debugPreviewButtons: some View {
         VStack(spacing: 8) {
@@ -160,10 +206,22 @@ public struct OnboardingView: View {
             Button("기존 회원 홈 보기") {
                 store.send(.debugPreviewButtonTapped(.existingMember))
             }
+            Button("회원가입 처리 화면 보기") {
+                store.send(.debugPreviewButtonTapped(.signupLoading))
+            }
         }
         .padding(.top, 24)
     }
     #endif
+}
+
+private struct SocialLoginButtonConfiguration {
+    let title: String
+    let provider: SocialProvider
+    let iconAsset: OnboardingFeatureImages
+    let iconSize: CGSize
+    let backgroundColor: Color
+    let foregroundColor: Color
 }
 
 private extension OnboardingView {
@@ -272,7 +330,7 @@ private extension OnboardingView {
                 HStack(spacing: 8) {
                     Text(termTitle(term))
                         .dsBody3Regular
-                        .foregroundStyle(Color.ds.gray800)
+                        .foregroundStyle(Color.ds.black)
                         .multilineTextAlignment(.leading)
 
                     Spacer(minLength: 12)
