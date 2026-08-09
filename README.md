@@ -51,6 +51,7 @@ graph TD
         subgraph UpperCore [Upper Core]
             DesignSystem[DesignSystem]
             NetworkCore[NetworkCore]
+            AuthSession[AuthSession]
         end
         subgraph LowerCore [Lower Core]
             Model[Model]
@@ -83,6 +84,9 @@ graph TD
     MyPage --> UpperCore
     MyPage --> LowerCore
 
+    TodakunApp --> AuthSession
+    Onboarding --> AuthSession
+
     %% Styling
     classDef app fill:#ff9999,stroke:#333,stroke-width:2px;
     classDef feature fill:#99ccff,stroke:#333,stroke-width:2px;
@@ -92,7 +96,7 @@ graph TD
     class TodakunApp app;
     class Onboarding,Fortune,Todak,LuckyAction,MyPage feature;
     class OnboardingIF,FortuneIF,TodakIF,LuckyActionIF,MyPageIF interface;
-    class DesignSystem,NetworkCore,Model,Utils core;
+    class DesignSystem,NetworkCore,AuthSession,Model,Utils core;
 ```
 
 - **Projects/App**: 진입점 타겟 및 전체 기능 조립 (RootView, MainTabView 포함)
@@ -105,6 +109,7 @@ graph TD
 - **Projects/Core**: 앱 전반에 걸쳐 사용되는 공통 모듈 (상위 Core가 하위 Core를 단방향으로 참조 가능)
   - `DesignSystem` (상위 Core): 컬러, 폰트, 공통 UI 컴포넌트 및 에셋 (단독 실행 데모용 Example 앱 포함)
   - `NetworkCore` (상위 Core): 네트워크 API 클라이언트
+  - `AuthSession` (공통 Core): Keychain 세션 저장·복원과 인증 헤더·토큰 갱신 동시성 관리
   - `Model` (하위 Core): 공통 데이터 객체 (타 모듈 의존성 없음)
   - `Utils` (하위 Core): 각종 헬퍼 및 확장 파일 (타 모듈 의존성 없음)
 

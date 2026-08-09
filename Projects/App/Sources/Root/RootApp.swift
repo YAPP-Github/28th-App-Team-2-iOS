@@ -1,3 +1,4 @@
+import AuthSession
 import ComposableArchitecture
 import GoogleSignIn
 import KakaoSDKAuth
@@ -8,7 +9,7 @@ import SwiftUI
 
 @main
 struct TodakunApp: App {
-    private let store: StoreOf<OnboardingFeature>
+    private let store: StoreOf<RootFeature>
 
     init() {
         let configuration = OAuthConfiguration.current
@@ -21,12 +22,12 @@ struct TodakunApp: App {
             AuthClient.live(httpClient: HTTPClient(baseURL: baseURL))
         } ?? .unavailable
 
-        store = Store(initialState: OnboardingFeature.State()) {
-            OnboardingFeature()
+        store = Store(initialState: RootFeature.State()) {
+            RootFeature()
         } withDependencies: {
             $0.authClient = authClient
+            $0.authSession = .live
             $0.socialLoginClient = .live(configuration: configuration)
-            $0.tokenStore = .live
         }
     }
 
@@ -44,19 +45,29 @@ struct TodakunApp: App {
 }
 
 private struct RootView: View {
-    @Bindable var store: StoreOf<OnboardingFeature>
+    @Bindable var store: StoreOf<RootFeature>
 
     var body: some View {
-        switch store.route {
-        case .home:
-            VStack(spacing: 12) {
-                Text("홈")
-                    .font(.title.bold())
-                Text("로그인이 완료되었어요")
-                    .foregroundStyle(.secondary)
+        Group {
+            switch store.route {
+            case .launching:
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.white)
+
+            case .authenticated:
+                VStack(spacing: 12) {
+                    Text("홈")
+                        .font(.title.bold())
+                    Text("로그인이 완료되었어요")
+                        .foregroundStyle(.secondary)
+                }
+            case .unauthenticated:
+                OnboardingView(
+                    store: store.scope(state: \.onboarding, action: \.onboarding)
+                )
             }
-        case .login, .onboarding:
-            OnboardingView(store: store)
         }
+        .task { store.send(.task) }
     }
 }

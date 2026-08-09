@@ -1,8 +1,10 @@
 digraph {
+  AuthSession [fillcolor=coral1 shape=cylinder style=filled]
   DesignSystem -> Model
   DesignSystem [fillcolor=coral1 shape=cylinder style=filled]
   DesignSystemExample -> DesignSystem
   DesignSystemExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  FortuneFeature -> AuthSession
   FortuneFeature -> DesignSystem
   FortuneFeature -> FortuneFeatureInterface
   FortuneFeature -> Model
@@ -17,6 +19,7 @@ digraph {
   FortuneFeatureTesting -> Model
   FortuneFeatureTesting -> Utils
   FortuneFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
+  LuckyActionFeature -> AuthSession
   LuckyActionFeature -> DesignSystem
   LuckyActionFeature -> LuckyActionFeatureInterface
   LuckyActionFeature -> Model
@@ -32,6 +35,7 @@ digraph {
   LuckyActionFeatureTesting -> Utils
   LuckyActionFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
   Model [fillcolor=coral1 shape=cylinder style=filled]
+  MyPageFeature -> AuthSession
   MyPageFeature -> DesignSystem
   MyPageFeature -> Model
   MyPageFeature -> MyPageFeatureInterface
@@ -47,6 +51,7 @@ digraph {
   MyPageFeatureTesting -> Utils
   MyPageFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
   NetworkCore [fillcolor=coral1 shape=cylinder style=filled]
+  OnboardingFeature -> AuthSession
   OnboardingFeature -> DesignSystem
   OnboardingFeature -> Model
   OnboardingFeature -> NetworkCore
@@ -61,6 +66,7 @@ digraph {
   OnboardingFeatureTesting -> OnboardingFeatureInterface
   OnboardingFeatureTesting -> Utils
   OnboardingFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
+  TodakFeature -> AuthSession
   TodakFeature -> DesignSystem
   TodakFeature -> Model
   TodakFeature -> NetworkCore
@@ -75,6 +81,7 @@ digraph {
   TodakFeatureTesting -> TodakFeatureInterface
   TodakFeatureTesting -> Utils
   TodakFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
+  Todakun -> AuthSession
   Todakun -> FortuneFeature
   Todakun -> LuckyActionFeature
   Todakun -> MyPageFeature
