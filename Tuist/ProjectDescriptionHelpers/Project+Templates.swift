@@ -136,6 +136,7 @@ public extension Project {
     static func makeFeature(
         name: String,
         dependencies: [TargetDependency] = [],
+        resources: ResourceFileElements? = nil,
         hasTesting: Bool = true,
         hasExample: Bool = true
     ) -> Project {
@@ -194,6 +195,7 @@ public extension Project {
             product: .staticFramework,
             bundleId: targetBundleId,
             dependencies: defaultDependencies + dependencies,
+            resources: resources,
             hasTests: true,
             testDependencies: testDependencies,
             hasExample: hasExample,

@@ -9,5 +9,6 @@ let project = Project.makeFeature(
         .external(name: "KakaoSDKCommon"),
         .external(name: "KakaoSDKUser")
     ],
+    resources: ["Resources/**"],
     hasExample: false
 )
