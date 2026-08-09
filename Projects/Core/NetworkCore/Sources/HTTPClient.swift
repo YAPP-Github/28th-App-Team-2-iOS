@@ -11,9 +11,13 @@ public struct HTTPClient: Sendable {
     /// 테스트 더블 클로저를 주입할 수 있습니다.
     public typealias Transport = @Sendable (URLRequest) async throws -> (Data, URLResponse)
 
+    /// 401 응답을 받은 뒤 인증 정보를 갱신할 수 있는지 알려주는 공통 처리 경계입니다.
+    public typealias UnauthorizedHandler = @Sendable () async -> Bool
+
     private let requestBuilder: URLRequestBuilder
     private let transport: Transport
     private let makeDecoder: @Sendable () -> JSONDecoder
+    private let onUnauthorized: UnauthorizedHandler?
 
     /// 커스텀 Transport를 사용하는 HTTP Client를 생성합니다.
     ///
@@ -23,11 +27,14 @@ public struct HTTPClient: Sendable {
     ///   - makeDecoder: 응답을 디코딩할 때마다 사용할 `JSONDecoder` 생성 클로저입니다.
     ///   - defaultHeaders: 요청마다 동적으로 계산할 공통 HTTP 헤더입니다.
     ///     Endpoint 헤더가 같은 필드를 덮어씁니다.
+    ///   - onUnauthorized: 401 응답에서 인증 갱신을 시도합니다. `true`이면 새 기본 헤더로
+    ///     원 요청을 한 번만 다시 전송합니다.
     public init(
         baseURL: URL,
         transport: @escaping Transport,
         makeDecoder: @escaping @Sendable () -> JSONDecoder = { JSONDecoder() },
-        defaultHeaders: @escaping @Sendable () async -> [String: String] = { [:] }
+        defaultHeaders: @escaping @Sendable () async -> [String: String] = { [:] },
+        onUnauthorized: UnauthorizedHandler? = nil
     ) {
         self.requestBuilder = URLRequestBuilder(
             baseURL: baseURL,
@@ -35,6 +42,7 @@ public struct HTTPClient: Sendable {
         )
         self.transport = transport
         self.makeDecoder = makeDecoder
+        self.onUnauthorized = onUnauthorized
     }
 
     /// `URLSession`을 사용하는 HTTP Client를 생성합니다.
@@ -45,11 +53,14 @@ public struct HTTPClient: Sendable {
     ///   - makeDecoder: 응답을 디코딩할 때마다 사용할 `JSONDecoder` 생성 클로저입니다.
     ///   - defaultHeaders: 요청마다 동적으로 계산할 공통 HTTP 헤더입니다.
     ///     Endpoint 헤더가 같은 필드를 덮어씁니다.
+    ///   - onUnauthorized: 401 응답에서 인증 갱신을 시도합니다. `true`이면 새 기본 헤더로
+    ///     원 요청을 한 번만 다시 전송합니다.
     public init(
         baseURL: URL,
         session: URLSession = .shared,
         makeDecoder: @escaping @Sendable () -> JSONDecoder = { JSONDecoder() },
-        defaultHeaders: @escaping @Sendable () async -> [String: String] = { [:] }
+        defaultHeaders: @escaping @Sendable () async -> [String: String] = { [:] },
+        onUnauthorized: UnauthorizedHandler? = nil
     ) {
         self.init(
             baseURL: baseURL,
@@ -57,7 +68,8 @@ public struct HTTPClient: Sendable {
                 try await session.data(for: request)
             },
             makeDecoder: makeDecoder,
-            defaultHeaders: defaultHeaders
+            defaultHeaders: defaultHeaders,
+            onUnauthorized: onUnauthorized
         )
     }
 
@@ -113,7 +125,20 @@ public struct HTTPClient: Sendable {
     ///   작업이 취소되면 `CancellationError`를 그대로 전달합니다.
     public func data(for endpoint: Endpoint) async throws -> Data {
         let request = try await requestBuilder.makeRequest(for: endpoint)
+        let firstResponse = try await perform(request)
 
+        if firstResponse.response.statusCode == 401,
+           let onUnauthorized,
+           await onUnauthorized() {
+            try Task.checkCancellation()
+            let retryRequest = try await requestBuilder.makeRequest(for: endpoint)
+            return try validate(try await perform(retryRequest))
+        }
+
+        return try validate(firstResponse)
+    }
+
+    private func perform(_ request: URLRequest) async throws -> (data: Data, response: HTTPURLResponse) {
         do {
             let (data, response) = try await transport(request)
             try Task.checkCancellation()
@@ -121,15 +146,7 @@ public struct HTTPClient: Sendable {
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw HTTPClientError.invalidResponse
             }
-
-            guard 200..<300 ~= httpResponse.statusCode else {
-                throw HTTPClientError.unacceptableStatusCode(
-                    code: httpResponse.statusCode,
-                    data: data
-                )
-            }
-
-            return data
+            return (data, httpResponse)
         } catch let clientError as HTTPClientError {
             throw clientError
         } catch is CancellationError {
@@ -147,5 +164,17 @@ public struct HTTPClient: Sendable {
                 description: error.localizedDescription
             )
         }
+    }
+
+    private func validate(
+        _ result: (data: Data, response: HTTPURLResponse)
+    ) throws -> Data {
+        guard 200..<300 ~= result.response.statusCode else {
+            throw HTTPClientError.unacceptableStatusCode(
+                code: result.response.statusCode,
+                data: result.data
+            )
+        }
+        return result.data
     }
 }

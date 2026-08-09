@@ -207,3 +207,116 @@ struct HTTPClientTests {
         )
     }
 }
+
+struct HTTPClientUnauthorizedTests {
+    @Test("401 처리 성공 후 갱신된 헤더로 원 요청을 한 번 재시도한다")
+    func retriesOnceAfterUnauthorizedHandlerRefreshesHeaders() async throws {
+        let recorder = AuthorizationRetryRecorder()
+        let client = HTTPClient(
+            baseURL: URL(string: "https://api.todakun.com")!,
+            transport: { request in
+                let attempt = await recorder.record(
+                    authorization: request.value(forHTTPHeaderField: "Authorization")
+                )
+                return (
+                    Data("success".utf8),
+                    try NetworkCoreTestSupport.makeHTTPResponse(
+                        for: request,
+                        statusCode: attempt == 1 ? 401 : 200
+                    )
+                )
+            },
+            defaultHeaders: { await recorder.authorizationHeaders },
+            onUnauthorized: {
+                await recorder.refreshAuthorization()
+                return true
+            }
+        )
+
+        let data = try await client.data(for: .get("/protected"))
+
+        #expect(data == Data("success".utf8))
+        #expect(await recorder.recordedAuthorizations == ["Bearer old", "Bearer new"])
+    }
+
+    @Test("401 처리기가 갱신하지 못하면 요청을 재시도하지 않는다")
+    func doesNotRetryWhenUnauthorizedHandlerFails() async throws {
+        let recorder = AuthorizationRetryRecorder()
+        let client = HTTPClient(
+            baseURL: URL(string: "https://api.todakun.com")!,
+            transport: { request in
+                _ = await recorder.record(
+                    authorization: request.value(forHTTPHeaderField: "Authorization")
+                )
+                return (
+                    Data("unauthorized".utf8),
+                    try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 401)
+                )
+            },
+            onUnauthorized: { false }
+        )
+
+        do {
+            _ = try await client.data(for: .get("/protected"))
+            Issue.record("인증 갱신 실패 뒤에는 기존 401을 반환해야 합니다.")
+        } catch let HTTPClientError.unacceptableStatusCode(code, _) {
+            #expect(code == 401)
+        } catch {
+            Issue.record("예상하지 못한 에러: \(error)")
+        }
+
+        #expect(await recorder.attemptCount == 1)
+    }
+
+    @Test("재시도 응답이 다시 401이어도 추가 갱신을 반복하지 않는다")
+    func retriesUnauthorizedResponseAtMostOnce() async throws {
+        let recorder = AuthorizationRetryRecorder()
+        let client = HTTPClient(
+            baseURL: URL(string: "https://api.todakun.com")!,
+            transport: { request in
+                _ = await recorder.record(
+                    authorization: request.value(forHTTPHeaderField: "Authorization")
+                )
+                return (
+                    Data(),
+                    try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 401)
+                )
+            },
+            onUnauthorized: {
+                await recorder.refreshAuthorization()
+                return true
+            }
+        )
+
+        await #expect(throws: HTTPClientError.self) {
+            try await client.data(for: .get("/protected"))
+        }
+        #expect(await recorder.attemptCount == 2)
+        #expect(await recorder.refreshCount == 1)
+    }
+
+}
+
+private actor AuthorizationRetryRecorder {
+    private var authorization = "Bearer old"
+    private(set) var recordedAuthorizations: [String] = []
+    private(set) var refreshCount = 0
+
+    var authorizationHeaders: [String: String] {
+        ["Authorization": authorization]
+    }
+
+    var attemptCount: Int {
+        recordedAuthorizations.count
+    }
+
+    func record(authorization: String?) -> Int {
+        recordedAuthorizations.append(authorization ?? "")
+        return recordedAuthorizations.count
+    }
+
+    func refreshAuthorization() {
+        refreshCount += 1
+        authorization = "Bearer new"
+    }
+}
