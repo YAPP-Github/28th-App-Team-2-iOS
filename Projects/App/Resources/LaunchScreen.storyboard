@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="26000" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="launch-view-controller">
+    <device id="retina6_12" orientation="portrait" appearance="dark"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="26000"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="launch-scene">
+            <objects>
+                <viewController id="launch-view-controller" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="launch-root-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="LaunchBackgroundImage" translatesAutoresizingMaskIntoConstraints="NO" id="launch-background-image">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="LaunchCharacter" translatesAutoresizingMaskIntoConstraints="NO" id="launch-character-image">
+                                <rect key="frame" x="114.5" y="254" width="164" height="160"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="164" id="launch-character-width"/>
+                                    <constraint firstAttribute="height" constant="160" id="launch-character-height"/>
+                                </constraints>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="LaunchLogo" translatesAutoresizingMaskIntoConstraints="NO" id="launch-logo-image">
+                                <rect key="frame" x="74.5" y="460" width="244" height="71"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="244" id="launch-logo-width"/>
+                                    <constraint firstAttribute="height" constant="71" id="launch-logo-height"/>
+                                </constraints>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="LaunchTagline" translatesAutoresizingMaskIntoConstraints="NO" id="launch-tagline-image">
+                                <rect key="frame" x="102" y="549" width="189" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="189" id="launch-tagline-width"/>
+                                    <constraint firstAttribute="height" constant="26" id="launch-tagline-height"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="launch-safe-area"/>
+                        <color key="backgroundColor" name="LaunchBackground"/>
+                        <constraints>
+                            <constraint firstItem="launch-background-image" firstAttribute="leading" secondItem="launch-root-view" secondAttribute="leading" id="launch-background-leading"/>
+                            <constraint firstItem="launch-background-image" firstAttribute="trailing" secondItem="launch-root-view" secondAttribute="trailing" id="launch-background-trailing"/>
+                            <constraint firstItem="launch-background-image" firstAttribute="top" secondItem="launch-root-view" secondAttribute="top" id="launch-background-top"/>
+                            <constraint firstItem="launch-background-image" firstAttribute="bottom" secondItem="launch-root-view" secondAttribute="bottom" id="launch-background-bottom"/>
+                            <constraint firstItem="launch-character-image" firstAttribute="centerX" secondItem="launch-root-view" secondAttribute="centerX" id="launch-character-center-x"/>
+                            <constraint firstItem="launch-character-image" firstAttribute="centerY" secondItem="launch-root-view" secondAttribute="centerY" constant="-92" id="launch-character-center-y"/>
+                            <constraint firstItem="launch-logo-image" firstAttribute="centerX" secondItem="launch-root-view" secondAttribute="centerX" id="launch-logo-center-x"/>
+                            <constraint firstItem="launch-logo-image" firstAttribute="top" secondItem="launch-character-image" secondAttribute="bottom" constant="46" id="launch-logo-top"/>
+                            <constraint firstItem="launch-tagline-image" firstAttribute="centerX" secondItem="launch-root-view" secondAttribute="centerX" id="launch-tagline-center-x"/>
+                            <constraint firstItem="launch-tagline-image" firstAttribute="top" secondItem="launch-logo-image" secondAttribute="bottom" constant="18" id="launch-tagline-top"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="launch-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="LaunchBackgroundImage" width="393" height="852"/>
+        <image name="LaunchCharacter" width="164" height="160"/>
+        <image name="LaunchLogo" width="244" height="71"/>
+        <image name="LaunchTagline" width="187.33333333333334" height="18"/>
+        <namedColor name="LaunchBackground">
+            <color red="0.0" green="0.0039215686274509803" blue="0.043137254901960784" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

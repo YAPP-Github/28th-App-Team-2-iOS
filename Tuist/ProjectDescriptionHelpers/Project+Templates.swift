@@ -94,7 +94,7 @@ public extension Project {
                 bundleId: bundleIdPrefix,
                 deploymentTargets: .iOS("17.0"),
                 infoPlist: .extendingDefault(with: [
-                    "UILaunchScreen": [:],
+                    "UILaunchStoryboardName": "LaunchScreen",
                     "API_BASE_URL": "$(API_BASE_URL)",
                     "GOOGLE_IOS_CLIENT_ID": "$(GOOGLE_IOS_CLIENT_ID)",
                     "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
