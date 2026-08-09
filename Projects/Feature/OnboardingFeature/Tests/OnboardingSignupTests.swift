@@ -28,6 +28,7 @@ final class OnboardingSignupTests: XCTestCase {
                 XCTAssertEqual(input, expectedSignupInput)
                 return tokens
             }
+            $0.notificationAuthorizationClient.requestAuthorization = { true }
             $0.tokenStore.save = { savedTokens in
                 XCTAssertEqual(savedTokens, tokens)
             }
@@ -43,6 +44,29 @@ final class OnboardingSignupTests: XCTestCase {
         await store.receive(.signupTokenStorageSucceeded) {
             $0.pendingSignupTokens = nil
             $0.onboardingToken = nil
+            $0.signupPhase = .requestingNotificationAuthorization
+        }
+        await store.receive(.notificationAuthorizationResponse(true)) {
+            $0.signupPhase = .idle
+            $0.route = .home
+        }
+    }
+
+    func testNotificationAuthorizationDenialStillCompletesOnboarding() async {
+        var initialState = OnboardingFeature.State()
+        initialState.route = .onboarding
+        initialState.signupPhase = .savingSession
+
+        let store = TestStore(initialState: initialState) {
+            OnboardingFeature()
+        } withDependencies: {
+            $0.notificationAuthorizationClient.requestAuthorization = { false }
+        }
+
+        await store.send(.signupTokenStorageSucceeded) {
+            $0.signupPhase = .requestingNotificationAuthorization
+        }
+        await store.receive(.notificationAuthorizationResponse(false)) {
             $0.signupPhase = .idle
             $0.route = .home
         }

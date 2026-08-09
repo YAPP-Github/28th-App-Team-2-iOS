@@ -24,6 +24,10 @@ extension OnboardingFeature {
         case .signupTokenStorageSucceeded:
             state.pendingSignupTokens = nil
             state.onboardingToken = nil
+            state.signupPhase = .requestingNotificationAuthorization
+            return requestNotificationAuthorizationEffect()
+
+        case .notificationAuthorizationResponse:
             state.signupPhase = .idle
             state.route = .home
             return .none
@@ -70,6 +74,16 @@ extension OnboardingFeature {
             } catch {
                 await send(.signupTokenStorageFailed(TokenStoreError(error)))
             }
+        }
+    }
+
+    func requestNotificationAuthorizationEffect() -> Effect<Action> {
+        .run { send in
+            await send(
+                .notificationAuthorizationResponse(
+                    await notificationAuthorizationClient.requestAuthorization()
+                )
+            )
         }
     }
 }

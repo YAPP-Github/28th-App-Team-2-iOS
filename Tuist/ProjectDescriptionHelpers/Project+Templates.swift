@@ -94,6 +94,7 @@ public extension Project {
                 bundleId: bundleIdPrefix,
                 deploymentTargets: .iOS("17.0"),
                 infoPlist: .extendingDefault(with: [
+                    "CFBundleDisplayName": "토닥운",
                     "UILaunchStoryboardName": "LaunchScreen",
                     "UIUserInterfaceStyle": "Light",
                     "API_BASE_URL": "$(API_BASE_URL)",

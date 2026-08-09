@@ -25,11 +25,12 @@ public enum SignupPhase: Equatable, Sendable {
     case idle
     case signingUp
     case savingSession
+    case requestingNotificationAuthorization
     case failed(SignupFailure)
 
     public var isLoading: Bool {
         switch self {
-        case .signingUp, .savingSession:
+        case .signingUp, .savingSession, .requestingNotificationAuthorization:
             true
         case .idle, .failed:
             false

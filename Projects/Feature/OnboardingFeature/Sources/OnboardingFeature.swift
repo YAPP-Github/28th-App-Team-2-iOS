@@ -97,6 +97,7 @@ public struct OnboardingFeature {
         case signupResponse(Result<SessionTokens, AuthClientError>)
         case signupTokenStorageSucceeded
         case signupTokenStorageFailed(TokenStoreError)
+        case notificationAuthorizationResponse(Bool)
         case signupRetryButtonTapped
         case onboardingBackButtonTapped
         case debugPreviewButtonTapped(DebugPreview)
@@ -104,6 +105,7 @@ public struct OnboardingFeature {
 
     @Dependency(\.authClient) var authClient
     @Dependency(\.date.now) var now
+    @Dependency(\.notificationAuthorizationClient) var notificationAuthorizationClient
     @Dependency(\.socialLoginClient) private var socialLoginClient
     @Dependency(\.tokenStore) var tokenStore
 
