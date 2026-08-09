@@ -10,5 +10,5 @@ let project = Project.makeFeature(
         .external(name: "KakaoSDKUser")
     ],
     resources: ["Resources/**"],
-    hasExample: false
+    hasExample: true
 )
