@@ -24,6 +24,8 @@ struct ExampleContentView: View {
                 OnboardingView(store: store)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.white.ignoresSafeArea())
         .preferredColorScheme(.light)
     }
 

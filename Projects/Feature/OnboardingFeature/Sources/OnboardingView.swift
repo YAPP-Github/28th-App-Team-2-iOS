@@ -127,8 +127,7 @@ public struct OnboardingView: View {
         .padding(.horizontal, 20)
         .padding(.top, 52)
         .padding(.bottom, 78)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white.ignoresSafeArea())
+        .background(Color.white)
         .overlay {
             if store.loginPhase.isLoading {
                 ProgressView("로그인 중…")

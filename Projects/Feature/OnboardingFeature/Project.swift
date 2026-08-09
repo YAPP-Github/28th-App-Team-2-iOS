@@ -12,6 +12,7 @@ let project = Project.makeFeature(
     resources: ["Resources/**"],
     hasExample: true,
     exampleInfoPlist: .extendingDefault(with: [
-        "CFBundleDisplayName": "토닥운"
+        "CFBundleDisplayName": "토닥운",
+        "UILaunchScreen": [:]
     ])
 )
