@@ -1,5 +1,6 @@
 import AuthSession
 import ComposableArchitecture
+import DesignSystem
 import FortuneFeature
 import GoogleSignIn
 import KakaoSDKAuth
@@ -60,13 +61,12 @@ struct TodakunApp: App {
 
     var body: some Scene {
         WindowGroup {
+#if DEBUG
             RootView(store: store)
-                .onOpenURL { callbackURL in
-                    _ = GIDSignIn.sharedInstance.handle(callbackURL)
-                    // 외부 SDK의 고정 API 표기(`Url`)를 그대로 호출한다.
-                    // swiftlint:disable:next acronym_casing
-                    _ = AuthController.handleOpenUrl(url: callbackURL)
-                }
+                .dsDebugLayoutInspector()
+#else
+            RootView(store: store)
+#endif
         }
     }
 }
@@ -83,12 +83,9 @@ private struct RootView: View {
                     .background(Color("LaunchBackground").ignoresSafeArea())
 
             case .authenticated:
-                VStack(spacing: 12) {
-                    Text("홈")
-                        .font(.title.bold())
-                    Text("로그인이 완료되었어요")
-                        .foregroundStyle(.secondary)
-                }
+                MainTabView(
+                    store: store.scope(state: \.mainTab, action: \.mainTab)
+                )
             case .unauthenticated:
                 OnboardingView(
                     store: store.scope(state: \.onboarding, action: \.onboarding)
@@ -96,5 +93,11 @@ private struct RootView: View {
             }
         }
         .task { store.send(.task) }
+        .onOpenURL { callbackURL in
+            _ = GIDSignIn.sharedInstance.handle(callbackURL)
+            // 외부 SDK의 고정 API 표기(`Url`)를 그대로 호출한다.
+            // swiftlint:disable:next acronym_casing
+            _ = AuthController.handleOpenUrl(url: callbackURL)
+        }
     }
 }
