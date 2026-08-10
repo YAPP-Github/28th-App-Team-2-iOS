@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature UI Development"
+  short_description: "DesignSystem 기반 SwiftUI Feature 화면 구현 가이드"
+  default_prompt: "Use $feature-ui-development to implement and verify a Todakun Feature screen with the existing DesignSystem."

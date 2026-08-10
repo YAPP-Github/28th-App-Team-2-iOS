@@ -44,6 +44,7 @@ AI가 구조 변경 또는 기능 구현을 수행할 때는 다음 순서를 �
 - `pull-request-management`: PR 템플릿 작성 규칙 및 UI 변경 시 스크린샷/WebP 파일 임베딩 지침 (PR 템플릿, 시각 자료 첨부 등)
 - `project-structure`: 모듈 생성, 구조 변경, 파일 수정 시 트리거됨 (3계층 구조 강제, Feature/Core 결합 금지 등)
 - `design-system-development`: `DesignSystem` 모듈 자체를 개발하거나 유지보수할 때 적용함
+- `feature-ui-development`: `Projects/Feature` 또는 `Projects/App`의 SwiftUI 화면을 구현·수정·리뷰하거나 Figma·기획 화면을 기존 DesignSystem으로 조립하고 반응형 레이아웃과 실제 렌더링을 검증할 때 적용함
 - `network-core-development`: `Projects/Core/NetworkCore`의 범용 HTTP 계층 자체를 구현·수정할 때 트리거됨 (`HTTPClient`, `Endpoint`, `Transport`, 공통 오류·정책·테스트 등)
 - `feature-networking`: Feature에서 API 호출을 추가하거나 `{Feature}Client`, DTO, TCA 의존성, Live 구현, App 조립을 설계할 때 트리거됨 (`NetworkCore` 소비 경계와 테스트 전략 등)
 - `git-harness`: 커밋 메시지 작성, 브랜치 생성, 푸시(push) 작업 등 Git 관련 행동 시 트리거됨 (Conventional Commits, Force Push 차단 등)
