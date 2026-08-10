@@ -60,7 +60,7 @@ private struct FortuneCategoryCard: View {
                 .padding(.leading, 16)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
-                item.category.imageAsset.image
+                item.category.image
                     .resizable()
                     .scaledToFit()
                     .frame(width: 48, height: 48)
@@ -79,18 +79,18 @@ private struct FortuneCategoryCard: View {
 }
 
 private extension FortuneCategory {
-    var imageAsset: DSImageAsset {
+    var image: SwiftUI.Image {
         switch self {
         case .relationship:
-            .fortuneCategoryRelationship
+            FortuneFeatureAsset.Images.fortuneCategoryRelationship.swiftUIImage
         case .love:
-            .fortuneCategoryLove
+            FortuneFeatureAsset.Images.fortuneCategoryLove.swiftUIImage
         case .achievement:
-            .fortuneCategoryAchievement
+            FortuneFeatureAsset.Images.fortuneCategoryAchievement.swiftUIImage
         case .health:
-            .fortuneCategoryHealth
+            FortuneFeatureAsset.Images.fortuneCategoryHealth.swiftUIImage
         case .money:
-            .fortuneCategoryMoney
+            FortuneFeatureAsset.Images.fortuneCategoryMoney.swiftUIImage
         }
     }
 }

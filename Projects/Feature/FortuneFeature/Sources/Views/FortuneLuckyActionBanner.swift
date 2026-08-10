@@ -16,7 +16,7 @@ struct FortuneLuckyActionBanner: View {
                         .padding(.trailing, 120)
                 }
                 .background {
-                    DSImageAsset.fortuneLuckyActionBanner.image
+                    FortuneFeatureAsset.Images.fortuneLuckyActionBanner.swiftUIImage
                         .resizable()
                         .scaledToFill()
                 }

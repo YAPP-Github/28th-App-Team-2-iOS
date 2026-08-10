@@ -19,7 +19,7 @@ struct FortuneHeroSection: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .layoutPriority(1)
 
-                DSImageAsset.fortuneCharacter.image
+                FortuneFeatureAsset.Images.fortuneCharacter.swiftUIImage
                     .resizable()
                     .scaledToFit()
                     .frame(width: 109, height: 102)

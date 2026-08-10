@@ -34,7 +34,7 @@ private struct FortuneReadingCard: View {
                     .fill(Color.ds.primary50)
                     .frame(width: 44, height: 44)
                     .overlay {
-                        reading.imageAsset.image
+                        reading.image
                             .resizable()
                             .scaledToFit()
                             .frame(width: 24, height: 24)
@@ -68,14 +68,14 @@ private struct FortuneReadingCard: View {
 }
 
 private extension FortuneReading {
-    var imageAsset: DSImageAsset {
+    var image: SwiftUI.Image {
         switch self {
         case .compatibility:
-            .fortuneReadingCompatibility
+            FortuneFeatureAsset.Images.fortuneReadingCompatibility.swiftUIImage
         case .dateSelection:
-            .fortuneReadingDateSelection
+            FortuneFeatureAsset.Images.fortuneReadingDateSelection.swiftUIImage
         case .yearly:
-            .fortuneReadingYearly
+            FortuneFeatureAsset.Images.fortuneReadingYearly.swiftUIImage
         }
     }
 }

@@ -8,17 +8,7 @@ struct DSImageAssetTests {
             DSImageAsset.allCases.map(\.name) ==
             [
                 "fortuneLogo",
-                "fortuneSpaceBackground",
-                "fortuneCharacter",
-                "fortuneCategoryRelationship",
-                "fortuneCategoryLove",
-                "fortuneCategoryAchievement",
-                "fortuneCategoryHealth",
-                "fortuneCategoryMoney",
-                "fortuneReadingCompatibility",
-                "fortuneReadingDateSelection",
-                "fortuneReadingYearly",
-                "fortuneLuckyActionBanner"
+                "fortuneSpaceBackground"
             ]
         )
     }

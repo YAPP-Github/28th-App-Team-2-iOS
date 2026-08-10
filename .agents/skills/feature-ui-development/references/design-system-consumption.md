@@ -37,10 +37,9 @@ Docs는 디자인 의미를, public 코드는 실제 사용 가능한 API를 판
 
 ## 이미지 리소스 소유권
 
-- 현재 `makeFeature`의 production Implementation target은 자체 resource bundle을 선언하지 않는다.
-- 기존 이미지는 `DSImageAsset` 같은 DesignSystem의 typed public API로 사용한다.
-- 신규 production 이미지가 필요하면 Feature에 raw asset name이나 임의 resource 경로를 추가하지 않는다. `design-system-development` 절차로 DesignSystem resource와 typed accessor를 추가하고 asset 검증을 수행한다.
-- 향후 Feature target의 resource 정책이 바뀌면 현재 `Project+Templates.swift`와 target 설정을 우선하고 이 절을 함께 갱신한다.
+- **Feature 전용 이미지**: 특정 Feature에서만 소비하는 이미지/일러스트 에셋은 해당 Feature의 `Resources/Assets.xcassets` 하위에 두고 `Project.swift`에 `resources: ["Resources/**"]`를 선언한다. Tuist가 생성하는 Feature 전용 typed accessor(예: `{Feature}Asset.Images.*.swiftUIImage`)를 사용하며 raw string 입력을 금지한다.
+- **Cross-feature 공용 이미지**: 온보딩, 브랜드 탭, 복수 Feature 간 공유가 확인된 에셋(예: `fortuneLogo`, `fortuneSpaceBackground`, `chevronSmallRight`)만 DesignSystem의 `DSImageAsset` / `DSIconAsset` 등의 typed public API로 관리한다.
+- 신규 이미지가 추가되거나 리소스 소유권이 조정될 때는 Figma 재사용 분석에 기반하여 Feature 전용 에셋과 Cross-feature 공용 에셋을 분리하고 해당 모듈의 asset bundle test를 작성한다.
 
 ## 불일치와 누락
 
