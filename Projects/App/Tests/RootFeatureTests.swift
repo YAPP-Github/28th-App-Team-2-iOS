@@ -31,6 +31,38 @@ final class RootFeatureTests: XCTestCase {
         }
     }
 
+    func testLaunchWithSessionRestoreFailureShowsOnboarding() async {
+        let store = TestStore(initialState: RootFeature.State()) {
+            RootFeature()
+        } withDependencies: {
+            $0.authSession.restore = { throw AuthSessionError.loadFailed }
+        }
+
+        await store.send(.task)
+        await store.receive(.sessionRestored(.failure(.loadFailed))) {
+            $0.route = .unauthenticated
+        }
+    }
+
+    func testTaskDoesNotRestoreSessionAfterRouteIsResolved() async {
+        let counter = RestoreCounter()
+        var state = RootFeature.State()
+        state.route = .unauthenticated
+        let store = TestStore(initialState: state) {
+            RootFeature()
+        } withDependencies: {
+            $0.authSession.restore = {
+                await counter.increment()
+                return false
+            }
+        }
+
+        await store.send(.task)
+
+        let restoreCount = await counter.value
+        XCTAssertEqual(restoreCount, 0)
+    }
+
     func testOnboardingCompletionShowsAuthenticatedRoute() async {
         var state = RootFeature.State()
         state.route = .unauthenticated
@@ -41,5 +73,13 @@ final class RootFeatureTests: XCTestCase {
         await store.send(.onboarding(.delegate(.authenticationCompleted))) {
             $0.route = .authenticated
         }
+    }
+}
+
+private actor RestoreCounter {
+    private(set) var value = 0
+
+    func increment() {
+        value += 1
     }
 }

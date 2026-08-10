@@ -169,6 +169,11 @@ final class OnboardingFeatureTests: XCTestCase {
         }
         XCTAssertTrue(store.state.isOnboardingNameValid)
 
+        await store.send(.onboardingNameChanged("홍")) {
+            $0.onboardingName = "홍"
+        }
+        XCTAssertTrue(store.state.isOnboardingNameValid)
+
         await store.send(.onboardingNameChanged("Todakun")) {
             $0.onboardingName = "Todakun"
         }

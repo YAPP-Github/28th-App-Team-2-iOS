@@ -91,20 +91,59 @@ struct AuthSessionClientTests {
             })
         }
     }
+
+    @Test("refresh 저장 실패는 동시 호출자 모두에게 같은 오류를 전달한다")
+    func sharesRefreshStorageFailureAcrossConcurrentCallers() async throws {
+        let storage = InMemorySessionStorage(
+            tokens: SessionTokens(accessToken: "old-access", refreshToken: "old-refresh"),
+            saveError: .saveFailed
+        )
+        let client = AuthSessionClient.live(storage: storage.client)
+        let counter = RefreshCounter()
+        let operation: @Sendable (String) async throws -> SessionTokens = { _ in
+            await counter.increment()
+            try await Task.sleep(for: .milliseconds(50))
+            return SessionTokens(accessToken: "new-access", refreshToken: "new-refresh")
+        }
+
+        async let firstResult: Result<SessionTokens, Error> = Result {
+            try await client.refresh(using: operation)
+        }
+        async let secondResult: Result<SessionTokens, Error> = Result {
+            try await client.refresh(using: operation)
+        }
+        let results = await [firstResult, secondResult]
+
+        for result in results {
+            switch result {
+            case .success:
+                Issue.record("저장 실패는 성공으로 반환되면 안 됩니다.")
+            case let .failure(error):
+                #expect(error as? AuthSessionError == .saveFailed)
+            }
+        }
+        let refreshCount = await counter.value
+        let headers = await client.authorizationHeaders()
+        #expect(refreshCount == 1)
+        #expect(headers.isEmpty)
+        #expect(try storage.load() == nil)
+    }
 }
 
 private final class InMemorySessionStorage: @unchecked Sendable {
     private let lock = NSLock()
     private var tokens: SessionTokens?
+    private let saveError: AuthSessionError?
 
-    init(tokens: SessionTokens? = nil) {
+    init(tokens: SessionTokens? = nil, saveError: AuthSessionError? = nil) {
         self.tokens = tokens
+        self.saveError = saveError
     }
 
     var client: SessionTokenStorage {
         SessionTokenStorage(
             load: { try self.load() },
-            save: { self.save($0) },
+            save: { try self.save($0) },
             clear: { self.clear() }
         )
     }
@@ -113,7 +152,8 @@ private final class InMemorySessionStorage: @unchecked Sendable {
         lock.withLock { tokens }
     }
 
-    private func save(_ tokens: SessionTokens) {
+    private func save(_ tokens: SessionTokens) throws {
+        if let saveError { throw saveError }
         lock.withLock { self.tokens = tokens }
     }
 

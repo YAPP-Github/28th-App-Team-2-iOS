@@ -4,6 +4,8 @@ import Foundation
 import Model
 
 extension OnboardingFeature {
+    // The explicit action cases intentionally guard every asynchronous transition.
+    // swiftlint:disable:next cyclomatic_complexity
     func reduceSignup(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .userStatusNextButtonTapped:
@@ -14,27 +16,32 @@ extension OnboardingFeature {
             return signupEffect(input)
 
         case let .signupResponse(.success(tokens)):
+            guard state.signupPhase == .signingUp else { return .none }
             state.pendingSignupTokens = tokens
             state.signupPhase = .savingSession
             return saveSignupTokensEffect(tokens)
 
         case let .signupResponse(.failure(error)):
+            guard state.signupPhase == .signingUp else { return .none }
             state.signupPhase = .failed(.signup(error))
             return .none
 
         case .signupTokenStorageSucceeded:
+            guard state.signupPhase == .savingSession else { return .none }
             state.pendingSignupTokens = nil
             state.onboardingToken = nil
             state.signupPhase = .requestingNotificationAuthorization
             return requestNotificationAuthorizationEffect()
 
         case .notificationAuthorizationResponse:
+            guard state.signupPhase == .requestingNotificationAuthorization else { return .none }
             state.signupPhase = .idle
             state.route = .home
             return .send(.delegate(.authenticationCompleted))
 
-        case .signupTokenStorageFailed:
-            state.signupPhase = .failed(.tokenStorage)
+        case let .signupTokenStorageFailed(error):
+            guard state.signupPhase == .savingSession else { return .none }
+            state.signupPhase = .failed(.tokenStorage(error))
             return .none
 
         default:
@@ -65,6 +72,7 @@ extension OnboardingFeature {
                 )
             )
         }
+        .cancellable(id: OnboardingCancelID.signup)
     }
 
     func saveSignupTokensEffect(_ tokens: SessionTokens) -> Effect<Action> {
@@ -76,6 +84,7 @@ extension OnboardingFeature {
                 await send(.signupTokenStorageFailed(AuthSessionError(error, fallback: .saveFailed)))
             }
         }
+        .cancellable(id: OnboardingCancelID.signup)
     }
 
     func requestNotificationAuthorizationEffect() -> Effect<Action> {
@@ -86,6 +95,7 @@ extension OnboardingFeature {
                 )
             )
         }
+        .cancellable(id: OnboardingCancelID.signup)
     }
 }
 
@@ -94,6 +104,8 @@ extension OnboardingFeature.State {
         guard let onboardingToken,
               !onboardingToken.isEmpty,
               isOnboardingNameValid,
+              isFortuneInformationValid,
+              isUserStatusValid,
               let gender,
               let birthDateCalendar,
               let birthDate,

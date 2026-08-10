@@ -47,7 +47,7 @@ public enum SignupPhase: Equatable, Sendable {
 
 public enum SignupFailure: Equatable, Sendable {
     case signup(AuthClientError)
-    case tokenStorage
+    case tokenStorage(AuthSessionError)
 
     public var message: String {
         switch self {

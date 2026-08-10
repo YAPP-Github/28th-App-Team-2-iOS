@@ -164,26 +164,33 @@ private actor AuthSession {
             throw AuthSessionError.sessionNotFound
         }
 
-        let task = Task { try await operation(refreshToken) }
+        let storage = storage
+        let task = Task {
+            let tokens = try await operation(refreshToken)
+            guard tokens.isValid else {
+                throw AuthSessionError.invalidStoredSession
+            }
+
+            do {
+                try storage.save(tokens)
+                return tokens
+            } catch {
+                try? storage.clear()
+                throw AuthSessionError(error, fallback: .saveFailed)
+            }
+        }
         refreshTask = task
 
         do {
             let tokens = try await task.value
-            guard tokens.isValid else {
-                throw AuthSessionError.invalidStoredSession
-            }
-            do {
-                try storage.save(tokens)
-            } catch {
-                cachedTokens = nil
-                didRestore = true
-                try? storage.clear()
-                throw AuthSessionError(error, fallback: .saveFailed)
-            }
             cachedTokens = tokens
             refreshTask = nil
             return tokens
         } catch {
+            if case .saveFailed = error as? AuthSessionError {
+                cachedTokens = nil
+                didRestore = true
+            }
             refreshTask = nil
             throw error
         }

@@ -53,7 +53,7 @@ private struct RootView: View {
             case .launching:
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.white)
+                    .background(Color("LaunchBackground").ignoresSafeArea())
 
             case .authenticated:
                 VStack(spacing: 12) {

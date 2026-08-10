@@ -24,6 +24,7 @@ private enum KeychainSessionStorage {
     static func load() throws -> SessionTokens? {
         if let data = try read(account: sessionAccount) {
             guard let tokens = try? JSONDecoder().decode(SessionTokens.self, from: data) else {
+                try? clear()
                 throw AuthSessionError.invalidStoredSession
             }
             guard tokens.isValid else {

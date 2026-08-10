@@ -27,6 +27,7 @@ public struct Endpoint: Sendable {
     ///   - path: 기준 URL에 결합할 상대 경로입니다.
     ///   - queryItems: URL에 추가할 쿼리 항목입니다.
     ///   - headers: Endpoint 전용 HTTP 헤더입니다.
+    ///   - retriesAfterUnauthorized: 401 응답 뒤 공통 인증 갱신·재시도를 수행할지 여부입니다.
     ///   - body: 요청에 포함할 원본 HTTP 본문입니다.
     ///   - retriesAfterUnauthorized: 401 응답 뒤 공통 인증 갱신·재시도를 수행할지 여부입니다.
     public init(
@@ -77,6 +78,7 @@ public extension Endpoint {
     ///   - encoder: 요청 값을 인코딩할 JSON 인코더입니다.
     ///   - headers: Endpoint 전용 HTTP 헤더입니다.
     ///     Content-Type이 없으면 `application/json`을 추가합니다.
+    ///   - retriesAfterUnauthorized: 401 응답 뒤 공통 인증 갱신·재시도를 수행할지 여부입니다.
     /// - Returns: JSON 본문을 포함한 POST Endpoint입니다.
     /// - Throws: `body`를 JSON으로 인코딩하지 못하면 인코딩 오류를 던집니다.
     static func post<Body: Encodable>(

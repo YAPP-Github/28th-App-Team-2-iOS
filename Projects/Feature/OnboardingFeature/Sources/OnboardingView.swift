@@ -324,6 +324,7 @@ private extension OnboardingView {
                 )
             )
         }
+        .accessibilityAddTraits(.isModal)
     }
 
     func termAgreementBinding(for term: OnboardingTerm) -> Binding<Bool> {
@@ -361,39 +362,5 @@ private extension OnboardingView {
 
     func termTitle(_ term: OnboardingTerm) -> String {
         "(\(term.isRequired ? "필수" : "선택")) \(term.title)"
-    }
-}
-
-private struct TermsDetailView: View {
-    let term: OnboardingTerm
-
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        VStack(spacing: 0) {
-            DSHeaderSub(
-                title: "약관 동의",
-                leftItem: DSHeaderActionItem(
-                    identifier: "close-term-detail",
-                    icon: .chevronLeftPlain,
-                    action: { dismiss() }
-                )
-            )
-
-            TermsWebView(urlString: term.detailURLString)
-        }
-    }
-}
-
-private struct TermsWebView: UIViewRepresentable {
-    let urlString: String
-
-    func makeUIView(context: Context) -> WKWebView {
-        WKWebView()
-    }
-
-    func updateUIView(_ webView: WKWebView, context: Context) {
-        guard let url = URL(string: urlString), webView.url != url else { return }
-        webView.load(URLRequest(url: url))
     }
 }

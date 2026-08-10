@@ -45,9 +45,7 @@ public struct OnboardingFeature {
             guard onboardingName.count <= 10 else {
                 return "이름은 최대 10글자까지 가능해요."
             }
-            guard onboardingName.unicodeScalars.allSatisfy({ scalar in
-                (0xAC00 ... 0xD7A3).contains(scalar.value)
-            }) else {
+            guard onboardingName.unicodeScalars.allSatisfy(\.isKoreanNameScalar) else {
                 return "이름은 한글만 가능해요."
             }
             return nil
@@ -153,6 +151,7 @@ private extension OnboardingFeature {
     func reduceSocialLogin(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case let .socialLoginButtonTapped(provider):
+            guard !state.loginPhase.isLoading else { return .none }
             state.loginPhase = .authenticating(provider)
 
             return .run { send in
@@ -163,6 +162,7 @@ private extension OnboardingFeature {
                     )
                 )
             }
+            .cancellable(id: OnboardingCancelID.socialLogin, cancelInFlight: true)
 
         case let .socialLoginResponse(.success(credential)):
             state.loginPhase = .authenticatingWithServer
@@ -341,7 +341,7 @@ private extension OnboardingFeature {
             state.dailyRoutine = nil
             state.romanticRelationshipStatus = nil
             state.isOnboardingExitConfirmationPresented = false
-            return .none
+            return .cancel(id: OnboardingCancelID.signup)
 
         case .debugPreviewButtonTapped(.newMember):
             state.onboardingToken = nil

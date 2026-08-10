@@ -37,10 +37,9 @@ public extension SocialLoginClient {
         Self { provider in
             switch provider {
             case .kakao:
-                guard let appKey = configuration.kakaoNativeAppKey else {
+                guard configuration.kakaoNativeAppKey != nil else {
                     throw SocialLoginError.notConfigured
                 }
-                KakaoSDK.initSDK(appKey: appKey)
                 return try await KakaoLoginCoordinator.signIn()
 
             case .google:
@@ -205,10 +204,19 @@ private final class AppleLoginCoordinator: NSObject,
 
 private extension UIApplication {
     var todakunTopViewController: UIViewController? {
-        connectedScenes
+        let keyWindow = connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .flatMap(\.windows)
-            .first(where: { $0.isKeyWindow })?
-            .rootViewController
+            .first(where: { $0.isKeyWindow })
+
+        guard let rootViewController = keyWindow?.rootViewController else {
+            return nil
+        }
+
+        var topViewController = rootViewController
+        while let presentedViewController = topViewController.presentedViewController {
+            topViewController = presentedViewController
+        }
+        return topViewController
     }
 }

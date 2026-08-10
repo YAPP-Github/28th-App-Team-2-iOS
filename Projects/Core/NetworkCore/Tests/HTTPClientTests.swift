@@ -328,6 +328,27 @@ struct HTTPClientUnauthorizedTests {
         #expect(await recorder.refreshCount == 0)
     }
 
+    @Test("401 처리 도중 취소되면 원래 401을 반환하지 않는다")
+    func propagatesCancellationAfterUnauthorizedHandler() async throws {
+        let client = HTTPClient(
+            baseURL: URL(string: "https://api.todakun.com")!,
+            transport: { request in
+                (
+                    Data(),
+                    try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 401)
+                )
+            },
+            onUnauthorized: {
+                withUnsafeCurrentTask { $0?.cancel() }
+                return false
+            }
+        )
+
+        await #expect(throws: CancellationError.self) {
+            try await client.data(for: .get("/protected"))
+        }
+    }
+
 }
 
 private actor AuthorizationRetryRecorder {
