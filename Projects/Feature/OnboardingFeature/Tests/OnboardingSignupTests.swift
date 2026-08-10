@@ -140,6 +140,38 @@ final class OnboardingSignupTests: XCTestCase {
         )
         XCTAssertEqual(body.refreshToken, "old-refresh")
     }
+
+    func testLiveRefreshClientDoesNotRetryItsOwnUnauthorizedResponse() async throws {
+        let counter = UnauthorizedHandlerCounter()
+        let httpClient = HTTPClient(
+            baseURL: try XCTUnwrap(URL(string: "https://api-dev.todakun.com")),
+            transport: { request in
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(fileURLWithPath: "/"),
+                    statusCode: 401,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (Data(), response)
+            },
+            onUnauthorized: {
+                await counter.increment()
+                return true
+            }
+        )
+
+        do {
+            _ = try await AuthClient.live(httpClient: httpClient).refresh("expired-refresh")
+            XCTFail("refresh endpoint의 401은 갱신 처리기를 호출하면 안 됩니다.")
+        } catch let error as AuthClientError {
+            XCTAssertEqual(error, .expired)
+        } catch {
+            XCTFail("예상하지 못한 오류: \(error)")
+        }
+
+        let invocationCount = await counter.value
+        XCTAssertEqual(invocationCount, 0)
+    }
 }
 
 private let expectedSignupInput = SignupInput(
@@ -162,6 +194,14 @@ private actor RequestRecorder {
 
     func value() -> URLRequest? {
         request
+    }
+}
+
+private actor UnauthorizedHandlerCounter {
+    private(set) var value = 0
+
+    func increment() {
+        value += 1
     }
 }
 

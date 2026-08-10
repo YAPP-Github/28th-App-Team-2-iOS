@@ -26,6 +26,10 @@ private enum KeychainSessionStorage {
             guard let tokens = try? JSONDecoder().decode(SessionTokens.self, from: data) else {
                 throw AuthSessionError.invalidStoredSession
             }
+            guard tokens.isValid else {
+                try? clear()
+                throw AuthSessionError.invalidStoredSession
+            }
             return tokens
         }
 
@@ -34,7 +38,8 @@ private enum KeychainSessionStorage {
         let legacyRefreshToken = try read(account: legacyRefreshTokenAccount)
             .flatMap { String(data: $0, encoding: .utf8) }
 
-        guard let legacyAccessToken, let legacyRefreshToken else {
+        guard let legacyAccessToken, let legacyRefreshToken,
+              !legacyAccessToken.isEmpty, !legacyRefreshToken.isEmpty else {
             if legacyAccessToken != nil || legacyRefreshToken != nil {
                 try clearLegacyTokens()
             }
@@ -51,6 +56,9 @@ private enum KeychainSessionStorage {
     }
 
     static func save(_ tokens: SessionTokens) throws {
+        guard tokens.isValid else {
+            throw AuthSessionError.invalidStoredSession
+        }
         guard let data = try? JSONEncoder().encode(tokens) else {
             throw AuthSessionError.saveFailed
         }

@@ -120,10 +120,18 @@ private actor AuthSession {
             cachedTokens = try storage.load()
             didRestore = true
         }
+        guard cachedTokens?.isValid ?? true else {
+            try? storage.clear()
+            cachedTokens = nil
+            throw AuthSessionError.invalidStoredSession
+        }
         return cachedTokens != nil
     }
 
     func save(_ tokens: SessionTokens) throws {
+        guard tokens.isValid else {
+            throw AuthSessionError.invalidStoredSession
+        }
         try storage.save(tokens)
         cachedTokens = tokens
         didRestore = true
@@ -161,6 +169,9 @@ private actor AuthSession {
 
         do {
             let tokens = try await task.value
+            guard tokens.isValid else {
+                throw AuthSessionError.invalidStoredSession
+            }
             do {
                 try storage.save(tokens)
             } catch {

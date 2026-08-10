@@ -128,6 +128,14 @@ make setup
 
 이 스크립트는 개발에 필요한 필수 도구 상태를 진단하고 Git Hooks 설정을 일괄적으로 자동 처리합니다.
 
+OAuth 로그인과 개발 API를 사용하려면 로컬 설정 파일을 만든 뒤 각 값을 입력합니다. 이 파일에는 실제 식별자와 API 주소가 들어가므로 커밋하지 않습니다.
+
+```bash
+cp Configuration/Secrets.xcconfig.example Configuration/Secrets.xcconfig
+```
+
+`Secrets.xcconfig`에 `KAKAO_NATIVE_APP_KEY`, `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_REVERSED_CLIENT_ID`, `API_BASE_URL`을 설정합니다. CI·배포 환경은 동일한 build setting을 비밀 변수로 주입합니다.
+
 이후 의존성 패키지를 가져오고 Xcode 프로젝트(.xcworkspace)를 생성하여 작업을 시작합니다.
 
 *(※ `mise`가 셸에 활성화(`mise activate`)되어 있다면 `mise exec --` 접두사 없이 바로 `tuist` 명령어를 사용할 수 있습니다.)*

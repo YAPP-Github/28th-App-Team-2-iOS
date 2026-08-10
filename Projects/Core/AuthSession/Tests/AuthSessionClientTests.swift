@@ -30,6 +30,30 @@ struct AuthSessionClientTests {
         #expect(try storage.load() == nil)
     }
 
+    @Test("빈 token으로 구성된 저장 세션은 복원하지 않는다")
+    func rejectsStoredSessionWithEmptyToken() async throws {
+        let storage = InMemorySessionStorage(
+            tokens: SessionTokens(accessToken: "", refreshToken: "refresh-token")
+        )
+        let client = AuthSessionClient.live(storage: storage.client)
+
+        await #expect(throws: AuthSessionError.invalidStoredSession) {
+            try await client.restore()
+        }
+        #expect(try storage.load() == nil)
+    }
+
+    @Test("빈 token 세션을 저장하지 않는다")
+    func rejectsSavingSessionWithEmptyToken() async throws {
+        let storage = InMemorySessionStorage()
+        let client = AuthSessionClient.live(storage: storage.client)
+
+        await #expect(throws: AuthSessionError.invalidStoredSession) {
+            try await client.save(SessionTokens(accessToken: "access-token", refreshToken: ""))
+        }
+        #expect(try storage.load() == nil)
+    }
+
     @Test("동시 refresh 요청은 하나의 작업과 결과를 공유한다")
     func sharesConcurrentRefreshOperation() async throws {
         let storage = InMemorySessionStorage(

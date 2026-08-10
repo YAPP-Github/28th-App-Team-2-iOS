@@ -295,6 +295,39 @@ struct HTTPClientUnauthorizedTests {
         #expect(await recorder.refreshCount == 1)
     }
 
+    @Test("인증 갱신 endpoint는 401 처리기를 호출하지 않는다")
+    func doesNotRetryEndpointExcludedFromUnauthorizedHandling() async throws {
+        let recorder = AuthorizationRetryRecorder()
+        let client = HTTPClient(
+            baseURL: URL(string: "https://api.todakun.com")!,
+            transport: { request in
+                _ = await recorder.record(
+                    authorization: request.value(forHTTPHeaderField: "Authorization")
+                )
+                return (
+                    Data(),
+                    try NetworkCoreTestSupport.makeHTTPResponse(for: request, statusCode: 401)
+                )
+            },
+            onUnauthorized: {
+                await recorder.refreshAuthorization()
+                return true
+            }
+        )
+
+        await #expect(throws: HTTPClientError.self) {
+            try await client.data(for:
+                .init(
+                    method: .post,
+                    path: "/api/v1/auth/refresh",
+                    retriesAfterUnauthorized: false
+                )
+            )
+        }
+        #expect(await recorder.attemptCount == 1)
+        #expect(await recorder.refreshCount == 0)
+    }
+
 }
 
 private actor AuthorizationRetryRecorder {

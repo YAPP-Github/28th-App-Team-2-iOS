@@ -9,4 +9,8 @@ public struct SessionTokens: Codable, Equatable, Sendable {
         self.accessToken = accessToken
         self.refreshToken = refreshToken
     }
+
+    var isValid: Bool {
+        !accessToken.isEmpty && !refreshToken.isEmpty
+    }
 }

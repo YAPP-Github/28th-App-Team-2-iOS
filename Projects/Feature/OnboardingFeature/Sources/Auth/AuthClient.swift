@@ -55,7 +55,8 @@ private func performRefresh(
 ) async throws -> SessionTokens {
     let endpoint = try Endpoint.post(
         "/api/v1/auth/refresh",
-        body: RefreshRequestDTO(refreshToken: refreshToken)
+        body: RefreshRequestDTO(refreshToken: refreshToken),
+        retriesAfterUnauthorized: false
     )
 
     do {

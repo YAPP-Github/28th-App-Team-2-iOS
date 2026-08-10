@@ -127,7 +127,8 @@ public struct HTTPClient: Sendable {
         let request = try await requestBuilder.makeRequest(for: endpoint)
         let firstResponse = try await perform(request)
 
-        if firstResponse.response.statusCode == 401,
+        if endpoint.retriesAfterUnauthorized,
+           firstResponse.response.statusCode == 401,
            let onUnauthorized,
            await onUnauthorized() {
             try Task.checkCancellation()
