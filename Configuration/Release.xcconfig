@@ -1,0 +1,2 @@
+// CI에서 Secrets.xcconfig 또는 동등한 build setting을 주입합니다.
+#include? "Secrets.xcconfig"

@@ -15,7 +15,8 @@ public extension Project {
         hasTests: Bool = true,
         testDependencies: [TargetDependency] = [],
         hasExample: Bool = false,
-        exampleDependencies: [TargetDependency] = []
+        exampleDependencies: [TargetDependency] = [],
+        exampleInfoPlist: InfoPlist? = nil
     ) -> [Target] {
         var targets: [Target] = []
 
@@ -66,7 +67,7 @@ public extension Project {
                     product: .app,
                     bundleId: "\(bundleId)Example",
                     deploymentTargets: deploymentTargets,
-                    infoPlist: .extendingDefault(with: [
+                    infoPlist: exampleInfoPlist ?? .extendingDefault(with: [
                         "UILaunchScreen": [:]
                     ]),
                     sources: ["Example/Sources/**"],
@@ -84,25 +85,81 @@ public extension Project {
     static func makeApp(
         name: String,
         dependencies: [TargetDependency] = [],
-        resources: ResourceFileElements? = ["Resources/**"]
+        resources: ResourceFileElements? = ["Resources/**"],
+        hasTests: Bool = false
     ) -> Project {
-        let targets = makeTargets(
-            name: name,
-            product: .app,
-            bundleId: bundleIdPrefix,
-            dependencies: dependencies,
-            resources: resources,
-            hasTests: false,
-            hasExample: false
-        )
+        var targets = [
+            Target.target(
+                name: name,
+                destinations: .iOS,
+                product: .app,
+                bundleId: bundleIdPrefix,
+                deploymentTargets: .iOS("17.0"),
+                infoPlist: .extendingDefault(with: [
+                    "CFBundleDisplayName": "토닥운",
+                    "UILaunchStoryboardName": "LaunchScreen",
+                    "UIUserInterfaceStyle": "Light",
+                    "API_BASE_URL": "$(API_BASE_URL)",
+                    "GOOGLE_IOS_CLIENT_ID": "$(GOOGLE_IOS_CLIENT_ID)",
+                    "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLSchemes": [
+                                "$(GOOGLE_REVERSED_CLIENT_ID)",
+                                "kakao$(KAKAO_NATIVE_APP_KEY)"
+                            ]
+                        ]
+                    ]
+                ]),
+                sources: ["Sources/**"],
+                resources: resources,
+                entitlements: .file(path: .relativeToRoot("Projects/App/Todakun.entitlements")),
+                dependencies: dependencies,
+                settings: .settings(
+                    base: [
+                        // GoogleSignIn의 AppAuth는 Objective-C category로 iOS authorization
+                        // presenter를 제공합니다. 정적 링크 시 category object가 제거되지 않도록 합니다.
+                        "OTHER_LDFLAGS": "$(inherited) -ObjC"
+                    ],
+                    configurations: [
+                        .debug(
+                            name: "Debug",
+                            xcconfig: .relativeToRoot("Configuration/Debug.xcconfig")
+                        ),
+                        .release(
+                            name: "Release",
+                            xcconfig: .relativeToRoot("Configuration/Release.xcconfig")
+                        )
+                    ]
+                )
+            )
+        ]
+
+        if hasTests {
+            targets.append(
+                .target(
+                    name: "\(name)Tests",
+                    destinations: .iOS,
+                    product: .unitTests,
+                    bundleId: "\(bundleIdPrefix).Tests",
+                    deploymentTargets: .iOS("17.0"),
+                    infoPlist: .default,
+                    sources: ["Tests/**"],
+                    dependencies: [.target(name: name)]
+                )
+            )
+        }
+
         return Project(name: name, targets: targets)
     }
 
     static func makeFeature(
         name: String,
         dependencies: [TargetDependency] = [],
+        resources: ResourceFileElements? = nil,
         hasTesting: Bool = true,
-        hasExample: Bool = true
+        hasExample: Bool = true,
+        exampleInfoPlist: InfoPlist? = nil
     ) -> Project {
         let targetBundleId = "\(bundleIdPrefix).\(name)"
         var projectTargets: [Target] = []
@@ -149,6 +206,7 @@ public extension Project {
             .target(name: interfaceName),
             .project(target: "DesignSystem", path: .relativeToRoot("Projects/Core/DesignSystem")),
             .project(target: "NetworkCore", path: .relativeToRoot("Projects/Core/NetworkCore")),
+            .project(target: "AuthSession", path: .relativeToRoot("Projects/Core/AuthSession")),
             .project(target: "Model", path: .relativeToRoot("Projects/Core/Model")),
             .project(target: "Utils", path: .relativeToRoot("Projects/Core/Utils")),
             .external(name: "ComposableArchitecture")
@@ -159,10 +217,12 @@ public extension Project {
             product: .staticFramework,
             bundleId: targetBundleId,
             dependencies: defaultDependencies + dependencies,
+            resources: resources,
             hasTests: true,
             testDependencies: testDependencies,
             hasExample: hasExample,
-            exampleDependencies: exampleDependencies
+            exampleDependencies: exampleDependencies,
+            exampleInfoPlist: exampleInfoPlist
         )
         projectTargets.append(contentsOf: implementationTargets)
 

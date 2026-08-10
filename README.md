@@ -12,15 +12,15 @@
 
 ## 📁 Project Structure
 
-본 프로젝트는 **App - Feature - Core** 3계층 구조로 이루어진 멀티 모듈 아키텍처로 설계되었습니다. (아래 서술된 내용은 프로젝트가 지향하는 최종 아키텍처 모델이며, 현재는 구조적인 뼈대(Skeleton/Stub) 위주로 구성되어 개발 진행 중입니다.)
+본 프로젝트는 **App - Feature - Core** 3계층 구조로 이루어진 멀티 모듈 아키텍처로 설계되었습니다. 온보딩과 인증 세션 라우팅은 구현되어 있으며, 나머지 주요 Feature 화면은 단계적으로 확장합니다.
 
 특히 **Feature 레이어**는 피처 간 참조 사이클을 방지하고 빌드 최적화를 달성하기 위해 **uFeature 아키텍처(Interface/Testing 분리)**를 채택했습니다.
 - 각 피처는 `Interface` 타겟, 구체적인 본체 `Implementation` 타겟, 그리고 공유 가능한 테스트 더블을 제공하는 `Testing` 타겟으로 분리됩니다.
   - **`Interface`**: 피처의 외부 노출 API 계약(프로토콜 등)만 정의하여 컴파일 의존성을 최소화합니다.
   - **`Implementation`**: 피처의 핵심 UI 뷰와 비즈니스 로직(TCA Reducer 등)을 구현합니다.
   - **`Testing`**: 피처의 Mock/Stub 등 테스트 더블을 구현하며, 타 피처의 단위 테스트나 예제 앱 등에서 의존성 주입 시 Mock 객체로 활용됩니다.
-- 피처의 본체(Implementation)끼리는 절대 서로 참조하지 않으며, 타 피처로의 화면 전환(네비게이션)이 필요할 때는 상대 피처의 **Interface** 타겟만을 의존합니다. (현재는 실제 화면 흐름 바인딩이 구현되지 않은 스텁 상태입니다.)
-- `MainTab`이나 `Root`와 같이 전체 피처들을 조립하는 껍데기 화면 코드는 피처 레이어가 아닌 최상위 **`App` 레이어** 내부에 작성되어 최종 런타임 조립(Composition Root)을 담당합니다. (현재 `RootApp`은 임시 SwiftUI View로 구성되어 있으며, 실제 앱 조립은 스텁 상태입니다.)
+- 피처의 본체(Implementation)끼리는 절대 서로 참조하지 않으며, 타 피처로의 화면 전환(네비게이션)이 필요할 때는 상대 피처의 **Interface** 타겟만을 의존합니다.
+- `MainTab`이나 `Root`와 같이 전체 피처들을 조립하는 껍데기 화면 코드는 피처 레이어가 아닌 최상위 **`App` 레이어** 내부에 작성되어 최종 런타임 조립(Composition Root)을 담당합니다. 현재 `RootFeature`는 저장 세션을 복원해 온보딩 또는 인증 완료 상태로 연결합니다. 인증 완료 목적지는 임시 홈 화면이며, 실제 `TodakFeature` 연결은 후속 작업입니다.
 
 ```mermaid
 graph TD
@@ -51,6 +51,7 @@ graph TD
         subgraph UpperCore [Upper Core]
             DesignSystem[DesignSystem]
             NetworkCore[NetworkCore]
+            AuthSession[AuthSession]
         end
         subgraph LowerCore [Lower Core]
             Model[Model]
@@ -83,6 +84,9 @@ graph TD
     MyPage --> UpperCore
     MyPage --> LowerCore
 
+    TodakunApp --> AuthSession
+    Onboarding --> AuthSession
+
     %% Styling
     classDef app fill:#ff9999,stroke:#333,stroke-width:2px;
     classDef feature fill:#99ccff,stroke:#333,stroke-width:2px;
@@ -92,7 +96,7 @@ graph TD
     class TodakunApp app;
     class Onboarding,Fortune,Todak,LuckyAction,MyPage feature;
     class OnboardingIF,FortuneIF,TodakIF,LuckyActionIF,MyPageIF interface;
-    class DesignSystem,NetworkCore,Model,Utils core;
+    class DesignSystem,NetworkCore,AuthSession,Model,Utils core;
 ```
 
 - **Projects/App**: 진입점 타겟 및 전체 기능 조립 (RootView, MainTabView 포함)
@@ -105,6 +109,7 @@ graph TD
 - **Projects/Core**: 앱 전반에 걸쳐 사용되는 공통 모듈 (상위 Core가 하위 Core를 단방향으로 참조 가능)
   - `DesignSystem` (상위 Core): 컬러, 폰트, 공통 UI 컴포넌트 및 에셋 (단독 실행 데모용 Example 앱 포함)
   - `NetworkCore` (상위 Core): 네트워크 API 클라이언트
+  - `AuthSession` (공통 Core): Keychain 세션 저장·복원과 인증 헤더·토큰 갱신 동시성 관리
   - `Model` (하위 Core): 공통 데이터 객체 (타 모듈 의존성 없음)
   - `Utils` (하위 Core): 각종 헬퍼 및 확장 파일 (타 모듈 의존성 없음)
 
@@ -122,6 +127,14 @@ make setup
 ```
 
 이 스크립트는 개발에 필요한 필수 도구 상태를 진단하고 Git Hooks 설정을 일괄적으로 자동 처리합니다.
+
+OAuth 로그인과 개발 API를 사용하려면 로컬 설정 파일을 만든 뒤 각 값을 입력합니다. 이 파일에는 실제 식별자와 API 주소가 들어가므로 커밋하지 않습니다.
+
+```bash
+cp Configuration/Secrets.xcconfig.example Configuration/Secrets.xcconfig
+```
+
+`Secrets.xcconfig`에 `KAKAO_NATIVE_APP_KEY`, `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_REVERSED_CLIENT_ID`, `API_BASE_URL`을 설정합니다. CI·배포 환경은 동일한 build setting을 비밀 변수로 주입합니다.
 
 이후 의존성 패키지를 가져오고 Xcode 프로젝트(.xcworkspace)를 생성하여 작업을 시작합니다.
 
