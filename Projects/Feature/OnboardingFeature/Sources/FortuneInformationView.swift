@@ -59,7 +59,7 @@ struct FortuneInformationView: View {
                     if store.isBirthTimeUnknown {
                         Text("정확한 시간을 모르면 정오 기준으로 운세가 계산돼요.")
                             .dsCaption1Regular
-                            .foregroundStyle(Color.ds.gray600)
+                            .foregroundStyle(Color.ds.sky600)
                     }
                 }
                 .padding(.horizontal, 20)
