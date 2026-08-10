@@ -1,5 +1,6 @@
 import AuthSession
 import ComposableArchitecture
+import FortuneFeature
 import GoogleSignIn
 import KakaoSDKAuth
 import KakaoSDKCommon
@@ -18,15 +19,41 @@ struct TodakunApp: App {
             KakaoSDK.initSDK(appKey: kakaoNativeAppKey)
         }
 
-        let authClient = configuration.apiBaseURL.map { baseURL in
-            AuthClient.live(httpClient: HTTPClient(baseURL: baseURL))
-        } ?? .unavailable
+        let authSession = AuthSessionClient.live
+
+        let authClient: AuthClient
+        let fortuneClient: FortuneClient
+
+        if let baseURL = configuration.apiBaseURL {
+            let authHTTPClient = HTTPClient(baseURL: baseURL)
+            authClient = AuthClient.live(httpClient: authHTTPClient)
+
+            let authenticatedHTTPClient = HTTPClient(
+                baseURL: baseURL,
+                defaultHeaders: {
+                    await authSession.authorizationHeaders()
+                },
+                onUnauthorized: {
+                    do {
+                        _ = try await authSession.refresh(using: authClient.refresh)
+                        return true
+                    } catch {
+                        return false
+                    }
+                }
+            )
+            fortuneClient = FortuneClient.live(httpClient: authenticatedHTTPClient)
+        } else {
+            authClient = .unavailable
+            fortuneClient = .unavailable
+        }
 
         store = Store(initialState: RootFeature.State()) {
             RootFeature()
         } withDependencies: {
             $0.authClient = authClient
-            $0.authSession = .live
+            $0.authSession = authSession
+            $0.fortuneClient = fortuneClient
             $0.socialLoginClient = .live(configuration: configuration)
         }
     }
