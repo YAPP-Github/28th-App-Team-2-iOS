@@ -9,6 +9,7 @@
 - 활성 Primary·Secondary 버튼은 누르는 동안 기존 배경 위에 `gray975` 색상을 `16%` opacity로 덮는다.
 - Disabled 버튼에는 pressed 오버레이를 적용하지 않는다.
 - 오버레이는 기존 버튼 영역에만 적용하며, 별도의 최소 크기나 터치 영역을 강제하지 않는다.
+- `DSButton`이 아닌 화면 전용 조합 버튼은 공통 값을 직접 알지 않고 `dsSurfaceButtonStyle(shape:)` 또는 `dsIconButtonStyle(_:width:height:)` 조립 API로 동일한 pressed 정책을 사용한다.
 
 ## 🏗️ Structure & Layout
 
