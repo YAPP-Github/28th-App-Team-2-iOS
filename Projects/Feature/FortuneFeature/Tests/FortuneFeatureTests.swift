@@ -236,7 +236,9 @@ struct FortuneFeatureTests {
         #expect(isCancelledReceived)
         await store.finish()
     }
+}
 
+extension FortuneFeatureTests {
     @Test("unavailable client는 notConfigured 오류를 발생시킨다")
     func unavailableClientThrowsNotConfigured() async {
         let client = FortuneClient.unavailable

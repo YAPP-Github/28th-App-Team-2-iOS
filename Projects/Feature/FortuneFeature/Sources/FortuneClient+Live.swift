@@ -82,7 +82,7 @@ private struct CommonResponseDTO<Data: Decodable>: Decodable {
 private struct TodayFortuneResponseDTO: Decodable {
     let dailyFortuneID: UUID
     let fortuneDate: String
-    let score: Int
+    let score: Double
     let title: String
     let luckActionScores: [LuckActionScoreResponseDTO]
 

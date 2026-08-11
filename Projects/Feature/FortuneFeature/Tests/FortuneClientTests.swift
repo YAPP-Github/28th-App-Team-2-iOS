@@ -15,7 +15,7 @@ struct FortuneClientTests {
             "data": {
                 "id": "11111111-1111-1111-1111-111111111111",
                 "fortuneDate": "2026-08-11",
-                "score": 88,
+                "score": 65.4,
                 "title": "좋은 하루",
                 "luckActionScores": [
                     { "fortuneCategory": "RELATIONSHIP", "score": 90 },
@@ -36,7 +36,9 @@ struct FortuneClientTests {
 
         let fortune = try await client.fetchToday()
         #expect(fortune.dailyFortuneID == UUID(uuidString: "11111111-1111-1111-1111-111111111111"))
-        #expect(fortune.score == 88)
+        #expect(fortune.score == 65.4)
+        #expect(fortune.displayScore == 65)
+        #expect(fortune.moodLevel == .level03)
         #expect(fortune.title == "좋은 하루")
         #expect(fortune.scoreDescription == nil)
         #expect(fortune.categoryScores.count == 2)
