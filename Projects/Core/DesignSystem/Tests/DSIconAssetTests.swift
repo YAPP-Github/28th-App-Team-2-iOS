@@ -14,6 +14,7 @@ struct DSIconAssetTests {
                 "checkLine",
                 "deleteLine",
                 "edit",
+                "circleInfoLine",
                 "circleXFill",
                 "chevronLeftPlain",
                 "chevronLeftNarrow",

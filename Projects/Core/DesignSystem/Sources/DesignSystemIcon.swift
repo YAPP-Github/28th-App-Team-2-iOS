@@ -9,6 +9,7 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
     case checkLine
     case deleteLine
     case edit
+    case circleInfoLine
     case circleXFill
     case chevronLeftPlain
     case chevronLeftNarrow
@@ -49,6 +50,8 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.deleteLine.swiftUIImage
         case .edit:
             DesignSystemAsset.Icons.edit.swiftUIImage
+        case .circleInfoLine:
+            DesignSystemAsset.Icons.circleInfoLine.swiftUIImage
         case .circleXFill:
             DesignSystemAsset.Icons.circleXFill.swiftUIImage
         case .chevronLeftPlain:
