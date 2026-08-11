@@ -41,7 +41,7 @@ struct MainTabView: View {
             selectedContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            if store.myPage.edit == nil {
+            if store.myPage.edit == nil, store.myPage.sajuDetail == nil {
                 DSBottomNavigation(
                     selectedItem: $store.selectedItem.sending(\.selectedItemChanged)
                 )
