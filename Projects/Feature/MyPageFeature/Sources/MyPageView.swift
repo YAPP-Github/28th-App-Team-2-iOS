@@ -12,6 +12,16 @@ public struct MyPageView: View {
     public var body: some View {
         if store.edit != nil {
             MyPageEditView(store: store)
+        } else if store.sajuDetail != nil, let dashboard = store.dashboard {
+            MyPageSajuDetailView(
+                dashboard: dashboard,
+                helpSheet: Binding(
+                    get: { store.sajuDetail?.helpSheet },
+                    set: { _ in store.send(.sajuDetailHelpSheetDismissed) }
+                ),
+                onBack: { store.send(.sajuDetailDismissButtonTapped) },
+                onHelp: { store.send(.sajuDetailHelpButtonTapped($0)) }
+            )
         } else {
             mainPage
         }
@@ -174,7 +184,7 @@ private struct MyPageProfileCard: View {
                     }
             }
 
-            MyPagePillarsGrid(pillars: dashboard.chart.pillars)
+            MyPagePillarsGrid(pillars: dashboard.chart.displayPillars)
 
             DSButton("만세력 보기", size: .medium, action: onCalendar)
                 .frame(maxWidth: .infinity)
@@ -266,11 +276,11 @@ private struct PillarCell: View {
 
     private var backgroundColor: Color {
         switch element {
-        case .wood: .ds.teal100
-        case .fire: .ds.red100
-        case .earth: .ds.orange100
-        case .metal: .ds.gray200
-        case .water: .ds.sky100
+        case .wood: .ds.teal200
+        case .fire: .ds.red200
+        case .earth: .ds.orange200
+        case .metal: .ds.coolGray300
+        case .water: .ds.sky200
         case .unknown: .ds.gray100
         }
     }

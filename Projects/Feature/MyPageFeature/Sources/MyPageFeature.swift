@@ -11,8 +11,24 @@ public struct MyPageFeature {
         public var dashboard: MyPageDashboard?
         public var phase: Phase = .idle
         public var edit: EditState?
+        public var sajuDetail: SajuDetailState?
 
         public init() {}
+    }
+
+    @ObservableState
+    public struct SajuDetailState: Equatable {
+        public var helpSheet: HelpSheet?
+
+        public init() {}
+    }
+
+    public enum HelpSheet: String, Equatable, Hashable, Identifiable {
+        case sajuOriginal
+        case ohaeng
+
+        // swiftlint:disable:next identifier_name
+        public var id: Self { self }
     }
 
     @ObservableState
@@ -75,6 +91,9 @@ public struct MyPageFeature {
         case editSaveButtonTapped
         case editResponse(Result<MyPageDashboard, MyPageClientError>)
         case calendarButtonTapped
+        case sajuDetailDismissButtonTapped
+        case sajuDetailHelpButtonTapped(HelpSheet)
+        case sajuDetailHelpSheetDismissed
         case menuItemTapped(MenuItem)
     }
 
@@ -208,7 +227,24 @@ public struct MyPageFeature {
                 state.edit?.error = error
                 return .none
 
-            case .calendarButtonTapped, .menuItemTapped:
+            case .calendarButtonTapped:
+                guard state.dashboard != nil else { return .none }
+                state.sajuDetail = SajuDetailState()
+                return .none
+
+            case .sajuDetailDismissButtonTapped:
+                state.sajuDetail = nil
+                return .none
+
+            case let .sajuDetailHelpButtonTapped(helpSheet):
+                state.sajuDetail?.helpSheet = helpSheet
+                return .none
+
+            case .sajuDetailHelpSheetDismissed:
+                state.sajuDetail?.helpSheet = nil
+                return .none
+
+            case .menuItemTapped:
                 return .none
             }
         }

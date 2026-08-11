@@ -4,6 +4,19 @@ import XCTest
 
 @MainActor
 final class MyPageFeatureTests: XCTestCase {
+    func testSajuChartProvidesPillarsInDisplayOrder() {
+        let chart = MyPageSajuChart(
+            pillars: [
+                makePillar(type: "DAY"),
+                makePillar(type: "MONTH"),
+                makePillar(type: "YEAR"),
+                makePillar(type: "HOUR")
+            ]
+        )
+
+        XCTAssertEqual(chart.displayPillars.map(\.type), ["HOUR", "DAY", "MONTH", "YEAR"])
+    }
+
     func testTaskLoadsDashboard() async {
         let dashboard = MyPageDashboard(
             profile: MyPageProfile(
@@ -85,5 +98,60 @@ final class MyPageFeatureTests: XCTestCase {
             $0.phase = .loaded
             $0.edit = nil
         }
+    }
+
+    func testCalendarButtonPresentsSajuDetail() async {
+        var initialState = MyPageFeature.State()
+        initialState.dashboard = dashboard
+        initialState.phase = .loaded
+
+        let store = TestStore(initialState: initialState) {
+            MyPageFeature()
+        }
+
+        await store.send(.calendarButtonTapped) {
+            $0.sajuDetail = MyPageFeature.SajuDetailState()
+        }
+
+        await store.send(.sajuDetailHelpButtonTapped(.ohaeng)) {
+            $0.sajuDetail?.helpSheet = .ohaeng
+        }
+
+        await store.send(.sajuDetailHelpSheetDismissed) {
+            $0.sajuDetail?.helpSheet = nil
+        }
+
+        await store.send(.sajuDetailDismissButtonTapped) {
+            $0.sajuDetail = nil
+        }
+    }
+
+    private var dashboard: MyPageDashboard {
+        MyPageDashboard(
+            profile: MyPageProfile(
+                memberID: "member-id",
+                name: "토닥이",
+                gender: "FEMALE",
+                birthDate: "1999-02-13",
+                calendarType: "SOLAR",
+                birthTime: "JASI",
+                isTimeUnknown: false,
+                job: "WORKER",
+                relationshipStatus: "SOLO"
+            ),
+            chart: MyPageSajuChart(pillars: [])
+        )
+    }
+
+    private func makePillar(type: String) -> MyPagePillar {
+        MyPagePillar(
+            type: type,
+            heavenlyStem: "갑",
+            heavenlyReading: "목",
+            heavenlyElement: .wood,
+            earthlyBranch: "자",
+            earthlyReading: "수",
+            earthlyElement: .water
+        )
     }
 }
