@@ -229,12 +229,16 @@ private actor MyPageSajuChartCache {
 
 private struct SajuChartDetailResponseDTO: Decodable, Sendable {
     let pillars: [PillarResponseDTO]
+    let ohaeng: [OhaengResponseDTO]
 
     func toDomain() -> MyPageSajuChart {
         MyPageSajuChart(
             pillars: pillars
                 .map { $0.toDomain() }
-                .sorted { $0.type.displayOrder < $1.type.displayOrder }
+                .sorted { $0.type.displayOrder < $1.type.displayOrder },
+            ohaengs: ohaeng
+                .map { $0.toDomain() }
+                .sorted { $0.element.displayOrder < $1.element.displayOrder }
         )
     }
 }
@@ -243,6 +247,11 @@ private struct PillarResponseDTO: Decodable, Sendable {
     let pillarType: String
     let heavenlyStem: StemResponseDTO
     let earthlyBranch: BranchResponseDTO
+    let stemSipseong: SipseongResponseDTO?
+    let branchSipseong: SipseongResponseDTO
+    let jijanggan: [StemResponseDTO]
+    let sibiunseong: SajuLabelResponseDTO
+    let sinsal: SajuLabelResponseDTO
 
     func toDomain() -> MyPagePillar {
         MyPagePillar(
@@ -252,9 +261,36 @@ private struct PillarResponseDTO: Decodable, Sendable {
             heavenlyElement: heavenlyStem.element.toDomain(),
             earthlyBranch: earthlyBranch.hanja,
             earthlyReading: "\(earthlyBranch.reading), \(earthlyBranch.element.displayName)",
-            earthlyElement: earthlyBranch.element.toDomain()
+            earthlyElement: earthlyBranch.element.toDomain(),
+            stemSipseong: stemSipseong?.label,
+            branchSipseong: branchSipseong.label,
+            hiddenStems: jijanggan.map(\.reading),
+            twelveLifeStage: sibiunseong.label,
+            twelveSpirit: sinsal.label
         )
     }
+}
+
+private struct OhaengResponseDTO: Decodable, Sendable {
+    let element: ElementResponseDTO
+    let count: Int
+    let percentage: Double
+
+    func toDomain() -> MyPageOhaeng {
+        MyPageOhaeng(
+            element: element.toDomain(),
+            count: count,
+            percentage: percentage
+        )
+    }
+}
+
+private struct SipseongResponseDTO: Decodable, Sendable {
+    let label: String
+}
+
+private struct SajuLabelResponseDTO: Decodable, Sendable {
+    let label: String
 }
 
 private struct StemResponseDTO: Decodable, Sendable {
@@ -288,6 +324,19 @@ private extension String {
         case "MONTH": 2
         case "YEAR": 3
         default: 4
+        }
+    }
+}
+
+private extension MyPageElement {
+    var displayOrder: Int {
+        switch self {
+        case .wood: 0
+        case .fire: 1
+        case .earth: 2
+        case .metal: 3
+        case .water: 4
+        case .unknown: 5
         }
     }
 }
