@@ -4,9 +4,16 @@ import NetworkCore
 
 public struct MyPageClient: Sendable {
     public var loadDashboard: @Sendable () async throws -> MyPageDashboard
+    public var updateProfile: @Sendable (MyPageProfileUpdate) async throws -> MyPageDashboard
 
-    public init(loadDashboard: @escaping @Sendable () async throws -> MyPageDashboard) {
+    public init(
+        loadDashboard: @escaping @Sendable () async throws -> MyPageDashboard,
+        updateProfile: @escaping @Sendable (MyPageProfileUpdate) async throws -> MyPageDashboard = { _ in
+            throw MyPageClientError.notConfigured
+        }
+    ) {
         self.loadDashboard = loadDashboard
+        self.updateProfile = updateProfile
     }
 }
 
@@ -23,23 +30,50 @@ public extension DependencyValues {
 }
 
 public extension MyPageClient {
-    static let unavailable = Self {
-        throw MyPageClientError.notConfigured
-    }
+    static let unavailable = Self(
+        loadDashboard: { throw MyPageClientError.notConfigured },
+        updateProfile: { _ in throw MyPageClientError.notConfigured }
+    )
 
     static func live(httpClient: HTTPClient) -> Self {
         let chartCache = MyPageSajuChartCache.live
 
-        return Self {
-            let profile = try await fetchProfile(httpClient: httpClient)
-            if let chart = await chartCache.load(memberID: profile.memberID) {
+        return Self(
+            loadDashboard: {
+                let profile = try await fetchProfile(httpClient: httpClient)
+                if let chart = await chartCache.load(memberID: profile.memberID) {
+                    return MyPageDashboard(profile: profile, chart: chart)
+                }
+
+                let chart = try await fetchSajuChart(httpClient: httpClient)
+                await chartCache.save(chart, memberID: profile.memberID)
+                return MyPageDashboard(profile: profile, chart: chart)
+            },
+            updateProfile: { update in
+                try await patchProfile(update, httpClient: httpClient)
+                let profile = try await fetchProfile(httpClient: httpClient)
+                let chart = try await fetchSajuChart(httpClient: httpClient)
+                await chartCache.save(chart, memberID: profile.memberID)
                 return MyPageDashboard(profile: profile, chart: chart)
             }
+        )
+    }
+}
 
-            let chart = try await fetchSajuChart(httpClient: httpClient)
-            await chartCache.save(chart, memberID: profile.memberID)
-            return MyPageDashboard(profile: profile, chart: chart)
-        }
+private func patchProfile(_ update: MyPageProfileUpdate, httpClient: HTTPClient) async throws {
+    do {
+        let body = try JSONEncoder().encode(UpdateMemberRequestDTO(update))
+        let response: CommonResponseDTO<EmptyResponseDTO> = try await httpClient.request(
+            Endpoint(
+                method: .patch,
+                path: "/api/v1/members/me",
+                headers: ["Content-Type": "application/json"],
+                body: body
+            )
+        )
+        guard response.success else { throw MyPageClientError.invalidResponse }
+    } catch {
+        throw MyPageClientError(error)
     }
 }
 
@@ -84,6 +118,8 @@ private struct GetMyProfileResponseDTO: Decodable, Sendable {
     let birthTime: String
     let isTimeUnknown: Bool
     let calendarType: String
+    let job: String
+    let relationshipStatus: String
 
     enum CodingKeys: String, CodingKey {
         case memberID = "id"
@@ -93,6 +129,8 @@ private struct GetMyProfileResponseDTO: Decodable, Sendable {
         case birthTime
         case isTimeUnknown
         case calendarType
+        case job
+        case relationshipStatus
     }
 
     func toDomain() -> MyPageProfile {
@@ -103,8 +141,30 @@ private struct GetMyProfileResponseDTO: Decodable, Sendable {
             birthDate: birthDate,
             calendarType: calendarType,
             birthTime: birthTime,
-            isTimeUnknown: isTimeUnknown
+            isTimeUnknown: isTimeUnknown,
+            job: job,
+            relationshipStatus: relationshipStatus
         )
+    }
+}
+
+private struct EmptyResponseDTO: Decodable, Sendable {}
+
+private struct UpdateMemberRequestDTO: Encodable, Sendable {
+    let gender: String
+    let calendarType: String
+    let birthDate: String
+    let birthTime: String
+    let job: String
+    let relationshipStatus: String
+
+    init(_ update: MyPageProfileUpdate) {
+        gender = update.gender
+        calendarType = update.calendarType
+        birthDate = update.birthDate
+        birthTime = update.birthTime
+        job = update.job
+        relationshipStatus = update.relationshipStatus
     }
 }
 

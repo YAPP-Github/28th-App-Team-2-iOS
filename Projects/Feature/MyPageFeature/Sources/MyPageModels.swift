@@ -19,6 +19,8 @@ public struct MyPageProfile: Codable, Equatable, Sendable {
     public let calendarType: String
     public let birthTime: String
     public let isTimeUnknown: Bool
+    public let job: String
+    public let relationshipStatus: String
 
     public init(
         memberID: String,
@@ -27,7 +29,9 @@ public struct MyPageProfile: Codable, Equatable, Sendable {
         birthDate: String,
         calendarType: String,
         birthTime: String,
-        isTimeUnknown: Bool
+        isTimeUnknown: Bool,
+        job: String,
+        relationshipStatus: String
     ) {
         self.memberID = memberID
         self.name = name
@@ -36,6 +40,8 @@ public struct MyPageProfile: Codable, Equatable, Sendable {
         self.calendarType = calendarType
         self.birthTime = birthTime
         self.isTimeUnknown = isTimeUnknown
+        self.job = job
+        self.relationshipStatus = relationshipStatus
     }
 
     public var genderText: String { gender == "FEMALE" ? "여성" : "남성" }
@@ -48,6 +54,31 @@ public struct MyPageProfile: Codable, Equatable, Sendable {
     public var birthTimeText: String? {
         guard !isTimeUnknown else { return nil }
         return BirthTimePeriod(apiValue: birthTime)?.displayText ?? birthTime
+    }
+}
+
+public struct MyPageProfileUpdate: Equatable, Sendable {
+    public let gender: String
+    public let calendarType: String
+    public let birthDate: String
+    public let birthTime: String
+    public let job: String
+    public let relationshipStatus: String
+
+    public init(
+        gender: String,
+        calendarType: String,
+        birthDate: String,
+        birthTime: String,
+        job: String,
+        relationshipStatus: String
+    ) {
+        self.gender = gender
+        self.calendarType = calendarType
+        self.birthDate = birthDate
+        self.birthTime = birthTime
+        self.job = job
+        self.relationshipStatus = relationshipStatus
     }
 }
 
