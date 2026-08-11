@@ -61,7 +61,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LaunchBackgroundImage" width="393" height="852"/>
+        <image name="LaunchBackgroundImage" width="393" height="850"/>
         <image name="LaunchCharacter" width="164" height="160"/>
         <image name="LaunchLogo" width="244" height="71"/>
         <image name="LaunchTagline" width="187.33333333333334" height="18"/>

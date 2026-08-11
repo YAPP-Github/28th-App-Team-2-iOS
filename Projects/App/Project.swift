@@ -9,6 +9,7 @@ let project = Project.makeApp(
         .external(name: "KakaoSDKAuth"),
         .external(name: "KakaoSDKCommon"),
         .project(target: "AuthSession", path: .relativeToRoot("Projects/Core/AuthSession")),
+        .project(target: "DesignSystem", path: .relativeToRoot("Projects/Core/DesignSystem")),
         .project(target: "NetworkCore", path: .relativeToRoot("Projects/Core/NetworkCore")),
         .project(target: "OnboardingFeature", path: .relativeToRoot("Projects/Feature/OnboardingFeature")),
         .project(target: "FortuneFeature", path: .relativeToRoot("Projects/Feature/FortuneFeature")),

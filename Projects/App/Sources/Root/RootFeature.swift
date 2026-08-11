@@ -8,6 +8,7 @@ struct RootFeature {
     struct State: Equatable {
         var route: Route = .launching
         var onboarding = OnboardingFeature.State()
+        var mainTab = MainTabFeature.State()
     }
 
     enum Route: Equatable {
@@ -20,6 +21,7 @@ struct RootFeature {
         case task
         case sessionRestored(Result<Bool, AuthSessionError>)
         case onboarding(OnboardingFeature.Action)
+        case mainTab(MainTabFeature.Action)
     }
 
     @Dependency(\.authSession) private var authSession
@@ -27,6 +29,10 @@ struct RootFeature {
     var body: some ReducerOf<Self> {
         Scope(state: \.onboarding, action: \.onboarding) {
             OnboardingFeature()
+        }
+
+        Scope(state: \.mainTab, action: \.mainTab) {
+            MainTabFeature()
         }
 
         Reduce { state, action in
@@ -54,7 +60,7 @@ struct RootFeature {
                 state.route = .authenticated
                 return .none
 
-            case .onboarding:
+            case .onboarding, .mainTab:
                 return .none
             }
         }
