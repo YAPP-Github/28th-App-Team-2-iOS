@@ -12,6 +12,7 @@ struct FortuneHomeView: View {
 
     let content: FortuneHomeContent
     let action: (FortuneFeature.Action.ViewAction) -> Void
+    let onRefresh: () async -> Void
 
     @State private var scrollMetrics = ScrollMetrics()
 
@@ -71,6 +72,9 @@ struct FortuneHomeView: View {
             }
         }
         .coordinateSpace(name: Self.scrollCoordinateSpaceName)
+        .refreshable {
+            await onRefresh()
+        }
         .scrollIndicators(.hidden)
         .background(alignment: .top) {
             ZStack(alignment: .top) {
