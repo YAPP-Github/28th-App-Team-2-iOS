@@ -105,7 +105,12 @@ struct MyPageSajuOriginalCard: View {
     var body: some View {
         VStack(spacing: 8) {
             headerRow
-            textRow(title: "십성", values: pillars.map(\.stemSipseong))
+            textRow(
+                title: "십성",
+                values: pillars.map { pillar in
+                    pillar.type == "DAY" ? "일원" : pillar.stemSipseong
+                }
+            )
             cardRow(title: "천간", isHeavenly: true)
             cardRow(title: "지지", isHeavenly: false)
             textRow(title: "십성", values: pillars.map(\.branchSipseong))
