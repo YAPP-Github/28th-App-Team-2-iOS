@@ -5,6 +5,7 @@ import KakaoSDKAuth
 import KakaoSDKCommon
 import NetworkCore
 import OnboardingFeature
+import MyPageFeature
 import SwiftUI
 
 @main
@@ -18,16 +19,23 @@ struct TodakunApp: App {
             KakaoSDK.initSDK(appKey: kakaoNativeAppKey)
         }
 
-        let authClient = configuration.apiBaseURL.map { baseURL in
-            AuthClient.live(httpClient: HTTPClient(baseURL: baseURL))
-        } ?? .unavailable
+        let authSession = AuthSessionClient.live
+        let httpClient = configuration.apiBaseURL.map { baseURL in
+            HTTPClient(
+                baseURL: baseURL,
+                defaultHeaders: { await authSession.authorizationHeaders() }
+            )
+        }
+        let authClient = httpClient.map(AuthClient.live) ?? .unavailable
+        let myPageClient = httpClient.map(MyPageClient.live) ?? .unavailable
 
         store = Store(initialState: RootFeature.State()) {
             RootFeature()
         } withDependencies: {
             $0.authClient = authClient
-            $0.authSession = .live
+            $0.authSession = authSession
             $0.socialLoginClient = .live(configuration: configuration)
+            $0.myPageClient = myPageClient
         }
     }
 
@@ -56,12 +64,10 @@ private struct RootView: View {
                     .background(Color("LaunchBackground").ignoresSafeArea())
 
             case .authenticated:
-                VStack(spacing: 12) {
-                    Text("홈")
-                        .font(.title.bold())
-                    Text("로그인이 완료되었어요")
-                        .foregroundStyle(.secondary)
-                }
+                MainTabView(
+                    store: store.scope(state: \.mainTab, action: \.mainTab)
+                )
+//                .ignoresSafeArea(edges: .bottom)
             case .unauthenticated:
                 OnboardingView(
                     store: store.scope(state: \.onboarding, action: \.onboarding)

@@ -1,5 +1,6 @@
 import AuthSession
 import ComposableArchitecture
+import DesignSystem
 import XCTest
 @testable import Todakun
 
@@ -72,6 +73,16 @@ final class RootFeatureTests: XCTestCase {
 
         await store.send(.onboarding(.delegate(.authenticationCompleted))) {
             $0.route = .authenticated
+        }
+    }
+
+    func testMainTabSelectionChanges() async {
+        let store = TestStore(initialState: MainTabFeature.State()) {
+            MainTabFeature()
+        }
+
+        await store.send(.selectedItemChanged(.myPage)) {
+            $0.selectedItem = .myPage
         }
     }
 }
