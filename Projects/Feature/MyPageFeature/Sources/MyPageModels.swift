@@ -1,7 +1,7 @@
 import Foundation
 import Model
 
-public struct MyPageDashboard: Equatable, Sendable {
+public struct MyPageDashboard: Codable, Equatable, Sendable {
     public let profile: MyPageProfile
     public let chart: MyPageSajuChart
 
@@ -11,7 +11,8 @@ public struct MyPageDashboard: Equatable, Sendable {
     }
 }
 
-public struct MyPageProfile: Equatable, Sendable {
+public struct MyPageProfile: Codable, Equatable, Sendable {
+    public let memberID: String
     public let name: String
     public let gender: String
     public let birthDate: String
@@ -20,6 +21,7 @@ public struct MyPageProfile: Equatable, Sendable {
     public let isTimeUnknown: Bool
 
     public init(
+        memberID: String,
         name: String,
         gender: String,
         birthDate: String,
@@ -27,6 +29,7 @@ public struct MyPageProfile: Equatable, Sendable {
         birthTime: String,
         isTimeUnknown: Bool
     ) {
+        self.memberID = memberID
         self.name = name
         self.gender = gender
         self.birthDate = birthDate
@@ -48,7 +51,7 @@ public struct MyPageProfile: Equatable, Sendable {
     }
 }
 
-public struct MyPageSajuChart: Equatable, Sendable {
+public struct MyPageSajuChart: Codable, Equatable, Sendable {
     public let pillars: [MyPagePillar]
 
     public init(pillars: [MyPagePillar]) {
@@ -56,7 +59,7 @@ public struct MyPageSajuChart: Equatable, Sendable {
     }
 }
 
-public struct MyPagePillar: Equatable, Identifiable, Sendable {
+public struct MyPagePillar: Codable, Equatable, Identifiable, Sendable {
     public let type: String
     public let heavenlyStem: String
     public let heavenlyReading: String
@@ -87,7 +90,7 @@ public struct MyPagePillar: Equatable, Identifiable, Sendable {
     }
 }
 
-public enum MyPageElement: String, Equatable, Sendable {
+public enum MyPageElement: String, Codable, Equatable, Sendable {
     case wood = "WOOD"
     case fire = "FIRE"
     case earth = "EARTH"

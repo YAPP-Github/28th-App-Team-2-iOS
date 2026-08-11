@@ -21,7 +21,7 @@ public struct MyPageFeature {
 
     public enum Action: Equatable {
         case task
-        case refreshButtonTapped
+        case retryButtonTapped
         case dashboardResponse(Result<MyPageDashboard, MyPageClientError>)
         case editButtonTapped
         case calendarButtonTapped
@@ -41,7 +41,20 @@ public struct MyPageFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .task, .refreshButtonTapped:
+            case .task:
+                guard state.dashboard == nil, state.phase != .loading else { return .none }
+                state.phase = .loading
+                return .run { send in
+                    await send(
+                        .dashboardResponse(
+                            Result { try await myPageClient.loadDashboard() }
+                                .mapError(MyPageClientError.init)
+                        )
+                    )
+                }
+                .cancellable(id: CancelID.loadDashboard, cancelInFlight: true)
+
+            case .retryButtonTapped:
                 guard state.phase != .loading else { return .none }
                 state.phase = .loading
                 return .run { send in

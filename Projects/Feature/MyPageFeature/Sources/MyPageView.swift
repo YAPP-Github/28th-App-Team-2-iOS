@@ -40,40 +40,90 @@ public struct MyPageView: View {
 
     @ViewBuilder
     private var content: some View {
-        if let dashboard = store.dashboard {
-            ScrollView {
-                VStack(spacing: 32) {
+        ScrollView {
+            VStack(spacing: 32) {
+                if let dashboard = store.dashboard {
                     MyPageProfileCard(
                         dashboard: dashboard,
                         onEdit: { store.send(.editButtonTapped) },
                         onCalendar: { store.send(.calendarButtonTapped) }
                     )
-
-                    Rectangle()
-                        .fill(Color.ds.gray25)
-                        .frame(height: 10)
-                        .frame(maxWidth: .infinity)
-
-                    MyPageMenuList { item in
-                        store.send(.menuItemTapped(item))
+                } else if case .failed = store.phase {
+                    MyPageProfileCardFailure {
+                        store.send(.retryButtonTapped)
                     }
+                } else {
+                    MyPageProfileCardSkeleton()
                 }
-                .padding(.top, 20)
-                .padding(.bottom, 28)
+
+                Rectangle()
+                    .fill(Color.ds.gray25)
+                    .frame(height: 10)
+                    .frame(maxWidth: .infinity)
+
+                MyPageMenuList { item in
+                    store.send(.menuItemTapped(item))
+                }
             }
-            .refreshable { store.send(.refreshButtonTapped) }
-        } else if case .failed = store.phase {
-            ContentUnavailableView {
-                Label("마이페이지를 불러오지 못했어요", systemImage: "exclamationmark.triangle")
-            } description: {
-                Text("잠시 후 다시 시도해 주세요.")
-            } actions: {
-                Button("다시 시도") { store.send(.refreshButtonTapped) }
-            }
-        } else {
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .padding(.top, 20)
+        .padding(.bottom, 28)
+    }
+}
+
+private struct MyPageProfileCardSkeleton: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 8) {
+                    placeholder(width: 132, height: 28)
+                    placeholder(width: 198, height: 20)
+                }
+
+                Spacer(minLength: 12)
+                placeholder(width: 60, height: 32)
+            }
+
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.ds.coolGray50)
+                .frame(height: 156)
+
+            placeholder(width: nil, height: 44)
+        }
+        .padding(20)
+        .background(Color.ds.white, in: RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.04), radius: 5, y: 4)
+        .padding(.horizontal, 20)
+        .redacted(reason: .placeholder)
+    }
+
+    @ViewBuilder
+    private func placeholder(width: CGFloat?, height: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color.ds.gray100)
+            .frame(width: width, height: height)
+            .frame(maxWidth: width == nil ? .infinity : nil)
+    }
+}
+
+private struct MyPageProfileCardFailure: View {
+    let retry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("마이페이지를 불러오지 못했어요")
+                .dsBody2Medium
+                .foregroundStyle(Color.ds.gray975)
+            Button("다시 시도", action: retry)
+                .dsBody3Medium
+                .foregroundStyle(Color.ds.primary600)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 180)
+        .padding(20)
+        .background(Color.ds.white, in: RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.04), radius: 5, y: 4)
+        .padding(.horizontal, 20)
     }
 }
 

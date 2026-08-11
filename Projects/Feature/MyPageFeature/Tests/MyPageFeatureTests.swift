@@ -7,6 +7,7 @@ final class MyPageFeatureTests: XCTestCase {
     func testTaskLoadsDashboard() async {
         let dashboard = MyPageDashboard(
             profile: MyPageProfile(
+                memberID: "member-id",
                 name: "토닥이",
                 gender: "FEMALE",
                 birthDate: "1999-02-13",
@@ -29,6 +30,8 @@ final class MyPageFeatureTests: XCTestCase {
             $0.dashboard = dashboard
             $0.phase = .loaded
         }
+
+        await store.send(.task)
     }
 
     func testTaskFailureShowsFailedPhase() async {

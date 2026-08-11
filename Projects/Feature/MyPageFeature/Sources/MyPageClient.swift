@@ -28,10 +28,17 @@ public extension MyPageClient {
     }
 
     static func live(httpClient: HTTPClient) -> Self {
-        Self {
-            async let profile = fetchProfile(httpClient: httpClient)
-            async let chart = fetchSajuChart(httpClient: httpClient)
-            return try await MyPageDashboard(profile: profile, chart: chart)
+        let chartCache = MyPageSajuChartCache.live
+
+        return Self {
+            let profile = try await fetchProfile(httpClient: httpClient)
+            if let chart = await chartCache.load(memberID: profile.memberID) {
+                return MyPageDashboard(profile: profile, chart: chart)
+            }
+
+            let chart = try await fetchSajuChart(httpClient: httpClient)
+            await chartCache.save(chart, memberID: profile.memberID)
+            return MyPageDashboard(profile: profile, chart: chart)
         }
     }
 }
@@ -70,6 +77,7 @@ private struct CommonResponseDTO<DataType: Decodable & Sendable>: Decodable, Sen
 }
 
 private struct GetMyProfileResponseDTO: Decodable, Sendable {
+    let memberID: String
     let name: String
     let gender: String
     let birthDate: String
@@ -77,8 +85,19 @@ private struct GetMyProfileResponseDTO: Decodable, Sendable {
     let isTimeUnknown: Bool
     let calendarType: String
 
+    enum CodingKeys: String, CodingKey {
+        case memberID = "id"
+        case name
+        case gender
+        case birthDate
+        case birthTime
+        case isTimeUnknown
+        case calendarType
+    }
+
     func toDomain() -> MyPageProfile {
         MyPageProfile(
+            memberID: memberID,
             name: name,
             gender: gender,
             birthDate: birthDate,
@@ -86,6 +105,65 @@ private struct GetMyProfileResponseDTO: Decodable, Sendable {
             birthTime: birthTime,
             isTimeUnknown: isTimeUnknown
         )
+    }
+}
+
+private actor MyPageSajuChartCache {
+    static let live = MyPageSajuChartCache()
+
+    private let directoryURL: URL?
+
+    init(fileManager: FileManager = .default) {
+        guard let applicationSupportURL = try? fileManager.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        ) else {
+            directoryURL = nil
+            return
+        }
+
+        let directoryURL = applicationSupportURL.appendingPathComponent("MyPageCache", isDirectory: true)
+        do {
+            try fileManager.createDirectory(
+                at: directoryURL,
+                withIntermediateDirectories: true,
+                attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
+            )
+            self.directoryURL = directoryURL
+        } catch {
+            self.directoryURL = nil
+        }
+    }
+
+    func load(memberID: String) -> MyPageSajuChart? {
+        guard let fileURL = fileURL(memberID: memberID),
+              let data = try? Data(contentsOf: fileURL) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(MyPageSajuChart.self, from: data)
+    }
+
+    func save(_ chart: MyPageSajuChart, memberID: String) {
+        guard let fileURL = fileURL(memberID: memberID),
+              let data = try? JSONEncoder().encode(chart) else {
+            return
+        }
+
+        do {
+            try data.write(to: fileURL, options: .atomic)
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                ofItemAtPath: fileURL.path
+            )
+        } catch {
+            return
+        }
+    }
+
+    private func fileURL(memberID: String) -> URL? {
+        directoryURL?.appendingPathComponent("saju-\(memberID).json")
     }
 }
 
