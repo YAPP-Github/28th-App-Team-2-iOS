@@ -2,6 +2,8 @@ import SwiftUI
 
 /// DesignSystem 에셋 카탈로그에 등록된 아이콘을 식별합니다.
 public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
+    case addUser
+    case arrowUpward
     case bell
     case chatAdd
     case checkLine
@@ -10,11 +12,14 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
     case circleXFill
     case chevronLeftPlain
     case chevronLeftNarrow
+    case chevronSmallRight
+    case logout
+    case mail
     case notes
+    case settings
     case chevronSmallBottom
     case tooltipArrow
     case closeLine
-    case arrowUpward
     case delete
     case naviLuckyOn
     case naviLuckyOff
@@ -30,6 +35,10 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
 
     var image: Image {
         switch self {
+        case .addUser:
+            DesignSystemAsset.Icons.addUser.swiftUIImage
+        case .arrowUpward:
+            DesignSystemAsset.Icons.arrowUpward.swiftUIImage
         case .bell:
             DesignSystemAsset.Icons.bell.swiftUIImage
         case .chatAdd:
@@ -46,6 +55,12 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.chevronLeftPlain.swiftUIImage
         case .chevronLeftNarrow:
             DesignSystemAsset.Icons.chevronLeftNarrow.swiftUIImage
+        case .chevronSmallRight:
+            DesignSystemAsset.Icons.chevronSmallRight.swiftUIImage
+        case .logout:
+            DesignSystemAsset.Icons.logout.swiftUIImage
+        case .mail:
+            DesignSystemAsset.Icons.mail.swiftUIImage
         case .notes:
             DesignSystemAsset.Icons.notes.swiftUIImage
         case .chevronSmallBottom:
@@ -54,8 +69,8 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.tooltipArrow.swiftUIImage
         case .closeLine:
             DesignSystemAsset.Icons.closeLine.swiftUIImage
-        case .arrowUpward:
-            DesignSystemAsset.Icons.arrowUpward.swiftUIImage
+        case .settings:
+            DesignSystemAsset.Icons.settings.swiftUIImage
         case .delete:
             DesignSystemAsset.Icons.delete.swiftUIImage
         case .naviLuckyOn:

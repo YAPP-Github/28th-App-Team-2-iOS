@@ -7,6 +7,8 @@ struct DSIconAssetTests {
         #expect(
             DSIconAsset.allCases.map(\.name) ==
             [
+                "addUser",
+                "arrowUpward",
                 "bell",
                 "chatAdd",
                 "checkLine",
@@ -15,11 +17,14 @@ struct DSIconAssetTests {
                 "circleXFill",
                 "chevronLeftPlain",
                 "chevronLeftNarrow",
+                "chevronSmallRight",
+                "logout",
+                "mail",
                 "notes",
+                "settings",
                 "chevronSmallBottom",
                 "tooltipArrow",
                 "closeLine",
-                "arrowUpward",
                 "delete",
                 "naviLuckyOn",
                 "naviLuckyOff",
