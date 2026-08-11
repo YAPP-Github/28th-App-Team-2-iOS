@@ -22,6 +22,8 @@
 | 배경 | white |
 | 그림자 | black 6%, blur 20pt, y -4pt |
 
+컨테이너의 콘텐츠 레이아웃 높이는 항상 56pt입니다. 배경 shape와 그림자만 시스템 bottom safe area까지 확장하여 Home Indicator 영역과 하나의 흰 surface로 연결합니다. safe area 높이를 직접 계산하거나 콘텐츠 높이에 더하지 않습니다.
+
 ## Items & States
 
 | 탭 | 기본 아이콘 | 선택 아이콘 | 기본 텍스트 | 선택 텍스트 |
