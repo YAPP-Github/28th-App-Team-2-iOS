@@ -31,9 +31,18 @@ struct MainTabView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            DSBottomNavigation(
-                selectedItem: bottomNavigationBinding
-            )
+            VStack(spacing: 0) {
+                DSBottomNavigation(
+                    selectedItem: bottomNavigationBinding
+                )
+
+                Color.clear
+                    .frame(height: 0)
+                    .background(
+                        DesignSystemAsset.Colors.white.swiftUIColor,
+                        ignoresSafeAreaEdges: .bottom
+                    )
+            }
         }
     }
 
