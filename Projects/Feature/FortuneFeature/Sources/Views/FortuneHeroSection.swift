@@ -2,6 +2,8 @@ import DesignSystem
 import SwiftUI
 
 struct FortuneHeroSection: View {
+    static let minimumHeight: CGFloat = 319
+
     let content: FortuneHomeContent
     let notificationAction: () -> Void
     let reportAction: () -> Void
@@ -19,9 +21,7 @@ struct FortuneHeroSection: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .layoutPriority(1)
 
-                FortuneFeatureAsset.Images.fortuneCharacter.swiftUIImage
-                    .resizable()
-                    .scaledToFit()
+                FortuneMoodCharacterImage(moodLevel: content.moodLevel)
                     .frame(width: 109, height: 102)
                     .padding(10)
                     .accessibilityHidden(true)
@@ -30,7 +30,7 @@ struct FortuneHeroSection: View {
             .frame(minHeight: 122)
 
             FortuneScoreCard(
-                score: content.score,
+                score: content.displayScore,
                 scoreDescription: content.scoreDescription,
                 action: reportAction
             )
@@ -39,7 +39,7 @@ struct FortuneHeroSection: View {
 
             Spacer(minLength: 44)
         }
-        .frame(minHeight: 319)
+        .frame(minHeight: Self.minimumHeight)
     }
 }
 

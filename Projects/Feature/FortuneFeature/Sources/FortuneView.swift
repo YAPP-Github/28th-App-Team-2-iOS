@@ -11,7 +11,7 @@ public struct FortuneView: View {
 
     public var body: some View {
         ZStack {
-            Color.ds.black.ignoresSafeArea()
+            rootBackgroundColor.ignoresSafeArea()
 
             switch store.viewState {
             case .loading:
@@ -31,6 +31,15 @@ public struct FortuneView: View {
                     }
                 )
             }
+        }
+    }
+
+    private var rootBackgroundColor: Color {
+        switch store.viewState {
+        case .loaded:
+            return Color.ds.white
+        case .loading, .failed:
+            return Color.ds.black
         }
     }
 }

@@ -2,8 +2,18 @@ import DesignSystem
 import SwiftUI
 
 struct FortuneHomeView: View {
+    private struct ScrollMetrics: Equatable, Sendable {
+        var offsetY: CGFloat = 0
+        var topSafeAreaInset: CGFloat = 0
+    }
+
+    private static let sheetTopCornerRadius: CGFloat = 32
+    private static let scrollCoordinateSpaceName = "FortuneScrollView"
+
     let content: FortuneHomeContent
     let action: (FortuneFeature.Action.ViewAction) -> Void
+
+    @State private var scrollMetrics = ScrollMetrics()
 
     var body: some View {
         ScrollView {
@@ -42,17 +52,47 @@ struct FortuneHomeView: View {
                 .background(Color.ds.white)
                 .clipShape(
                     UnevenRoundedRectangle(
-                        topLeadingRadius: 32,
-                        topTrailingRadius: 32
+                        topLeadingRadius: Self.sheetTopCornerRadius,
+                        topTrailingRadius: Self.sheetTopCornerRadius
                     )
                 )
             }
             .frame(maxWidth: .infinity)
+            .onGeometryChange(for: ScrollMetrics.self) { proxy in
+                let offsetY = proxy.frame(in: .named(Self.scrollCoordinateSpaceName)).minY
+                let globalMinY = proxy.frame(in: .global).minY
+
+                return ScrollMetrics(
+                    offsetY: offsetY,
+                    topSafeAreaInset: max(0, globalMinY - offsetY)
+                )
+            } action: { newMetrics in
+                scrollMetrics = newMetrics
+            }
         }
+        .coordinateSpace(name: Self.scrollCoordinateSpaceName)
         .scrollIndicators(.hidden)
-        .background {
-            FortuneSpaceBackground()
+        .background(alignment: .top) {
+            ZStack(alignment: .top) {
+                Color.ds.white
+
+                stretchyGalaxyBackground
+            }
         }
+    }
+
+    private var stretchyGalaxyBackground: some View {
+        let normalHeight = scrollMetrics.topSafeAreaInset
+            + FortuneHeroSection.minimumHeight
+            + Self.sheetTopCornerRadius
+        let pullOffset = max(0, scrollMetrics.offsetY)
+        let galaxyHeight = normalHeight + pullOffset
+        let galaxyOffsetY = min(0, scrollMetrics.offsetY)
+
+        return FortuneSpaceBackground()
+            .frame(height: galaxyHeight)
+            .offset(y: galaxyOffsetY)
+            .ignoresSafeArea(edges: .top)
     }
 }
 
@@ -75,7 +115,6 @@ private struct FortuneSpaceBackground: View {
             }
         }
         .clipped()
-        .ignoresSafeArea()
     }
 }
 
