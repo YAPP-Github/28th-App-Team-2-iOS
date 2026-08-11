@@ -10,6 +10,14 @@ public struct MyPageView: View {
     }
 
     public var body: some View {
+        if store.edit != nil {
+            MyPageEditView(store: store)
+        } else {
+            mainPage
+        }
+    }
+
+    private var mainPage: some View {
         ZStack(alignment: .top) {
             Color.ds.white
                 .ignoresSafeArea()

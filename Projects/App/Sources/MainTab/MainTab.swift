@@ -41,9 +41,11 @@ struct MainTabView: View {
             selectedContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            DSBottomNavigation(
-                selectedItem: $store.selectedItem.sending(\.selectedItemChanged)
-            )
+            if store.myPage.edit == nil {
+                DSBottomNavigation(
+                    selectedItem: $store.selectedItem.sending(\.selectedItemChanged)
+                )
+            }
         }
         .background {
             Color.ds.white
