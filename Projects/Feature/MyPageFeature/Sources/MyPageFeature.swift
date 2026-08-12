@@ -2,7 +2,9 @@ import ComposableArchitecture
 import Foundation
 import Model
 
+// swiftlint:disable file_length
 @Reducer
+// swiftlint:disable:next type_body_length
 public struct MyPageFeature {
     public init() {}
 
@@ -17,6 +19,7 @@ public struct MyPageFeature {
         public var withdrawal: WithdrawalState?
         public var isLogoutConfirmationPresented = false
         public var logoutError: MyPageClientError?
+        public var sajuManagement: SajuManagementState?
 
         public init() {}
     }
@@ -31,6 +34,92 @@ public struct MyPageFeature {
         public var error: MyPageClientError?
 
         public init() {}
+    }
+
+    @ObservableState
+    public struct SajuManagementState: Equatable {
+        public var partners: [MyPagePartnerSaju] = []
+        public var isLoading = true
+        public var form: PartnerFormState?
+        public var expandedMenuLinkID: String?
+        public var toastMessage: String?
+        public var error: MyPageClientError?
+
+        public init() {}
+    }
+
+    @ObservableState
+    public struct PartnerFormState: Equatable {
+        public let editingLinkID: String?
+        public var name = ""
+        public var gender: Gender?
+        public var calendar: BirthDateCalendar?
+        public var birthDate: BirthDate?
+        public var birthTime: BirthTimePeriod?
+        public var isBirthTimeUnknown = false
+        public var relationshipCode = "LOVER"
+        public var isSaving = false
+
+        var relationship: Relationship {
+            get {
+                switch relationshipCode {
+                case "FRIEND": .friend
+                case "COLLEAGUE": .colleague
+                default: .partner
+                }
+            }
+            set {
+                relationshipCode = switch newValue {
+                case .partner: "LOVER"
+                case .friend: "FRIEND"
+                case .colleague: "COLLEAGUE"
+                }
+            }
+        }
+
+        init(partner: MyPagePartnerSaju? = nil) {
+            editingLinkID = partner?.linkID
+            name = partner?.name ?? ""
+            gender = partner?.gender == "FEMALE" ? .female : (partner == nil ? nil : .male)
+            calendar = partner?.calendarType == "LUNAR" ? .lunar : (partner == nil ? nil : .solar)
+            birthDate = partner.flatMap(Self.birthDate)
+            birthTime = partner.flatMap { BirthTimePeriod(apiValue: $0.birthTime) }
+            isBirthTimeUnknown = partner?.isTimeUnknown ?? false
+            relationshipCode = partner?.relationshipCode ?? "LOVER"
+        }
+
+        var nameValidationMessage: String? {
+            guard !name.isEmpty else { return nil }
+            if name.count > 10 { return "이름은 최대 10글자까지 가능해요." }
+            if name.unicodeScalars.contains(where: { !$0.isKoreanNameScalar }) {
+                return "이름은 한글만 가능해요."
+            }
+            return nil
+        }
+
+        var isValid: Bool {
+            !name.isEmpty && nameValidationMessage == nil && gender != nil && calendar != nil
+                && birthDate != nil && (birthTime != nil || isBirthTimeUnknown)
+                && PartnerBirthDatePolicy.validationMessage(for: birthDate, asOf: Date()) == nil
+        }
+
+        func input() -> MyPagePartnerSajuInput? {
+            guard let gender, let calendar, let birthDate else { return nil }
+            return MyPagePartnerSajuInput(
+                name: name,
+                gender: gender == .female ? "FEMALE" : "MALE",
+                calendarType: calendar == .lunar ? "LUNAR" : "SOLAR",
+                birthDate: String(format: "%04d-%02d-%02d", birthDate.year, birthDate.month, birthDate.day),
+                birthTime: isBirthTimeUnknown ? "UNKNOWN" : birthTime?.apiValue ?? "UNKNOWN",
+                relationshipType: relationshipCode
+            )
+        }
+
+        private static func birthDate(_ partner: MyPagePartnerSaju) -> BirthDate? {
+            let values = partner.birthDate.split(separator: "-").compactMap { Int($0) }
+            guard values.count == 3 else { return nil }
+            return BirthDate(year: values[0], month: values[1], day: values[2])
+        }
     }
 
     public enum HelpSheet: String, Equatable, Hashable, Identifiable {
@@ -104,6 +193,26 @@ public struct MyPageFeature {
         case sajuDetailDismissButtonTapped
         case sajuDetailHelpButtonTapped(HelpSheet)
         case sajuDetailHelpSheetDismissed
+        case sajuManagementButtonTapped
+        case sajuManagementTask
+        case sajuManagementResponse(Result<[MyPagePartnerSaju], MyPageClientError>)
+        case sajuManagementDismissButtonTapped
+        case partnerAddButtonTapped
+        case partnerMenuButtonTapped(String)
+        case partnerEditButtonTapped(String)
+        case partnerDeleteButtonTapped(String)
+        case partnerFormDismissButtonTapped
+        case partnerNameChanged(String)
+        case partnerGenderChanged(Gender?)
+        case partnerCalendarChanged(BirthDateCalendar?)
+        case partnerBirthDateChanged(BirthDate?)
+        case partnerBirthTimeChanged(BirthTimePeriod?)
+        case partnerBirthTimeUnknownChanged(Bool)
+        case partnerRelationshipChanged(Relationship)
+        case partnerSaveButtonTapped
+        case partnerSaveResponse(Result<Bool, MyPageClientError>)
+        case partnerDeleteResponse(Result<Bool, MyPageClientError>)
+        case partnerToastDismissed
         case menuItemTapped(MenuItem)
         case notificationSettingsTask
         case notificationSettingsResponse(Result<NotificationSettings, MyPageClientError>)
@@ -285,6 +394,139 @@ public struct MyPageFeature {
                 state.sajuDetail?.helpSheet = nil
                 return .none
 
+            case .sajuManagementButtonTapped, .menuItemTapped(.sajuManagement):
+                state.sajuManagement = SajuManagementState()
+                return .none
+
+            case .sajuManagementTask:
+                guard state.sajuManagement?.isLoading == true else { return .none }
+                return .run { send in
+                    await send(
+                        .sajuManagementResponse(
+                            Result { try await myPageClient.loadPartners() }
+                                .mapError(MyPageClientError.init)
+                        )
+                    )
+                }
+
+            case let .sajuManagementResponse(.success(partners)):
+                state.sajuManagement?.partners = partners
+                state.sajuManagement?.isLoading = false
+                return .none
+
+            case let .sajuManagementResponse(.failure(error)):
+                state.sajuManagement?.isLoading = false
+                state.sajuManagement?.error = error
+                return .none
+
+            case .sajuManagementDismissButtonTapped:
+                state.sajuManagement = nil
+                return .none
+
+            case .partnerAddButtonTapped:
+                guard let management = state.sajuManagement else { return .none }
+                if management.partners.count >= 10 {
+                    state.sajuManagement?.toastMessage = "상대방 사주 정보는 최대 10개까지 저장할 수 있어요."
+                } else {
+                    state.sajuManagement?.form = PartnerFormState()
+                }
+                return .none
+
+            case let .partnerMenuButtonTapped(linkID):
+                let isExpanded = state.sajuManagement?.expandedMenuLinkID == linkID
+                state.sajuManagement?.expandedMenuLinkID = isExpanded ? nil : linkID
+                return .none
+
+            case let .partnerEditButtonTapped(linkID):
+                guard let partner = state.sajuManagement?.partners.first(
+                    where: { $0.linkID == linkID }
+                ) else {
+                    return .none
+                }
+                state.sajuManagement?.expandedMenuLinkID = nil
+                state.sajuManagement?.form = PartnerFormState(partner: partner)
+                return .none
+
+            case let .partnerDeleteButtonTapped(linkID):
+                state.sajuManagement?.expandedMenuLinkID = nil
+                return .run { send in
+                    await send(
+                        .partnerDeleteResponse(
+                            Result { try await myPageClient.deletePartner(linkID) }
+                                .map { true }
+                                .mapError(MyPageClientError.init)
+                        )
+                    )
+                }
+
+            case .partnerFormDismissButtonTapped:
+                state.sajuManagement?.form = nil
+                return .none
+
+            case let .partnerNameChanged(name):
+                state.sajuManagement?.form?.name = name
+                return .none
+
+            case let .partnerGenderChanged(value):
+                state.sajuManagement?.form?.gender = value
+                return .none
+
+            case let .partnerCalendarChanged(value):
+                state.sajuManagement?.form?.calendar = value
+                return .none
+
+            case let .partnerBirthDateChanged(value):
+                state.sajuManagement?.form?.birthDate = value
+                return .none
+            case let .partnerBirthTimeChanged(value):
+                state.sajuManagement?.form?.birthTime = value
+                if value != nil { state.sajuManagement?.form?.isBirthTimeUnknown = false }
+                return .none
+            case let .partnerBirthTimeUnknownChanged(value):
+                state.sajuManagement?.form?.isBirthTimeUnknown = value
+                if value { state.sajuManagement?.form?.birthTime = nil }
+                return .none
+            case let .partnerRelationshipChanged(relationship):
+                state.sajuManagement?.form?.relationship = relationship
+                return .none
+
+            case .partnerSaveButtonTapped:
+                guard let form = state.sajuManagement?.form,
+                      form.isValid,
+                      let input = form.input() else {
+                    return .none
+                }
+                state.sajuManagement?.form?.isSaving = true
+                return .run { send in
+                    await send(
+                        .partnerSaveResponse(
+                            Result {
+                                if let linkID = form.editingLinkID {
+                                    try await myPageClient.updatePartner(linkID, input)
+                                } else {
+                                    try await myPageClient.registerPartner(input)
+                                }
+                            }
+                            .map { true }
+                            .mapError(MyPageClientError.init)
+                        )
+                    )
+                }
+
+            case .partnerSaveResponse(.success), .partnerDeleteResponse(.success):
+                state.sajuManagement?.form = nil
+                state.sajuManagement?.isLoading = true
+                return .send(.sajuManagementTask)
+
+            case let .partnerSaveResponse(.failure(error)), let .partnerDeleteResponse(.failure(error)):
+                state.sajuManagement?.form?.isSaving = false
+                state.sajuManagement?.error = error
+                return .none
+
+            case .partnerToastDismissed:
+                state.sajuManagement?.toastMessage = nil
+                return .none
+
             case .menuItemTapped:
                 return .none
 
@@ -359,4 +601,19 @@ private extension Gender {
 
 private extension BirthDateCalendar {
     var apiValue: String { self == .lunar ? "LUNAR" : "SOLAR" }
+}
+
+private extension UnicodeScalar {
+    var isKoreanNameScalar: Bool {
+        switch value {
+        case 0xAC00 ... 0xD7A3,
+             0x1100 ... 0x11FF,
+             0x3130 ... 0x318F,
+             0xA960 ... 0xA97F,
+             0xD7B0 ... 0xD7FF:
+            true
+        default:
+            false
+        }
+    }
 }

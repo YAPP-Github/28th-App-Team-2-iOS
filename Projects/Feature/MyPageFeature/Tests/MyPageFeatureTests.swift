@@ -1,8 +1,13 @@
 import ComposableArchitecture
+import Foundation
+import Model
+import NetworkCore
 import XCTest
 @testable import MyPageFeature
 
+// swiftlint:disable file_length
 @MainActor
+// swiftlint:disable:next type_body_length
 final class MyPageFeatureTests: XCTestCase {
     func testSajuChartProvidesPillarsInDisplayOrder() {
         let chart = MyPageSajuChart(
@@ -236,6 +241,141 @@ final class MyPageFeatureTests: XCTestCase {
         XCTAssertEqual(time.apiValue, "23:59")
     }
 
+    func testSajuManagementLoadsPartners() async {
+        let partner = makePartner()
+        let store = TestStore(initialState: MyPageFeature.State()) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.myPageClient.loadPartners = { [partner] }
+        }
+
+        await store.send(.sajuManagementButtonTapped) {
+            $0.sajuManagement = MyPageFeature.SajuManagementState()
+        }
+        await store.send(.sajuManagementTask)
+        await store.receive(.sajuManagementResponse(.success([partner]))) {
+            $0.sajuManagement?.partners = [partner]
+            $0.sajuManagement?.isLoading = false
+        }
+    }
+
+    func testPartnerLimitShowsFigmaToastMessage() async {
+        var initialState = MyPageFeature.State()
+        initialState.sajuManagement = MyPageFeature.SajuManagementState()
+        initialState.sajuManagement?.isLoading = false
+        initialState.sajuManagement?.partners = (0 ..< 10).map {
+            makePartner(linkID: "link-\($0)")
+        }
+        let store = TestStore(initialState: initialState) {
+            MyPageFeature()
+        }
+
+        await store.send(.partnerAddButtonTapped) {
+            $0.sajuManagement?.toastMessage = "상대방 사주 정보는 최대 10개까지 저장할 수 있어요."
+        }
+    }
+
+    func testPartnerFormUsesOnboardingNameAndPastDateValidation() {
+        var form = MyPageFeature.PartnerFormState()
+        form.name = "Todakun"
+        XCTAssertEqual(form.nameValidationMessage, "이름은 한글만 가능해요.")
+
+        form.name = String(repeating: "가", count: 11)
+        XCTAssertEqual(form.nameValidationMessage, "이름은 최대 10글자까지 가능해요.")
+
+        let referenceDate = Date(timeIntervalSince1970: 1_730_000_000)
+        let today = Calendar(identifier: .gregorian).dateComponents([.year, .month, .day], from: referenceDate)
+        let birthDate = BirthDate(year: today.year ?? 2024, month: today.month ?? 1, day: today.day ?? 1)
+        XCTAssertEqual(
+            PartnerBirthDatePolicy.validationMessage(for: birthDate, asOf: referenceDate),
+            PartnerBirthDatePolicy.futureDateMessage
+        )
+    }
+
+    func testPartnerFormSupportsColleagueRelationship() {
+        var form = MyPageFeature.PartnerFormState()
+
+        form.relationship = .colleague
+
+        XCTAssertEqual(form.relationshipCode, "COLLEAGUE")
+        XCTAssertEqual(form.relationship, .colleague)
+    }
+
+    func testLivePartnerClientUsesSwaggerCRUDContract() async throws {
+        let recorder = PartnerRequestRecorder()
+        let httpClient = HTTPClient(
+            baseURL: try XCTUnwrap(URL(string: "https://api-dev.todakun.com")),
+            transport: { request in
+                await recorder.append(request)
+                let responseBody: String
+                switch request.httpMethod {
+                case "GET":
+                    responseBody = """
+                    {
+                      "success": true,
+                      "data": [{
+                        "linkId": "link-1",
+                        "relationshipType": { "code": "LOVER", "label": "연인" },
+                        "name": "홍길동",
+                        "gender": "MALE",
+                        "birthDate": "1999-02-13",
+                        "calendarType": "SOLAR",
+                        "birthTime": "JASI",
+                        "isTimeUnknown": false
+                      }]
+                    }
+                    """
+                case "POST":
+                    responseBody = "{\"success\":true,\"data\":{\"linkId\":\"link-1\"}}"
+                default:
+                    responseBody = "{\"success\":true,\"data\":{}}"
+                }
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(fileURLWithPath: "/"),
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (Data(responseBody.utf8), response)
+            }
+        )
+        let client = MyPageClient.live(httpClient: httpClient)
+        let input = MyPagePartnerSajuInput(
+            name: "홍길동",
+            gender: "MALE",
+            calendarType: "SOLAR",
+            birthDate: "1999-02-13",
+            birthTime: "JASI",
+            relationshipType: "LOVER"
+        )
+
+        let partners = try await client.loadPartners()
+        try await client.registerPartner(input)
+        try await client.updatePartner("link-1", input)
+        try await client.deletePartner("link-1")
+
+        XCTAssertEqual(partners, [makePartner()])
+        let requests = await recorder.value()
+        XCTAssertEqual(requests.map { $0.url?.path }, [
+            "/api/v1/saju/partners",
+            "/api/v1/saju/partners",
+            "/api/v1/saju/partners/link-1",
+            "/api/v1/saju/partners/link-1"
+        ])
+        XCTAssertEqual(requests.map(\.httpMethod), ["GET", "POST", "PATCH", "DELETE"])
+        XCTAssertEqual(requests[1].value(forHTTPHeaderField: "Content-Type"), "application/json")
+        let postBody = try JSONDecoder().decode(
+            PartnerRequestBody.self,
+            from: try XCTUnwrap(requests[1].httpBody)
+        )
+        let patchBody = try JSONDecoder().decode(
+            PartnerRequestBody.self,
+            from: try XCTUnwrap(requests[2].httpBody)
+        )
+        XCTAssertEqual(postBody, PartnerRequestBody(input))
+        XCTAssertEqual(patchBody, PartnerRequestBody(input))
+    }
+
     private var dashboard: MyPageDashboard {
         MyPageDashboard(
             profile: MyPageProfile(
@@ -263,5 +403,47 @@ final class MyPageFeatureTests: XCTestCase {
             earthlyReading: "수",
             earthlyElement: .water
         )
+    }
+
+    private func makePartner(linkID: String = "link-1") -> MyPagePartnerSaju {
+        MyPagePartnerSaju(
+            linkID: linkID,
+            relationshipCode: "LOVER",
+            relationshipLabel: "연인",
+            name: "홍길동",
+            gender: "MALE",
+            birthDate: "1999-02-13",
+            calendarType: "SOLAR",
+            birthTime: "JASI",
+            isTimeUnknown: false
+        )
+    }
+}
+
+private actor PartnerRequestRecorder {
+    private var requests: [URLRequest] = []
+
+    func append(_ request: URLRequest) {
+        requests.append(request)
+    }
+
+    func value() -> [URLRequest] { requests }
+}
+
+private struct PartnerRequestBody: Decodable, Equatable {
+    let name: String
+    let gender: String
+    let calendarType: String
+    let birthDate: String
+    let birthTime: String
+    let relationshipType: String
+
+    init(_ input: MyPagePartnerSajuInput) {
+        name = input.name
+        gender = input.gender
+        calendarType = input.calendarType
+        birthDate = input.birthDate
+        birthTime = input.birthTime
+        relationshipType = input.relationshipType
     }
 }

@@ -58,8 +58,14 @@ private struct MyPageSajuProfileSummary: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("\(profile.name)・\(profile.genderText)")
-                .dsBody2SemiBold
+            HStack(spacing: 4) {
+                Text(profile.name)
+                    .dsBody2SemiBold
+                Text("・")
+                    .dsBody3Regular
+                Text(profile.genderText)
+                    .dsBody3Regular
+            }
             HStack(spacing: 8) {
                 Text(profile.birthDateCalendarText)
                 if let birthTimeText = profile.birthTimeText {

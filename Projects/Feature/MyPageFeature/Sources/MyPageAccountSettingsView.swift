@@ -252,12 +252,12 @@ struct MyPageWithdrawalAgreementView: View {
 
                     Text("회원 탈퇴 시, 토닥운 내 모든 서비스 이용 정보가 삭제되며,\n삭제된 계정은 복구되지 않아요.")
                         .dsBody3Regular
-                        .foregroundStyle(Color.ds.gray600)
+                        .foregroundStyle(Color.ds.gray700)
                         .padding(.top, 12)
 
                     ScrollView {
                         Text(Self.notice)
-                            .dsBody3Medium
+                            .dsBody2Medium
                             .foregroundStyle(Color.ds.gray975)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(20)

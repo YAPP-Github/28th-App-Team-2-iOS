@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "more_line.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

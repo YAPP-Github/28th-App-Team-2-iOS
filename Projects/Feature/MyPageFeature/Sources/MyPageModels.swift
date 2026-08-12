@@ -82,6 +82,79 @@ public struct MyPageProfileUpdate: Equatable, Sendable {
     }
 }
 
+public struct MyPagePartnerSaju: Equatable, Identifiable, Sendable {
+    public let linkID: String
+    public let relationshipCode: String
+    public let relationshipLabel: String
+    public let name: String
+    public let gender: String
+    public let birthDate: String
+    public let calendarType: String
+    public let birthTime: String
+    public let isTimeUnknown: Bool
+
+    public init(
+        linkID: String,
+        relationshipCode: String,
+        relationshipLabel: String,
+        name: String,
+        gender: String,
+        birthDate: String,
+        calendarType: String,
+        birthTime: String,
+        isTimeUnknown: Bool
+    ) {
+        self.linkID = linkID
+        self.relationshipCode = relationshipCode
+        self.relationshipLabel = relationshipLabel
+        self.name = name
+        self.gender = gender
+        self.birthDate = birthDate
+        self.calendarType = calendarType
+        self.birthTime = birthTime
+        self.isTimeUnknown = isTimeUnknown
+    }
+
+    // swiftlint:disable:next identifier_name
+    public var id: String { linkID }
+
+    public var genderText: String { gender == "FEMALE" ? "여성" : "남성" }
+
+    public var birthDateCalendarText: String {
+        "\(birthDate.replacingOccurrences(of: "-", with: ".")) \(calendarType == "LUNAR" ? "음력" : "양력")"
+    }
+
+    public var birthTimeText: String? {
+        guard !isTimeUnknown else { return nil }
+        return BirthTimePeriod(apiValue: birthTime)?.displayText ?? birthTime
+    }
+}
+
+public struct MyPagePartnerSajuInput: Equatable, Sendable {
+    public let name: String
+    public let gender: String
+    public let calendarType: String
+    public let birthDate: String
+    public let birthTime: String
+    public let relationshipType: String
+
+    public init(
+        name: String,
+        gender: String,
+        calendarType: String,
+        birthDate: String,
+        birthTime: String,
+        relationshipType: String
+    ) {
+        self.name = name
+        self.gender = gender
+        self.calendarType = calendarType
+        self.birthDate = birthDate
+        self.birthTime = birthTime
+        self.relationshipType = relationshipType
+    }
+}
+
 public struct MyPageSajuChart: Codable, Equatable, Sendable {
     public let pillars: [MyPagePillar]
     public let ohaengs: [MyPageOhaeng]

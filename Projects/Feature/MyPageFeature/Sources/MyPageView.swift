@@ -1,6 +1,7 @@
 import DesignSystem
 import SwiftUI
 import ComposableArchitecture
+import UIKit
 
 public struct MyPageView: View {
     @Bindable private var store: StoreOf<MyPageFeature>
@@ -33,12 +34,18 @@ public struct MyPageView: View {
                     onBack: { store.send(.sajuDetailDismissButtonTapped) },
                     onHelp: { store.send(.sajuDetailHelpButtonTapped($0)) }
                 )
+            } else if store.sajuManagement != nil {
+                MyPageSajuManagementView(store: store)
             } else {
                 mainPage
             }
 
             if store.isLogoutConfirmationPresented {
                 logoutConfirmationOverlay
+            }
+
+            if isSupportMailAlertPresented {
+                supportMailUnavailableOverlay
             }
         }
         .alert(
@@ -51,11 +58,6 @@ public struct MyPageView: View {
             Button("확인", role: .cancel) {}
         } message: {
             Text("로그아웃에 실패했어요. 다시 시도해주세요.")
-        }
-        .alert("문의 메일을 열 수 없어요", isPresented: $isSupportMailAlertPresented) {
-            Button("확인", role: .cancel) {}
-        } message: {
-            Text("잠시 후 다시 시도해 주세요.")
         }
     }
 
@@ -114,6 +116,8 @@ public struct MyPageView: View {
                 MyPageMenuList { item in
                     if item == .inquiry {
                         openSupportMail()
+                    } else if item == .sajuManagement {
+                        store.send(.sajuManagementButtonTapped)
                     } else {
                         store.send(.menuItemTapped(item))
                     }
@@ -141,8 +145,27 @@ public struct MyPageView: View {
             }
     }
 
+    private var supportMailUnavailableOverlay: some View {
+        Color.black.opacity(0.4)
+            .ignoresSafeArea()
+            .overlay {
+                DSDialog(
+                    title: "문의 메일을 열 수 없어요",
+                    message: "메일 앱을 설치하거나 계정을 설정한 뒤 다시 시도해 주세요.",
+                    primaryAction: DSDialog.Action("주소 복사") {
+                        UIPasteboard.general.string = supportEmailAddress
+                        isSupportMailAlertPresented = false
+                    },
+                    secondaryAction: DSDialog.Action("확인") {
+                        isSupportMailAlertPresented = false
+                    }
+                )
+            }
+    }
+
     private func openSupportMail() {
-        guard let url = URL(string: "mailto:support@todakun.com") else {
+        guard let url = URL(string: "mailto:\(supportEmailAddress)"),
+              UIApplication.shared.canOpenURL(url) else {
             isSupportMailAlertPresented = true
             return
         }
@@ -152,6 +175,8 @@ public struct MyPageView: View {
             }
         }
     }
+
+    private var supportEmailAddress: String { "help@todakun.com" }
 }
 
 private struct MyPageProfileCardSkeleton: View {

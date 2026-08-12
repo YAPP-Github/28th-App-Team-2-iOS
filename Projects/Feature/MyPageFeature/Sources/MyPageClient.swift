@@ -2,6 +2,7 @@ import ComposableArchitecture
 import Foundation
 import NetworkCore
 
+// swiftlint:disable file_length
 public struct MyPageClient: Sendable {
     public var loadDashboard: @Sendable () async throws -> MyPageDashboard
     public var updateProfile: @Sendable (MyPageProfileUpdate) async throws -> MyPageDashboard
@@ -11,6 +12,10 @@ public struct MyPageClient: Sendable {
     public var registerDeviceToken: @Sendable (String) async throws -> Void
     public var logout: @Sendable () async throws -> Void
     public var withdraw: @Sendable (WithdrawalRequest) async throws -> Void
+    public var loadPartners: @Sendable () async throws -> [MyPagePartnerSaju]
+    public var registerPartner: @Sendable (MyPagePartnerSajuInput) async throws -> Void
+    public var updatePartner: @Sendable (String, MyPagePartnerSajuInput) async throws -> Void
+    public var deletePartner: @Sendable (String) async throws -> Void
 
     public init(
         loadDashboard: @escaping @Sendable () async throws -> MyPageDashboard,
@@ -35,6 +40,18 @@ public struct MyPageClient: Sendable {
         },
         withdraw: @escaping @Sendable (WithdrawalRequest) async throws -> Void = { _ in
             throw MyPageClientError.notConfigured
+        },
+        loadPartners: @escaping @Sendable () async throws -> [MyPagePartnerSaju] = {
+            throw MyPageClientError.notConfigured
+        },
+        registerPartner: @escaping @Sendable (MyPagePartnerSajuInput) async throws -> Void = { _ in
+            throw MyPageClientError.notConfigured
+        },
+        updatePartner: @escaping @Sendable (String, MyPagePartnerSajuInput) async throws -> Void = { _, _ in
+            throw MyPageClientError.notConfigured
+        },
+        deletePartner: @escaping @Sendable (String) async throws -> Void = { _ in
+            throw MyPageClientError.notConfigured
         }
     ) {
         self.loadDashboard = loadDashboard
@@ -45,6 +62,10 @@ public struct MyPageClient: Sendable {
         self.registerDeviceToken = registerDeviceToken
         self.logout = logout
         self.withdraw = withdraw
+        self.loadPartners = loadPartners
+        self.registerPartner = registerPartner
+        self.updatePartner = updatePartner
+        self.deletePartner = deletePartner
     }
 }
 
@@ -63,7 +84,11 @@ public extension DependencyValues {
 public extension MyPageClient {
     static let unavailable = Self(
         loadDashboard: { throw MyPageClientError.notConfigured },
-        updateProfile: { _ in throw MyPageClientError.notConfigured }
+        updateProfile: { _ in throw MyPageClientError.notConfigured },
+        loadPartners: { throw MyPageClientError.notConfigured },
+        registerPartner: { _ in throw MyPageClientError.notConfigured },
+        updatePartner: { _, _ in throw MyPageClientError.notConfigured },
+        deletePartner: { _ in throw MyPageClientError.notConfigured }
     )
 
     static func live(httpClient: HTTPClient) -> Self {
@@ -87,7 +112,7 @@ public extension MyPageClient {
                 await chartCache.save(chart, memberID: profile.memberID)
                 return MyPageDashboard(profile: profile, chart: chart)
             },
-            loadNotificationSettings: {
+        loadNotificationSettings: {
                 try await fetchNotificationSettings(httpClient: httpClient)
             },
             updateNotificationSettings: { settings in
@@ -102,10 +127,72 @@ public extension MyPageClient {
             logout: {
                 try await postLogout(httpClient: httpClient)
             },
-            withdraw: { request in
-                try await deleteMember(request, httpClient: httpClient)
-            }
+        withdraw: { request in
+            try await deleteMember(request, httpClient: httpClient)
+        },
+        loadPartners: { try await fetchPartners(httpClient: httpClient) },
+            registerPartner: { input in try await postPartner(input, httpClient: httpClient) },
+            updatePartner: { linkID, input in
+                try await patchPartner(linkID: linkID, input: input, httpClient: httpClient)
+            },
+        deletePartner: { linkID in
+            try await deletePartnerRequest(linkID: linkID, httpClient: httpClient)
+        }
         )
+    }
+}
+
+private func fetchPartners(httpClient: HTTPClient) async throws -> [MyPagePartnerSaju] {
+    do {
+        let response: CommonResponseDTO<[PartnerSajuSummaryResponseDTO]> = try await httpClient.request(
+            .get("/api/v1/saju/partners")
+        )
+        guard response.success, let data = response.data else { throw MyPageClientError.invalidResponse }
+        return data.map { $0.toDomain() }
+    } catch {
+        throw MyPageClientError(error)
+    }
+}
+
+private func postPartner(_ input: MyPagePartnerSajuInput, httpClient: HTTPClient) async throws {
+    do {
+        let response: CommonResponseDTO<RegisterPartnerResponseDTO> = try await httpClient.request(
+            Endpoint.post("/api/v1/saju/partners", body: PartnerSajuRequestDTO(input))
+        )
+        guard response.success else { throw MyPageClientError.invalidResponse }
+    } catch {
+        throw MyPageClientError(error)
+    }
+}
+
+private func patchPartner(
+    linkID: String,
+    input: MyPagePartnerSajuInput,
+    httpClient: HTTPClient
+) async throws {
+    do {
+        let response: CommonResponseDTO<EmptyResponseDTO> = try await httpClient.request(
+            Endpoint(
+                method: .patch,
+                path: "/api/v1/saju/partners/\(linkID)",
+                headers: ["Content-Type": "application/json"],
+                body: try JSONEncoder().encode(PartnerSajuRequestDTO(input))
+            )
+        )
+        guard response.success else { throw MyPageClientError.invalidResponse }
+    } catch {
+        throw MyPageClientError(error)
+    }
+}
+
+private func deletePartnerRequest(linkID: String, httpClient: HTTPClient) async throws {
+    do {
+        let response: CommonResponseDTO<EmptyResponseDTO> = try await httpClient.request(
+            Endpoint(method: .delete, path: "/api/v1/saju/partners/\(linkID)")
+        )
+        guard response.success else { throw MyPageClientError.invalidResponse }
+    } catch {
+        throw MyPageClientError(error)
     }
 }
 
@@ -198,6 +285,65 @@ private struct GetMyProfileResponseDTO: Decodable, Sendable {
 }
 
 struct EmptyResponseDTO: Decodable, Sendable {}
+
+private struct RegisterPartnerResponseDTO: Decodable, Sendable {
+    let linkID: String
+
+    enum CodingKeys: String, CodingKey { case linkID = "linkId" }
+}
+
+private struct PartnerSajuRequestDTO: Encodable, Sendable {
+    let name: String
+    let gender: String
+    let calendarType: String
+    let birthDate: String
+    let birthTime: String
+    let relationshipType: String
+
+    init(_ input: MyPagePartnerSajuInput) {
+        name = input.name
+        gender = input.gender
+        calendarType = input.calendarType
+        birthDate = input.birthDate
+        birthTime = input.birthTime
+        relationshipType = input.relationshipType
+    }
+}
+
+private struct PartnerSajuSummaryResponseDTO: Decodable, Sendable {
+    let linkID: String
+    let relationshipType: RelationshipTypeResponseDTO
+    let name: String?
+    let gender: String
+    let birthDate: String
+    let calendarType: String
+    let birthTime: String
+    let isTimeUnknown: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case linkID = "linkId"
+        case relationshipType, name, gender, birthDate, calendarType, birthTime, isTimeUnknown
+    }
+
+    func toDomain() -> MyPagePartnerSaju {
+        MyPagePartnerSaju(
+            linkID: linkID,
+            relationshipCode: relationshipType.code,
+            relationshipLabel: relationshipType.label,
+            name: name ?? "이름 없음",
+            gender: gender,
+            birthDate: birthDate,
+            calendarType: calendarType,
+            birthTime: birthTime,
+            isTimeUnknown: isTimeUnknown
+        )
+    }
+}
+
+private struct RelationshipTypeResponseDTO: Decodable, Sendable {
+    let code: String
+    let label: String
+}
 
 private struct UpdateMemberRequestDTO: Encodable, Sendable {
     let gender: String

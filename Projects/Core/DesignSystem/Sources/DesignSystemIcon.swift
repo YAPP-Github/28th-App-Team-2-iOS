@@ -16,6 +16,7 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
     case chevronSmallRight
     case logout
     case mail
+    case moreLine
     case notes
     case settings
     case chevronSmallBottom
@@ -64,6 +65,8 @@ public enum DSIconAsset: String, CaseIterable, Hashable, Sendable {
             DesignSystemAsset.Icons.logout.swiftUIImage
         case .mail:
             DesignSystemAsset.Icons.mail.swiftUIImage
+        case .moreLine:
+            DesignSystemAsset.Icons.moreLine.swiftUIImage
         case .notes:
             DesignSystemAsset.Icons.notes.swiftUIImage
         case .chevronSmallBottom:

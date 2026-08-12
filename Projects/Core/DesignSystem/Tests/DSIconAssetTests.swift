@@ -21,6 +21,7 @@ struct DSIconAssetTests {
                 "chevronSmallRight",
                 "logout",
                 "mail",
+                "moreLine",
                 "notes",
                 "settings",
                 "chevronSmallBottom",

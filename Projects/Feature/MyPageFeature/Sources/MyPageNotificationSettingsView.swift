@@ -123,6 +123,8 @@ struct MyPageNotificationSettingsView: View {
                 toggle: .morningReport
             )
 
+            DSDivider()
+
             Button {
                 store.send(.notificationSettingsTimeButtonTapped)
             } label: {
