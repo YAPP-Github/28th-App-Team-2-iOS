@@ -10,6 +10,8 @@ import SwiftUI
 
 @main
 struct TodakunApp: App {
+    @UIApplicationDelegateAdaptor(PushNotificationAppDelegate.self)
+    private var pushNotificationAppDelegate
     private let store: StoreOf<RootFeature>
 
     init() {
@@ -29,6 +31,12 @@ struct TodakunApp: App {
         let authClient = httpClient.map(AuthClient.live) ?? .unavailable
         let myPageClient = httpClient.map(MyPageClient.live) ?? .unavailable
 
+        Task { @MainActor in
+            PushNotificationTokenStore.shared.setUpload { token in
+                try await myPageClient.registerDeviceToken(token)
+            }
+        }
+
         store = Store(initialState: RootFeature.State()) {
             RootFeature()
         } withDependencies: {
@@ -41,7 +49,14 @@ struct TodakunApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(store: store)
+            RootView(
+                store: store,
+                onAuthenticated: {
+                    Task { @MainActor in
+                        PushNotificationTokenStore.shared.uploadCurrentToken()
+                    }
+                }
+            )
                 .onOpenURL { callbackURL in
                     _ = GIDSignIn.sharedInstance.handle(callbackURL)
                     // 외부 SDK의 고정 API 표기(`Url`)를 그대로 호출한다.
@@ -54,6 +69,7 @@ struct TodakunApp: App {
 
 private struct RootView: View {
     @Bindable var store: StoreOf<RootFeature>
+    let onAuthenticated: () -> Void
 
     var body: some View {
         Group {
@@ -75,5 +91,10 @@ private struct RootView: View {
             }
         }
         .task { store.send(.task) }
+        .onChange(of: store.route) { _, route in
+            if route == .authenticated {
+                onAuthenticated()
+            }
+        }
     }
 }
