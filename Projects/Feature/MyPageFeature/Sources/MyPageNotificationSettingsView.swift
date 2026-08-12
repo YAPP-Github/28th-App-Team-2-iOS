@@ -32,6 +32,7 @@ struct MyPageNotificationSettingsView: View {
             ),
             layout: .time,
             title: "받을 시간 입력",
+            bottomSafeAreaSpacing: 30,
             onSave: { store.send(.notificationSettingsTimeSaveButtonTapped) },
             content: {
                 DSMultiWheelPicker(
