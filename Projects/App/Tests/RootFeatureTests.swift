@@ -85,6 +85,22 @@ final class RootFeatureTests: XCTestCase {
             $0.selectedItem = .myPage
         }
     }
+
+    func testSessionEndFromMyPageClearsSessionAndShowsOnboarding() async {
+        var state = RootFeature.State()
+        state.route = .authenticated
+        let store = TestStore(initialState: state) {
+            RootFeature()
+        } withDependencies: {
+            $0.authSession.clear = {}
+        }
+
+        await store.send(.mainTab(.myPage(.delegate(.sessionEnded))))
+        await store.receive(.sessionCleared) {
+            $0.mainTab = MainTabFeature.State()
+            $0.route = .unauthenticated
+        }
+    }
 }
 
 private actor RestoreCounter {
