@@ -106,12 +106,13 @@ public struct DSBottomNavigation: View {
         .frame(height: specification.height, alignment: .top)
         .background {
             specification.shape.swiftUIShape
-            .fill(specification.backgroundColor.swiftUIColor)
-            .shadow(
-                color: specification.shadowColor.swiftUIColor.opacity(specification.shadowOpacity),
-                radius: specification.shadowRadius,
-                y: specification.shadowYOffset
-            )
+                .fill(specification.backgroundColor.swiftUIColor)
+                .shadow(
+                    color: specification.shadowColor.swiftUIColor.opacity(specification.shadowOpacity),
+                    radius: specification.shadowRadius,
+                    y: specification.shadowYOffset
+                )
+                .ignoresSafeArea(.container, edges: .bottom)
         }
         .dsDebugGeometry("DSBottomNavigation")
     }

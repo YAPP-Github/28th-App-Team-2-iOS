@@ -2,6 +2,7 @@ import ComposableArchitecture
 import DesignSystem
 import FortuneFeature
 import Foundation
+import MyPageFeature
 import SwiftUI
 
 struct MainTabView: View {
@@ -26,24 +27,28 @@ struct MainTabView: View {
                 UnavailableTabView(title: "행운 액션")
 
             case .myPage:
-                UnavailableTabView(title: "마이페이지")
+                MyPageView(
+                    store: store.scope(state: \.myPage, action: \.myPage)
+                )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 0) {
+            if shouldShowBottomNavigation {
                 DSBottomNavigation(
                     selectedItem: bottomNavigationBinding
                 )
-
-                Color.clear
-                    .frame(height: 0)
-                    .background(
-                        DesignSystemAsset.Colors.white.swiftUIColor,
-                        ignoresSafeAreaEdges: .bottom
-                    )
             }
         }
+    }
+
+    private var shouldShowBottomNavigation: Bool {
+        store.myPage.edit == nil
+            && store.myPage.sajuDetail == nil
+            && store.myPage.notificationSettings == nil
+            && store.myPage.appSettings == nil
+            && store.myPage.withdrawal == nil
+            && store.myPage.sajuManagement == nil
     }
 
     private var bottomNavigationBinding: Binding<DSBottomNavigationItem> {

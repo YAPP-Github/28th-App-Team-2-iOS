@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import FortuneFeature
 import Foundation
+import MyPageFeature
 
 @Reducer
 struct MainTabFeature: Sendable {
@@ -17,24 +18,32 @@ struct MainTabFeature: Sendable {
     struct State: Equatable, Sendable {
         var selectedTab: Tab
         var fortune: FortuneFeature.State
+        var myPage: MyPageFeature.State
 
         init(
             selectedTab: Tab = .fortune,
-            fortune: FortuneFeature.State = .init()
+            fortune: FortuneFeature.State = .init(),
+            myPage: MyPageFeature.State = .init()
         ) {
             self.selectedTab = selectedTab
             self.fortune = fortune
+            self.myPage = myPage
         }
     }
 
     enum Action: Equatable, Sendable {
         case selectedTabChanged(Tab)
         case fortune(FortuneFeature.Action)
+        case myPage(MyPageFeature.Action)
     }
 
     var body: some ReducerOf<Self> {
         Scope(state: \.fortune, action: \.fortune) {
             FortuneFeature()
+        }
+
+        Scope(state: \.myPage, action: \.myPage) {
+            MyPageFeature()
         }
 
         Reduce { state, action in
@@ -47,7 +56,7 @@ struct MainTabFeature: Sendable {
                 state.selectedTab = .luckyAction
                 return .none
 
-            case .fortune:
+            case .fortune, .myPage:
                 return .none
             }
         }

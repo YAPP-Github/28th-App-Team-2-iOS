@@ -114,7 +114,7 @@ extension OnboardingFeature.State {
             return nil
         }
 
-        let birthTime = isBirthTimeUnknown ? "UNKNOWN" : birthTimePeriod?.signupValue
+        let birthTime = isBirthTimeUnknown ? "UNKNOWN" : birthTimePeriod?.apiValue
         guard let birthTime else { return nil }
 
         return SignupInput(
@@ -144,25 +144,6 @@ private extension BirthDateCalendar {
         switch self {
         case .solar: "SOLAR"
         case .lunar: "LUNAR"
-        }
-    }
-}
-
-private extension BirthTimePeriod {
-    var signupValue: String {
-        switch self {
-        case .jaTime: "JASI"
-        case .chukTime: "CHUKSI"
-        case .inTime: "INSI"
-        case .myoTime: "MYOSI"
-        case .jinTime: "JINSI"
-        case .saTime: "SASI"
-        case .oTime: "OSI"
-        case .miTime: "MISI"
-        case .sinTime: "SINSI"
-        case .yuTime: "YUSI"
-        case .sulTime: "SULSI"
-        case .haeTime: "HAESI"
         }
     }
 }

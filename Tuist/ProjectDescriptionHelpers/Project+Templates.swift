@@ -113,7 +113,6 @@ public extension Project {
                 ]),
                 sources: ["Sources/**"],
                 resources: resources,
-                entitlements: .file(path: .relativeToRoot("Projects/App/Todakun.entitlements")),
                 dependencies: dependencies,
                 settings: .settings(
                     base: [
@@ -124,10 +123,16 @@ public extension Project {
                     configurations: [
                         .debug(
                             name: "Debug",
+                            settings: [
+                                "CODE_SIGN_ENTITLEMENTS": "Todakun-Debug.entitlements"
+                            ],
                             xcconfig: .relativeToRoot("Configuration/Debug.xcconfig")
                         ),
                         .release(
                             name: "Release",
+                            settings: [
+                                "CODE_SIGN_ENTITLEMENTS": "Todakun-Release.entitlements"
+                            ],
                             xcconfig: .relativeToRoot("Configuration/Release.xcconfig")
                         )
                     ]

@@ -7,6 +7,7 @@ public extension View {
         layout: DSWheelPickerPanelLayout,
         title: String,
         actionTitle: String = "저장",
+        bottomSafeAreaSpacing: CGFloat? = nil,
         onSave: @escaping () -> Void,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
@@ -16,6 +17,7 @@ public extension View {
                 layout: layout,
                 title: title,
                 actionTitle: actionTitle,
+                bottomSafeAreaSpacing: bottomSafeAreaSpacing,
                 onSave: onSave,
                 sheetContent: content
             )
@@ -28,6 +30,7 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
     @State private var isHostPresented = false
     @State private var isPanelVisible = false
     @State private var isKeyboardPresented = false
+    @State private var windowSafeAreaBottom: CGFloat = 0
     @GestureState(
         resetTransaction: Transaction(animation: .snappy)
     ) private var dragOffset: CGFloat = 0
@@ -35,6 +38,7 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
     let layout: DSWheelPickerPanelLayout
     let title: String
     let actionTitle: String
+    let bottomSafeAreaSpacing: CGFloat?
     let onSave: () -> Void
     let sheetContent: () -> SheetContent
 
@@ -89,9 +93,14 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
 
     private var presentation: some View {
         let specification = DSWheelPickerPanel.specification(layout: layout)
-        let bottomSpacing = isKeyboardPresented
-            ? specification.keyboardSheetBottomSpacing
-            : specification.sheetBottomSpacing
+
+        let bottomSpacing = DSWheelPickerSheetBottomSpacingResolver.resolvedSpacing(
+            defaultSpacing: specification.sheetBottomSpacing,
+            keyboardSpacing: specification.keyboardSheetBottomSpacing,
+            safeAreaBottom: windowSafeAreaBottom,
+            safeAreaSpacing: bottomSafeAreaSpacing,
+            isKeyboardPresented: isKeyboardPresented
+        )
 
         return ZStack(alignment: .bottom) {
             specification.dimmingAsset.swiftUIColor
@@ -122,6 +131,11 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
                 .transition(.move(edge: .bottom))
                 .accessibilityAddTraits(.isModal)
             }
+        }
+        .background {
+            DSWheelPickerWindowSafeAreaReader(bottomInset: $windowSafeAreaBottom)
+                .frame(width: 0, height: 0)
+                .allowsHitTesting(false)
         }
         .ignoresSafeArea(.container)
     }
@@ -205,5 +219,65 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
         specification.topPadding
             + specification.dragIndicatorHeight
             + specification.dragIndicatorToHeaderSpacing
+    }
+}
+
+enum DSWheelPickerSheetBottomSpacingResolver {
+    static func resolvedSpacing(
+        defaultSpacing: CGFloat,
+        keyboardSpacing: CGFloat,
+        safeAreaBottom: CGFloat,
+        safeAreaSpacing: CGFloat?,
+        isKeyboardPresented: Bool
+    ) -> CGFloat {
+        guard !isKeyboardPresented else { return keyboardSpacing }
+        guard let safeAreaSpacing else { return defaultSpacing }
+
+        return max(safeAreaBottom, 0) + max(safeAreaSpacing, 0)
+    }
+}
+
+private struct DSWheelPickerWindowSafeAreaReader: UIViewRepresentable {
+    @Binding var bottomInset: CGFloat
+
+    func makeUIView(context: Context) -> DSWheelPickerSafeAreaView {
+        let view = DSWheelPickerSafeAreaView()
+        configure(view)
+        return view
+    }
+
+    func updateUIView(_ uiView: DSWheelPickerSafeAreaView, context: Context) {
+        configure(uiView)
+    }
+
+    private func configure(_ view: DSWheelPickerSafeAreaView) {
+        let bottomInset = $bottomInset
+        view.onWindowSafeAreaInsetsChange = { value in
+            guard bottomInset.wrappedValue != value else { return }
+
+            DispatchQueue.main.async {
+                bottomInset.wrappedValue = value
+            }
+        }
+        view.reportWindowSafeAreaInsets()
+    }
+}
+
+private final class DSWheelPickerSafeAreaView: UIView {
+    var onWindowSafeAreaInsetsChange: ((CGFloat) -> Void)?
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        reportWindowSafeAreaInsets()
+    }
+
+    override func safeAreaInsetsDidChange() {
+        super.safeAreaInsetsDidChange()
+        reportWindowSafeAreaInsets()
+    }
+
+    func reportWindowSafeAreaInsets() {
+        guard let window else { return }
+        onWindowSafeAreaInsetsChange?(window.safeAreaInsets.bottom)
     }
 }

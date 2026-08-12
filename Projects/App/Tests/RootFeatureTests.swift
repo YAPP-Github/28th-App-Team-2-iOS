@@ -1,5 +1,6 @@
 import AuthSession
 import ComposableArchitecture
+import OnboardingFeature
 import Testing
 @testable import Todakun
 
@@ -81,6 +82,25 @@ struct RootFeatureTests {
             $0.route = .authenticated
         }
         #expect(store.state.mainTab.selectedTab == .myPage)
+    }
+
+    @Test
+    func sessionEndFromMyPageClearsSessionAndShowsOnboarding() async {
+        var state = RootFeature.State()
+        state.route = .authenticated
+        state.onboarding.route = .home
+        let store = TestStore(initialState: state) {
+            RootFeature()
+        } withDependencies: {
+            $0.authSession.clear = {}
+        }
+
+        await store.send(.mainTab(.myPage(.delegate(.sessionEnded))))
+        await store.receive(.sessionCleared) {
+            $0.mainTab = MainTabFeature.State()
+            $0.onboarding = OnboardingFeature.State()
+            $0.route = .unauthenticated
+        }
     }
 }
 

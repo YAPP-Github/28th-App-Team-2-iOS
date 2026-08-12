@@ -1,5 +1,6 @@
 import AuthSession
 import ComposableArchitecture
+import MyPageFeature
 import OnboardingFeature
 
 @Reducer
@@ -20,6 +21,7 @@ struct RootFeature {
     enum Action: Equatable {
         case task
         case sessionRestored(Result<Bool, AuthSessionError>)
+        case sessionCleared
         case onboarding(OnboardingFeature.Action)
         case mainTab(MainTabFeature.Action)
     }
@@ -58,6 +60,18 @@ struct RootFeature {
 
             case .onboarding(.delegate(.authenticationCompleted)):
                 state.route = .authenticated
+                return .none
+
+            case .mainTab(.myPage(.delegate(.sessionEnded))):
+                return .run { send in
+                    try? await authSession.clear()
+                    await send(.sessionCleared)
+                }
+
+            case .sessionCleared:
+                state.mainTab = MainTabFeature.State()
+                state.onboarding = OnboardingFeature.State()
+                state.route = .unauthenticated
                 return .none
 
             case .onboarding, .mainTab:

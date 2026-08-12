@@ -5,6 +5,8 @@ let project = Project.makeApp(
     name: "Todakun",
     dependencies: [
         .external(name: "ComposableArchitecture"),
+        .external(name: "FirebaseCore"),
+        .external(name: "FirebaseMessaging"),
         .external(name: "GoogleSignIn"),
         .external(name: "KakaoSDKAuth"),
         .external(name: "KakaoSDKCommon"),

@@ -36,4 +36,11 @@ struct FortuneProfileInputTests {
         #expect(BirthTimePeriod.haeTime.startHour == 21)
         #expect(BirthTimePeriod.haeTime.endHour == 23)
     }
+
+    @Test("API 12지시 코드를 시간 범위 표기로 변환")
+    func testBirthTimePeriodDisplayText() {
+        #expect(BirthTimePeriod(apiValue: "OSI")?.displayText == "11:30~13:29(오시)")
+        #expect(BirthTimePeriod(apiValue: "JASI")?.displayText == "23:30~01:29(자시)")
+        #expect(BirthTimePeriod(apiValue: "UNKNOWN") == nil)
+    }
 }
