@@ -1,11 +1,13 @@
 import AuthSession
 import ComposableArchitecture
+import DesignSystem
+import FortuneFeature
 import GoogleSignIn
 import KakaoSDKAuth
 import KakaoSDKCommon
+import MyPageFeature
 import NetworkCore
 import OnboardingFeature
-import MyPageFeature
 import SwiftUI
 
 @main
@@ -22,14 +24,35 @@ struct TodakunApp: App {
         }
 
         let authSession = AuthSessionClient.live
-        let httpClient = configuration.apiBaseURL.map { baseURL in
-            HTTPClient(
+        let authClient: AuthClient
+        let fortuneClient: FortuneClient
+        let myPageClient: MyPageClient
+
+        if let baseURL = configuration.apiBaseURL {
+            let authHTTPClient = HTTPClient(baseURL: baseURL)
+            authClient = AuthClient.live(httpClient: authHTTPClient)
+
+            let authenticatedHTTPClient = HTTPClient(
                 baseURL: baseURL,
-                defaultHeaders: { await authSession.authorizationHeaders() }
+                defaultHeaders: {
+                    await authSession.authorizationHeaders()
+                },
+                onUnauthorized: {
+                    do {
+                        _ = try await authSession.refresh(using: authClient.refresh)
+                        return true
+                    } catch {
+                        return false
+                    }
+                }
             )
+            fortuneClient = FortuneClient.live(httpClient: authenticatedHTTPClient)
+            myPageClient = MyPageClient.live(httpClient: authenticatedHTTPClient)
+        } else {
+            authClient = .unavailable
+            fortuneClient = .unavailable
+            myPageClient = .unavailable
         }
-        let authClient = httpClient.map(AuthClient.live) ?? .unavailable
-        let myPageClient = httpClient.map(MyPageClient.live) ?? .unavailable
 
         Task { @MainActor in
             PushNotificationTokenStore.shared.setUpload { token in
@@ -42,8 +65,9 @@ struct TodakunApp: App {
         } withDependencies: {
             $0.authClient = authClient
             $0.authSession = authSession
-            $0.socialLoginClient = .live(configuration: configuration)
+            $0.fortuneClient = fortuneClient
             $0.myPageClient = myPageClient
+            $0.socialLoginClient = .live(configuration: configuration)
         }
     }
 
@@ -57,12 +81,9 @@ struct TodakunApp: App {
                     }
                 }
             )
-                .onOpenURL { callbackURL in
-                    _ = GIDSignIn.sharedInstance.handle(callbackURL)
-                    // 외부 SDK의 고정 API 표기(`Url`)를 그대로 호출한다.
-                    // swiftlint:disable:next acronym_casing
-                    _ = AuthController.handleOpenUrl(url: callbackURL)
-                }
+            #if DEBUG
+            .dsDebugLayoutInspector()
+            #endif
         }
     }
 }
@@ -80,21 +101,8 @@ private struct RootView: View {
                     .background(Color("LaunchBackground").ignoresSafeArea())
 
             case .authenticated:
-#if DEBUG
-                MainTabView(
-                    store: store.scope(state: \.mainTab, action: \.mainTab)
-                )
-//                .ignoresSafeArea(edges: .bottom)
-                .overlay(alignment: .topTrailing) {
-                    PushNotificationDebugPanel()
-                        .padding(.top, 60)
-                        .padding(.trailing, 16)
-                }
-#else
-                MainTabView(
-                    store: store.scope(state: \.mainTab, action: \.mainTab)
-                )
-#endif
+                mainTabView
+
             case .unauthenticated:
                 OnboardingView(
                     store: store.scope(state: \.onboarding, action: \.onboarding)
@@ -107,5 +115,25 @@ private struct RootView: View {
                 onAuthenticated()
             }
         }
+        .onOpenURL { callbackURL in
+            _ = GIDSignIn.sharedInstance.handle(callbackURL)
+            // 외부 SDK의 고정 API 표기(`Url`)를 그대로 호출한다.
+            // swiftlint:disable:next acronym_casing
+            _ = AuthController.handleOpenUrl(url: callbackURL)
+        }
+    }
+
+    @ViewBuilder
+    private var mainTabView: some View {
+        MainTabView(
+            store: store.scope(state: \.mainTab, action: \.mainTab)
+        )
+        #if DEBUG
+        .overlay(alignment: .topTrailing) {
+            PushNotificationDebugPanel()
+                .padding(.top, 60)
+                .padding(.trailing, 16)
+        }
+        #endif
     }
 }

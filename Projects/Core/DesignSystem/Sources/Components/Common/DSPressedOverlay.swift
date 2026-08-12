@@ -46,6 +46,46 @@ extension View {
     }
 }
 
+public extension Button {
+    /// Applies the shared pressed overlay to a custom button's visible surface.
+    ///
+    /// Keep additional hit-area expansion outside the button label so the
+    /// overlay follows only the supplied visual shape.
+    func dsSurfaceButtonStyle(shape: DSComponentShape) -> some View {
+        buttonStyle(DSSurfaceButtonStyle(shape: shape))
+    }
+
+    /// Applies the shared pressed overlay to the icon pixels of an icon-only button.
+    func dsIconButtonStyle(
+        _ iconAsset: DSIconAsset,
+        width: CGFloat,
+        height: CGFloat
+    ) -> some View {
+        buttonStyle(
+            DSIconButtonStyle(
+                iconAsset: iconAsset,
+                iconSize: CGSize(width: width, height: height),
+                pressedOverlay: .standard
+            )
+        )
+    }
+}
+
+private struct DSSurfaceButtonStyle: ButtonStyle {
+    let shape: DSComponentShape
+
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .dsPressedOverlay(
+                isPressed: configuration.isPressed,
+                shape: shape,
+                specification: isEnabled ? .standard : nil
+            )
+    }
+}
+
 enum DSIconButtonPressedOverlayTarget {
     case icon
     case button
@@ -56,6 +96,8 @@ struct DSIconButtonStyle: ButtonStyle {
     let iconSize: CGSize
     let pressedOverlay: DSPressedOverlay?
     let pressedOverlayTarget: DSIconButtonPressedOverlayTarget
+
+    @Environment(\.isEnabled) private var isEnabled
 
     init(
         iconAsset: DSIconAsset,
@@ -72,7 +114,8 @@ struct DSIconButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .overlay {
-                if configuration.isPressed,
+                if isEnabled,
+                   configuration.isPressed,
                    let pressedOverlay {
                     switch pressedOverlayTarget {
                     case .icon:

@@ -62,9 +62,6 @@ struct RootFeature {
                 state.route = .authenticated
                 return .none
 
-            case .onboarding:
-                return .none
-
             case .mainTab(.myPage(.delegate(.sessionEnded))):
                 return .run { send in
                     try? await authSession.clear()
@@ -77,7 +74,7 @@ struct RootFeature {
                 state.route = .unauthenticated
                 return .none
 
-            case .mainTab:
+            case .onboarding, .mainTab:
                 return .none
             }
         }

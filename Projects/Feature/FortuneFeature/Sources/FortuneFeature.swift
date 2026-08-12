@@ -1,1 +1,168 @@
-// Dummy file to ensure Tuist generates the target
+import ComposableArchitecture
+import Foundation
+
+@Reducer
+public struct FortuneFeature {
+    public init() {}
+
+    @ObservableState
+    public struct State: Equatable, Sendable {
+        public enum ViewState: Equatable, Sendable {
+            case loading
+            case loaded(FortuneHomeContent)
+            case failed(message: String)
+        }
+
+        public var viewState: ViewState
+        public var isRefreshing: Bool
+
+        public init(
+            viewState: ViewState = .loading,
+            isRefreshing: Bool = false
+        ) {
+            self.viewState = viewState
+            self.isRefreshing = isRefreshing
+        }
+    }
+
+    public enum Action: Equatable, Sendable {
+        case view(ViewAction)
+        case todayFortuneResponse(Result<FortuneHomeContent, FortuneClientError>)
+        case delegate(Delegate)
+
+        public enum ViewAction: Equatable, Sendable {
+            case task
+            case refresh
+            case retryButtonTapped
+            case requestCancelled
+            case notificationButtonTapped
+            case fortuneReportButtonTapped
+            case fortuneCategoryTapped(FortuneCategory)
+            case fortuneReadingTapped(FortuneReading)
+            case luckyActionBannerTapped
+        }
+
+        public enum Delegate: Equatable, Sendable {
+            case notificationRequested
+            case fortuneReportRequested(
+                dailyFortuneID: UUID,
+                selectedCategory: FortuneCategory?
+            )
+            case fortuneReadingRequested(FortuneReading)
+            case luckyActionRequested
+        }
+    }
+
+    private enum CancelID {
+        case fetchTodayFortune
+    }
+
+    @Dependency(\.fortuneClient) var fortuneClient
+
+    public var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .view(.task):
+                guard case .loading = state.viewState, !state.isRefreshing else {
+                    return .none
+                }
+                return fetchTodayFortuneEffect()
+
+            case .view(.retryButtonTapped):
+                state.viewState = .loading
+                state.isRefreshing = false
+                return fetchTodayFortuneEffect()
+
+            case .view(.refresh):
+                guard case .loaded = state.viewState, !state.isRefreshing else {
+                    return .none
+                }
+                state.isRefreshing = true
+                return fetchTodayFortuneEffect()
+
+            case .view(.requestCancelled):
+                state.isRefreshing = false
+                return .cancel(id: CancelID.fetchTodayFortune)
+
+            case let .todayFortuneResponse(result):
+                state.isRefreshing = false
+                switch result {
+                case let .success(content):
+                    state.viewState = .loaded(content)
+                    return .none
+
+                case let .failure(error):
+                    if case .loading = state.viewState {
+                        state.viewState = .failed(message: message(for: error))
+                    }
+                    return .none
+                }
+
+            case .view(.notificationButtonTapped):
+                return .send(.delegate(.notificationRequested))
+
+            case .view(.fortuneReportButtonTapped):
+                return routeToFortuneReport(state: state, selectedCategory: nil)
+
+            case let .view(.fortuneCategoryTapped(category)):
+                return routeToFortuneReport(state: state, selectedCategory: category)
+
+            case let .view(.fortuneReadingTapped(reading)):
+                return .send(.delegate(.fortuneReadingRequested(reading)))
+
+            case .view(.luckyActionBannerTapped):
+                return .send(.delegate(.luckyActionRequested))
+
+            case .delegate:
+                return .none
+            }
+        }
+    }
+
+    private func fetchTodayFortuneEffect() -> Effect<Action> {
+        .run { send in
+            do {
+                let content = try await fortuneClient.fetchToday()
+                await send(.todayFortuneResponse(.success(content)))
+            } catch is CancellationError {
+                // Task cancelled: do not convert cancellation into failure UI
+            } catch let error as FortuneClientError {
+                await send(.todayFortuneResponse(.failure(error)))
+            } catch {
+                await send(.todayFortuneResponse(.failure(.transport)))
+            }
+        }
+        .cancellable(id: CancelID.fetchTodayFortune, cancelInFlight: true)
+    }
+
+    private func routeToFortuneReport(
+        state: State,
+        selectedCategory: FortuneCategory?
+    ) -> Effect<Action> {
+        guard case let .loaded(content) = state.viewState else {
+            return .none
+        }
+
+        return .send(
+            .delegate(
+                .fortuneReportRequested(
+                    dailyFortuneID: content.dailyFortuneID,
+                    selectedCategory: selectedCategory
+                )
+            )
+        )
+    }
+
+    private func message(for error: FortuneClientError) -> String {
+        switch error {
+        case .notConfigured:
+            return "운세 서비스를 사용할 수 없어요."
+        case .server, .httpStatus:
+            return "운세 정보를 불러오지 못했어요."
+        case .invalidResponse, .unsupportedCategory:
+            return "운세 정보를 읽는 중 오류가 발생했어요."
+        case .transport:
+            return "네트워크 연결 상태를 확인해주세요."
+        }
+    }
+}

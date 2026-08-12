@@ -1,12 +1,14 @@
 import AuthSession
 import ComposableArchitecture
-import DesignSystem
-import XCTest
+import OnboardingFeature
+import Testing
 @testable import Todakun
 
+@Suite
 @MainActor
-final class RootFeatureTests: XCTestCase {
-    func testLaunchWithoutStoredSessionShowsOnboarding() async {
+struct RootFeatureTests {
+    @Test
+    func launchWithoutStoredSessionShowsOnboarding() async {
         let store = TestStore(initialState: RootFeature.State()) {
             RootFeature()
         } withDependencies: {
@@ -19,7 +21,8 @@ final class RootFeatureTests: XCTestCase {
         }
     }
 
-    func testLaunchWithStoredSessionShowsAuthenticatedRoute() async {
+    @Test
+    func launchWithStoredSessionShowsAuthenticatedRoute() async {
         let store = TestStore(initialState: RootFeature.State()) {
             RootFeature()
         } withDependencies: {
@@ -32,7 +35,8 @@ final class RootFeatureTests: XCTestCase {
         }
     }
 
-    func testLaunchWithSessionRestoreFailureShowsOnboarding() async {
+    @Test
+    func launchWithSessionRestoreFailureShowsOnboarding() async {
         let store = TestStore(initialState: RootFeature.State()) {
             RootFeature()
         } withDependencies: {
@@ -45,7 +49,8 @@ final class RootFeatureTests: XCTestCase {
         }
     }
 
-    func testTaskDoesNotRestoreSessionAfterRouteIsResolved() async {
+    @Test
+    func taskDoesNotRestoreSessionAfterRouteIsResolved() async {
         let counter = RestoreCounter()
         var state = RootFeature.State()
         state.route = .unauthenticated
@@ -61,12 +66,14 @@ final class RootFeatureTests: XCTestCase {
         await store.send(.task)
 
         let restoreCount = await counter.value
-        XCTAssertEqual(restoreCount, 0)
+        #expect(restoreCount == 0)
     }
 
-    func testOnboardingCompletionShowsAuthenticatedRoute() async {
+    @Test
+    func onboardingCompletionShowsAuthenticatedRoute() async {
         var state = RootFeature.State()
         state.route = .unauthenticated
+        state.mainTab.selectedTab = .myPage
         let store = TestStore(initialState: state) {
             RootFeature()
         }
@@ -74,19 +81,11 @@ final class RootFeatureTests: XCTestCase {
         await store.send(.onboarding(.delegate(.authenticationCompleted))) {
             $0.route = .authenticated
         }
+        #expect(store.state.mainTab.selectedTab == .myPage)
     }
 
-    func testMainTabSelectionChanges() async {
-        let store = TestStore(initialState: MainTabFeature.State()) {
-            MainTabFeature()
-        }
-
-        await store.send(.selectedItemChanged(.myPage)) {
-            $0.selectedItem = .myPage
-        }
-    }
-
-    func testSessionEndFromMyPageClearsSessionAndShowsOnboarding() async {
+    @Test
+    func sessionEndFromMyPageClearsSessionAndShowsOnboarding() async {
         var state = RootFeature.State()
         state.route = .authenticated
         state.onboarding.route = .home

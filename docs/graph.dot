@@ -82,6 +82,7 @@ digraph {
   TodakFeatureTesting -> Utils
   TodakFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
   Todakun -> AuthSession
+  Todakun -> DesignSystem
   Todakun -> FortuneFeature
   Todakun -> LuckyActionFeature
   Todakun -> MyPageFeature
