@@ -80,10 +80,21 @@ private struct RootView: View {
                     .background(Color("LaunchBackground").ignoresSafeArea())
 
             case .authenticated:
+#if DEBUG
                 MainTabView(
                     store: store.scope(state: \.mainTab, action: \.mainTab)
                 )
 //                .ignoresSafeArea(edges: .bottom)
+                .overlay(alignment: .topTrailing) {
+                    PushNotificationDebugPanel()
+                        .padding(.top, 60)
+                        .padding(.trailing, 16)
+                }
+#else
+                MainTabView(
+                    store: store.scope(state: \.mainTab, action: \.mainTab)
+                )
+#endif
             case .unauthenticated:
                 OnboardingView(
                     store: store.scope(state: \.onboarding, action: \.onboarding)
