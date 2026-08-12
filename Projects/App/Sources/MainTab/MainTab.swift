@@ -43,7 +43,9 @@ struct MainTabView: View {
 
             if store.myPage.edit == nil,
                store.myPage.sajuDetail == nil,
-               store.myPage.notificationSettings == nil {
+               store.myPage.notificationSettings == nil,
+               store.myPage.appSettings == nil,
+               store.myPage.withdrawal == nil {
                 DSBottomNavigation(
                     selectedItem: $store.selectedItem.sending(\.selectedItemChanged)
                 )
