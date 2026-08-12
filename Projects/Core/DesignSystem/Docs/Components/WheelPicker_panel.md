@@ -14,7 +14,7 @@ Figma 원본:
 - `.single`, `.time`, `.date` 레이아웃을 제공하며 각각 `DSSingleWheelPicker` 또는 `DSMultiWheelPicker`를 콘텐츠로 조합합니다.
 - 패널 제목과 저장 동작은 외부에서 입력합니다. `actionTitle`은 `저장`, `완료`처럼 compact header에 맞는 짧은 한 줄 액션 문구로 사용합니다.
 - `dsWheelPickerSheet`는 화면 전체 modal host 안에 custom overlay로 패널을 표시합니다.
-- 기본 panel 하단 간격은 화면 하단에서 `40pt`입니다. 호출부가 `bottomSafeAreaSpacing`을 전달한 경우에만 bottom safe-area 상단에서 해당 값만큼 위에 배치합니다.
+- 기본 panel 하단 간격은 화면 하단에서 `40pt`입니다. 호출부가 `bottomSafeAreaSpacing`을 전달한 경우에만 현재 표시 window의 bottom safe-area 상단에서 해당 값만큼 위에 배치합니다.
 - Sheet 표시 상태, 저장 이후 처리, 날짜 유효성 정책과 도메인 모델은 사용하는 Feature가 소유합니다.
 - 커스텀 Drag Indicator를 사용하므로 별도 벡터 에셋은 사용하지 않습니다.
 

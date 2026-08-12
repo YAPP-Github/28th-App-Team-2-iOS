@@ -30,6 +30,7 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
     @State private var isHostPresented = false
     @State private var isPanelVisible = false
     @State private var isKeyboardPresented = false
+    @State private var windowSafeAreaBottom: CGFloat = 0
     @GestureState(
         resetTransaction: Transaction(animation: .snappy)
     ) private var dragOffset: CGFloat = 0
@@ -93,45 +94,48 @@ private struct DSWheelPickerSheetModifier<SheetContent: View>: ViewModifier {
     private var presentation: some View {
         let specification = DSWheelPickerPanel.specification(layout: layout)
 
-        return GeometryReader { proxy in
-            let bottomSpacing = DSWheelPickerSheetBottomSpacingResolver.resolvedSpacing(
-                defaultSpacing: specification.sheetBottomSpacing,
-                keyboardSpacing: specification.keyboardSheetBottomSpacing,
-                safeAreaBottom: proxy.safeAreaInsets.bottom,
-                safeAreaSpacing: bottomSafeAreaSpacing,
-                isKeyboardPresented: isKeyboardPresented
-            )
+        let bottomSpacing = DSWheelPickerSheetBottomSpacingResolver.resolvedSpacing(
+            defaultSpacing: specification.sheetBottomSpacing,
+            keyboardSpacing: specification.keyboardSheetBottomSpacing,
+            safeAreaBottom: windowSafeAreaBottom,
+            safeAreaSpacing: bottomSafeAreaSpacing,
+            isKeyboardPresented: isKeyboardPresented
+        )
 
-            ZStack(alignment: .bottom) {
-                specification.dimmingAsset.swiftUIColor
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        isPresented = false
-                    }
-                    .accessibilityLabel("닫기")
-                    .accessibilityAddTraits(.isButton)
-
-                if isPanelVisible {
-                    DSWheelPickerPanel(
-                        layout: layout,
-                        title: title,
-                        actionTitle: actionTitle,
-                        onSave: onSave,
-                        content: sheetContent
-                    )
-                    .offset(y: max(0, dragOffset))
-                    .overlay(alignment: .top) {
-                        Color.clear
-                            .frame(height: dragHandleHeight(specification))
-                            .contentShape(Rectangle())
-                            .gesture(dismissGesture)
-                            .accessibilityHidden(true)
-                    }
-                    .padding(.bottom, bottomSpacing)
-                    .transition(.move(edge: .bottom))
-                    .accessibilityAddTraits(.isModal)
+        return ZStack(alignment: .bottom) {
+            specification.dimmingAsset.swiftUIColor
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isPresented = false
                 }
+                .accessibilityLabel("닫기")
+                .accessibilityAddTraits(.isButton)
+
+            if isPanelVisible {
+                DSWheelPickerPanel(
+                    layout: layout,
+                    title: title,
+                    actionTitle: actionTitle,
+                    onSave: onSave,
+                    content: sheetContent
+                )
+                .offset(y: max(0, dragOffset))
+                .overlay(alignment: .top) {
+                    Color.clear
+                        .frame(height: dragHandleHeight(specification))
+                        .contentShape(Rectangle())
+                        .gesture(dismissGesture)
+                        .accessibilityHidden(true)
+                }
+                .padding(.bottom, bottomSpacing)
+                .transition(.move(edge: .bottom))
+                .accessibilityAddTraits(.isModal)
             }
+        }
+        .background {
+            DSWheelPickerWindowSafeAreaReader(bottomInset: $windowSafeAreaBottom)
+                .frame(width: 0, height: 0)
+                .allowsHitTesting(false)
         }
         .ignoresSafeArea(.container)
     }
@@ -230,5 +234,50 @@ enum DSWheelPickerSheetBottomSpacingResolver {
         guard let safeAreaSpacing else { return defaultSpacing }
 
         return max(safeAreaBottom, 0) + max(safeAreaSpacing, 0)
+    }
+}
+
+private struct DSWheelPickerWindowSafeAreaReader: UIViewRepresentable {
+    @Binding var bottomInset: CGFloat
+
+    func makeUIView(context: Context) -> DSWheelPickerSafeAreaView {
+        let view = DSWheelPickerSafeAreaView()
+        configure(view)
+        return view
+    }
+
+    func updateUIView(_ uiView: DSWheelPickerSafeAreaView, context: Context) {
+        configure(uiView)
+    }
+
+    private func configure(_ view: DSWheelPickerSafeAreaView) {
+        let bottomInset = $bottomInset
+        view.onWindowSafeAreaInsetsChange = { value in
+            guard bottomInset.wrappedValue != value else { return }
+
+            DispatchQueue.main.async {
+                bottomInset.wrappedValue = value
+            }
+        }
+        view.reportWindowSafeAreaInsets()
+    }
+}
+
+private final class DSWheelPickerSafeAreaView: UIView {
+    var onWindowSafeAreaInsetsChange: ((CGFloat) -> Void)?
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        reportWindowSafeAreaInsets()
+    }
+
+    override func safeAreaInsetsDidChange() {
+        super.safeAreaInsetsDidChange()
+        reportWindowSafeAreaInsets()
+    }
+
+    func reportWindowSafeAreaInsets() {
+        guard let window else { return }
+        onWindowSafeAreaInsetsChange?(window.safeAreaInsets.bottom)
     }
 }
