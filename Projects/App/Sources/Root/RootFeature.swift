@@ -73,6 +73,7 @@ struct RootFeature {
 
             case .sessionCleared:
                 state.mainTab = MainTabFeature.State()
+                state.onboarding = OnboardingFeature.State()
                 state.route = .unauthenticated
                 return .none
 

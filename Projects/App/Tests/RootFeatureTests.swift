@@ -89,6 +89,7 @@ final class RootFeatureTests: XCTestCase {
     func testSessionEndFromMyPageClearsSessionAndShowsOnboarding() async {
         var state = RootFeature.State()
         state.route = .authenticated
+        state.onboarding.route = .home
         let store = TestStore(initialState: state) {
             RootFeature()
         } withDependencies: {
@@ -98,6 +99,7 @@ final class RootFeatureTests: XCTestCase {
         await store.send(.mainTab(.myPage(.delegate(.sessionEnded))))
         await store.receive(.sessionCleared) {
             $0.mainTab = MainTabFeature.State()
+            $0.onboarding = OnboardingFeature.State()
             $0.route = .unauthenticated
         }
     }
