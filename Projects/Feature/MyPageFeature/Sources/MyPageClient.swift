@@ -5,15 +5,36 @@ import NetworkCore
 public struct MyPageClient: Sendable {
     public var loadDashboard: @Sendable () async throws -> MyPageDashboard
     public var updateProfile: @Sendable (MyPageProfileUpdate) async throws -> MyPageDashboard
+    public var loadNotificationSettings: @Sendable () async throws -> NotificationSettings
+    public var updateNotificationSettings: @Sendable (NotificationSettings) async throws -> NotificationSettings
+    public var syncOSPushPermission: @Sendable (Bool) async throws -> NotificationSettings
+    public var registerDeviceToken: @Sendable (String) async throws -> Void
 
     public init(
         loadDashboard: @escaping @Sendable () async throws -> MyPageDashboard,
         updateProfile: @escaping @Sendable (MyPageProfileUpdate) async throws -> MyPageDashboard = { _ in
             throw MyPageClientError.notConfigured
+        },
+        loadNotificationSettings: @escaping @Sendable () async throws -> NotificationSettings = {
+            throw MyPageClientError.notConfigured
+        },
+        updateNotificationSettings: @escaping @Sendable (NotificationSettings)
+            async throws -> NotificationSettings = { _ in
+            throw MyPageClientError.notConfigured
+        },
+        syncOSPushPermission: @escaping @Sendable (Bool) async throws -> NotificationSettings = { _ in
+            throw MyPageClientError.notConfigured
+        },
+        registerDeviceToken: @escaping @Sendable (String) async throws -> Void = { _ in
+            throw MyPageClientError.notConfigured
         }
     ) {
         self.loadDashboard = loadDashboard
         self.updateProfile = updateProfile
+        self.loadNotificationSettings = loadNotificationSettings
+        self.updateNotificationSettings = updateNotificationSettings
+        self.syncOSPushPermission = syncOSPushPermission
+        self.registerDeviceToken = registerDeviceToken
     }
 }
 
@@ -55,6 +76,18 @@ public extension MyPageClient {
                 let chart = try await fetchSajuChart(httpClient: httpClient)
                 await chartCache.save(chart, memberID: profile.memberID)
                 return MyPageDashboard(profile: profile, chart: chart)
+            },
+            loadNotificationSettings: {
+                try await fetchNotificationSettings(httpClient: httpClient)
+            },
+            updateNotificationSettings: { settings in
+                try await patchNotificationSettings(settings, httpClient: httpClient)
+            },
+            syncOSPushPermission: { granted in
+                try await patchOSPushPermission(granted, httpClient: httpClient)
+            },
+            registerDeviceToken: { token in
+                try await postDeviceToken(token, httpClient: httpClient)
             }
         )
     }

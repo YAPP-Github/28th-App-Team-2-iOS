@@ -126,6 +126,116 @@ final class MyPageFeatureTests: XCTestCase {
         }
     }
 
+    func testNotificationSettingsLoadsWhenMenuIsSelected() async {
+        let settings = NotificationSettings(
+            morningReportEnabled: false,
+            morningReportTime: NotificationTime(hour: 8, minute: 0),
+            todakiEnabled: false,
+            luckyActionReminderEnabled: false
+        )
+        let store = TestStore(initialState: MyPageFeature.State()) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.myPageClient.loadNotificationSettings = { settings }
+        }
+
+        await store.send(.menuItemTapped(.notificationSettings)) {
+            $0.notificationSettings = MyPageFeature.NotificationSettingsState()
+        }
+        await store.send(.notificationSettingsTask)
+        await store.receive(.notificationSettingsResponse(.success(settings))) {
+            $0.notificationSettings?.settings = settings
+        }
+    }
+
+    func testEnablingNotificationRequestsPermissionThenPersistsSetting() async {
+        let currentSettings = NotificationSettings(
+            morningReportEnabled: false,
+            morningReportTime: NotificationTime(hour: 8, minute: 0),
+            todakiEnabled: false,
+            luckyActionReminderEnabled: false
+        )
+        let updatedSettings = NotificationSettings(
+            morningReportEnabled: false,
+            morningReportTime: NotificationTime(hour: 8, minute: 0),
+            todakiEnabled: true,
+            luckyActionReminderEnabled: false
+        )
+        var initialState = MyPageFeature.State()
+        initialState.notificationSettings = MyPageFeature.NotificationSettingsState()
+        initialState.notificationSettings?.settings = currentSettings
+
+        let store = TestStore(initialState: initialState) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.notificationSettingsAuthorizationClient.authorizationStatus = { .authorized }
+            $0.myPageClient.syncOSPushPermission = { _ in currentSettings }
+            $0.myPageClient.updateNotificationSettings = { settings in
+                XCTAssertEqual(settings, updatedSettings)
+                return updatedSettings
+            }
+        }
+
+        await store.send(.notificationSettingToggleChanged(.todaki, true))
+        await store.receive(.notificationToggleAuthorizationStatus(.todaki, .authorized))
+        await store.receive(.notificationSettingsUpdateResponse(.success(updatedSettings))) {
+            $0.notificationSettings?.settings = updatedSettings
+        }
+    }
+
+    func testSavingMorningReportTimePersistsThirtyMinuteSelection() async {
+        let currentSettings = NotificationSettings(
+            morningReportEnabled: true,
+            morningReportTime: NotificationTime(hour: 8, minute: 0),
+            todakiEnabled: false,
+            luckyActionReminderEnabled: false
+        )
+        let updatedSettings = NotificationSettings(
+            morningReportEnabled: true,
+            morningReportTime: NotificationTime(hour: 23, minute: 30),
+            todakiEnabled: false,
+            luckyActionReminderEnabled: false
+        )
+        var initialState = MyPageFeature.State()
+        initialState.notificationSettings = MyPageFeature.NotificationSettingsState()
+        initialState.notificationSettings?.settings = currentSettings
+
+        let store = TestStore(initialState: initialState) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.myPageClient.updateNotificationSettings = { settings in
+                XCTAssertEqual(settings, updatedSettings)
+                return updatedSettings
+            }
+        }
+
+        await store.send(.notificationSettingsTimeButtonTapped) {
+            $0.notificationSettings?.isTimePickerPresented = true
+        }
+        await store.send(.notificationSettingsPickerHourChanged(99)) {
+            $0.notificationSettings?.pickerHour = 23
+        }
+        await store.send(.notificationSettingsPickerMinuteChanged(30)) {
+            $0.notificationSettings?.pickerMinute = 30
+        }
+        await store.send(.notificationSettingsTimeSaveButtonTapped) {
+            $0.notificationSettings?.isTimePickerPresented = false
+        }
+        await store.receive(.notificationSettingsUpdateResponse(.success(updatedSettings))) {
+            $0.notificationSettings?.settings = updatedSettings
+            $0.notificationSettings?.pickerHour = 23
+            $0.notificationSettings?.pickerMinute = 30
+        }
+    }
+
+    func testNotificationTimeClampsInvalidValues() {
+        let time = NotificationTime(hour: 24, minute: 60)
+
+        XCTAssertEqual(time.hour, 23)
+        XCTAssertEqual(time.minute, 59)
+        XCTAssertEqual(time.apiValue, "23:59")
+    }
+
     private var dashboard: MyPageDashboard {
         MyPageDashboard(
             profile: MyPageProfile(

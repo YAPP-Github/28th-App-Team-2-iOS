@@ -12,6 +12,7 @@ public struct MyPageFeature {
         public var phase: Phase = .idle
         public var edit: EditState?
         public var sajuDetail: SajuDetailState?
+        public var notificationSettings: NotificationSettingsState?
 
         public init() {}
     }
@@ -19,6 +20,18 @@ public struct MyPageFeature {
     @ObservableState
     public struct SajuDetailState: Equatable {
         public var helpSheet: HelpSheet?
+
+        public init() {}
+    }
+
+    @ObservableState
+    public struct NotificationSettingsState: Equatable {
+        public var settings: NotificationSettings?
+        public var pickerHour = 8
+        public var pickerMinute = 0
+        public var isTimePickerPresented = false
+        public var isPermissionAlertPresented = false
+        public var error: MyPageClientError?
 
         public init() {}
     }
@@ -95,6 +108,25 @@ public struct MyPageFeature {
         case sajuDetailHelpButtonTapped(HelpSheet)
         case sajuDetailHelpSheetDismissed
         case menuItemTapped(MenuItem)
+        case notificationSettingsTask
+        case notificationSettingsResponse(Result<NotificationSettings, MyPageClientError>)
+        case notificationSettingsDismissButtonTapped
+        case notificationSettingToggleChanged(NotificationSettingToggle, Bool)
+        case notificationToggleAuthorizationStatus(
+            NotificationSettingToggle,
+            NotificationAuthorizationStatus
+        )
+        case notificationToggleAuthorizationRequest(
+            NotificationSettingToggle,
+            NotificationAuthorizationStatus
+        )
+        case notificationSettingsUpdateResponse(Result<NotificationSettings, MyPageClientError>)
+        case notificationSettingsTimeButtonTapped
+        case notificationSettingsTimePickerPresented(Bool)
+        case notificationSettingsPickerHourChanged(Int)
+        case notificationSettingsPickerMinuteChanged(Int)
+        case notificationSettingsTimeSaveButtonTapped
+        case notificationPermissionAlertPresented(Bool)
     }
 
     public enum MenuItem: Equatable, CaseIterable {
@@ -105,10 +137,16 @@ public struct MyPageFeature {
         case logout
     }
 
-    @Dependency(\.myPageClient) private var myPageClient
+    @Dependency(\.myPageClient) var myPageClient
+    @Dependency(\.notificationSettingsAuthorizationClient)
+    var notificationSettingsAuthorizationClient
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
+            if let effect = reduceNotificationSettings(&state, action: action) {
+                return effect
+            }
+
             switch action {
             case .task:
                 guard state.dashboard == nil, state.phase != .loading else { return .none }
@@ -245,6 +283,9 @@ public struct MyPageFeature {
                 return .none
 
             case .menuItemTapped:
+                return .none
+
+            default:
                 return .none
             }
         }

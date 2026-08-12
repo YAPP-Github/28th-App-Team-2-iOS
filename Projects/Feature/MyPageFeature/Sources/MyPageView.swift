@@ -10,7 +10,9 @@ public struct MyPageView: View {
     }
 
     public var body: some View {
-        if store.edit != nil {
+        if store.notificationSettings != nil {
+            MyPageNotificationSettingsView(store: store)
+        } else if store.edit != nil {
             MyPageEditView(store: store)
         } else if store.sajuDetail != nil, let dashboard = store.dashboard {
             MyPageSajuDetailView(
