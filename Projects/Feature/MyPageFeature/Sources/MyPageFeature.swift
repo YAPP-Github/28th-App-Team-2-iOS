@@ -13,13 +13,10 @@ public struct MyPageFeature {
         public var edit: EditState?
         public var sajuDetail: SajuDetailState?
         public var notificationSettings: NotificationSettingsState?
-
-        public init() {}
-    }
-
-    @ObservableState
-    public struct SajuDetailState: Equatable {
-        public var helpSheet: HelpSheet?
+        public var appSettings: AppSettingsState?
+        public var withdrawal: WithdrawalState?
+        public var isLogoutConfirmationPresented = false
+        public var logoutError: MyPageClientError?
 
         public init() {}
     }
@@ -127,6 +124,8 @@ public struct MyPageFeature {
         case notificationSettingsPickerMinuteChanged(Int)
         case notificationSettingsTimeSaveButtonTapped
         case notificationPermissionAlertPresented(Bool)
+        case accountSettings(AccountSettingsAction)
+        case delegate(Delegate)
     }
 
     public enum MenuItem: Equatable, CaseIterable {
@@ -143,6 +142,10 @@ public struct MyPageFeature {
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
+            if let effect = reduceAccountSettings(&state, action: action) {
+                return effect
+            }
+
             if let effect = reduceNotificationSettings(&state, action: action) {
                 return effect
             }
@@ -289,6 +292,15 @@ public struct MyPageFeature {
                 return .none
             }
         }
+    }
+}
+
+extension MyPageFeature {
+    @ObservableState
+    public struct SajuDetailState: Equatable {
+        public var helpSheet: HelpSheet?
+
+        public init() {}
     }
 }
 

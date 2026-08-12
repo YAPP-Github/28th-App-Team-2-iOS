@@ -4,28 +4,58 @@ import ComposableArchitecture
 
 public struct MyPageView: View {
     @Bindable private var store: StoreOf<MyPageFeature>
+    @Environment(\.openURL) private var openURL
+    @State private var isSupportMailAlertPresented = false
 
     public init(store: StoreOf<MyPageFeature>) {
         self.store = store
     }
 
     public var body: some View {
-        if store.notificationSettings != nil {
-            MyPageNotificationSettingsView(store: store)
-        } else if store.edit != nil {
-            MyPageEditView(store: store)
-        } else if store.sajuDetail != nil, let dashboard = store.dashboard {
-            MyPageSajuDetailView(
-                dashboard: dashboard,
-                helpSheet: Binding(
-                    get: { store.sajuDetail?.helpSheet },
-                    set: { _ in store.send(.sajuDetailHelpSheetDismissed) }
-                ),
-                onBack: { store.send(.sajuDetailDismissButtonTapped) },
-                onHelp: { store.send(.sajuDetailHelpButtonTapped($0)) }
+        ZStack {
+            if store.withdrawal?.isAgreementPresented == true {
+                MyPageWithdrawalAgreementView(store: store)
+            } else if store.withdrawal != nil {
+                MyPageWithdrawalReasonView(store: store)
+            } else if store.appSettings != nil {
+                MyPageAppSettingsView(store: store)
+            } else if store.notificationSettings != nil {
+                MyPageNotificationSettingsView(store: store)
+            } else if store.edit != nil {
+                MyPageEditView(store: store)
+            } else if store.sajuDetail != nil, let dashboard = store.dashboard {
+                MyPageSajuDetailView(
+                    dashboard: dashboard,
+                    helpSheet: Binding(
+                        get: { store.sajuDetail?.helpSheet },
+                        set: { _ in store.send(.sajuDetailHelpSheetDismissed) }
+                    ),
+                    onBack: { store.send(.sajuDetailDismissButtonTapped) },
+                    onHelp: { store.send(.sajuDetailHelpButtonTapped($0)) }
+                )
+            } else {
+                mainPage
+            }
+
+            if store.isLogoutConfirmationPresented {
+                logoutConfirmationOverlay
+            }
+        }
+        .alert(
+            "로그아웃하지 못했어요",
+            isPresented: Binding(
+                get: { store.logoutError != nil },
+                set: { _ in store.send(.accountSettings(.dismissLogoutError)) }
             )
-        } else {
-            mainPage
+        ) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text("로그아웃에 실패했어요. 다시 시도해주세요.")
+        }
+        .alert("문의 메일을 열 수 없어요", isPresented: $isSupportMailAlertPresented) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text("잠시 후 다시 시도해 주세요.")
         }
     }
 
@@ -82,12 +112,45 @@ public struct MyPageView: View {
                     .frame(maxWidth: .infinity)
 
                 MyPageMenuList { item in
-                    store.send(.menuItemTapped(item))
+                    if item == .inquiry {
+                        openSupportMail()
+                    } else {
+                        store.send(.menuItemTapped(item))
+                    }
                 }
             }
         }
         .padding(.top, 20)
         .padding(.bottom, 28)
+    }
+
+    private var logoutConfirmationOverlay: some View {
+        Color.black.opacity(0.4)
+            .ignoresSafeArea()
+            .overlay {
+                DSDialog(
+                    title: "로그아웃하시겠어요?",
+                    message: "언제든 다시 로그인할 수 있어요.",
+                    primaryAction: DSDialog.Action("확인") {
+                        store.send(.accountSettings(.confirmLogout))
+                    },
+                    secondaryAction: DSDialog.Action("취소") {
+                        store.send(.accountSettings(.logoutConfirmationPresented(false)))
+                    }
+                )
+            }
+    }
+
+    private func openSupportMail() {
+        guard let url = URL(string: "mailto:support@todakun.com") else {
+            isSupportMailAlertPresented = true
+            return
+        }
+        openURL(url) { accepted in
+            if !accepted {
+                isSupportMailAlertPresented = true
+            }
+        }
     }
 }
 
@@ -285,63 +348,5 @@ private struct PillarCell: View {
         case .water: .ds.sky200
         case .unknown: .ds.gray100
         }
-    }
-}
-
-private struct MyPageMenuList: View {
-    let action: (MyPageFeature.MenuItem) -> Void
-
-    private let items: [Menu] = [
-        Menu(item: .sajuManagement, title: "사주 정보 관리", icon: .addUser),
-        Menu(item: .notificationSettings, title: "알림 설정", icon: .bell),
-        Menu(item: .appSettings, title: "앱 설정", icon: .settings),
-        Menu(item: .inquiry, title: "1:1 문의", icon: .mail),
-        Menu(item: .logout, title: "로그아웃", icon: .logout)
-    ]
-
-    var body: some View {
-        VStack(spacing: 4) {
-            ForEach(items) { menu in
-                Button { action(menu.item) } label: {
-                    HStack(spacing: 8) {
-                        DSIcon(menu.icon, width: 20, height: 20)
-                        Text(menu.title)
-                            .dsBody2Medium
-                        Spacer()
-                        if menu.item != .logout {
-                            DSIcon(.chevronSmallRight, width: 20, height: 20)
-                                .foregroundStyle(Color.ds.gray400)
-                        }
-                    }
-                    .foregroundStyle(menu.item == .logout ? Color.ds.gray500 : Color.ds.gray975)
-                    .frame(height: 56)
-                    .contentShape(Rectangle())
-                }
-            }
-
-            HStack(spacing: 16) {
-                Text("앱 버전").dsBody3Medium.foregroundStyle(Color.ds.gray400)
-                Text("v \(Bundle.main.releaseVersionNumber ?? "1.0.0") (최신 버전)")
-                    .dsBody3Medium
-                    .foregroundStyle(Color.ds.gray500)
-            }
-            .padding(.top, 28)
-        }
-        .padding(.horizontal, 20)
-    }
-
-    private struct Menu: Identifiable {
-        let item: MyPageFeature.MenuItem
-        let title: String
-        let icon: DSIconAsset
-
-        // swiftlint:disable:next identifier_name
-        var id: MyPageFeature.MenuItem { item }
-    }
-}
-
-private extension Bundle {
-    var releaseVersionNumber: String? {
-        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
     }
 }

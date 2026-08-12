@@ -9,6 +9,8 @@ public struct MyPageClient: Sendable {
     public var updateNotificationSettings: @Sendable (NotificationSettings) async throws -> NotificationSettings
     public var syncOSPushPermission: @Sendable (Bool) async throws -> NotificationSettings
     public var registerDeviceToken: @Sendable (String) async throws -> Void
+    public var logout: @Sendable () async throws -> Void
+    public var withdraw: @Sendable (WithdrawalRequest) async throws -> Void
 
     public init(
         loadDashboard: @escaping @Sendable () async throws -> MyPageDashboard,
@@ -27,6 +29,12 @@ public struct MyPageClient: Sendable {
         },
         registerDeviceToken: @escaping @Sendable (String) async throws -> Void = { _ in
             throw MyPageClientError.notConfigured
+        },
+        logout: @escaping @Sendable () async throws -> Void = {
+            throw MyPageClientError.notConfigured
+        },
+        withdraw: @escaping @Sendable (WithdrawalRequest) async throws -> Void = { _ in
+            throw MyPageClientError.notConfigured
         }
     ) {
         self.loadDashboard = loadDashboard
@@ -35,6 +43,8 @@ public struct MyPageClient: Sendable {
         self.updateNotificationSettings = updateNotificationSettings
         self.syncOSPushPermission = syncOSPushPermission
         self.registerDeviceToken = registerDeviceToken
+        self.logout = logout
+        self.withdraw = withdraw
     }
 }
 
@@ -88,6 +98,12 @@ public extension MyPageClient {
             },
             registerDeviceToken: { token in
                 try await postDeviceToken(token, httpClient: httpClient)
+            },
+            logout: {
+                try await postLogout(httpClient: httpClient)
+            },
+            withdraw: { request in
+                try await deleteMember(request, httpClient: httpClient)
             }
         )
     }
@@ -138,7 +154,7 @@ private func fetchSajuChart(httpClient: HTTPClient) async throws -> MyPageSajuCh
     }
 }
 
-private struct CommonResponseDTO<DataType: Decodable & Sendable>: Decodable, Sendable {
+struct CommonResponseDTO<DataType: Decodable & Sendable>: Decodable, Sendable {
     let success: Bool
     let data: DataType?
 }
@@ -181,7 +197,7 @@ private struct GetMyProfileResponseDTO: Decodable, Sendable {
     }
 }
 
-private struct EmptyResponseDTO: Decodable, Sendable {}
+struct EmptyResponseDTO: Decodable, Sendable {}
 
 private struct UpdateMemberRequestDTO: Encodable, Sendable {
     let gender: String
