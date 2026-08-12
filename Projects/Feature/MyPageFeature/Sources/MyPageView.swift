@@ -123,9 +123,9 @@ public struct MyPageView: View {
                     }
                 }
             }
+            .padding(.bottom, 28)
         }
         .padding(.top, 20)
-        .padding(.bottom, 28)
     }
 
     private var logoutConfirmationOverlay: some View {
