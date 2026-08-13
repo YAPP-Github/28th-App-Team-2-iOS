@@ -152,6 +152,133 @@ struct TodakFeatureTests {
             $0.guideCategory = nil
         }
     }
+}
+
+@Suite
+@MainActor
+struct TodakFeatureRegressionTests {
+    @Test("기획 확정 전까지 모든 추천 질문은 성취운 고정 답변을 사용한다")
+    func initialRepliesUseAchievementContentForEveryCategory() {
+        let achievementContent = TodakInitialReply.content(for: .achievement)
+
+        for category in [
+            TodakCategory.relationship,
+            .love,
+            .achievement,
+            .money,
+            .health,
+            .other
+        ] {
+            #expect(TodakInitialReply.content(for: category) == achievementContent)
+        }
+    }
+
+    @Test("SSE 오류는 토닥이 답변을 실패 상태와 서버 안내 문구로 전환한다")
+    func streamErrorFailsAssistantMessage() async {
+        let assistantMessageID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+        let clock = TestClock()
+        let store = TestStore(
+            initialState: TodakFeature.State(
+                messages: [
+                    TodakMessage(
+                        id: assistantMessageID,
+                        role: .assistant,
+                        content: "답변을 만들고 있어요.",
+                        status: .streaming
+                    )
+                ],
+                isStreaming: true,
+                assistantMessageID: assistantMessageID
+            )
+        ) {
+            TodakFeature()
+        } withDependencies: {
+            $0.continuousClock = clock
+        }
+
+        await store.send(
+            TodakFeature.Action.streamEvent(
+                TodakStreamEvent.error(code: "CHAT-500", message: "토닥이 답변 생성에 실패했습니다.")
+            )
+        ) {
+            $0.isStreaming = false
+            $0.assistantMessageID = nil
+            $0.messages[0].status = .failed
+            $0.toastMessage = "토닥이 답변 생성에 실패했습니다."
+        }
+        await store.send(TodakFeature.Action.toastDismissed) {
+            $0.toastMessage = nil
+        }
+    }
+
+    @Test("대화 삭제 성공 시 목록과 현재 대화를 즉시 제거하고 안내 문구를 표시한다")
+    func deletingConversationRemovesItImmediately() async {
+        let conversationID = UUID(uuidString: "00000000-0000-0000-0000-000000000010")!
+        let summary = TodakConversationSummary(
+            id: conversationID,
+            title: "삭제할 대화",
+            lastMessageAt: nil,
+            unread: true
+        )
+        let clock = TestClock()
+        let client = makeClient(deleteConversation: { deletedConversationID in
+            #expect(deletedConversationID == conversationID)
+        })
+        let store = TestStore(
+            initialState: TodakFeature.State(
+                conversationID: conversationID,
+                messages: [
+                    TodakMessage(id: UUID(), role: .user, content: "질문", status: .completed)
+                ],
+                conversations: [summary]
+            )
+        ) {
+            TodakFeature()
+        } withDependencies: {
+            $0.continuousClock = clock
+            $0.todakClient = client
+        }
+
+        await store.send(.deleteButtonTapped(conversationID)) {
+            $0.pendingDeletionID = conversationID
+        }
+        await store.send(.deleteConfirmed) {
+            $0.pendingDeletionID = nil
+        }
+        await store.receive(.deleteResponse(conversationID, .success(true))) {
+            $0.conversations = []
+            $0.conversationID = nil
+            $0.messages = []
+            $0.toastMessage = "대화가 삭제되었어요."
+        }
+        await store.send(.toastDismissed) {
+            $0.toastMessage = nil
+        }
+    }
+
+    @Test("대화 삭제를 취소하면 목록을 유지한다")
+    func cancellingConversationDeletionKeepsConversation() async {
+        let conversationID = UUID(uuidString: "00000000-0000-0000-0000-000000000010")!
+        let summary = TodakConversationSummary(
+            id: conversationID,
+            title: "유지할 대화",
+            lastMessageAt: nil,
+            unread: false
+        )
+        let store = TestStore(
+            initialState: TodakFeature.State(
+                conversations: [summary],
+                pendingDeletionID: conversationID
+            )
+        ) {
+            TodakFeature()
+        }
+
+        await store.send(.deleteCancelled) {
+            $0.pendingDeletionID = nil
+        }
+        #expect(store.state.conversations == [summary])
+    }
 
     @Test("대화 히스토리는 최근 메시지 순으로 정렬한다")
     func historyIsSortedByMostRecentMessage() async {
@@ -188,6 +315,7 @@ struct TodakFeatureTests {
 }
 
 private func makeClient(
+    deleteConversation: @escaping @Sendable (UUID) async throws -> Void = { _ in },
     sendMessage: @escaping @Sendable (UUID?, String) -> AsyncThrowingStream<TodakStreamEvent, Error> = { _, _ in
         AsyncThrowingStream { $0.finish() }
     }
@@ -197,7 +325,7 @@ private func makeClient(
         fetchConversation: { conversationID in
             TodakConversation(id: conversationID, title: "", messages: [])
         },
-        deleteConversation: { _ in },
+        deleteConversation: deleteConversation,
         sendMessage: sendMessage
     )
 }

@@ -5,6 +5,16 @@ import Testing
 
 @Suite
 struct TodakClientTests {
+    @Test("SSE 오류 이벤트를 서버 안내 문구와 함께 매핑한다")
+    func streamErrorMapping() throws {
+        let event = try decodeStreamEvent(
+            name: "error",
+            data: #"{"code":"CHAT-500","message":"토닥이 답변 생성에 실패했습니다."}"#
+        )
+
+        #expect(event == .error(code: "CHAT-500", message: "토닥이 답변 생성에 실패했습니다."))
+    }
+
     @Test("대화 상세의 메시지와 액션을 매핑한다")
     func fetchConversationMapping() async throws {
         let conversationID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!

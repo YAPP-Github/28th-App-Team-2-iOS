@@ -103,7 +103,7 @@ private func messageEvents(
     }
 }
 
-private func decodeStreamEvent(name: String, data: String) throws -> TodakStreamEvent {
+func decodeStreamEvent(name: String, data: String) throws -> TodakStreamEvent {
     let decoder = JSONDecoder()
     guard let dataValue = data.data(using: .utf8) else {
         throw TodakClientError.invalidResponse
