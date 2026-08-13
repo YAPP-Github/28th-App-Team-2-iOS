@@ -9,6 +9,7 @@ import MyPageFeature
 import NetworkCore
 import OnboardingFeature
 import SwiftUI
+import TodakFeature
 
 @main
 struct TodakunApp: App {
@@ -27,6 +28,7 @@ struct TodakunApp: App {
         let authClient: AuthClient
         let fortuneClient: FortuneClient
         let myPageClient: MyPageClient
+        let todakClient: TodakClient
 
         if let baseURL = configuration.apiBaseURL {
             let authHTTPClient = HTTPClient(baseURL: baseURL)
@@ -48,10 +50,21 @@ struct TodakunApp: App {
             )
             fortuneClient = FortuneClient.live(httpClient: authenticatedHTTPClient)
             myPageClient = MyPageClient.live(httpClient: authenticatedHTTPClient)
+            let authenticatedSSEClient = SSEClient(
+                baseURL: baseURL,
+                defaultHeaders: {
+                    await authSession.authorizationHeaders()
+                }
+            )
+            todakClient = TodakClient.live(
+                httpClient: authenticatedHTTPClient,
+                sseClient: authenticatedSSEClient
+            )
         } else {
             authClient = .unavailable
             fortuneClient = .unavailable
             myPageClient = .unavailable
+            todakClient = .unavailable
         }
 
         Task { @MainActor in
@@ -67,6 +80,7 @@ struct TodakunApp: App {
             $0.authSession = authSession
             $0.fortuneClient = fortuneClient
             $0.myPageClient = myPageClient
+            $0.todakClient = todakClient
             $0.socialLoginClient = .live(configuration: configuration)
         }
     }

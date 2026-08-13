@@ -4,6 +4,7 @@ import FortuneFeature
 import Foundation
 import MyPageFeature
 import SwiftUI
+import TodakFeature
 
 struct MainTabView: View {
     @Bindable var store: StoreOf<MainTabFeature>
@@ -21,7 +22,9 @@ struct MainTabView: View {
                 )
 
             case .todak:
-                UnavailableTabView(title: "토닥이")
+                TodakView(
+                    store: store.scope(state: \.todak, action: \.todak)
+                )
 
             case .luckyAction:
                 UnavailableTabView(title: "행운 액션")
@@ -43,7 +46,8 @@ struct MainTabView: View {
     }
 
     private var shouldShowBottomNavigation: Bool {
-        store.myPage.edit == nil
+        store.selectedTab != .todak
+            && store.myPage.edit == nil
             && store.myPage.sajuDetail == nil
             && store.myPage.notificationSettings == nil
             && store.myPage.appSettings == nil
