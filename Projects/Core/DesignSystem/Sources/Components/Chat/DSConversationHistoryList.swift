@@ -2,7 +2,6 @@ import SwiftUI
 
 public struct DSConversationHistoryList: View {
     public struct Specification: Sendable {
-        public let contentWidth: CGFloat
         public let horizontalPadding: CGFloat
         public let topPadding: CGFloat
         public let bottomPadding: CGFloat
@@ -10,7 +9,6 @@ public struct DSConversationHistoryList: View {
         public let titleColorAsset: DesignSystemColors
         public let titleLineLimit: Int
         public let titleTruncationMode: Text.TruncationMode
-        public let titleIndicatorWidth: CGFloat
         public let indicatorSize: CGFloat
         public let indicatorColorAsset: DesignSystemColors
         public let titleIndicatorSpacing: CGFloat
@@ -24,7 +22,6 @@ public struct DSConversationHistoryList: View {
     }
 
     public static let specification = Specification(
-        contentWidth: 353,
         horizontalPadding: 20,
         topPadding: 20,
         bottomPadding: 20,
@@ -32,7 +29,6 @@ public struct DSConversationHistoryList: View {
         titleColorAsset: DesignSystemAsset.Colors.black,
         titleLineLimit: 1,
         titleTruncationMode: .tail,
-        titleIndicatorWidth: 320,
         indicatorSize: 6,
         indicatorColorAsset: DesignSystemAsset.Colors.red400,
         titleIndicatorSpacing: 6,
@@ -84,7 +80,7 @@ public struct DSConversationHistoryList: View {
                             .dsDebugDetailGeometry("DSConversationHistoryList.UnreadIndicator")
                     }
                 }
-                .frame(width: specification.titleIndicatorWidth, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Button(action: onDelete) {
                     DSIcon(
@@ -103,12 +99,12 @@ public struct DSConversationHistoryList: View {
                     )
                 )
             }
-            .frame(width: specification.contentWidth, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(time)
                 .dsFont(specification.timeFont)
                 .foregroundStyle(specification.timeColorAsset.swiftUIColor)
-                .frame(width: specification.contentWidth, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, specification.horizontalPadding)
         .padding(.top, specification.topPadding)
