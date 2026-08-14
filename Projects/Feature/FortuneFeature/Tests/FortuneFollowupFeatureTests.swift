@@ -163,12 +163,12 @@ struct FortuneFollowupFeatureTests {
     @Test("택일 운세 생성 시 점수 순으로 상위 3개를 선별하여 저장한다")
     func dayFortuneCreatesAndSelectsTop3Results() async {
         let now = Date(timeIntervalSince1970: 1_788_969_600)
-        let results: [DayFortuneItem] = [
-            .init(date: now, score: 60, title: "보통", content: "내용1"),
-            .init(date: now.addingTimeInterval(86_400), score: 95, title: "대길", content: "내용2"),
-            .init(date: now.addingTimeInterval(172_800), score: 80, title: "길", content: "내용3"),
-            .init(date: now.addingTimeInterval(259_200), score: 40, title: "소흉", content: "내용4")
-        ]
+        let r1 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now, score: 60, title: "보통", content: "내용1", categories: [])
+        let r2 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(86_400), score: 95, title: "대길", content: "내용2", categories: [])
+        let r3 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(172_800), score: 80, title: "길", content: "내용3", categories: [])
+        let r4 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(259_200), score: 40, title: "소흉", content: "내용4", categories: [])
+        let results = [r1, r2, r3, r4]
+
         var state = DayFortuneFeature.State()
         state.selectedDates = [now, now.addingTimeInterval(86_400)]
         let store = TestStore(initialState: state) {
@@ -180,9 +180,10 @@ struct FortuneFollowupFeatureTests {
         await store.send(.createTapped) {
             $0.isSubmitting = true
         }
-        await store.receive(.response(.success(results))) {
+        await store.receive(\.response.success) {
             $0.isSubmitting = false
-            $0.results = [results[1], results[2], results[0]] // 95, 80, 60
+            $0.results = [r2, r3, r1] // 95, 80, 60
+            $0.selectedResultID = r2.id
         }
     }
 

@@ -461,7 +461,6 @@ private struct RegisterPartnerSajuRequestDTO: Encodable {
     let calendarType: String
     let birthDate: String
     let birthTime: String
-    let isTimeUnknown: Bool
     let relationshipType: String
 
     init(input: PartnerRegistrationInput) {
@@ -469,8 +468,7 @@ private struct RegisterPartnerSajuRequestDTO: Encodable {
         gender = input.gender.serverValue
         calendarType = input.calendarType.serverValue
         birthDate = formatFortuneDate(input.birthDate)
-        isTimeUnknown = input.isBirthTimeUnknown
-        birthTime = input.isBirthTimeUnknown ? "12:00:00" : (input.birthTime?.serverValue ?? "12:00:00")
+        birthTime = input.isBirthTimeUnknown ? "UNKNOWN" : (input.birthTime?.serverValue ?? "UNKNOWN")
         relationshipType = input.relationship.serverValue
     }
 }
@@ -635,7 +633,7 @@ private func mapRelationship(_ value: String) throws -> FortuneRelationship {
     switch value {
     case "LOVER": .partner
     case "FRIEND": .friend
-    case "COWORKER": .colleague
+    case "COLLEAGUE", "COWORKER": .colleague
     case "FAMILY": .family
     case "ETC": .other
     default: throw FortuneClientError.invalidResponse
@@ -710,7 +708,7 @@ private extension Relationship {
         switch self {
         case .partner: "LOVER"
         case .friend: "FRIEND"
-        case .colleague: "COWORKER"
+        case .colleague: "COLLEAGUE"
         }
     }
 }

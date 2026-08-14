@@ -53,7 +53,7 @@ struct CompatibilityView: View {
         .dsWheelPickerSheet(
             isPresented: $store.isPartnerPickerPresented.sending(\.partnerPickerPresented),
             layout: .single,
-            title: "궁합 상대 선택",
+            title: "상대방 선택",
             actionTitle: "추가",
             onSave: {
                 store.send(.partnerPickerPresented(false))
@@ -70,13 +70,20 @@ struct CompatibilityView: View {
         .onAppear {
             syncSelectedPartnerIndex()
         }
+        .onChange(of: store.isPartnerPickerPresented) { wasPresented, isPresented in
+            if isPresented {
+                syncSelectedPartnerIndex()
+            } else if wasPresented {
+                if store.partners.indices.contains(selectedPartnerIndex) {
+                    let partner = store.partners[selectedPartnerIndex]
+                    if partner.id != store.selectedPartnerID {
+                        store.send(.partnerSelected(partner.id))
+                    }
+                }
+            }
+        }
         .onChange(of: store.selectedPartnerID) { _, _ in
             syncSelectedPartnerIndex()
-        }
-        .onChange(of: selectedPartnerIndex) { _, newIndex in
-            if store.partners.indices.contains(newIndex) {
-                store.send(.partnerSelected(store.partners[newIndex].id))
-            }
         }
     }
 
@@ -621,11 +628,12 @@ private struct CompatibilityResultContent: View {
                     .dsBody1Bold
                     .foregroundStyle(Color.ds.white)
 
-                HStack(alignment: .center, spacing: 8) {
-                    Color.clear
-                        .frame(width: 38)
+                Grid(alignment: .center, horizontalSpacing: 8, verticalSpacing: 12) {
+                    GridRow {
+                        Color.clear
+                            .frame(height: 1)
+                            .gridColumnAlignment(.leading)
 
-                    HStack(spacing: 8) {
                         ForEach(["시", "일", "월", "년"], id: \.self) { title in
                             Text(title)
                                 .dsCaption1Regular
@@ -633,21 +641,59 @@ private struct CompatibilityResultContent: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                }
 
-                CompactSajuRow(
-                    title: "나",
-                    symbols: mySaju.pillars.sorted { $0.type.sortOrder < $1.type.sortOrder }.map(\.heavenlyStem)
-                )
-                CompactSajuRow(
-                    title: store.result?.partnerName ?? "토닥",
-                    symbols: partnerSaju.pillars.sorted { $0.type.sortOrder < $1.type.sortOrder }.map(\.earthlyBranch)
-                )
+                    sajuGridRow(
+                        title: "나",
+                        pillars: mySaju.pillars,
+                        symbolKeyPath: \.heavenlyStem
+                    )
+
+                    sajuGridRow(
+                        title: store.result?.partnerName ?? (store.selectedPartner?.name ?? "상대방"),
+                        pillars: partnerSaju.pillars,
+                        symbolKeyPath: \.earthlyBranch
+                    )
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(20)
             .background(Color.ds.whiteOpacity10)
             .clipShape(RoundedRectangle(cornerRadius: 20))
+        }
+    }
+
+    @ViewBuilder
+    private func sajuGridRow(
+        title: String,
+        pillars: [SajuPillar],
+        symbolKeyPath: KeyPath<SajuPillar, SajuSymbol>
+    ) -> some View {
+        GridRow {
+            Text(title)
+                .dsBody2SemiBold
+                .foregroundStyle(Color.ds.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .gridColumnAlignment(.leading)
+
+            ForEach([SajuPillarType.hour, .day, .month, .year], id: \.self) { type in
+                if let pillar = pillars.first(where: { $0.type == type }) {
+                    let symbol = pillar[keyPath: symbolKeyPath]
+                    DSSajuPillarCell(
+                        hanja: symbol.hanja,
+                        reading: symbol.reading,
+                        element: DSSajuElement.from(hanja: symbol.hanja)
+                    )
+                    .frame(maxWidth: .infinity)
+                } else {
+                    DSSajuPillarCell(
+                        hanja: "-",
+                        reading: "-",
+                        element: .unknown
+                    )
+                    .frame(maxWidth: .infinity)
+                }
+            }
         }
     }
 
@@ -856,32 +902,6 @@ private struct SajuChartCard: View {
         formatter.dateFormat = "yyyy.MM.dd"
         return formatter
     }()
-}
-
-private struct CompactSajuRow: View {
-    let title: String
-    let symbols: [SajuSymbol]
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Text(title)
-                .dsBody2SemiBold
-                .foregroundStyle(Color.ds.white)
-                .lineLimit(1)
-                .frame(width: 38, alignment: .leading)
-
-            HStack(spacing: 8) {
-                ForEach(Array(symbols.enumerated()), id: \.offset) { _, symbol in
-                    DSSajuPillarCell(
-                        hanja: symbol.hanja,
-                        reading: symbol.reading,
-                        element: DSSajuElement.from(hanja: symbol.hanja)
-                    )
-                    .frame(maxWidth: .infinity)
-                }
-            }
-        }
-    }
 }
 
 private struct SajuPillarColumn: View {

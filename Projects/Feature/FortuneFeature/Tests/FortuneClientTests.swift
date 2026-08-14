@@ -364,7 +364,7 @@ struct FortuneClientTests {
             #expect(json["gender"] as? String == "MALE")
             #expect(json["calendarType"] as? String == "LUNAR")
             #expect(json["birthTime"] as? String == "JASI")
-            #expect(json["relationshipType"] as? String == "COWORKER")
+            #expect(json["relationshipType"] as? String == "COLLEAGUE")
             #expect(json["birthDate"] as? String == "2000-01-01")
 
             let response = """
