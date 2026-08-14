@@ -96,6 +96,7 @@ struct FortuneReportView: View {
         VStack(spacing: 24) {
             scoreSection(detail)
             summarySection(detail)
+            categorySection(detail)
             itemSection(
                 title: "오늘의 행운 아이템",
                 items: detail.luckyItems,
