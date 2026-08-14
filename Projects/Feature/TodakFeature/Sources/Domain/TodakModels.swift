@@ -102,10 +102,45 @@ public enum TodakCategory: String, Equatable, Sendable {
 public enum TodakInitialReply {
     // 기획 확정 전까지 모든 추천 질문은 성취운 고정 답변을 공통으로 사용한다.
     // 카테고리별 답변이 전달되면 각 case의 값만 교체한다.
-    public static func content(for _: TodakCategory) -> String { achievementContent }
+    public static func content(for category: TodakCategory) -> String {
+        switch category {
+        case .relationship:
+            return relationshipContent
+        case .love:
+            return loveContent
+        case .achievement:
+            return achievementContent
+        case .money:
+            return moneyContent
+        case .health:
+            return healthContent
+        case .other:
+            return otherContent
+        }
+    }
+
+    private static let relationshipContent = """
+    인간관계에서 궁금한 걸 물어봐! 가족, 친구, 동료와의 관계 등 뭐든 괜찮아.
+    """
+
+    private static let loveContent = """
+    그 사람과의 연애, 궁금한 걸 물어봐! 짝사랑, 재회, 갈등 등 뭐든 괜찮아.
+    """
 
     private static let achievementContent = """
     커리어에서 궁금한 걸 물어봐! 이직, 승진, 목표 달성 등 뭐든 괜찮아.
+    """
+
+    private static let moneyContent = """
+    돈 관리에서 궁금한 걸 물어봐! 저축, 지출, 투자 등 뭐든 괜찮아.
+    """
+
+    private static let healthContent = """
+    요즘 컨디션에서 궁금한 걸 물어봐! 스트레스, 생활 습관 등 뭐든 괜찮아.
+    """
+
+    private static let otherContent = """
+    그 외에 궁금한 게 있으면 물어봐! 사소한 것부터 마음속 얘기까지 다 괜찮아.
     """
 
 }
