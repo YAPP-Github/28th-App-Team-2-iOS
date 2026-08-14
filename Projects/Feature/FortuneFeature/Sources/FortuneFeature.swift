@@ -145,7 +145,8 @@ public struct FortuneFeature {
             case .path(.element(id: _, action: .report(.delegate(.todakRequested)))),
                  .path(.element(id: _, action: .compatibility(.delegate(.todakRequested)))),
                  .path(.element(id: _, action: .dayFortune(.delegate(.todakRequested)))),
-                 .path(.element(id: _, action: .yearFortune(.delegate(.todakRequested)))):
+                 .path(.element(id: _, action: .yearFortune(.delegate(.todakRequested)))),
+                 .categoryDetail(.presented(.delegate(.todakRequested))):
                 return .send(.delegate(.todakRequested))
 
             case .path(.element(id: _, action: .report(.delegate(.luckyActionRequested)))),

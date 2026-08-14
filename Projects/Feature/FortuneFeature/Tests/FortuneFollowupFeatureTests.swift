@@ -160,6 +160,42 @@ struct FortuneFollowupFeatureTests {
         }
     }
 
+    @Test("택일 운세 생성 시 점수 순으로 상위 3개를 선별하여 저장한다")
+    func dayFortuneCreatesAndSelectsTop3Results() async {
+        let now = Date(timeIntervalSince1970: 1_788_969_600)
+        let results: [DayFortuneItem] = [
+            .init(date: now, score: 60, title: "보통", content: "내용1"),
+            .init(date: now.addingTimeInterval(86_400), score: 95, title: "대길", content: "내용2"),
+            .init(date: now.addingTimeInterval(172_800), score: 80, title: "길", content: "내용3"),
+            .init(date: now.addingTimeInterval(259_200), score: 40, title: "소흉", content: "내용4")
+        ]
+        var state = DayFortuneFeature.State()
+        state.selectedDates = [now, now.addingTimeInterval(86_400)]
+        let store = TestStore(initialState: state) {
+            DayFortuneFeature()
+        } withDependencies: {
+            $0.fortuneClient.createDayFortunes = { _, _ in results }
+        }
+
+        await store.send(.createTapped) {
+            $0.isSubmitting = true
+        }
+        await store.receive(.response(.success(results))) {
+            $0.isSubmitting = false
+            $0.results = [results[1], results[2], results[0]] // 95, 80, 60
+        }
+    }
+
+    @Test("궁합 화면에서 내 정보 수정을 탭하면 myInfoEditRequested delegate가 전송된다")
+    func compatibilityMyInfoEditDelegates() async {
+        let store = TestStore(initialState: CompatibilityFeature.State()) {
+            CompatibilityFeature()
+        }
+
+        await store.send(.myInfoEditTapped)
+        await store.receive(.delegate(.myInfoEditRequested))
+    }
+
     private func makeSajuChart(id chartID: UUID, name: String) -> SajuChartDetail {
         SajuChartDetail(
             id: chartID,

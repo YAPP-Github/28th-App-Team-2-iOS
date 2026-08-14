@@ -8,6 +8,8 @@ import Model
 @Reducer
 public struct CompatibilityFeature {
     private enum CancelID {
+        case initialData
+        case partners
         case partnerSaju
     }
 
@@ -317,6 +319,7 @@ public struct CompatibilityFeature {
                 await send(.initialResponse(.failure(.transport)))
             }
         }
+        .cancellable(id: CancelID.initialData, cancelInFlight: true)
     }
 
     private func fetchPartners() -> Effect<Action> {
@@ -331,6 +334,7 @@ public struct CompatibilityFeature {
                 await send(.partnersResponse(.failure(.transport)))
             }
         }
+        .cancellable(id: CancelID.partners, cancelInFlight: true)
     }
 
     private func fetchPartnerSaju(_ partnerID: UUID) -> Effect<Action> {

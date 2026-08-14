@@ -341,6 +341,32 @@ extension FortuneFeatureTests {
         await store.send(.view(.luckyActionBannerTapped))
         await store.receive(.delegate(.luckyActionRequested))
     }
+
+    @Test("궁합 화면의 내 정보 변경 요청을 상위 myPageRequested delegate로 전파한다")
+    func compatibilityMyInfoEditDelegatesToMyPage() async {
+        var state = FortuneFeature.State()
+        state.path.append(.compatibility(.init()))
+
+        let store = TestStore(initialState: state) {
+            FortuneFeature()
+        }
+
+        await store.send(.path(.element(id: 0, action: .compatibility(.delegate(.myInfoEditRequested)))))
+        await store.receive(.delegate(.myPageRequested))
+    }
+
+    @Test("상세운 바텀시트에서 토닥이 탭 시 상위 todakRequested delegate로 전파한다")
+    func categoryDetailTodakTapDelegates() async {
+        var state = FortuneFeature.State()
+        state.categoryDetail = .init(luckActionID: UUID(), category: .money)
+
+        let store = TestStore(initialState: state) {
+            FortuneFeature()
+        }
+
+        await store.send(.categoryDetail(.presented(.delegate(.todakRequested))))
+        await store.receive(.delegate(.todakRequested))
+    }
 }
 
 private extension FortuneHomeContent {

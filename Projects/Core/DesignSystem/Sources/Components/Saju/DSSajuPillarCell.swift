@@ -84,6 +84,17 @@ public struct DSSajuPillarCell: View {
     private let sublabel: String
     private let element: DSSajuElement
 
+    public static func yinYangSign(for hanja: String) -> String {
+        switch hanja {
+        case "甲", "丙", "戊", "庚", "壬", "子", "寅", "辰", "午", "申", "戌":
+            return "+"
+        case "乙", "丁", "己", "辛", "癸", "丑", "卯", "巳", "未", "酉", "亥":
+            return "-"
+        default:
+            return "-"
+        }
+    }
+
     public init(
         hanja: String,
         reading: String,
@@ -93,10 +104,12 @@ public struct DSSajuPillarCell: View {
         self.hanja = hanja
         let resolvedElement = element ?? DSSajuElement.from(hanja: hanja)
         self.element = resolvedElement
+        let sign = Self.yinYangSign(for: hanja)
+        let cleanedReading = reading.trimmingCharacters(in: CharacterSet(charactersIn: "+- "))
         if showElementHanja && resolvedElement != .unknown {
-            self.sublabel = "-\(reading), \(resolvedElement.hanja)"
+            self.sublabel = "\(sign)\(cleanedReading), \(resolvedElement.hanja)"
         } else {
-            self.sublabel = "-\(reading)"
+            self.sublabel = "\(sign)\(cleanedReading)"
         }
     }
 

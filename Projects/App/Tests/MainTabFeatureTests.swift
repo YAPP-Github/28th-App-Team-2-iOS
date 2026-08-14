@@ -53,6 +53,17 @@ struct MainTabFeatureTests {
     }
 
     @Test
+    func fortuneDelegateMyPageRequestedSwitchesTab() async {
+        let store = TestStore(initialState: MainTabFeature.State()) {
+            MainTabFeature()
+        }
+
+        await store.send(.fortune(.delegate(.myPageRequested))) {
+            $0.selectedTab = .myPage
+        }
+    }
+
+    @Test
     func statePersistedAcrossTabChanges() async {
         var initialState = MainTabFeature.State()
         initialState.fortune.viewState = .failed(message: "네트워크 오류가 발생했습니다.")

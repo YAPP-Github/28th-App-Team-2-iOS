@@ -134,23 +134,23 @@ private struct HalfCircularGaugeView: View {
 private extension FortuneMoodLevel {
     var scoreColor: Color {
         switch self {
-        case .level01: return Color(red: 247/255, green: 139/255, blue: 139/255)
-        case .level02: return Color(red: 23/255, green: 144/255, blue: 130/255)
-        case .level03: return Color(red: 138/255, green: 165/255, blue: 255/255)
-        case .level04: return Color(red: 127/255, green: 115/255, blue: 234/255)
+        case .level01: return Color.ds.red300
+        case .level02: return Color.ds.teal400
+        case .level03: return Color.ds.sky300
+        case .level04: return Color.ds.primary300
         }
     }
     
     var gaugeGradient: LinearGradient {
         switch self {
         case .level01:
-            return LinearGradient(colors: [Color(red: 255/255, green: 194/255, blue: 194/255), scoreColor], startPoint: .leading, endPoint: .trailing)
+            return LinearGradient(colors: [Color.ds.red100, scoreColor], startPoint: .leading, endPoint: .trailing)
         case .level02:
-            return LinearGradient(colors: [Color(red: 183/255, green: 232/255, blue: 227/255), Color(red: 77/255, green: 213/255, blue: 197/255)], startPoint: .leading, endPoint: .trailing)
+            return LinearGradient(colors: [Color.ds.teal100, scoreColor], startPoint: .leading, endPoint: .trailing)
         case .level03:
-            return LinearGradient(colors: [Color(red: 192/255, green: 206/255, blue: 255/255), scoreColor], startPoint: .leading, endPoint: .trailing)
+            return LinearGradient(colors: [Color.ds.sky100, scoreColor], startPoint: .leading, endPoint: .trailing)
         case .level04:
-            return LinearGradient(colors: [Color(red: 138/255, green: 165/255, blue: 255/255), scoreColor], startPoint: .leading, endPoint: .trailing)
+            return LinearGradient(colors: [Color.ds.primary100, scoreColor], startPoint: .leading, endPoint: .trailing)
         }
     }
 }
