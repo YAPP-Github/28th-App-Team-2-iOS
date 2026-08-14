@@ -1,4 +1,4 @@
-import ComposableArchitecture
+import Dependencies
 import Foundation
 
 public struct SessionRefreshOperation: Sendable {
