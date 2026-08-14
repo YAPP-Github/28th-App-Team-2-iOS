@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Foundation
 import Model
+import Utils
 
 // 등록, 선택, 결과 상태는 하나의 화면 단위 상태 머신으로 구성한다.
 // swiftlint:disable type_body_length
@@ -44,8 +45,8 @@ public struct CompatibilityFeature {
 
         public var name = ""
         public var gender: Gender?
-        public var calendarType: BirthDateCalendar = .solar
-        public var birthDate = Date(timeIntervalSince1970: 946_684_800)
+        public var calendarType: BirthDateCalendar? = .solar
+        public var birthDate: BirthDate?
         public var birthTime: BirthTimePeriod?
         public var isBirthTimeUnknown = false
         public var relationship: Relationship?
@@ -58,9 +59,9 @@ public struct CompatibilityFeature {
 
         public var nameValidationMessage: String? {
             guard !name.isEmpty else { return nil }
-            guard name.count <= 10 else { return "최대 10글자까지 입력 가능해요." }
-            guard name.allSatisfy({ $0.isLetter || $0.isNumber }) else {
-                return "한글, 영문, 숫자만 입력할 수 있어요."
+            guard name.count <= 10 else { return "이름은 최대 10글자까지 가능해요." }
+            guard name.unicodeScalars.allSatisfy(\.isKoreanNameScalar) else {
+                return "이름은 한글만 가능해요."
             }
             return nil
         }
@@ -69,6 +70,9 @@ public struct CompatibilityFeature {
             !name.isEmpty
                 && nameValidationMessage == nil
                 && gender != nil
+                && calendarType != nil
+                && birthDate != nil
+                && BirthDatePolicy.validateNotInFuture(for: birthDate) == nil
                 && (birthTime != nil || isBirthTimeUnknown)
                 && relationship != nil
                 && !isSubmitting
@@ -86,8 +90,8 @@ public struct CompatibilityFeature {
         case registrationPresented(Bool)
         case nameChanged(String)
         case genderChanged(Gender?)
-        case calendarTypeChanged(BirthDateCalendar)
-        case birthDateChanged(Date)
+        case calendarTypeChanged(BirthDateCalendar?)
+        case birthDateChanged(BirthDate?)
         case birthTimeChanged(BirthTimePeriod?)
         case birthTimeUnknownChanged(Bool)
         case relationshipChanged(Relationship?)
@@ -212,6 +216,8 @@ public struct CompatibilityFeature {
                 guard
                     state.canRegister,
                     let gender = state.gender,
+                    let calendarType = state.calendarType,
+                    let birthDate = state.birthDate,
                     let relationship = state.relationship
                 else { return .none }
 
@@ -220,8 +226,8 @@ public struct CompatibilityFeature {
                 let input = PartnerRegistrationInput(
                     name: state.name,
                     gender: gender,
-                    calendarType: state.calendarType,
-                    birthDate: state.birthDate,
+                    calendarType: calendarType,
+                    birthDate: birthDate,
                     birthTime: state.birthTime,
                     isBirthTimeUnknown: state.isBirthTimeUnknown,
                     relationship: relationship
@@ -240,6 +246,7 @@ public struct CompatibilityFeature {
                 state.isSubmitting = false
                 state.isRegistrationPresented = false
                 state.selectedPartnerID = partnerID
+                resetForm(state: &state)
                 return fetchPartners()
 
             case let .registrationResponse(.failure(error)):
@@ -361,7 +368,7 @@ public struct CompatibilityFeature {
         state.name = ""
         state.gender = nil
         state.calendarType = .solar
-        state.birthDate = Date(timeIntervalSince1970: 946_684_800)
+        state.birthDate = nil
         state.birthTime = nil
         state.isBirthTimeUnknown = false
         state.relationship = nil

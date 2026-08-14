@@ -43,7 +43,7 @@ public struct DSSelectGender: View {
             HStack(spacing: specification.optionSpacing) {
                 ForEach(Gender.allCases, id: \.self) { option in
                     DSSelectBox(
-                        option.dsGenderTitle,
+                        option.title,
                         isSelected: selectionBinding(for: option)
                     )
                     .frame(maxWidth: .infinity)
@@ -66,14 +66,5 @@ public struct DSSelectGender: View {
                 )
             }
         )
-    }
-}
-
-extension Gender {
-    var dsGenderTitle: String {
-        switch self {
-        case .male: "남성"
-        case .female: "여성"
-        }
     }
 }

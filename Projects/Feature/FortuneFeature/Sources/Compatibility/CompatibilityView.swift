@@ -259,59 +259,37 @@ private struct CompatibilityMainContent: View {
 
 private struct PartnerRegistrationView: View {
     @Bindable var store: StoreOf<CompatibilityFeature>
-    @State private var isDatePickerPresented = false
-    @State private var isTimePickerPresented = false
-
-    @State private var pickerYear = 1999
-    @State private var pickerMonth = 1
-    @State private var pickerDay = 1
-    @State private var pickerBirthTimeRawValue = BirthTimePeriod.inTime.rawValue
-
-    private let calendar = Calendar.current
 
     var body: some View {
         ZStack {
             Color.ds.white.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                FortuneHeaderView(
+                DSHeaderSub(
                     title: "상대방 정보 입력",
-                    isDark: false
-                ) {
-                    store.send(.registrationPresented(false))
-                }
+                    leftItem: DSHeaderActionItem(
+                        identifier: "back",
+                        icon: .chevronLeftNarrow,
+                        action: { store.send(.registrationPresented(false)) }
+                    )
+                )
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 32) {
                         DSEnterName(
                             text: $store.name.sending(\.nameChanged),
                             validationState: nameValidationState
                         )
 
-                        DSSelectGender(
-                            selection: $store.gender.sending(\.genderChanged)
+                        DSSajuBasicFieldsView(
+                            gender: $store.gender.sending(\.genderChanged),
+                            calendarType: $store.calendarType.sending(\.calendarTypeChanged),
+                            birthDate: $store.birthDate.sending(\.birthDateChanged),
+                            birthTime: $store.birthTime.sending(\.birthTimeChanged),
+                            isBirthTimeUnknown: $store.isBirthTimeUnknown.sending(\.birthTimeUnknownChanged),
+                            birthDateValidationMessage: BirthDatePolicy.validateNotInFuture(for: store.birthDate, asOf: Date()),
+                            spacing: 32
                         )
-
-                        DSSelectLunarOrSolarCalendar(
-                            selection: calendarTypeBinding
-                        )
-
-                        DSEnterDateOfBirth(
-                            selection: birthDateBinding,
-                            isFocused: isDatePickerPresented
-                        ) {
-                            prepareBirthDatePicker()
-                            isDatePickerPresented = true
-                        }
-
-                        DSEnterTimeOfBirth(
-                            selection: $store.birthTime.sending(\.birthTimeChanged),
-                            isFocused: isTimePickerPresented,
-                            isTimeUnknown: $store.isBirthTimeUnknown.sending(\.birthTimeUnknownChanged)
-                        ) {
-                            prepareBirthTimePicker()
-                            isTimePickerPresented = true
-                        }
 
                         DSSelectRelationship(
                             selection: $store.relationship.sending(\.relationshipChanged)
@@ -358,48 +336,6 @@ private struct PartnerRegistrationView: View {
                 )
             )
         }
-        .dsWheelPickerSheet(
-            isPresented: $isDatePickerPresented,
-            layout: .date,
-            title: "생년월일 입력",
-            onSave: saveBirthDate
-        ) {
-            DSMultiWheelPicker(
-                layout: .date,
-                columns: [
-                    DSWheelPickerColumn(
-                        items: birthYearItems,
-                        selection: $pickerYear,
-                        accessibilityLabel: "연도"
-                    ),
-                    DSWheelPickerColumn(
-                        items: birthMonthItems,
-                        selection: $pickerMonth,
-                        accessibilityLabel: "월",
-                        isCircular: true
-                    ),
-                    DSWheelPickerColumn(
-                        items: birthDayItems,
-                        selection: $pickerDay,
-                        accessibilityLabel: "일"
-                    )
-                ]
-            )
-        }
-        .dsWheelPickerSheet(
-            isPresented: $isTimePickerPresented,
-            layout: .single,
-            title: "태어난 시각 선택",
-            onSave: saveBirthTime
-        ) {
-            DSSingleWheelPicker(
-                items: birthTimeItems,
-                selection: $pickerBirthTimeRawValue,
-                accessibilityLabel: "태어난 시각"
-            )
-        }
-        .onChange(of: pickerYear) { _, _ in normalizeBirthDatePicker() }
-        .onChange(of: pickerMonth) { _, _ in normalizeBirthDatePicker() }
     }
 
     private var nameValidationState: DSTextFieldValidationState {
@@ -407,92 +343,6 @@ private struct PartnerRegistrationView: View {
             return .error(message: message)
         }
         return .none
-    }
-
-    private var calendarTypeBinding: Binding<BirthDateCalendar?> {
-        Binding(
-            get: { store.calendarType },
-            set: { if let type = $0 { store.send(.calendarTypeChanged(type)) } }
-        )
-    }
-
-    private var birthDateBinding: Binding<BirthDate?> {
-        Binding(
-            get: { store.birthDate.toBirthDate },
-            set: { if let birthDate = $0 { store.send(.birthDateChanged(birthDate.toDate)) } }
-        )
-    }
-
-    private var currentDateComponents: DateComponents {
-        calendar.dateComponents([.year, .month, .day], from: Date())
-    }
-
-    private var birthYearItems: [DSWheelPickerItem] {
-        (1900...(currentDateComponents.year ?? 1999)).map {
-            DSWheelPickerItem(value: $0, title: "\($0)년")
-        }
-    }
-
-    private var birthMonthItems: [DSWheelPickerItem] {
-        let maximumMonth = pickerYear == currentDateComponents.year
-            ? currentDateComponents.month ?? 12
-            : 12
-        return (1...maximumMonth).map {
-            DSWheelPickerItem(value: $0, title: "\($0)월")
-        }
-    }
-
-    private var birthDayItems: [DSWheelPickerItem] {
-        let date = calendar.date(from: DateComponents(year: pickerYear, month: pickerMonth)) ?? Date()
-        let daysInMonth = calendar.range(of: .day, in: .month, for: date)?.count ?? 28
-        let maximumDay = pickerYear == currentDateComponents.year
-            && pickerMonth == currentDateComponents.month
-            ? min(daysInMonth, currentDateComponents.day ?? daysInMonth)
-            : daysInMonth
-        return (1...maximumDay).map {
-            DSWheelPickerItem(value: $0, title: "\($0)일")
-        }
-    }
-
-    private var birthTimeItems: [DSWheelPickerItem] {
-        BirthTimePeriod.allCases.map { period in
-            DSWheelPickerItem(
-                value: period.rawValue,
-                title: DSEnterTimeOfBirth.pickerTitle(for: period)
-            )
-        }
-    }
-
-    private func prepareBirthDatePicker() {
-        let selected = store.birthDate.toBirthDate
-        pickerYear = selected.year
-        pickerMonth = selected.month
-        pickerDay = selected.day
-        normalizeBirthDatePicker()
-    }
-
-    private func prepareBirthTimePicker() {
-        pickerBirthTimeRawValue = (store.birthTime ?? .inTime).rawValue
-    }
-
-    private func saveBirthDate() {
-        let newBirthDate = BirthDate(year: pickerYear, month: pickerMonth, day: pickerDay)
-        store.send(.birthDateChanged(newBirthDate.toDate))
-        isDatePickerPresented = false
-    }
-
-    private func saveBirthTime() {
-        store.send(.birthTimeChanged(BirthTimePeriod(rawValue: pickerBirthTimeRawValue)))
-        isTimePickerPresented = false
-    }
-
-    private func normalizeBirthDatePicker() {
-        if let maximumMonth = birthMonthItems.last?.value {
-            pickerMonth = min(pickerMonth, maximumMonth)
-        }
-        if let maximumDay = birthDayItems.last?.value {
-            pickerDay = min(pickerDay, maximumDay)
-        }
     }
 }
 
@@ -815,10 +665,23 @@ private struct SajuChartCard: View {
     private var titleText: String {
         let name = chart.name?.nonEmpty ?? fallbackName
         if let gender = chart.gender {
-            return "\(name) · \(gender.displayTitle)"
-        } else {
-            return name
+            return "\(name) · \(gender.title)"
         }
+        return name
+    }
+
+    private func sajuInfoSubtitle(for chart: SajuChartDetail) -> String {
+        let calendar = chart.calendarType.map { $0.title } ?? "양력"
+        let date = Self.dateFormatter.string(from: chart.birthDate)
+        let time: String
+        if chart.isBirthTimeUnknown {
+            time = "태어난 시각 모름"
+        } else if let birthTime = chart.birthTime {
+            time = birthTime.displayText
+        } else {
+            time = ""
+        }
+        return [date + " " + calendar, time].filter { !$0.isEmpty }.joined(separator: " · ")
     }
 
     var body: some View {
@@ -883,7 +746,7 @@ private struct SajuChartCard: View {
 
     private var birthInformation: String {
         let date = Self.dateFormatter.string(from: chart.birthDate)
-        let calendar = chart.calendarType.map { $0.displayTitle } ?? "양력"
+        let calendar = chart.calendarType.map { $0.title } ?? "양력"
         let time: String
         if chart.isBirthTimeUnknown {
             time = "태어난 시각 모름"
@@ -999,44 +862,6 @@ private struct FortuneErrorBanner: View {
         .padding(12)
         .background(Color.ds.red500.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-}
-
-private extension Date {
-    var toBirthDate: BirthDate {
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: self)
-        let month = calendar.component(.month, from: self)
-        let day = calendar.component(.day, from: self)
-        return BirthDate(year: year, month: month, day: day)
-    }
-}
-
-private extension BirthDate {
-    var toDate: Date {
-        var components = DateComponents()
-        components.year = year
-        components.month = month
-        components.day = day
-        return Calendar.current.date(from: components) ?? Date()
-    }
-}
-
-private extension Gender {
-    var displayTitle: String {
-        switch self {
-        case .male: "남성"
-        case .female: "여성"
-        }
-    }
-}
-
-private extension BirthDateCalendar {
-    var displayTitle: String {
-        switch self {
-        case .solar: "양력"
-        case .lunar: "음력"
-        }
     }
 }
 

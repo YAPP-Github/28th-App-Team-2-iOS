@@ -82,7 +82,7 @@ public struct PartnerRegistrationInput: Equatable, Sendable {
     public let name: String
     public let gender: Gender
     public let calendarType: BirthDateCalendar
-    public let birthDate: Date
+    public let birthDate: BirthDate
     public let birthTime: BirthTimePeriod?
     public let isBirthTimeUnknown: Bool
     public let relationship: Relationship
@@ -91,7 +91,7 @@ public struct PartnerRegistrationInput: Equatable, Sendable {
         name: String,
         gender: Gender,
         calendarType: BirthDateCalendar,
-        birthDate: Date,
+        birthDate: BirthDate,
         birthTime: BirthTimePeriod?,
         isBirthTimeUnknown: Bool,
         relationship: Relationship

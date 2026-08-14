@@ -467,7 +467,7 @@ private struct RegisterPartnerSajuRequestDTO: Encodable {
         name = input.name
         gender = input.gender.serverValue
         calendarType = input.calendarType.serverValue
-        birthDate = formatFortuneDate(input.birthDate)
+        birthDate = input.birthDate.description
         birthTime = input.isBirthTimeUnknown ? "UNKNOWN" : (input.birthTime?.serverValue ?? "UNKNOWN")
         relationshipType = input.relationship.serverValue
     }

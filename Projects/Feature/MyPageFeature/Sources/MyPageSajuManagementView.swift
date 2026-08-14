@@ -206,14 +206,6 @@ private struct PartnerMenuButtonFrameKey: PreferenceKey {
 private struct MyPagePartnerFormView: View {
     @Bindable private var store: StoreOf<MyPageFeature>
     @FocusState private var isNameFocused: Bool
-    @State private var isBirthDatePickerPresented = false
-    @State private var isBirthTimePickerPresented = false
-    @State private var pickerYear = 1999
-    @State private var pickerMonth = 1
-    @State private var pickerDay = 1
-    @State private var pickerBirthTimeRawValue = BirthTimePeriod.inTime.rawValue
-
-    private let calendar = Calendar(identifier: .gregorian)
 
     init(store: StoreOf<MyPageFeature>) { self.store = store }
 
@@ -235,17 +227,15 @@ private struct MyPagePartnerFormView: View {
                         validationState: nameValidationState,
                         isFocused: $isNameFocused
                     )
-                    DSSelectGender(selection: genderBinding)
-                    DSSelectLunarOrSolarCalendar(selection: calendarBinding)
-                    birthDateField
-                    DSEnterTimeOfBirth(
-                        selection: birthTimeBinding,
-                        isFocused: isBirthTimePickerPresented,
-                        isTimeUnknown: birthTimeUnknownBinding
-                    ) {
-                        prepareBirthTimePicker()
-                        isBirthTimePickerPresented = true
-                    }
+                    DSSajuBasicFieldsView(
+                        gender: genderBinding,
+                        calendarType: calendarBinding,
+                        birthDate: birthDateBinding,
+                        birthTime: birthTimeBinding,
+                        isBirthTimeUnknown: birthTimeUnknownBinding,
+                        birthDateValidationMessage: BirthDatePolicy.validateNotInFuture(for: form?.birthDate, asOf: Date()),
+                        spacing: 40
+                    )
                     relationshipField
                     DSPrimaryLargeButton(form?.isSaving == true ? "저장 중…" : "저장하기") {
                         store.send(.partnerSaveButtonTapped)
@@ -259,63 +249,6 @@ private struct MyPagePartnerFormView: View {
             }
         }
         .background(Color.ds.white)
-        .dsWheelPickerSheet(
-            isPresented: $isBirthDatePickerPresented,
-            layout: .date,
-            title: "생년월일 입력",
-            onSave: saveBirthDate
-        ) {
-            DSMultiWheelPicker(
-                layout: .date,
-                columns: [
-                    DSWheelPickerColumn(items: birthYearItems, selection: $pickerYear, accessibilityLabel: "연도"),
-                    DSWheelPickerColumn(
-                        items: birthMonthItems,
-                        selection: $pickerMonth,
-                        accessibilityLabel: "월",
-                        isCircular: true
-                    ),
-                    DSWheelPickerColumn(items: birthDayItems, selection: $pickerDay, accessibilityLabel: "일")
-                ]
-            )
-        }
-        .dsWheelPickerSheet(
-            isPresented: $isBirthTimePickerPresented,
-            layout: .single,
-            title: "태어난 시각 선택",
-            onSave: saveBirthTime
-        ) {
-            DSSingleWheelPicker(
-                items: BirthTimePeriod.allCases.map {
-                    DSWheelPickerItem(
-                        value: $0.rawValue,
-                        title: DSEnterTimeOfBirth.pickerTitle(for: $0)
-                    )
-                },
-                selection: $pickerBirthTimeRawValue,
-                accessibilityLabel: "태어난 시각"
-            )
-        }
-        .onChange(of: pickerYear) { _, _ in normalizeBirthDatePicker() }
-        .onChange(of: pickerMonth) { _, _ in normalizeBirthDatePicker() }
-    }
-
-    private var birthDateField: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            DSEnterDateOfBirth(selection: birthDateBinding, isFocused: isBirthDatePickerPresented) {
-                prepareBirthDatePicker()
-                isBirthDatePickerPresented = true
-            }
-            if let message = PartnerBirthDatePolicy.validationMessage(
-                for: form?.birthDate,
-                asOf: Date()
-            ) {
-                Text(message)
-                    .dsCaption1Regular
-                    .foregroundStyle(Color.ds.red500)
-                    .padding(.horizontal, 4)
-            }
-        }
     }
 
     private var relationshipField: some View {
@@ -361,46 +294,6 @@ private struct MyPagePartnerFormView: View {
                 store.send(.partnerRelationshipChanged(relationship))
             }
         )
-    }
-
-    private var currentDateComponents: DateComponents {
-        calendar.dateComponents([.year, .month, .day], from: Date())
-    }
-
-    private var birthYearItems: [DSWheelPickerItem] {
-        (1900...(currentDateComponents.year ?? 1900)).map {
-            DSWheelPickerItem(value: $0, title: "\($0)년")
-        }
-    }
-    private var birthMonthItems: [DSWheelPickerItem] {
-        let maximum = pickerYear == currentDateComponents.year ? currentDateComponents.month ?? 12 : 12
-        return (1...maximum).map { DSWheelPickerItem(value: $0, title: "\($0)월") }
-    }
-    private var birthDayItems: [DSWheelPickerItem] {
-        let date = calendar.date(from: DateComponents(year: pickerYear, month: pickerMonth)) ?? Date()
-        let maximum = calendar.range(of: .day, in: .month, for: date)?.count ?? 28
-        let todayMaximum = pickerYear == currentDateComponents.year && pickerMonth == currentDateComponents.month
-            ? min(maximum, currentDateComponents.day ?? maximum) : maximum
-        return (1...todayMaximum).map { DSWheelPickerItem(value: $0, title: "\($0)일") }
-    }
-    private func prepareBirthDatePicker() {
-        pickerYear = form?.birthDate?.year ?? 1999
-        pickerMonth = form?.birthDate?.month ?? 1
-        pickerDay = form?.birthDate?.day ?? 1
-        normalizeBirthDatePicker()
-    }
-    private func prepareBirthTimePicker() { pickerBirthTimeRawValue = (form?.birthTime ?? .inTime).rawValue }
-    private func saveBirthDate() {
-        store.send(.partnerBirthDateChanged(BirthDate(year: pickerYear, month: pickerMonth, day: pickerDay)))
-        isBirthDatePickerPresented = false
-    }
-    private func saveBirthTime() {
-        store.send(.partnerBirthTimeChanged(BirthTimePeriod(rawValue: pickerBirthTimeRawValue)))
-        isBirthTimePickerPresented = false
-    }
-    private func normalizeBirthDatePicker() {
-        pickerMonth = min(max(pickerMonth, 1), birthMonthItems.last?.value ?? 12)
-        pickerDay = min(max(pickerDay, 1), birthDayItems.last?.value ?? 28)
     }
 }
 

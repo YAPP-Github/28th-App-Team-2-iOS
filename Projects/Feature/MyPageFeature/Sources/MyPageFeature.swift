@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Foundation
 import Model
+import Utils
 
 // swiftlint:disable file_length
 @Reducer
@@ -100,7 +101,7 @@ public struct MyPageFeature {
         var isValid: Bool {
             !name.isEmpty && nameValidationMessage == nil && gender != nil && calendar != nil
                 && birthDate != nil && (birthTime != nil || isBirthTimeUnknown)
-                && PartnerBirthDatePolicy.validationMessage(for: birthDate, asOf: Date()) == nil
+                && BirthDatePolicy.validateNotInFuture(for: birthDate, asOf: Date()) == nil
         }
 
         func input() -> MyPagePartnerSajuInput? {
@@ -155,14 +156,14 @@ public struct MyPageFeature {
 
         var isValid: Bool {
             gender != nil && calendar != nil && birthDate != nil
+                && BirthDatePolicy.validateNotInFuture(for: birthDate, asOf: Date()) == nil
+                && BirthDatePolicy.validateMinimumAge(for: birthDate, asOf: Date()) == nil
                 && (birthTime != nil || isBirthTimeUnknown)
                 && job != nil && relationshipStatus != nil
         }
 
         private static func birthDate(_ value: String) -> BirthDate? {
-            let components = value.split(separator: "-").compactMap { Int($0) }
-            guard components.count == 3 else { return nil }
-            return BirthDate(year: components[0], month: components[1], day: components[2])
+            BirthDate(yyyyMMdd: value)
         }
     }
 
@@ -341,6 +342,7 @@ public struct MyPageFeature {
             case .editSaveButtonTapped:
                 guard let edit = state.edit,
                       edit.isValid,
+                      !edit.isSaving,
                       let gender = edit.gender,
                       let calendar = edit.calendar,
                       let birthDate = edit.birthDate,
@@ -493,6 +495,7 @@ public struct MyPageFeature {
             case .partnerSaveButtonTapped:
                 guard let form = state.sajuManagement?.form,
                       form.isValid,
+                      !form.isSaving,
                       let input = form.input() else {
                     return .none
                 }
@@ -593,27 +596,4 @@ public enum MyPageRelationshipStatus: String, CaseIterable, Equatable, Sendable 
     var apiValue: String { rawValue }
 
     init?(apiValue: String) { self.init(rawValue: apiValue) }
-}
-
-private extension Gender {
-    var apiValue: String { self == .female ? "FEMALE" : "MALE" }
-}
-
-private extension BirthDateCalendar {
-    var apiValue: String { self == .lunar ? "LUNAR" : "SOLAR" }
-}
-
-private extension UnicodeScalar {
-    var isKoreanNameScalar: Bool {
-        switch value {
-        case 0xAC00 ... 0xD7A3,
-             0x1100 ... 0x11FF,
-             0x3130 ... 0x318F,
-             0xA960 ... 0xA97F,
-             0xD7B0 ... 0xD7FF:
-            true
-        default:
-            false
-        }
-    }
 }

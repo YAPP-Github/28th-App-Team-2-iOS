@@ -377,7 +377,7 @@ struct FortuneClientTests {
             name: "동료1",
             gender: .male,
             calendarType: .lunar,
-            birthDate: try #require(makeDate("2000-01-01")),
+            birthDate: BirthDate(year: 2000, month: 1, day: 1),
             birthTime: .jaTime,
             isBirthTimeUnknown: false,
             relationship: .colleague

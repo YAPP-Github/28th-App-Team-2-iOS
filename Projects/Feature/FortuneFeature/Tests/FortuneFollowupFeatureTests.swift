@@ -197,6 +197,143 @@ struct FortuneFollowupFeatureTests {
         await store.receive(.delegate(.myInfoEditRequested))
     }
 
+    @Test("궁합 화면에서 상대방 사주를 성공적으로 등록하면 폼을 닫고 목록을 새로고침한다")
+    func compatibilityRegistersPartnerSuccessfully() async {
+        let partnerID = UUID(30)
+        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .lover)
+        let chart = makeSajuChart(id: partnerID, name: "영희")
+
+        var state = CompatibilityFeature.State()
+        state.isRegistrationPresented = true
+        state.name = "영희"
+        state.gender = .female
+        state.calendarType = .solar
+        state.birthDate = BirthDate(year: 2000, month: 1, day: 1)
+        state.birthTime = .inTime
+        state.isBirthTimeUnknown = false
+        state.relationship = .lover
+
+        #expect(state.canRegister)
+
+        let store = TestStore(initialState: state) {
+            CompatibilityFeature()
+        } withDependencies: {
+            $0.fortuneClient.registerPartner = { _ in partnerID }
+            $0.fortuneClient.fetchPartners = { [partner] }
+            $0.fortuneClient.fetchPartnerSaju = { _ in chart }
+        }
+
+        await store.send(.registerTapped) {
+            $0.isSubmitting = true
+            $0.errorMessage = nil
+        }
+        await store.receive(.registrationResponse(.success(partnerID))) {
+            $0.isSubmitting = false
+            $0.isRegistrationPresented = false
+            $0.name = ""
+            $0.gender = nil
+            $0.calendarType = .solar
+            $0.birthDate = nil
+            $0.birthTime = nil
+            $0.isBirthTimeUnknown = false
+            $0.relationship = nil
+            $0.errorMessage = nil
+        }
+        await store.receive(.partnersResponse(.success([partner]))) {
+            $0.partners = [partner]
+            $0.selectedPartnerID = partnerID
+        }
+        await store.receive(.partnerSajuResponse(partnerID, .success(chart))) {
+            $0.selectedPartnerSaju = chart
+        }
+    }
+
+    @Test("궁합 화면에서 궁합 보기 탭 시 궁합 결과를 생성하고 상태를 갱신한다")
+    func compatibilityCreatesResultSuccessfully() async {
+        let partnerID = UUID(31)
+        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .lover)
+        let result = CompatibilityResult(
+            id: UUID(32),
+            score: 90,
+            title: "천생연분",
+            content: "궁합 총평",
+            categories: [.init(category: .love, score: 95)]
+        )
+
+        var state = CompatibilityFeature.State()
+        state.partners = [partner]
+        state.selectedPartnerID = partnerID
+
+        let store = TestStore(initialState: state) {
+            CompatibilityFeature()
+        } withDependencies: {
+            $0.fortuneClient.createCompatibility = { _, _ in result }
+        }
+
+        await store.send(.compatibilityTapped) {
+            $0.isSubmitting = true
+            $0.errorMessage = nil
+        }
+        await store.receive(.compatibilityResponse(.success(result))) {
+            $0.isSubmitting = false
+            $0.result = result
+        }
+    }
+
+    @Test("궁합 생성 실패 시 에러 메시지를 표시하고 제출 상태를 해제한다")
+    func compatibilityHandlesCreationFailure() async {
+        let partnerID = UUID(33)
+        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .lover)
+
+        var state = CompatibilityFeature.State()
+        state.partners = [partner]
+        state.selectedPartnerID = partnerID
+
+        let store = TestStore(initialState: state) {
+            CompatibilityFeature()
+        } withDependencies: {
+            $0.fortuneClient.createCompatibility = { _, _ in throw FortuneClientError.transport }
+        }
+
+        await store.send(.compatibilityTapped) {
+            $0.isSubmitting = true
+            $0.errorMessage = nil
+        }
+        await store.receive(.compatibilityResponse(.failure(.transport))) {
+            $0.isSubmitting = false
+            $0.errorMessage = FortuneClientError.transport.userMessage
+        }
+    }
+
+    @Test("상대방 변경 시 이전 사주를 초기화하고 새로운 상대방 사주를 조회한다")
+    func compatibilityPartnerSelectionUpdatesSaju() async {
+        let p1 = FortunePartner(id: UUID(34), name: "영희", relationship: .lover)
+        let p2 = FortunePartner(id: UUID(35), name: "철수", relationship: .friend)
+        let chart2 = makeSajuChart(id: p2.id, name: "철수")
+
+        var state = CompatibilityFeature.State()
+        state.partners = [p1, p2]
+        state.selectedPartnerID = p1.id
+        state.selectedPartnerSaju = makeSajuChart(id: p1.id, name: "영희")
+        state.isPartnerPickerPresented = true
+
+        let store = TestStore(initialState: state) {
+            CompatibilityFeature()
+        } withDependencies: {
+            $0.fortuneClient.fetchPartnerSaju = { _ in chart2 }
+        }
+
+        await store.send(.partnerSelected(p2.id)) {
+            $0.selectedPartnerID = p2.id
+            $0.selectedPartnerSaju = nil
+            $0.isPartnerPickerPresented = false
+        }
+        await store.receive(.partnerSajuResponse(p2.id, .success(chart2))) {
+            $0.selectedPartnerSaju = chart2
+            $0.errorMessage = nil
+        }
+    }
+
     private func makeSajuChart(id chartID: UUID, name: String) -> SajuChartDetail {
         SajuChartDetail(
             id: chartID,
