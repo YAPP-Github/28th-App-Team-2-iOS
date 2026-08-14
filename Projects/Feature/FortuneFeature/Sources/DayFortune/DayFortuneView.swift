@@ -472,7 +472,8 @@ private struct DayFortuneResultContent: View {
                         .foregroundStyle(Color.ds.whiteOpacity60)
 
                     HStack(spacing: 4) {
-                        let filledCount = min(3, max(1, catStar.star > 3 ? Int(round(Double(catStar.star) * 3.0 / 5.0)) : catStar.star))
+                        let normalized = catStar.star > 3 ? Int(round(Double(catStar.star) * 3.0 / 5.0)) : catStar.star
+                        let filledCount = min(3, max(1, normalized))
                         ForEach(1...3, id: \.self) { starIndex in
                             let isFilled = starIndex <= filledCount
                             if isFilled {
@@ -671,7 +672,7 @@ private struct CalendarPickerView: View {
                 Text("\(calendar.component(.day, from: date))")
                     .dsBody2Medium
                     .foregroundStyle(
-                        isSelected ? Color.ds.white : (isPast ? Color.ds.gray300 : (isToday ? Color.ds.primary600 : Color.ds.gray975))
+                        cellTextColor(isSelected: isSelected, isPast: isPast, isToday: isToday)
                     )
 
                 if isToday {
@@ -688,6 +689,13 @@ private struct CalendarPickerView: View {
         }
         .disabled(isPast)
         .buttonStyle(.plain)
+    }
+
+    private func cellTextColor(isSelected: Bool, isPast: Bool, isToday: Bool) -> Color {
+        if isSelected { return Color.ds.white }
+        if isPast { return Color.ds.gray300 }
+        if isToday { return Color.ds.primary600 }
+        return Color.ds.gray975
     }
 
     private func monthTitle(for date: Date) -> String {

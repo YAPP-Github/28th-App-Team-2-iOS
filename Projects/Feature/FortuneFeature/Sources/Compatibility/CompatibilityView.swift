@@ -58,14 +58,15 @@ struct CompatibilityView: View {
             onSave: {
                 store.send(.partnerPickerPresented(false))
                 store.send(.registrationPresented(true))
+            },
+            content: {
+                DSSingleWheelPicker(
+                    items: partnerWheelItems,
+                    selection: $selectedPartnerIndex,
+                    accessibilityLabel: "궁합 상대"
+                )
             }
-        ) {
-            DSSingleWheelPicker(
-                items: partnerWheelItems,
-                selection: $selectedPartnerIndex,
-                accessibilityLabel: "궁합 상대"
-            )
-        }
+        )
         .onAppear {
             syncSelectedPartnerIndex()
         }
@@ -246,8 +247,6 @@ private struct CompatibilityMainContent: View {
         .disabled(store.selectedPartnerID == nil || store.isSubmitting)
     }
 }
-
-
 
 // MARK: - 상대방 등록 화면 (Push Screen)
 
@@ -761,7 +760,7 @@ private struct SajuChartCard: View {
     let chart: SajuChartDetail
     let fallbackName: String
     let relationshipTitle: String?
-    var onEditTapped: (() -> Void)? = nil
+    var onEditTapped: (() -> Void)?
 
     private var sortedPillars: [SajuPillar] {
         chart.pillars.sorted { $0.type.sortOrder < $1.type.sortOrder }

@@ -76,7 +76,7 @@ public struct FortuneCategoryDetailFeature {
 
             case .luckyActionTapped:
                 return .send(.delegate(.luckyActionRequested))
-                
+
             case .todakTapped:
                 return .send(.delegate(.todakRequested))
 

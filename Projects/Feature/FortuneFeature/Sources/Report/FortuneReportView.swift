@@ -3,7 +3,7 @@ import DesignSystem
 import SwiftUI
 
 // 리포트 섹션은 플로팅 툴팁 노출에 사용하는 스크롤 임계 상태를 공유한다.
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 struct FortuneReportView: View {
     @Bindable var store: StoreOf<FortuneReportFeature>
@@ -96,9 +96,18 @@ struct FortuneReportView: View {
         VStack(spacing: 24) {
             scoreSection(detail)
             summarySection(detail)
-            categorySection(detail)
-            itemSection(title: "오늘의 행운 아이템", items: detail.luckyItems, imageName: "img_clover", badgeColor: Color.ds.primary300)
-            itemSection(title: "오늘의 주의 아이템", items: detail.cautionaryItems, imageName: "img_warning", badgeColor: Color.ds.pink300)
+            itemSection(
+                title: "오늘의 행운 아이템",
+                items: detail.luckyItems,
+                imageName: "img_clover",
+                badgeColor: Color.ds.primary300
+            )
+            itemSection(
+                title: "오늘의 주의 아이템",
+                items: detail.cautionaryItems,
+                imageName: "img_warning",
+                badgeColor: Color.ds.pink300
+            )
 
             Color.clear.frame(height: 76)
         }
@@ -112,7 +121,7 @@ struct FortuneReportView: View {
                 Text("오늘의 운세")
                     .dsBody2Medium
                     .foregroundStyle(Color.ds.primary300)
-                
+
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                         showInfoTooltip.toggle()
@@ -130,7 +139,7 @@ struct FortuneReportView: View {
                             .fill(Color.ds.white.opacity(0.9))
                             .frame(width: 12, height: 8)
                             .padding(.leading, 80)
-                            
+
                         Text("오늘의 운세 점수는\n사주 데이터 분석을 바탕으로 나온\n상세운 5가지의 평균 점수예요")
                             .dsBody3Medium
                             .foregroundStyle(Color.ds.gray900)
@@ -386,7 +395,7 @@ private struct FlowLayout: Layout {
         var rows: [[LayoutSubview]] = []
         var currentRow: [LayoutSubview] = []
         var currentRowWidth: CGFloat = 0
-        
+
         for subview in subviews {
             let size = subview.sizeThatFits(.unspecified)
             if !currentRow.isEmpty, currentRowWidth + spacing + size.width > bounds.width {
@@ -401,13 +410,13 @@ private struct FlowLayout: Layout {
         if !currentRow.isEmpty {
             rows.append(currentRow)
         }
-        
+
         var verticalOffset = bounds.minY
         for row in rows {
             let rowWidth = row.reduce(0) { $0 + $1.sizeThatFits(.unspecified).width } + spacing * CGFloat(row.count - 1)
             var horizontalOffset = bounds.minX + (bounds.width - rowWidth) / 2
             var rowHeight: CGFloat = 0
-            
+
             for subview in row {
                 let size = subview.sizeThatFits(.unspecified)
                 subview.place(

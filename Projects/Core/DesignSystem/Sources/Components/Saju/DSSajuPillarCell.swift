@@ -54,11 +54,21 @@ public enum DSSajuElement: String, Sendable, Equatable, Hashable, Codable {
 
     public static func from(text: String) -> DSSajuElement {
         let upper = text.uppercased()
-        if upper.contains("WOOD") || upper.contains("MOK") || upper.contains("목") || upper.contains("木") { return .wood }
-        if upper.contains("FIRE") || upper.contains("HWA") || upper.contains("화") || upper.contains("火") { return .fire }
-        if upper.contains("EARTH") || upper.contains("TO") || upper.contains("토") || upper.contains("土") { return .earth }
-        if upper.contains("METAL") || upper.contains("GEUM") || upper.contains("금") || upper.contains("金") { return .metal }
-        if upper.contains("WATER") || upper.contains("SU") || upper.contains("수") || upper.contains("水") { return .water }
+        if upper.contains("WOOD") || upper.contains("MOK") || upper.contains("목") || upper.contains("木") {
+            return .wood
+        }
+        if upper.contains("FIRE") || upper.contains("HWA") || upper.contains("화") || upper.contains("火") {
+            return .fire
+        }
+        if upper.contains("EARTH") || upper.contains("TO") || upper.contains("토") || upper.contains("土") {
+            return .earth
+        }
+        if upper.contains("METAL") || upper.contains("GEUM") || upper.contains("금") || upper.contains("金") {
+            return .metal
+        }
+        if upper.contains("WATER") || upper.contains("SU") || upper.contains("수") || upper.contains("水") {
+            return .water
+        }
         return .unknown
     }
 }

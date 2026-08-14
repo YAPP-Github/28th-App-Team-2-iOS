@@ -38,9 +38,27 @@ struct ExampleContentView: View {
                 birthTime: nil,
                 isBirthTimeUnknown: true,
                 pillars: [
-                    SajuPillar(type: .year, heavenlyStem: SajuSymbol(hanja: "甲", reading: "갑", elementLabel: "큰 나무", elementHanja: "목"), earthlyBranch: SajuSymbol(hanja: "辰", reading: "진", elementLabel: "용", elementHanja: "토"), stemTenGod: "비견", branchTenGod: "편재"),
-                    SajuPillar(type: .month, heavenlyStem: SajuSymbol(hanja: "丙", reading: "병", elementLabel: "태양", elementHanja: "화"), earthlyBranch: SajuSymbol(hanja: "寅", reading: "인", elementLabel: "호랑이", elementHanja: "목"), stemTenGod: "식신", branchTenGod: "비견"),
-                    SajuPillar(type: .day, heavenlyStem: SajuSymbol(hanja: "戊", reading: "무", elementLabel: "큰 산", elementHanja: "토"), earthlyBranch: SajuSymbol(hanja: "申", reading: "신", elementLabel: "원숭이", elementHanja: "금"), stemTenGod: nil, branchTenGod: "식신")
+                    SajuPillar(
+                        type: .year,
+                        heavenlyStem: SajuSymbol(hanja: "甲", reading: "갑", elementLabel: "큰 나무", elementHanja: "목"),
+                        earthlyBranch: SajuSymbol(hanja: "辰", reading: "진", elementLabel: "용", elementHanja: "토"),
+                        stemTenGod: "비견",
+                        branchTenGod: "편재"
+                    ),
+                    SajuPillar(
+                        type: .month,
+                        heavenlyStem: SajuSymbol(hanja: "丙", reading: "병", elementLabel: "태양", elementHanja: "화"),
+                        earthlyBranch: SajuSymbol(hanja: "寅", reading: "인", elementLabel: "호랑이", elementHanja: "목"),
+                        stemTenGod: "식신",
+                        branchTenGod: "비견"
+                    ),
+                    SajuPillar(
+                        type: .day,
+                        heavenlyStem: SajuSymbol(hanja: "戊", reading: "무", elementLabel: "큰 산", elementHanja: "토"),
+                        earthlyBranch: SajuSymbol(hanja: "申", reading: "신", elementLabel: "원숭이", elementHanja: "금"),
+                        stemTenGod: nil,
+                        branchTenGod: "식신"
+                    )
                 ]
             )
         }
@@ -61,13 +79,25 @@ struct ExampleContentView: View {
                 birthTime: nil,
                 isBirthTimeUnknown: true,
                 pillars: [
-                    SajuPillar(type: .year, heavenlyStem: SajuSymbol(hanja: "丁", reading: "정", elementLabel: "등불", elementHanja: "화"), earthlyBranch: SajuSymbol(hanja: "卯", reading: "묘", elementLabel: "토끼", elementHanja: "목"), stemTenGod: "정인", branchTenGod: "정관"),
-                    SajuPillar(type: .month, heavenlyStem: SajuSymbol(hanja: "己", reading: "기", elementLabel: "작은 흙", elementHanja: "토"), earthlyBranch: SajuSymbol(hanja: "酉", reading: "유", elementLabel: "닭", elementHanja: "금"), stemTenGod: "겁재", branchTenGod: "상관")
+                    SajuPillar(
+                        type: .year,
+                        heavenlyStem: SajuSymbol(hanja: "丁", reading: "정", elementLabel: "등불", elementHanja: "화"),
+                        earthlyBranch: SajuSymbol(hanja: "卯", reading: "묘", elementLabel: "토끼", elementHanja: "목"),
+                        stemTenGod: "정인",
+                        branchTenGod: "정관"
+                    ),
+                    SajuPillar(
+                        type: .month,
+                        heavenlyStem: SajuSymbol(hanja: "己", reading: "기", elementLabel: "작은 흙", elementHanja: "토"),
+                        earthlyBranch: SajuSymbol(hanja: "酉", reading: "유", elementLabel: "닭", elementHanja: "금"),
+                        stemTenGod: "겁재",
+                        branchTenGod: "상관"
+                    )
                 ]
             )
         }
         $0.fortuneClient.registerPartner = { _ in UUID() }
-        $0.fortuneClient.createCompatibility = { _, _ in 
+        $0.fortuneClient.createCompatibility = { _, _ in
             CompatibilityResult(
                 id: UUID(),
                 partnerName: "토닥이",
@@ -108,7 +138,7 @@ struct ExampleContentView: View {
                 .prefix(3)
             )
         }
-        $0.fortuneClient.createYearFortune = { _ in 
+        $0.fortuneClient.createYearFortune = { _ in
             try await Task.sleep(for: .seconds(1))
             return YearFortuneResult(
                 id: UUID(),
@@ -121,7 +151,7 @@ struct ExampleContentView: View {
                     FortuneCategoryStar(category: .achievement, star: 4),
                     FortuneCategoryStar(category: .relationship, star: 4)
                 ]
-            ) 
+            )
         }
     }
 
