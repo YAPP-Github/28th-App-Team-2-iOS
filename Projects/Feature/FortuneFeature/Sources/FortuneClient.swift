@@ -4,13 +4,37 @@ import Foundation
 public struct FortuneClient: Sendable {
     public var fetchToday: @Sendable () async throws -> FortuneHomeContent
     public var fetchDetail: @Sendable (UUID) async throws -> FortuneDetailContent
+    public var fetchLuckAction: @Sendable (UUID) async throws -> LuckActionDetail
+    public var fetchMySaju: @Sendable () async throws -> SajuChartDetail
+    public var fetchPartners: @Sendable () async throws -> [FortunePartner]
+    public var fetchPartnerSaju: @Sendable (UUID) async throws -> SajuChartDetail
+    public var registerPartner: @Sendable (PartnerRegistrationInput) async throws -> UUID
+    public var createCompatibility: @Sendable (UUID, String) async throws -> CompatibilityResult
+    public var createDayFortunes: @Sendable (DayFortunePurpose, [Date]) async throws -> [DayFortuneResult]
+    public var createYearFortune: @Sendable (Int) async throws -> YearFortuneResult
 
     public init(
         fetchToday: @escaping @Sendable () async throws -> FortuneHomeContent,
-        fetchDetail: @escaping @Sendable (UUID) async throws -> FortuneDetailContent
+        fetchDetail: @escaping @Sendable (UUID) async throws -> FortuneDetailContent,
+        fetchLuckAction: @escaping @Sendable (UUID) async throws -> LuckActionDetail,
+        fetchMySaju: @escaping @Sendable () async throws -> SajuChartDetail,
+        fetchPartners: @escaping @Sendable () async throws -> [FortunePartner],
+        fetchPartnerSaju: @escaping @Sendable (UUID) async throws -> SajuChartDetail,
+        registerPartner: @escaping @Sendable (PartnerRegistrationInput) async throws -> UUID,
+        createCompatibility: @escaping @Sendable (UUID, String) async throws -> CompatibilityResult,
+        createDayFortunes: @escaping @Sendable (DayFortunePurpose, [Date]) async throws -> [DayFortuneResult],
+        createYearFortune: @escaping @Sendable (Int) async throws -> YearFortuneResult
     ) {
         self.fetchToday = fetchToday
         self.fetchDetail = fetchDetail
+        self.fetchLuckAction = fetchLuckAction
+        self.fetchMySaju = fetchMySaju
+        self.fetchPartners = fetchPartners
+        self.fetchPartnerSaju = fetchPartnerSaju
+        self.registerPartner = registerPartner
+        self.createCompatibility = createCompatibility
+        self.createDayFortunes = createDayFortunes
+        self.createYearFortune = createYearFortune
     }
 }
 
@@ -41,6 +65,30 @@ public extension FortuneClient {
             throw FortuneClientError.notConfigured
         },
         fetchDetail: { _ in
+            throw FortuneClientError.notConfigured
+        },
+        fetchLuckAction: { _ in
+            throw FortuneClientError.notConfigured
+        },
+        fetchMySaju: {
+            throw FortuneClientError.notConfigured
+        },
+        fetchPartners: {
+            throw FortuneClientError.notConfigured
+        },
+        fetchPartnerSaju: { _ in
+            throw FortuneClientError.notConfigured
+        },
+        registerPartner: { _ in
+            throw FortuneClientError.notConfigured
+        },
+        createCompatibility: { _, _ in
+            throw FortuneClientError.notConfigured
+        },
+        createDayFortunes: { _, _ in
+            throw FortuneClientError.notConfigured
+        },
+        createYearFortune: { _ in
             throw FortuneClientError.notConfigured
         }
     )

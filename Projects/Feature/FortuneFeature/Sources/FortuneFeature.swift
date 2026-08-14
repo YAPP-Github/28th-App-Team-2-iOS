@@ -3,10 +3,18 @@ import Foundation
 
 @Reducer
 public struct FortuneFeature {
+    @Reducer
+    public enum Path {
+        case report(FortuneReportFeature)
+        case compatibility(CompatibilityFeature)
+        case dayFortune(DayFortuneFeature)
+        case yearFortune(YearFortuneFeature)
+    }
+
     public init() {}
 
     @ObservableState
-    public struct State: Equatable, Sendable {
+    public struct State: Equatable {
         public enum ViewState: Equatable, Sendable {
             case loading
             case loaded(FortuneHomeContent)
@@ -15,6 +23,8 @@ public struct FortuneFeature {
 
         public var viewState: ViewState
         public var isRefreshing: Bool
+        public var path = StackState<Path.State>()
+        @Presents public var categoryDetail: FortuneCategoryDetailFeature.State?
 
         public init(
             viewState: ViewState = .loading,
@@ -23,12 +33,18 @@ public struct FortuneFeature {
             self.viewState = viewState
             self.isRefreshing = isRefreshing
         }
+
+        public var isShowingDetail: Bool {
+            !path.isEmpty
+        }
     }
 
-    public enum Action: Equatable, Sendable {
+    public enum Action: Equatable {
         case view(ViewAction)
         case todayFortuneResponse(Result<FortuneHomeContent, FortuneClientError>)
+        case path(StackActionOf<Path>)
         case delegate(Delegate)
+        case categoryDetail(PresentationAction<FortuneCategoryDetailFeature.Action>)
 
         public enum ViewAction: Equatable, Sendable {
             case task
@@ -43,13 +59,9 @@ public struct FortuneFeature {
         }
 
         public enum Delegate: Equatable, Sendable {
-            case notificationRequested
-            case fortuneReportRequested(
-                dailyFortuneID: UUID,
-                selectedCategory: FortuneCategory?
-            )
-            case fortuneReadingRequested(FortuneReading)
+            case todakRequested
             case luckyActionRequested
+            case myPageRequested
         }
     }
 
@@ -99,23 +111,57 @@ public struct FortuneFeature {
                 }
 
             case .view(.notificationButtonTapped):
-                return .send(.delegate(.notificationRequested))
+                return .none
 
             case .view(.fortuneReportButtonTapped):
-                return routeToFortuneReport(state: state, selectedCategory: nil)
+                routeToFortuneReport(state: &state, selectedCategory: nil)
+                return .none
 
             case let .view(.fortuneCategoryTapped(category)):
-                return routeToFortuneReport(state: state, selectedCategory: category)
+                if case let .loaded(content) = state.viewState,
+                   let item = content.categoryScores.first(where: { $0.category == category }) {
+                    state.categoryDetail = .init(
+                        luckActionID: item.luckActionID,
+                        category: item.category,
+                        categoryScores: content.categoryScores
+                    )
+                }
+                return .none
 
             case let .view(.fortuneReadingTapped(reading)):
-                return .send(.delegate(.fortuneReadingRequested(reading)))
+                switch reading {
+                case .compatibility:
+                    state.path.append(.compatibility(.init()))
+                case .dateSelection:
+                    state.path.append(.dayFortune(.init()))
+                case .yearly:
+                    state.path.append(.yearFortune(.init()))
+                }
+                return .none
 
             case .view(.luckyActionBannerTapped):
                 return .send(.delegate(.luckyActionRequested))
 
-            case .delegate:
+            case .path(.element(id: _, action: .report(.delegate(.todakRequested)))),
+                 .path(.element(id: _, action: .compatibility(.delegate(.todakRequested)))),
+                 .path(.element(id: _, action: .dayFortune(.delegate(.todakRequested)))),
+                 .path(.element(id: _, action: .yearFortune(.delegate(.todakRequested)))):
+                return .send(.delegate(.todakRequested))
+
+            case .path(.element(id: _, action: .report(.delegate(.luckyActionRequested)))),
+                 .categoryDetail(.presented(.delegate(.luckyActionRequested))):
+                return .send(.delegate(.luckyActionRequested))
+
+            case .path(.element(id: _, action: .compatibility(.delegate(.myInfoEditRequested)))):
+                return .send(.delegate(.myPageRequested))
+
+            case .path, .delegate, .categoryDetail:
                 return .none
             }
+        }
+        .forEach(\.path, action: \.path)
+        .ifLet(\.$categoryDetail, action: \.categoryDetail) {
+            FortuneCategoryDetailFeature()
         }
     }
 
@@ -125,7 +171,7 @@ public struct FortuneFeature {
                 let content = try await fortuneClient.fetchToday()
                 await send(.todayFortuneResponse(.success(content)))
             } catch is CancellationError {
-                // Task cancelled: do not convert cancellation into failure UI
+                // 취소된 작업은 실패 UI로 전환하지 않는다.
             } catch let error as FortuneClientError {
                 await send(.todayFortuneResponse(.failure(error)))
             } catch {
@@ -136,16 +182,16 @@ public struct FortuneFeature {
     }
 
     private func routeToFortuneReport(
-        state: State,
+        state: inout State,
         selectedCategory: FortuneCategory?
-    ) -> Effect<Action> {
+    ) {
         guard case let .loaded(content) = state.viewState else {
-            return .none
+            return
         }
 
-        return .send(
-            .delegate(
-                .fortuneReportRequested(
+        state.path.append(
+            .report(
+                .init(
                     dailyFortuneID: content.dailyFortuneID,
                     selectedCategory: selectedCategory
                 )
@@ -166,3 +212,6 @@ public struct FortuneFeature {
         }
     }
 }
+
+extension FortuneFeature.Path.State: Equatable {}
+extension FortuneFeature.Path.Action: Equatable {}
