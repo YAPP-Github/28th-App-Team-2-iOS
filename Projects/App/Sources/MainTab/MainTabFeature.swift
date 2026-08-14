@@ -4,7 +4,7 @@ import Foundation
 import MyPageFeature
 
 @Reducer
-struct MainTabFeature: Sendable {
+struct MainTabFeature {
     init() {}
 
     enum Tab: Equatable, Sendable {
@@ -15,7 +15,7 @@ struct MainTabFeature: Sendable {
     }
 
     @ObservableState
-    struct State: Equatable, Sendable {
+    struct State: Equatable {
         var selectedTab: Tab
         var fortune: FortuneFeature.State
         var myPage: MyPageFeature.State
@@ -31,7 +31,7 @@ struct MainTabFeature: Sendable {
         }
     }
 
-    enum Action: Equatable, Sendable {
+    enum Action: Equatable {
         case selectedTabChanged(Tab)
         case fortune(FortuneFeature.Action)
         case myPage(MyPageFeature.Action)
@@ -54,6 +54,14 @@ struct MainTabFeature: Sendable {
 
             case .fortune(.delegate(.luckyActionRequested)):
                 state.selectedTab = .luckyAction
+                return .none
+
+            case .fortune(.delegate(.todakRequested)):
+                state.selectedTab = .todak
+                return .none
+
+            case .fortune(.delegate(.myPageRequested)):
+                state.selectedTab = .myPage
                 return .none
 
             case .fortune, .myPage:

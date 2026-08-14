@@ -42,12 +42,14 @@ struct MainTabFeatureTests {
     }
 
     @Test
-    func otherFortuneDelegateDoesNotChangeTab() async {
+    func fortuneDelegateTodakRequestedSwitchesTab() async {
         let store = TestStore(initialState: MainTabFeature.State()) {
             MainTabFeature()
         }
 
-        await store.send(.fortune(.delegate(.notificationRequested)))
+        await store.send(.fortune(.delegate(.todakRequested))) {
+            $0.selectedTab = .todak
+        }
     }
 
     @Test

@@ -43,12 +43,14 @@ struct MainTabView: View {
     }
 
     private var shouldShowBottomNavigation: Bool {
-        store.myPage.edit == nil
+        let fortuneShowing = store.selectedTab != .fortune || !store.fortune.isShowingDetail
+        let myPageShowing = store.myPage.edit == nil
             && store.myPage.sajuDetail == nil
             && store.myPage.notificationSettings == nil
             && store.myPage.appSettings == nil
             && store.myPage.withdrawal == nil
             && store.myPage.sajuManagement == nil
+        return fortuneShowing && myPageShowing
     }
 
     private var bottomNavigationBinding: Binding<DSBottomNavigationItem> {
