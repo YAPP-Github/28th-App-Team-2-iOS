@@ -188,7 +188,8 @@ struct LuckyActionFeatureTests {
             $0.viewState = .loaded([completedAction])
             $0.completion = LuckyActionCompletion(category: .love)
         }
-        await store.send(.view(.completionDismissButtonTapped)) {
+        await clock.advance(by: .seconds(2))
+        await store.receive(.view(.completionAutoDismissed)) {
             $0.completion = nil
         }
     }

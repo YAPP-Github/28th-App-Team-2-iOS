@@ -252,6 +252,19 @@ extension FortuneFeatureTests {
         await store.receive(.delegate(.luckyActionTabRequested))
     }
 
+    @Test("리포트의 행운 액션 탭은 push 요청 delegate로 전파한다")
+    func reportLuckyActionTapDelegatesToPushRequest() async {
+        var state = FortuneFeature.State()
+        state.path.append(.report(.init(dailyFortuneID: UUID())))
+        let store = TestStore(initialState: state) {
+            FortuneFeature()
+        }
+
+        await store.send(.path(.element(id: 0, action: .report(.luckyActionTapped))))
+        await store.receive(.path(.element(id: 0, action: .report(.delegate(.luckyActionRequested)))))
+        await store.receive(.delegate(.luckyActionPushRequested))
+    }
+
     @Test("궁합 화면의 내 정보 변경 요청을 상위 myInfoEditRequested delegate로 전파한다")
     func compatibilityMyInfoEditDelegatesToMyInfoEdit() async {
         var state = FortuneFeature.State()

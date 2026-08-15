@@ -77,6 +77,23 @@ struct MainTabFeatureTests {
     }
 
     @Test
+    func backFromPushedLuckyActionDismissesPresentationAndPreservesReportPath() async {
+        var state = MainTabFeature.State()
+        state.fortune.path.append(.report(.init(dailyFortuneID: UUID())))
+        state.pushedLuckyAction = .init(presentationStyle: .pushed)
+        let store = TestStore(initialState: state) {
+            MainTabFeature()
+        }
+
+        await store.send(.pushedLuckyAction(.presented(.view(.backButtonTapped))))
+        await store.receive(.pushedLuckyAction(.presented(.delegate(.dismissRequested)))) {
+            $0.pushedLuckyAction = nil
+        }
+
+        #expect(store.state.fortune.path.count == 1)
+    }
+
+    @Test
     func reopeningPushedLuckyActionCreatesFreshState() async {
         let now = Date(timeIntervalSince1970: 1_786_762_800)
         var previousPresentation = LuckyActionFeature.State(
