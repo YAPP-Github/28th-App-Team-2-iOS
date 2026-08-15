@@ -45,10 +45,7 @@ public struct FortuneNavigationView: View {
                 case let .loaded(content):
                     FortuneHomeView(
                         content: content,
-                        action: { store.send(.view($0)) },
-                        onRefresh: {
-                            await store.send(.view(.refresh)).finish()
-                        }
+                        action: { store.send(.view($0)) }
                     )
 
                 case let .failed(message):

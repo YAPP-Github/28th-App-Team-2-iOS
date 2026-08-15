@@ -82,89 +82,8 @@ struct FortuneFeatureTests {
         }
     }
 
-    @Test("refresh는 기존 loaded 컨텐츠를 유지하면서 isRefreshing 상태를 업데이트한다")
-    func refreshRetainsLoadedContent() async {
-        let oldID = UUID(3)
-        let newID = UUID(4)
-        let store = TestStore(
-            initialState: FortuneFeature.State(
-                viewState: .loaded(.fixture(dailyFortuneID: oldID))
-            )
-        ) {
-            FortuneFeature()
-        } withDependencies: {
-            $0.fortuneClient.fetchToday = {
-                .fixture(dailyFortuneID: newID)
-            }
-        }
-
-        await store.send(.view(.refresh)) {
-            $0.isRefreshing = true
-        }
-        await store.receive(.todayFortuneResponse(.success(.fixture(dailyFortuneID: newID)))) {
-            $0.viewState = .loaded(.fixture(dailyFortuneID: newID))
-            $0.isRefreshing = false
-        }
-    }
-
-    @Test("refresh 실패 시 기존 loaded 컨텐츠를 유지하고 isRefreshing을 false로 변경한다")
-    func refreshFailureRetainsLoadedContentAndResetsRefreshing() async {
-        let initialID = UUID(5)
-        let store = TestStore(
-            initialState: FortuneFeature.State(
-                viewState: .loaded(.fixture(dailyFortuneID: initialID))
-            )
-        ) {
-            FortuneFeature()
-        } withDependencies: {
-            $0.fortuneClient.fetchToday = {
-                throw FortuneClientError.transport
-            }
-        }
-
-        await store.send(.view(.refresh)) {
-            $0.isRefreshing = true
-        }
-        await store.receive(.todayFortuneResponse(.failure(.transport))) {
-            $0.isRefreshing = false
-        }
-    }
-
-    @Test("이미 refreshing 중이거나 loaded 상태가 아닐 때 refresh 액션은 noop이다")
-    func duplicateOrInvalidRefreshIsNoop() async {
-        let initialID = UUID(6)
-        let store1 = TestStore(
-            initialState: FortuneFeature.State(
-                viewState: .loaded(.fixture(dailyFortuneID: initialID)),
-                isRefreshing: true
-            )
-        ) {
-            FortuneFeature()
-        } withDependencies: {
-            $0.fortuneClient.fetchToday = {
-                Issue.record("이미 refreshing 중일 때는 fetchToday가 실행되면 안 됩니다.")
-                throw FortuneClientError.invalidResponse
-            }
-        }
-
-        await store1.send(.view(.refresh))
-
-        let store2 = TestStore(
-            initialState: FortuneFeature.State(viewState: .loading)
-        ) {
-            FortuneFeature()
-        } withDependencies: {
-            $0.fortuneClient.fetchToday = {
-                Issue.record("loading 상태에서는 refresh가 실행되면 안 됩니다.")
-                throw FortuneClientError.invalidResponse
-            }
-        }
-
-        await store2.send(.view(.refresh))
-    }
-
-    @Test("요청 취소 시 isRefreshing이 false가 되며 실패 UI로 바꾸지 않는다")
-    func requestCancellationResetsRefreshingWithoutFailureUI() async {
+    @Test("화면 이탈로 요청을 취소해도 실패 UI로 전환하지 않는다")
+    func requestCancellationDoesNotShowFailureUI() async {
         let (startedStream, startedContinuation) = AsyncStream<Void>.makeStream()
         let (cancelledStream, cancelledContinuation) = AsyncStream<Void>.makeStream()
 
@@ -175,12 +94,7 @@ struct FortuneFeatureTests {
         }
         let state = LockIsolated<ContinuationState>(.pending)
 
-        let initialID = UUID(9)
-        let store = TestStore(
-            initialState: FortuneFeature.State(
-                viewState: .loaded(.fixture(dailyFortuneID: initialID))
-            )
-        ) {
+        let store = TestStore(initialState: FortuneFeature.State(viewState: .loading)) {
             FortuneFeature()
         } withDependencies: {
             $0.fortuneClient.fetchToday = {
@@ -215,17 +129,13 @@ struct FortuneFeatureTests {
             }
         }
 
-        await store.send(.view(.refresh)) {
-            $0.isRefreshing = true
-        }
+        await store.send(.view(.task))
 
         for await _ in startedStream {
             break
         }
 
-        await store.send(.view(.requestCancelled)) {
-            $0.isRefreshing = false
-        }
+        await store.send(.view(.requestCancelled))
 
         var isCancelledReceived = false
         for await _ in cancelledStream {
