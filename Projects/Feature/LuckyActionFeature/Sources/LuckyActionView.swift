@@ -356,7 +356,7 @@ private struct LuckyActionCompletionBubble: View {
                 }
                 .frame(height: 30)
 
-                Text("오늘의 \(completion.category.summaryTitle)이 올랐어요 💗")
+                Text("오늘의 \(completion.category.summaryTitle)이 올랐어요 💌")
                     .dsBody2Regular
                     .foregroundStyle(Color.ds.coolGray600)
             }
