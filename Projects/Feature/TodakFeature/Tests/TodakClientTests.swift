@@ -15,6 +15,15 @@ struct TodakClientTests {
         #expect(event == .error(code: "CHAT-500", message: "토닥이 답변 생성에 실패했습니다."))
     }
 
+    @Test("event 이름 없는 quota 오류 data를 서버 안내 문구와 함께 매핑한다")
+    func dataOnlyQuotaErrorMapping() throws {
+        let event = try decodeDataOnlyStreamError(
+            data: #"{"code":"CHAT-429","message":"오늘 무료 채팅 횟수를 모두 사용했습니다."}"#
+        )
+
+        #expect(event == .error(code: "CHAT-429", message: "오늘 무료 채팅 횟수를 모두 사용했습니다."))
+    }
+
     @Test("대화 상세의 메시지와 액션을 매핑한다")
     func fetchConversationMapping() async throws {
         let conversationID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!

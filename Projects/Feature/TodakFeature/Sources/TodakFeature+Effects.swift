@@ -119,8 +119,11 @@ extension TodakFeature {
             state.assistantMessageID = nil
             return .none
 
-        case let .error(_, message):
+        case let .error(code, message):
             state.isStreaming = false
+            if code == "CHAT-429" {
+                state.quota = TodakQuota(used: state.quota.limit, limit: state.quota.limit)
+            }
             markAssistantMessageFailed(state: &state)
             state.toastMessage = message
             return toastDismissEffect()

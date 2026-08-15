@@ -211,6 +211,34 @@ struct TodakFeatureRegressionTests {
         }
     }
 
+    @Test("quota 오류는 남은 무료 채팅 횟수를 즉시 0으로 갱신한다")
+    func quotaErrorExhaustsRemainingFreeChatCount() async {
+        let clock = TestClock()
+        let store = TestStore(
+            initialState: TodakFeature.State(
+                quota: .init(used: 2, limit: 3),
+                isStreaming: true
+            )
+        ) {
+            TodakFeature()
+        } withDependencies: {
+            $0.continuousClock = clock
+        }
+
+        await store.send(
+            .streamEvent(
+                .error(code: "CHAT-429", message: "오늘 무료 채팅 횟수를 모두 사용했습니다.")
+            )
+        ) {
+            $0.isStreaming = false
+            $0.quota = .init(used: 3, limit: 3)
+            $0.toastMessage = "오늘 무료 채팅 횟수를 모두 사용했습니다."
+        }
+        await store.send(.toastDismissed) {
+            $0.toastMessage = nil
+        }
+    }
+
     @Test("대화 삭제 성공 시 목록과 현재 대화를 즉시 제거하고 안내 문구를 표시한다")
     func deletingConversationRemovesItImmediately() async {
         let conversationID = UUID(uuidString: "00000000-0000-0000-0000-000000000010")!

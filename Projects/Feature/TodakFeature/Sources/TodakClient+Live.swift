@@ -84,8 +84,13 @@ private func messageEvents(
                 )
 
                 for try await event in sseClient.events(for: endpoint) {
-                    guard let eventName = event.event, let data = event.data else { continue }
-                    continuation.yield(try decodeStreamEvent(name: eventName, data: data))
+                    guard let data = event.data else { continue }
+
+                    if let eventName = event.event {
+                        continuation.yield(try decodeStreamEvent(name: eventName, data: data))
+                    } else {
+                        continuation.yield(try decodeDataOnlyStreamError(data: data))
+                    }
                 }
                 continuation.finish()
             } catch is CancellationError {
@@ -132,6 +137,16 @@ func decodeStreamEvent(name: String, data: String) throws -> TodakStreamEvent {
     default:
         throw TodakClientError.invalidResponse
     }
+}
+
+func decodeDataOnlyStreamError(data: String) throws -> TodakStreamEvent {
+    let decoder = JSONDecoder()
+    guard let dataValue = data.data(using: .utf8) else {
+        throw TodakClientError.invalidResponse
+    }
+
+    let dto = try decoder.decode(StreamErrorDTO.self, from: dataValue)
+    return .error(code: dto.code, message: dto.message)
 }
 
 private func extractData<T>(_ response: CommonResponseDTO<T>) throws -> T {
