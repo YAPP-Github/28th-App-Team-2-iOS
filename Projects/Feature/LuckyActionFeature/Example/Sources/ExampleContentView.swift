@@ -1,10 +1,11 @@
 import ComposableArchitecture
+import DesignSystem
 import LuckyActionFeature
 import LuckyActionFeatureTesting
 import SwiftUI
 
 struct ExampleContentView: View {
-    private let store: StoreOf<LuckyActionFeature>
+    @Bindable private var store: StoreOf<LuckyActionFeature>
 
     init() {
         let repository = LuckyActionMock()
@@ -16,6 +17,25 @@ struct ExampleContentView: View {
     }
 
     var body: some View {
-        LuckyActionView(store: store)
+        ZStack {
+            LuckyActionView(store: store)
+                .disabled(store.completion != nil)
+                .accessibilityHidden(store.completion != nil)
+
+            if let completion = store.completion {
+                ZStack {
+                    Color.ds.opacity50
+                        .ignoresSafeArea()
+                        .accessibilityHidden(true)
+
+                    LuckyActionCompletionContent(
+                        completion: completion,
+                        dismiss: { store.send(.view(.completionDismissButtonTapped)) }
+                    )
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: store.completion != nil)
     }
 }

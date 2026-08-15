@@ -15,6 +15,24 @@ struct MainTabView: View {
 
     var body: some View {
         ZStack {
+            tabContent
+                .disabled(isLuckyActionCompletionPresented)
+                .accessibilityHidden(isLuckyActionCompletionPresented)
+
+            if let completion = activeLuckyActionCompletion {
+                LuckyActionGlobalCompletionOverlay(
+                    completion: completion,
+                    dismiss: dismissLuckyActionCompletion
+                )
+                .transition(.opacity)
+                .zIndex(1)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isLuckyActionCompletionPresented)
+    }
+
+    private var tabContent: some View {
+        ZStack {
             switch store.selectedTab {
             case .fortune:
                 fortuneTab
@@ -103,6 +121,26 @@ struct MainTabView: View {
             && store.myPage.edit != nil
     }
 
+    private var isLuckyActionCompletionPresented: Bool {
+        activeLuckyActionCompletion != nil
+    }
+
+    private var activeLuckyActionCompletion: LuckyActionCompletion? {
+        if store.selectedTab == .luckyAction {
+            return store.luckyAction.completion
+        }
+        guard store.selectedTab == .fortune else { return nil }
+        return store.pushedLuckyAction?.completion
+    }
+
+    private func dismissLuckyActionCompletion() {
+        if store.selectedTab == .luckyAction {
+            store.send(.luckyAction(.view(.completionDismissButtonTapped)))
+        } else {
+            store.send(.pushedLuckyAction(.presented(.view(.completionDismissButtonTapped))))
+        }
+    }
+
     private var currentCompatibilityDestinationID: StackElementID? {
         guard let destinationID = store.fortune.path.ids.last,
               case .compatibility = store.fortune.path[id: destinationID]
@@ -138,6 +176,24 @@ private extension DSBottomNavigationItem {
         case .todak: .todak
         case .luckyAction: .luckyAction
         case .myPage: .myPage
+        }
+    }
+}
+
+private struct LuckyActionGlobalCompletionOverlay: View {
+    let completion: LuckyActionCompletion
+    let dismiss: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.ds.opacity50
+                .ignoresSafeArea()
+                .accessibilityHidden(true)
+
+            LuckyActionCompletionContent(
+                completion: completion,
+                dismiss: dismiss
+            )
         }
     }
 }

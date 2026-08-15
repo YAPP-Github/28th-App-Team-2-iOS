@@ -18,7 +18,6 @@ public struct LuckyActionView: View {
             canToggleActions: store.canToggleActions,
             viewState: store.viewState,
             pendingActionIDs: store.pendingActionIDs,
-            completion: store.completion,
             send: { store.send(.view($0)) }
         )
         .task {
@@ -38,7 +37,6 @@ private struct LuckyActionScreen: View {
     let canToggleActions: Bool
     let viewState: LuckyActionFeature.State.ViewState
     let pendingActionIDs: Set<LuckyAction.ID>
-    let completion: LuckyActionCompletion?
     let send: (LuckyActionFeature.Action.ViewAction) -> Void
 
     var body: some View {
@@ -51,15 +49,7 @@ private struct LuckyActionScreen: View {
                 content
             }
 
-            if let completion {
-                LuckyActionCompletionOverlay(
-                    completion: completion,
-                    dismiss: { send(.completionDismissButtonTapped) }
-                )
-                .transition(.opacity)
-            }
         }
-        .animation(.easeInOut(duration: 0.2), value: completion)
     }
 
     @ViewBuilder
@@ -307,31 +297,33 @@ private struct LuckyActionFailureView: View {
     }
 }
 
-private struct LuckyActionCompletionOverlay: View {
-    let completion: LuckyActionCompletion
-    let dismiss: () -> Void
+public struct LuckyActionCompletionContent: View {
+    private let completion: LuckyActionCompletion
+    private let dismiss: () -> Void
 
-    var body: some View {
-        ZStack {
-            Color.ds.opacity50
-                .ignoresSafeArea()
+    public init(
+        completion: LuckyActionCompletion,
+        dismiss: @escaping () -> Void
+    ) {
+        self.completion = completion
+        self.dismiss = dismiss
+    }
+
+    public var body: some View {
+        VStack(spacing: 36) {
+            LuckyActionFeatureAsset.luckyActionCompletionCharacter.swiftUIImage
+                .resizable()
+                .scaledToFit()
+                .frame(width: 220, height: 229)
                 .accessibilityHidden(true)
 
-            VStack(spacing: 36) {
-                LuckyActionFeatureAsset.luckyActionCompletionCharacter.swiftUIImage
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 220, height: 229)
-                    .accessibilityHidden(true)
-
-                LuckyActionCompletionBubble(
-                    completion: completion,
-                    dismiss: dismiss
-                )
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 20)
+            LuckyActionCompletionBubble(
+                completion: completion,
+                dismiss: dismiss
+            )
         }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 20)
     }
 }
 
