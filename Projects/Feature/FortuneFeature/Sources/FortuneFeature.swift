@@ -62,6 +62,7 @@ public struct FortuneFeature {
             case todakRequested
             case luckyActionRequested
             case myPageRequested
+            case myInfoEditRequested
         }
     }
 
@@ -154,7 +155,7 @@ public struct FortuneFeature {
                 return .send(.delegate(.luckyActionRequested))
 
             case .path(.element(id: _, action: .compatibility(.delegate(.myInfoEditRequested)))):
-                return .send(.delegate(.myPageRequested))
+                return .send(.delegate(.myInfoEditRequested))
 
             case .path, .delegate, .categoryDetail:
                 return .none

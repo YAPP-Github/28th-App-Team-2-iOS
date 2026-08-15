@@ -3,14 +3,14 @@ import DesignSystem
 import Model
 import SwiftUI
 
-struct MyPageEditView: View {
+public struct MyPageEditView: View {
     @Bindable private var store: StoreOf<MyPageFeature>
 
-    init(store: StoreOf<MyPageFeature>) {
+    public init(store: StoreOf<MyPageFeature>) {
         self.store = store
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             DSHeaderSub(
                 title: "내 정보 수정",

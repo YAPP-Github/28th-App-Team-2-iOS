@@ -64,6 +64,41 @@ struct MainTabFeatureTests {
     }
 
     @Test
+    func fortuneDelegateMyInfoEditRequestedPresentsEditWithoutSwitchingTab() async {
+        let store = TestStore(initialState: MainTabFeature.State()) {
+            MainTabFeature()
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fortune(.delegate(.myInfoEditRequested)))
+        await store.receive(.myPage(.presentEdit))
+
+        #expect(store.state.selectedTab == .fortune)
+    }
+
+    @Test
+    func profileUpdateRefreshesMySajuInCurrentCompatibilityScreen() async {
+        var state = MainTabFeature.State()
+        state.fortune.path.append(.compatibility(.init()))
+        let store = TestStore(initialState: state) {
+            MainTabFeature()
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.myPage(.delegate(.profileUpdated)))
+        await store.receive(
+            .fortune(
+                .path(
+                    .element(
+                        id: 0,
+                        action: .compatibility(.mySajuRefreshRequested)
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
     func statePersistedAcrossTabChanges() async {
         var initialState = MainTabFeature.State()
         initialState.fortune.viewState = .failed(message: "네트워크 오류가 발생했습니다.")

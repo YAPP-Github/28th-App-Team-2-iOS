@@ -103,6 +103,7 @@ final class MyPageFeatureTests: XCTestCase {
             $0.phase = .loaded
             $0.edit = nil
         }
+        await store.receive(.delegate(.profileUpdated))
     }
 
     func testCalendarButtonPresentsSajuDetail() async {

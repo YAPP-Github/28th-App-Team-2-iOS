@@ -319,12 +319,11 @@ private struct PartnerRegistrationView: View {
                     store.send(.registerTapped)
                 }
                 .disabled(!store.canRegister)
-                .opacity(store.canRegister ? 1.0 : 0.4)
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
                 .padding(.bottom, 12)
             }
-            .background(Color.ds.white)
+            .background(Color.clear)
         }
     }
 

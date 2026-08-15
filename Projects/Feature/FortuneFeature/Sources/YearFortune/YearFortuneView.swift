@@ -122,7 +122,6 @@ private struct YearFortuneFormContent: View {
             store.send(.createTapped)
         }
         .disabled(store.isSubmitting)
-        .opacity(store.isSubmitting ? 0.4 : 1.0)
         .padding(.top, 12)
     }
 }

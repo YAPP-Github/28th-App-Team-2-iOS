@@ -64,6 +64,26 @@ struct MainTabFeature {
                 state.selectedTab = .myPage
                 return .none
 
+            case .fortune(.delegate(.myInfoEditRequested)):
+                return .send(.myPage(.presentEdit))
+
+            case .myPage(.delegate(.profileUpdated)):
+                guard let destinationID = state.fortune.path.ids.last,
+                      case .compatibility = state.fortune.path[id: destinationID]
+                else {
+                    return .none
+                }
+                return .send(
+                    .fortune(
+                        .path(
+                            .element(
+                                id: destinationID,
+                                action: .compatibility(.mySajuRefreshRequested)
+                            )
+                        )
+                    )
+                )
+
             case .fortune, .myPage:
                 return .none
             }

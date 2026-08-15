@@ -161,6 +161,26 @@ struct FortuneFollowupFeatureTests {
         }
     }
 
+    @Test("내 정보 수정 후에는 궁합 화면의 내 사주를 다시 불러온다")
+    func compatibilityRefreshesMySajuAfterProfileUpdate() async {
+        let previousChart = makeSajuChart(id: UUID(22), name: "이전 정보")
+        let refreshedChart = makeSajuChart(id: UUID(23), name: "수정된 정보")
+        var state = CompatibilityFeature.State()
+        state.viewState = .loaded
+        state.mySaju = previousChart
+
+        let store = TestStore(initialState: state) {
+            CompatibilityFeature()
+        } withDependencies: {
+            $0.fortuneClient.fetchMySaju = { refreshedChart }
+        }
+
+        await store.send(.mySajuRefreshRequested)
+        await store.receive(.mySajuRefreshResponse(.success(refreshedChart))) {
+            $0.mySaju = refreshedChart
+        }
+    }
+
     @Test("택일 운세 생성 시 점수 순으로 상위 3개를 선별하여 저장한다")
     func dayFortuneCreatesAndSelectsTop3Results() async {
         let now = Date(timeIntervalSince1970: 1_788_969_600)
@@ -243,6 +263,7 @@ struct FortuneFollowupFeatureTests {
         }
         await store.receive(\.partnersResponse.success) {
             $0.partners = [partner]
+            $0.viewState = .loaded
         }
         await store.receive(.partnerSajuResponse(partnerID, .success(chart))) {
             $0.selectedPartnerSaju = chart

@@ -4,12 +4,13 @@ import Model
 import Utils
 
 // 등록, 선택, 결과 상태는 하나의 화면 단위 상태 머신으로 구성한다.
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 @Reducer
 public struct CompatibilityFeature {
     private enum CancelID {
         case initialData
+        case mySaju
         case partners
         case partnerSaju
     }
@@ -82,6 +83,8 @@ public struct CompatibilityFeature {
     public enum Action: Equatable, Sendable {
         case task
         case initialResponse(Result<InitialData, FortuneClientError>)
+        case mySajuRefreshRequested
+        case mySajuRefreshResponse(Result<SajuChartDetail, FortuneClientError>)
         case partnersResponse(Result<[FortunePartner], FortuneClientError>)
         case partnerSajuResponse(UUID, Result<SajuChartDetail, FortuneClientError>)
         case retryTapped
@@ -136,6 +139,16 @@ public struct CompatibilityFeature {
 
             case let .initialResponse(.failure(error)):
                 state.viewState = .failed(error.userMessage)
+                return .none
+
+            case .mySajuRefreshRequested:
+                return fetchMySaju()
+
+            case let .mySajuRefreshResponse(.success(mySaju)):
+                state.mySaju = mySaju
+                return .none
+
+            case .mySajuRefreshResponse(.failure):
                 return .none
 
             case let .partnersResponse(.success(partners)):
@@ -344,6 +357,21 @@ public struct CompatibilityFeature {
         .cancellable(id: CancelID.partners, cancelInFlight: true)
     }
 
+    private func fetchMySaju() -> Effect<Action> {
+        .run { send in
+            do {
+                await send(.mySajuRefreshResponse(.success(try await fortuneClient.fetchMySaju())))
+            } catch is CancellationError {
+                return
+            } catch let error as FortuneClientError {
+                await send(.mySajuRefreshResponse(.failure(error)))
+            } catch {
+                await send(.mySajuRefreshResponse(.failure(.transport)))
+            }
+        }
+        .cancellable(id: CancelID.mySaju, cancelInFlight: true)
+    }
+
     private func fetchPartnerSaju(_ partnerID: UUID) -> Effect<Action> {
         .run { send in
             do {
@@ -376,4 +404,4 @@ public struct CompatibilityFeature {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

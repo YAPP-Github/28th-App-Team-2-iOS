@@ -77,12 +77,11 @@ private struct DayFortuneFormContent: View {
                     store.send(.createTapped)
                 }
                 .disabled(!store.canSubmit)
-                .opacity(store.canSubmit ? 1.0 : 0.4)
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
                 .padding(.bottom, 12)
             }
-            .background(Color.ds.white)
+            .background(Color.clear)
         }
     }
 
@@ -259,7 +258,6 @@ private struct DayFortuneCalendarSheet: View {
                         store.send(.datesConfirmed)
                     }
                     .disabled(store.selectedDates.isEmpty)
-                    .opacity(store.selectedDates.isEmpty ? 0.4 : 1.0)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 12)

@@ -342,8 +342,8 @@ extension FortuneFeatureTests {
         await store.receive(.delegate(.luckyActionRequested))
     }
 
-    @Test("궁합 화면의 내 정보 변경 요청을 상위 myPageRequested delegate로 전파한다")
-    func compatibilityMyInfoEditDelegatesToMyPage() async {
+    @Test("궁합 화면의 내 정보 변경 요청을 상위 myInfoEditRequested delegate로 전파한다")
+    func compatibilityMyInfoEditDelegatesToMyInfoEdit() async {
         var state = FortuneFeature.State()
         state.path.append(.compatibility(.init()))
 
@@ -352,7 +352,7 @@ extension FortuneFeatureTests {
         }
 
         await store.send(.path(.element(id: 0, action: .compatibility(.delegate(.myInfoEditRequested)))))
-        await store.receive(.delegate(.myPageRequested))
+        await store.receive(.delegate(.myInfoEditRequested))
     }
 
     @Test("상세운 바텀시트에서 토닥이 탭 시 상위 todakRequested delegate로 전파한다")

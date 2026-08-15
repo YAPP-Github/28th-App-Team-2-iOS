@@ -31,7 +31,16 @@ struct MainTabView: View {
                     store: store.scope(state: \.myPage, action: \.myPage)
                 )
             }
+
+            if isMyInfoEditPresented {
+                MyPageEditView(
+                    store: store.scope(state: \.myPage, action: \.myPage)
+                )
+                .transition(.move(edge: .trailing))
+                .zIndex(1)
+            }
         }
+        .animation(.easeInOut(duration: 0.25), value: isMyInfoEditPresented)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if shouldShowBottomNavigation {
@@ -50,7 +59,11 @@ struct MainTabView: View {
             && store.myPage.appSettings == nil
             && store.myPage.withdrawal == nil
             && store.myPage.sajuManagement == nil
-        return fortuneShowing && myPageShowing
+        return fortuneShowing && myPageShowing && !isMyInfoEditPresented
+    }
+
+    private var isMyInfoEditPresented: Bool {
+        store.selectedTab == .fortune && store.myPage.edit != nil
     }
 
     private var bottomNavigationBinding: Binding<DSBottomNavigationItem> {
