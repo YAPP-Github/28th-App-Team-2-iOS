@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Foundation
 import Model
+import Utils
 
 // swiftlint:disable file_length
 @Reducer
@@ -20,6 +21,8 @@ public struct MyPageFeature {
         public var isLogoutConfirmationPresented = false
         public var logoutError: MyPageClientError?
         public var sajuManagement: SajuManagementState?
+        public var isPendingEditPresentation: Bool = false
+        public var isEditDashboardLoading = false
 
         public init() {}
     }
@@ -100,7 +103,7 @@ public struct MyPageFeature {
         var isValid: Bool {
             !name.isEmpty && nameValidationMessage == nil && gender != nil && calendar != nil
                 && birthDate != nil && (birthTime != nil || isBirthTimeUnknown)
-                && PartnerBirthDatePolicy.validationMessage(for: birthDate, asOf: Date()) == nil
+                && BirthDatePolicy.validateNotInFuture(for: birthDate, asOf: Date()) == nil
         }
 
         func input() -> MyPagePartnerSajuInput? {
@@ -155,14 +158,14 @@ public struct MyPageFeature {
 
         var isValid: Bool {
             gender != nil && calendar != nil && birthDate != nil
+                && BirthDatePolicy.validateNotInFuture(for: birthDate, asOf: Date()) == nil
+                && BirthDatePolicy.validateMinimumAge(for: birthDate, asOf: Date()) == nil
                 && (birthTime != nil || isBirthTimeUnknown)
                 && job != nil && relationshipStatus != nil
         }
 
         private static func birthDate(_ value: String) -> BirthDate? {
-            let components = value.split(separator: "-").compactMap { Int($0) }
-            guard components.count == 3 else { return nil }
-            return BirthDate(year: components[0], month: components[1], day: components[2])
+            BirthDate(yyyyMMdd: value)
         }
     }
 
@@ -177,6 +180,8 @@ public struct MyPageFeature {
         case task
         case retryButtonTapped
         case dashboardResponse(Result<MyPageDashboard, MyPageClientError>)
+        case presentEdit
+        case discardPendingEditPresentation
         case editButtonTapped
         case editDismissButtonTapped
         case editGenderChanged(Gender?)
@@ -263,6 +268,7 @@ public struct MyPageFeature {
             case .task:
                 guard state.dashboard == nil, state.phase != .loading else { return .none }
                 state.phase = .loading
+                state.isEditDashboardLoading = false
                 return .run { send in
                     await send(
                         .dashboardResponse(
@@ -276,6 +282,7 @@ public struct MyPageFeature {
             case .retryButtonTapped:
                 guard state.phase != .loading else { return .none }
                 state.phase = .loading
+                state.isEditDashboardLoading = false
                 return .run { send in
                     await send(
                         .dashboardResponse(
@@ -289,11 +296,49 @@ public struct MyPageFeature {
             case let .dashboardResponse(.success(dashboard)):
                 state.dashboard = dashboard
                 state.phase = .loaded
+                state.isEditDashboardLoading = false
+                if state.isPendingEditPresentation {
+                    state.isPendingEditPresentation = false
+                    state.edit = EditState(profile: dashboard.profile)
+                }
                 return .none
 
             case let .dashboardResponse(.failure(error)):
                 state.phase = .failed(error)
+                state.isPendingEditPresentation = false
+                state.isEditDashboardLoading = false
                 return .none
+
+            case .presentEdit:
+                if let profile = state.dashboard?.profile {
+                    state.edit = EditState(profile: profile)
+                    state.isPendingEditPresentation = false
+                    return .none
+                } else {
+                    state.isPendingEditPresentation = true
+                    guard state.phase != .loading else { return .none }
+                    state.phase = .loading
+                    state.isEditDashboardLoading = true
+                    return .run { send in
+                        await send(
+                            .dashboardResponse(
+                                Result { try await myPageClient.loadDashboard() }
+                                    .mapError(MyPageClientError.init)
+                            )
+                        )
+                    }
+                    .cancellable(id: CancelID.loadDashboardForEdit, cancelInFlight: true)
+                }
+
+            case .discardPendingEditPresentation:
+                let wasEditDashboardLoading = state.isEditDashboardLoading
+                state.edit = nil
+                state.isPendingEditPresentation = false
+                state.isEditDashboardLoading = false
+                if wasEditDashboardLoading {
+                    state.phase = state.dashboard == nil ? .idle : .loaded
+                }
+                return .cancel(id: CancelID.loadDashboardForEdit)
 
             case .editButtonTapped:
                 guard let profile = state.dashboard?.profile else { return .none }
@@ -302,6 +347,7 @@ public struct MyPageFeature {
 
             case .editDismissButtonTapped:
                 state.edit = nil
+                state.isPendingEditPresentation = false
                 return .none
 
             case let .editGenderChanged(value):
@@ -341,6 +387,7 @@ public struct MyPageFeature {
             case .editSaveButtonTapped:
                 guard let edit = state.edit,
                       edit.isValid,
+                      !edit.isSaving,
                       let gender = edit.gender,
                       let calendar = edit.calendar,
                       let birthDate = edit.birthDate,
@@ -370,7 +417,7 @@ public struct MyPageFeature {
                 state.dashboard = dashboard
                 state.phase = .loaded
                 state.edit = nil
-                return .none
+                return .send(.delegate(.profileUpdated))
 
             case let .editResponse(.failure(error)):
                 state.edit?.isSaving = false
@@ -493,6 +540,7 @@ public struct MyPageFeature {
             case .partnerSaveButtonTapped:
                 guard let form = state.sajuManagement?.form,
                       form.isValid,
+                      !form.isSaving,
                       let input = form.input() else {
                     return .none
                 }
@@ -548,6 +596,7 @@ extension MyPageFeature {
 
 private enum CancelID {
     case loadDashboard
+    case loadDashboardForEdit
     case updateProfile
 }
 
@@ -593,27 +642,4 @@ public enum MyPageRelationshipStatus: String, CaseIterable, Equatable, Sendable 
     var apiValue: String { rawValue }
 
     init?(apiValue: String) { self.init(rawValue: apiValue) }
-}
-
-private extension Gender {
-    var apiValue: String { self == .female ? "FEMALE" : "MALE" }
-}
-
-private extension BirthDateCalendar {
-    var apiValue: String { self == .lunar ? "LUNAR" : "SOLAR" }
-}
-
-private extension UnicodeScalar {
-    var isKoreanNameScalar: Bool {
-        switch value {
-        case 0xAC00 ... 0xD7A3,
-             0x1100 ... 0x11FF,
-             0x3130 ... 0x318F,
-             0xA960 ... 0xA97F,
-             0xD7B0 ... 0xD7FF:
-            true
-        default:
-            false
-        }
-    }
 }

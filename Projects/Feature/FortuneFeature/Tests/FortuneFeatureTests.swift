@@ -248,20 +248,25 @@ extension FortuneFeatureTests {
         await #expect(throws: FortuneClientError.notConfigured) {
             try await client.fetchDetail(UUID(0))
         }
+        await #expect(throws: FortuneClientError.notConfigured) {
+            try await client.fetchLuckAction(UUID(1))
+        }
+        await #expect(throws: FortuneClientError.notConfigured) {
+            try await client.fetchPartners()
+        }
     }
 
-    @Test("알림 버튼 탭을 외부 이벤트로 전달한다")
-    func notificationTapDelegates() async {
+    @Test("범위에서 제외된 알림 버튼은 화면 전환을 만들지 않는다")
+    func notificationTapIsNoop() async {
         let store = TestStore(initialState: FortuneFeature.State()) {
             FortuneFeature()
         }
 
         await store.send(.view(.notificationButtonTapped))
-        await store.receive(.delegate(.notificationRequested))
     }
 
-    @Test("운세 리포트 버튼 탭을 선택 카테고리 없이 전달한다")
-    func reportTapDelegates() async {
+    @Test("운세 리포트 버튼 탭은 Fortune 내부 경로를 추가한다")
+    func reportTapPushesInternalPath() async {
         let dailyFortuneID = UUID(7)
         let store = TestStore(
             initialState: FortuneFeature.State(
@@ -271,50 +276,59 @@ extension FortuneFeatureTests {
             FortuneFeature()
         }
 
-        await store.send(.view(.fortuneReportButtonTapped))
-        await store.receive(
-            .delegate(
-                .fortuneReportRequested(
-                    dailyFortuneID: dailyFortuneID,
-                    selectedCategory: nil
-                )
-            )
-        )
-    }
-
-    @Test("상세운 카드를 탭하면 모든 선택 카테고리를 전달한다")
-    func categoryTapDelegates() async {
-        for category in FortuneCategory.allCases {
-            let dailyFortuneID = UUID(8)
-            let store = TestStore(
-                initialState: FortuneFeature.State(
-                    viewState: .loaded(.fixture(dailyFortuneID: dailyFortuneID))
-                )
-            ) {
-                FortuneFeature()
-            }
-
-            await store.send(.view(.fortuneCategoryTapped(category)))
-            await store.receive(
-                .delegate(
-                    .fortuneReportRequested(
+        await store.send(.view(.fortuneReportButtonTapped)) {
+            $0.path.append(
+                .report(
+                    .init(
                         dailyFortuneID: dailyFortuneID,
-                        selectedCategory: category
+                        selectedCategory: nil
                     )
                 )
             )
         }
     }
 
-    @Test("모든 사주 풀이 카드 탭을 외부 이벤트로 전달한다")
-    func readingTapDelegates() async {
+    @Test("상세운 카드는 선택 카테고리의 바텀시트를 연다")
+    func categoryTapPushesSelectedReport() async {
+        for category in FortuneCategory.allCases {
+            let dailyFortuneID = UUID(8)
+            let fixture = FortuneHomeContent.fixture(dailyFortuneID: dailyFortuneID)
+            let store = TestStore(
+                initialState: FortuneFeature.State(
+                    viewState: .loaded(fixture)
+                )
+            ) {
+                FortuneFeature()
+            }
+
+            let item = fixture.categoryScores.first(where: { $0.category == category })!
+            await store.send(.view(.fortuneCategoryTapped(category))) {
+                $0.categoryDetail = .init(
+                    luckActionID: item.luckActionID,
+                    category: item.category,
+                    categoryScores: fixture.categoryScores
+                )
+            }
+        }
+    }
+
+    @Test("모든 사주 풀이 카드는 대응하는 Fortune 내부 경로를 추가한다")
+    func readingTapPushesInternalPath() async {
         for reading in FortuneReading.allCases {
             let store = TestStore(initialState: FortuneFeature.State()) {
                 FortuneFeature()
             }
 
-            await store.send(.view(.fortuneReadingTapped(reading)))
-            await store.receive(.delegate(.fortuneReadingRequested(reading)))
+            await store.send(.view(.fortuneReadingTapped(reading))) {
+                switch reading {
+                case .compatibility:
+                    $0.path.append(.compatibility(.init()))
+                case .dateSelection:
+                    $0.path.append(.dayFortune(.init()))
+                case .yearly:
+                    $0.path.append(.yearFortune(.init()))
+                }
+            }
         }
     }
 
@@ -327,6 +341,32 @@ extension FortuneFeatureTests {
         await store.send(.view(.luckyActionBannerTapped))
         await store.receive(.delegate(.luckyActionRequested))
     }
+
+    @Test("궁합 화면의 내 정보 변경 요청을 상위 myInfoEditRequested delegate로 전파한다")
+    func compatibilityMyInfoEditDelegatesToMyInfoEdit() async {
+        var state = FortuneFeature.State()
+        state.path.append(.compatibility(.init()))
+
+        let store = TestStore(initialState: state) {
+            FortuneFeature()
+        }
+
+        await store.send(.path(.element(id: 0, action: .compatibility(.delegate(.myInfoEditRequested)))))
+        await store.receive(.delegate(.myInfoEditRequested))
+    }
+
+    @Test("상세운 바텀시트에서 토닥이 탭 시 상위 todakRequested delegate로 전파한다")
+    func categoryDetailTodakTapDelegates() async {
+        var state = FortuneFeature.State()
+        state.categoryDetail = .init(luckActionID: UUID(), category: .money)
+
+        let store = TestStore(initialState: state) {
+            FortuneFeature()
+        }
+
+        await store.send(.categoryDetail(.presented(.delegate(.todakRequested))))
+        await store.receive(.delegate(.todakRequested))
+    }
 }
 
 private extension FortuneHomeContent {
@@ -336,7 +376,13 @@ private extension FortuneHomeContent {
             fortuneDate: Date(timeIntervalSince1970: 0),
             score: 72,
             title: "오늘의 운세",
-            categoryScores: []
+            categoryScores: FortuneCategory.allCases.enumerated().map { index, category in
+                FortuneCategoryScore(
+                    luckActionID: UUID(UInt8(10 + index)),
+                    category: category,
+                    score: 70 + index * 5
+                )
+            }
         )
     }
 }

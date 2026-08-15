@@ -312,3 +312,12 @@
 📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Shadow_m.md)
 
 ![Shadow_m](Images/Shadow_m.png)
+
+## 7. 사주 만세력 컴포넌트 (Saju Components)
+
+### 🧩 Saju Pillar Cell
+
+📄 [자세한 픽셀 수치 및 레이아웃 명세 보기](Components/Saju_Pillar_Cell.md)
+
+- 천간/지지 한자 및 독음, 오행 컬러를 표시하는 48x48 규격 셀 (`DSSajuPillarCell`)
+

@@ -103,6 +103,7 @@ final class MyPageFeatureTests: XCTestCase {
             $0.phase = .loaded
             $0.edit = nil
         }
+        await store.receive(.delegate(.profileUpdated))
     }
 
     func testCalendarButtonPresentsSajuDetail() async {
@@ -286,9 +287,10 @@ final class MyPageFeatureTests: XCTestCase {
         let referenceDate = Date(timeIntervalSince1970: 1_730_000_000)
         let today = Calendar(identifier: .gregorian).dateComponents([.year, .month, .day], from: referenceDate)
         let birthDate = BirthDate(year: today.year ?? 2024, month: today.month ?? 1, day: today.day ?? 1)
+        let futureReferenceDate = Calendar(identifier: .gregorian).date(byAdding: .day, value: -1, to: referenceDate)!
         XCTAssertEqual(
-            PartnerBirthDatePolicy.validationMessage(for: birthDate, asOf: referenceDate),
-            PartnerBirthDatePolicy.futureDateMessage
+            BirthDatePolicy.validateNotInFuture(for: birthDate, asOf: futureReferenceDate),
+            BirthDatePolicy.futureDateMessage
         )
     }
 
@@ -299,6 +301,67 @@ final class MyPageFeatureTests: XCTestCase {
 
         XCTAssertEqual(form.relationshipCode, "COLLEAGUE")
         XCTAssertEqual(form.relationship, .colleague)
+    }
+
+    func testEditStateValidationPolicies() {
+        let profile = MyPageProfile(
+            memberID: "member-id",
+            name: "토닥이",
+            gender: "FEMALE",
+            birthDate: "1999-05-15",
+            calendarType: "SOLAR",
+            birthTime: "09:30",
+            isTimeUnknown: false,
+            job: "STUDENT",
+            relationshipStatus: "SINGLE"
+        )
+        var edit = MyPageFeature.EditState(profile: profile)
+        XCTAssertTrue(edit.isValid)
+
+        // 만 14세 미만
+        edit.birthDate = BirthDate(year: 2020, month: 1, day: 1)
+        XCTAssertFalse(edit.isValid)
+
+        // 미래 날짜
+        edit.birthDate = BirthDate(year: 2030, month: 1, day: 1)
+        XCTAssertFalse(edit.isValid)
+
+        // 유효한 날짜
+        edit.birthDate = BirthDate(year: 1999, month: 5, day: 15)
+        XCTAssertTrue(edit.isValid)
+
+        // 직업 미선택
+        edit.job = nil
+        XCTAssertFalse(edit.isValid)
+        edit.job = .student
+
+        // 출생 시각 모름
+        edit.birthTime = nil
+        edit.isBirthTimeUnknown = true
+        XCTAssertTrue(edit.isValid)
+
+        edit.isBirthTimeUnknown = false
+        XCTAssertFalse(edit.isValid)
+    }
+
+    func testPartnerFormLifecycleAndValidation() {
+        var form = MyPageFeature.PartnerFormState()
+        form.name = "홍길동"
+        form.gender = .male
+        form.calendar = .solar
+        form.birthDate = BirthDate(year: 1995, month: 3, day: 20)
+        form.birthTime = .inTime
+        form.relationship = .friend
+        XCTAssertTrue(form.isValid)
+
+        // 출생 시각 모름
+        form.isBirthTimeUnknown = true
+        form.birthTime = nil
+        XCTAssertTrue(form.isValid)
+
+        // 미래 날짜는 유효하지 않음
+        form.birthDate = BirthDate(year: 2030, month: 1, day: 1)
+        XCTAssertFalse(form.isValid)
     }
 
     func testLivePartnerClientUsesSwaggerCRUDContract() async throws {

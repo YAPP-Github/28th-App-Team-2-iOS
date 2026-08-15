@@ -32,10 +32,16 @@ public struct FortuneHomeContent: Equatable, Sendable {
 }
 
 public struct FortuneCategoryScore: Equatable, Sendable {
+    public let luckActionID: UUID
     public let category: FortuneCategory
     public let score: Int
 
-    public init(category: FortuneCategory, score: Int) {
+    public init(
+        luckActionID: UUID,
+        category: FortuneCategory,
+        score: Int
+    ) {
+        self.luckActionID = luckActionID
         self.category = category
         self.score = score
     }

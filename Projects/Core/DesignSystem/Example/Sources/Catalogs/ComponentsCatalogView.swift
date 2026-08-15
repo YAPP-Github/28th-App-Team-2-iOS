@@ -197,6 +197,12 @@ struct ComponentsCatalogView: View {
                 title: "Conversation History List",
                 subtitle: "대화 제목, 시간, 읽지 않은 상태와 삭제 동작을 표시하는 행"
             )
+            catalogLink(
+                destination: SajuPillarCellPlaygroundView(),
+                systemImage: "square.grid.2x2.fill",
+                title: "Saju Pillar Cell",
+                subtitle: "사주 만세력 기둥의 천간/지지와 오행을 표시하는 셀"
+            )
         }
     }
 
