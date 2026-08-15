@@ -5,6 +5,44 @@ import Testing
 
 @Suite
 struct TodakClientTests {
+    @Test("Entry API의 인사말, 추천 질문, 무료 채팅 quota를 매핑한다")
+    func fetchEntryMapping() async throws {
+        let json = """
+        {
+          "success": true,
+          "code": "COMMON-200",
+          "data": {
+            "greeting": "오늘은 어떤 게 궁금해?",
+            "suggestions": [
+              {
+                "emoji": "🤝",
+                "label": "관계운에 관하여 궁금해",
+                "seedPrompt": "요즘 관계운이 궁금해.",
+                "category": "RELATIONSHIP"
+              },
+              {
+                "emoji": "💬",
+                "label": "그 외에 다른 운이 궁금해",
+                "seedPrompt": "요즘 궁금한 게 있어.",
+                "category": null
+              }
+            ],
+            "quota": { "used": 3, "limit": 3 }
+          }
+        }
+        """
+        let client = makeLiveClient { request in
+            #expect(request.httpMethod == "GET")
+            #expect(request.url?.path == "/api/v1/chat/entry")
+            return (Data(json.utf8), try response(for: request, statusCode: 200))
+        }
+
+        let entry = try await client.fetchEntry()
+        #expect(entry.greeting == "오늘은 어떤 게 궁금해?")
+        #expect(entry.suggestions.map(\.category) == [.relationship, nil])
+        #expect(entry.quota == .init(used: 3, limit: 3))
+    }
+
     @Test("SSE 오류 이벤트를 서버 안내 문구와 함께 매핑한다")
     func streamErrorMapping() throws {
         let event = try decodeStreamEvent(

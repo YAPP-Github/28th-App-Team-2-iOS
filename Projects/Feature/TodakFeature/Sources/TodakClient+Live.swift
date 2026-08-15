@@ -4,6 +4,9 @@ import NetworkCore
 public extension TodakClient {
     static func live(httpClient: HTTPClient, sseClient: SSEClient) -> Self {
         Self(
+            fetchEntry: {
+                try await performFetchEntry(httpClient: httpClient)
+            },
             fetchConversations: {
                 try await performFetchConversations(httpClient: httpClient)
             },
@@ -21,6 +24,19 @@ public extension TodakClient {
                 )
             }
         )
+    }
+}
+
+private func performFetchEntry(httpClient: HTTPClient) async throws -> TodakEntry {
+    do {
+        let response: CommonResponseDTO<EntryResponseDTO> = try await httpClient.request(
+            .get("/api/v1/chat/entry")
+        )
+        return try extractData(response).toDomain()
+    } catch is CancellationError {
+        throw CancellationError()
+    } catch {
+        throw mapClientError(error)
     }
 }
 
@@ -82,24 +98,46 @@ private func messageEvents(
                     body: request,
                     headers: ["Accept": "text/event-stream"]
                 )
+                TodakSSEDebugLogger.sendRequested(
+                    conversationID: conversationID,
+                    contentLength: content.count
+                )
+
+                var receivedDone = false
 
                 for try await event in sseClient.events(for: endpoint) {
-                    guard let data = event.data else { continue }
-
-                    if let eventName = event.event {
-                        continuation.yield(try decodeStreamEvent(name: eventName, data: data))
-                    } else {
-                        continuation.yield(try decodeDataOnlyStreamError(data: data))
+                    TodakSSEDebugLogger.rawEventReceived(
+                        name: event.event,
+                        dataLength: event.data?.utf8.count
+                    )
+                    guard let data = event.data else {
+                        TodakSSEDebugLogger.eventWithoutDataIgnored(name: event.event)
+                        continue
                     }
+
+                    let streamEvent: TodakStreamEvent
+                    if let eventName = event.event {
+                        streamEvent = try decodeStreamEvent(name: eventName, data: data)
+                    } else {
+                        streamEvent = try decodeDataOnlyStreamError(data: data)
+                    }
+                    if case .done = streamEvent { receivedDone = true }
+                    TodakSSEDebugLogger.decoded(streamEvent)
+                    continuation.yield(streamEvent)
                 }
+                TodakSSEDebugLogger.streamEnded(receivedDone: receivedDone)
                 continuation.finish()
             } catch is CancellationError {
+                TodakSSEDebugLogger.streamCancelled()
                 continuation.finish(throwing: CancellationError())
             } catch let error as TodakClientError {
+                TodakSSEDebugLogger.streamFailed(error)
                 continuation.finish(throwing: error)
             } catch let error as SSEClientError {
+                TodakSSEDebugLogger.streamFailed(error)
                 continuation.finish(throwing: mapSSEClientError(error))
             } catch {
+                TodakSSEDebugLogger.streamFailed(error)
                 continuation.finish(throwing: TodakClientError.transport)
             }
         }
@@ -184,7 +222,7 @@ private func mapSSEClientError(_ error: SSEClientError) -> TodakClientError {
     switch error {
     case let .unacceptableStatusCode(code):
         return .httpStatus(code)
-    case .invalidResponse, .invalidContentType:
+    case .invalidResponse, .invalidContentType, .invalidUTF8:
         return .invalidResponse
     case .transportFailed:
         return .transport
@@ -334,7 +372,7 @@ private struct StreamErrorDTO: Decodable, Sendable {
     let message: String
 }
 
-private func mapCategory(_ value: String) throws -> TodakCategory {
+func mapCategory(_ value: String) throws -> TodakCategory {
     guard let category = TodakCategory(rawValue: value) else {
         throw TodakClientError.unsupportedCategory(value)
     }

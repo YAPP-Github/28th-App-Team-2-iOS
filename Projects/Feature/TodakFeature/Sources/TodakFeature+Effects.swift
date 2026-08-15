@@ -2,6 +2,21 @@ import ComposableArchitecture
 import Foundation
 
 extension TodakFeature {
+    func fetchEntryEffect() -> Effect<Action> {
+        .run { send in
+            do {
+                await send(.entryResponse(.success(try await client.fetchEntry())))
+            } catch is CancellationError {
+                return
+            } catch let error as TodakClientError {
+                await send(.entryResponse(.failure(error)))
+            } catch {
+                await send(.entryResponse(.failure(.transport)))
+            }
+        }
+        .cancellable(id: CancelID.entry, cancelInFlight: true)
+    }
+
     func splashDelayEffect() -> Effect<Action> {
         .run { send in
             try await clock.sleep(for: .milliseconds(1_500))
@@ -78,6 +93,7 @@ extension TodakFeature {
     }
 
     func handleStreamEvent(_ event: TodakStreamEvent, state: inout State) -> Effect<Action> {
+        TodakSSEDebugLogger.reducerReceived(event)
         switch event {
         case let .start(conversationID, _, assistantMessageID, quota):
             state.conversationID = conversationID

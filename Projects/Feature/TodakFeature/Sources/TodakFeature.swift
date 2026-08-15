@@ -15,6 +15,8 @@ public struct TodakFeature {
         public var screen: Screen
         public var showsSplash: Bool
         public var didPresentSplash: Bool
+        public var didCompleteSplashDelay: Bool
+        public var isLoadingEntry: Bool
         public var entry: TodakEntry
         public var quota: TodakQuota
         public var conversationID: UUID?
@@ -33,6 +35,8 @@ public struct TodakFeature {
             screen: Screen = .chat,
             showsSplash: Bool = true,
             didPresentSplash: Bool = false,
+            didCompleteSplashDelay: Bool = false,
+            isLoadingEntry: Bool = false,
             entry: TodakEntry = .initial,
             quota: TodakQuota = TodakEntry.initial.quota,
             conversationID: UUID? = nil,
@@ -50,6 +54,8 @@ public struct TodakFeature {
             self.screen = screen
             self.showsSplash = showsSplash
             self.didPresentSplash = didPresentSplash
+            self.didCompleteSplashDelay = didCompleteSplashDelay
+            self.isLoadingEntry = isLoadingEntry
             self.entry = entry
             self.quota = quota
             self.conversationID = conversationID
@@ -74,6 +80,7 @@ public struct TodakFeature {
         case binding(BindingAction<State>)
         case task
         case splashElapsed
+        case entryResponse(Result<TodakEntry, TodakClientError>)
         case closeButtonTapped
         case newChatButtonTapped
         case historyButtonTapped
@@ -101,6 +108,7 @@ public struct TodakFeature {
 
     enum CancelID {
         case splash
+        case entry
         case guide
         case stream
         case history
@@ -131,10 +139,28 @@ public struct TodakFeature {
             case .task:
                 guard !state.didPresentSplash else { return .none }
                 state.didPresentSplash = true
-                return splashDelayEffect()
+                state.isLoadingEntry = true
+                return .merge(splashDelayEffect(), fetchEntryEffect())
 
             case .splashElapsed:
-                state.showsSplash = false
+                state.didCompleteSplashDelay = true
+                state.showsSplash = state.isLoadingEntry
+                return .none
+
+            case let .entryResponse(.success(entry)):
+                state.entry = entry
+                state.quota = entry.quota
+                state.isLoadingEntry = false
+                if state.didCompleteSplashDelay {
+                    state.showsSplash = false
+                }
+                return .none
+
+            case .entryResponse(.failure):
+                state.isLoadingEntry = false
+                if state.didCompleteSplashDelay {
+                    state.showsSplash = false
+                }
                 return .none
 
             case .closeButtonTapped:
@@ -171,6 +197,7 @@ public struct TodakFeature {
 
             case .streamFinished:
                 guard state.isStreaming else { return .none }
+                TodakSSEDebugLogger.fallbackShown()
                 state.isStreaming = false
                 markAssistantMessageFailed(state: &state)
                 state.toastMessage = "답변을 끝까지 받지 못했어요. 다시 시도해 주세요."

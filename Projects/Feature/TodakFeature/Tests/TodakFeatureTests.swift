@@ -89,25 +89,44 @@ struct TodakFeatureTests {
         await store.receive(.streamFinished)
     }
 
-    @Test("최초 진입은 네트워크 없이 클라이언트 템플릿을 표시한다")
-    func initialEntryUsesClientTemplate() async {
+    @Test("최초 진입은 스플래시 동안 Entry를 조회하고 서버 quota를 반영한다")
+    func initialEntryFetchesServerEntryDuringSplash() async {
         let clock = TestClock()
+        let entry = TodakEntry(
+            greeting: "오늘은 무엇을 알려줄까?",
+            suggestions: [
+                TodakSuggestion(
+                    emoji: "💼",
+                    label: "성취운이 궁금해",
+                    seedPrompt: "요즘 성취운이 궁금해.",
+                    category: .achievement
+                )
+            ],
+            quota: .init(used: 2, limit: 3)
+        )
+        let client = makeClient(fetchEntry: { entry })
         let store = TestStore(initialState: TodakFeature.State()) {
             TodakFeature()
         } withDependencies: {
             $0.continuousClock = clock
+            $0.todakClient = client
         }
 
         #expect(store.state.entry == .initial)
-        #expect(store.state.entry.suggestions.count == 6)
-        #expect(store.state.quota == .init(used: 0, limit: 3))
         #expect(store.state.showsSplash)
 
         await store.send(.task) {
             $0.didPresentSplash = true
+            $0.isLoadingEntry = true
+        }
+        await store.receive(.entryResponse(.success(entry))) {
+            $0.entry = entry
+            $0.quota = .init(used: 2, limit: 3)
+            $0.isLoadingEntry = false
         }
         await clock.advance(by: .milliseconds(1_500))
         await store.receive(.splashElapsed) {
+            $0.didCompleteSplashDelay = true
             $0.showsSplash = false
         }
     }
@@ -343,12 +362,14 @@ struct TodakFeatureRegressionTests {
 }
 
 private func makeClient(
+    fetchEntry: @escaping @Sendable () async throws -> TodakEntry = { .initial },
     deleteConversation: @escaping @Sendable (UUID) async throws -> Void = { _ in },
     sendMessage: @escaping @Sendable (UUID?, String) -> AsyncThrowingStream<TodakStreamEvent, Error> = { _, _ in
         AsyncThrowingStream { $0.finish() }
     }
 ) -> TodakClient {
     TodakClient(
+        fetchEntry: fetchEntry,
         fetchConversations: { [] },
         fetchConversation: { conversationID in
             TodakConversation(id: conversationID, title: "", messages: [])

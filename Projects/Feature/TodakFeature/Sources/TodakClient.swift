@@ -2,17 +2,20 @@ import ComposableArchitecture
 import Foundation
 
 public struct TodakClient: Sendable {
+    public var fetchEntry: @Sendable () async throws -> TodakEntry
     public var fetchConversations: @Sendable () async throws -> [TodakConversationSummary]
     public var fetchConversation: @Sendable (UUID) async throws -> TodakConversation
     public var deleteConversation: @Sendable (UUID) async throws -> Void
     public var sendMessage: @Sendable (UUID?, String) -> AsyncThrowingStream<TodakStreamEvent, Error>
 
     public init(
+        fetchEntry: @escaping @Sendable () async throws -> TodakEntry,
         fetchConversations: @escaping @Sendable () async throws -> [TodakConversationSummary],
         fetchConversation: @escaping @Sendable (UUID) async throws -> TodakConversation,
         deleteConversation: @escaping @Sendable (UUID) async throws -> Void,
         sendMessage: @escaping @Sendable (UUID?, String) -> AsyncThrowingStream<TodakStreamEvent, Error>
     ) {
+        self.fetchEntry = fetchEntry
         self.fetchConversations = fetchConversations
         self.fetchConversation = fetchConversation
         self.deleteConversation = deleteConversation
@@ -43,6 +46,7 @@ public extension DependencyValues {
 
 public extension TodakClient {
     static let unavailable = Self(
+        fetchEntry: { throw TodakClientError.notConfigured },
         fetchConversations: { throw TodakClientError.notConfigured },
         fetchConversation: { _ in throw TodakClientError.notConfigured },
         deleteConversation: { _ in throw TodakClientError.notConfigured },
