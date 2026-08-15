@@ -41,6 +41,9 @@ struct MainTabView: View {
             }
         }
         .animation(.easeInOut(duration: 0.25), value: isMyInfoEditPresented)
+        .onChange(of: currentCompatibilityDestinationID) { _, _ in
+            store.send(.fortuneNavigationChanged)
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if shouldShowBottomNavigation {
@@ -53,17 +56,31 @@ struct MainTabView: View {
 
     private var shouldShowBottomNavigation: Bool {
         let fortuneShowing = store.selectedTab != .fortune || !store.fortune.isShowingDetail
-        let myPageShowing = store.myPage.edit == nil
+        let myPageShowing = store.selectedTab != .myPage || (
+            store.myPage.edit == nil
             && store.myPage.sajuDetail == nil
             && store.myPage.notificationSettings == nil
             && store.myPage.appSettings == nil
             && store.myPage.withdrawal == nil
             && store.myPage.sajuManagement == nil
+        )
         return fortuneShowing && myPageShowing && !isMyInfoEditPresented
     }
 
     private var isMyInfoEditPresented: Bool {
-        store.selectedTab == .fortune && store.myPage.edit != nil
+        guard let currentCompatibilityDestinationID else { return false }
+        return store.selectedTab == .fortune
+            && store.compatibilityEditSourceID == currentCompatibilityDestinationID
+            && store.myPage.edit != nil
+    }
+
+    private var currentCompatibilityDestinationID: StackElementID? {
+        guard let destinationID = store.fortune.path.ids.last,
+              case .compatibility = store.fortune.path[id: destinationID]
+        else {
+            return nil
+        }
+        return destinationID
     }
 
     private var bottomNavigationBinding: Binding<DSBottomNavigationItem> {

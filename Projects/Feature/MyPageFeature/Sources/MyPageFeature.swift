@@ -22,6 +22,7 @@ public struct MyPageFeature {
         public var logoutError: MyPageClientError?
         public var sajuManagement: SajuManagementState?
         public var isPendingEditPresentation: Bool = false
+        public var isEditDashboardLoading = false
 
         public init() {}
     }
@@ -180,6 +181,7 @@ public struct MyPageFeature {
         case retryButtonTapped
         case dashboardResponse(Result<MyPageDashboard, MyPageClientError>)
         case presentEdit
+        case discardPendingEditPresentation
         case editButtonTapped
         case editDismissButtonTapped
         case editGenderChanged(Gender?)
@@ -266,6 +268,7 @@ public struct MyPageFeature {
             case .task:
                 guard state.dashboard == nil, state.phase != .loading else { return .none }
                 state.phase = .loading
+                state.isEditDashboardLoading = false
                 return .run { send in
                     await send(
                         .dashboardResponse(
@@ -279,6 +282,7 @@ public struct MyPageFeature {
             case .retryButtonTapped:
                 guard state.phase != .loading else { return .none }
                 state.phase = .loading
+                state.isEditDashboardLoading = false
                 return .run { send in
                     await send(
                         .dashboardResponse(
@@ -292,6 +296,7 @@ public struct MyPageFeature {
             case let .dashboardResponse(.success(dashboard)):
                 state.dashboard = dashboard
                 state.phase = .loaded
+                state.isEditDashboardLoading = false
                 if state.isPendingEditPresentation {
                     state.isPendingEditPresentation = false
                     state.edit = EditState(profile: dashboard.profile)
@@ -301,6 +306,7 @@ public struct MyPageFeature {
             case let .dashboardResponse(.failure(error)):
                 state.phase = .failed(error)
                 state.isPendingEditPresentation = false
+                state.isEditDashboardLoading = false
                 return .none
 
             case .presentEdit:
@@ -312,6 +318,7 @@ public struct MyPageFeature {
                     state.isPendingEditPresentation = true
                     guard state.phase != .loading else { return .none }
                     state.phase = .loading
+                    state.isEditDashboardLoading = true
                     return .run { send in
                         await send(
                             .dashboardResponse(
@@ -320,8 +327,18 @@ public struct MyPageFeature {
                             )
                         )
                     }
-                    .cancellable(id: CancelID.loadDashboard, cancelInFlight: true)
+                    .cancellable(id: CancelID.loadDashboardForEdit, cancelInFlight: true)
                 }
+
+            case .discardPendingEditPresentation:
+                let wasEditDashboardLoading = state.isEditDashboardLoading
+                state.edit = nil
+                state.isPendingEditPresentation = false
+                state.isEditDashboardLoading = false
+                if wasEditDashboardLoading {
+                    state.phase = state.dashboard == nil ? .idle : .loaded
+                }
+                return .cancel(id: CancelID.loadDashboardForEdit)
 
             case .editButtonTapped:
                 guard let profile = state.dashboard?.profile else { return .none }
@@ -579,6 +596,7 @@ extension MyPageFeature {
 
 private enum CancelID {
     case loadDashboard
+    case loadDashboardForEdit
     case updateProfile
 }
 
