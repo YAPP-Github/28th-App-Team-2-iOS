@@ -1,5 +1,9 @@
 import Foundation
 
+#if DEBUG
+import OSLog
+#endif
+
 /// SSE 요청 전송, 응답 검증과 이벤트 스트림 생명주기를 담당합니다.
 ///
 /// `SSEClient`는 이벤트의 `data` 값을 Feature DTO로 해석하거나 자동 재연결하지 않습니다.
@@ -100,7 +104,9 @@ public struct SSEClient: Sendable {
             let producerTask = Task {
                 do {
                     let request = try await requestBuilder.makeRequest(for: endpoint)
+                    NetworkCoreSSEDebugLogger.requestStarted(request)
                     let connection = try await transport(request)
+                    NetworkCoreSSEDebugLogger.connectionOpened(connection.response)
                     cancellationRelay.install {
                         connection.cancel()
                     }
@@ -110,23 +116,40 @@ public struct SSEClient: Sendable {
                     try Task.checkCancellation()
 
                     var parser = SSEParser()
+                    var rawLineCount = 0
+                    var emittedEventCount = 0
                     for try await line in connection.lines {
                         try Task.checkCancellation()
+                        rawLineCount += 1
+                        NetworkCoreSSEDebugLogger.rawLineReceived(byteLength: line.utf8.count)
 
                         if let event = parser.consume(line) {
+                            emittedEventCount += 1
+                            NetworkCoreSSEDebugLogger.eventCompleted(
+                                name: event.event,
+                                dataLength: event.data?.utf8.count
+                            )
                             eventContinuation.yield(event)
                         }
                     }
 
                     try Task.checkCancellation()
+                    NetworkCoreSSEDebugLogger.streamEnded(
+                        rawLineCount: rawLineCount,
+                        emittedEventCount: emittedEventCount
+                    )
                     eventContinuation.finish()
                 } catch let clientError as SSEClientError {
+                    NetworkCoreSSEDebugLogger.streamFailed(clientError)
                     eventContinuation.finish(throwing: clientError)
                 } catch is CancellationError {
+                    NetworkCoreSSEDebugLogger.streamCancelled()
                     eventContinuation.finish(throwing: CancellationError())
                 } catch let urlError as URLError where urlError.code == .cancelled {
+                    NetworkCoreSSEDebugLogger.streamCancelled()
                     eventContinuation.finish(throwing: CancellationError())
                 } catch let urlError as URLError {
+                    NetworkCoreSSEDebugLogger.streamFailed(urlError)
                     eventContinuation.finish(
                         throwing: SSEClientError.transportFailed(
                             code: urlError.code,
@@ -134,6 +157,7 @@ public struct SSEClient: Sendable {
                         )
                     )
                 } catch {
+                    NetworkCoreSSEDebugLogger.streamFailed(error)
                     eventContinuation.finish(
                         throwing: SSEClientError.transportFailed(
                             code: nil,
@@ -149,6 +173,60 @@ public struct SSEClient: Sendable {
             }
         }
     }
+}
+
+private enum NetworkCoreSSEDebugLogger {
+    static func requestStarted(_ request: URLRequest) {
+        let method = request.httpMethod ?? "none"
+        let path = request.url?.path ?? "none"
+        let headerNames = request.allHTTPHeaderFields?
+            .keys
+            .sorted()
+            .joined(separator: ",") ?? "none"
+
+        log(
+            "request method=\(method) path=\(path) " +
+                "bodyLength=\(request.httpBody?.count ?? 0) headers=\(headerNames)"
+        )
+    }
+
+    static func connectionOpened(_ response: URLResponse) {
+        let status = (response as? HTTPURLResponse)
+            .map { String($0.statusCode) } ?? "non-http"
+        let mimeType = response.mimeType ?? "none"
+        log("connection opened status=\(status) mime=\(mimeType)")
+    }
+
+    static func rawLineReceived(byteLength: Int) {
+        log("raw line received byteLength=\(byteLength)")
+    }
+
+    static func eventCompleted(name: String?, dataLength: Int?) {
+        let eventName = name ?? "none"
+        log("event completed name=\(eventName) dataLength=\(dataLength ?? 0)")
+    }
+
+    static func streamEnded(rawLineCount: Int, emittedEventCount: Int) {
+        log("stream ended rawLineCount=\(rawLineCount) emittedEventCount=\(emittedEventCount)")
+    }
+
+    static func streamCancelled() {
+        log("stream cancelled")
+    }
+
+    static func streamFailed(_ error: Error) {
+        log("stream failed type=\(String(reflecting: type(of: error))) detail=\(String(describing: error))")
+    }
+
+    private static func log(_ message: String) {
+        #if DEBUG
+        logger.debug("[NetworkCoreSSE] \(message, privacy: .public)")
+        #endif
+    }
+
+    #if DEBUG
+    private static let logger = Logger(subsystem: "com.yapp.todakun.network", category: "SSE")
+    #endif
 }
 
 private extension SSEClient {
@@ -174,9 +252,13 @@ private extension SSEClient {
             let lines = LineStream { lineContinuation in
                 let forwardingTask = Task {
                     do {
-                        for try await line in bytes.lines {
+                        var lineBuffer = SSELineBuffer()
+                        for try await byte in bytes {
                             try Task.checkCancellation()
-                            lineContinuation.yield(line)
+
+                            if let line = try lineBuffer.consume(byte) {
+                                lineContinuation.yield(line)
+                            }
                         }
 
                         try Task.checkCancellation()
@@ -208,5 +290,38 @@ private extension SSEClient {
                 }
             )
         }
+    }
+}
+
+struct SSELineBuffer: Sendable {
+    private var bytes: [UInt8] = []
+    private var ignoresNextLineFeed = false
+
+    mutating func consume(_ byte: UInt8) throws -> String? {
+        if ignoresNextLineFeed {
+            ignoresNextLineFeed = false
+            if byte == 0x0A {
+                return nil
+            }
+        }
+
+        switch byte {
+        case 0x0A:
+            return try drainLine()
+        case 0x0D:
+            ignoresNextLineFeed = true
+            return try drainLine()
+        default:
+            bytes.append(byte)
+            return nil
+        }
+    }
+
+    private mutating func drainLine() throws -> String {
+        defer { bytes.removeAll(keepingCapacity: true) }
+        guard let line = String(bytes: bytes, encoding: .utf8) else {
+            throw SSEClientError.invalidUTF8
+        }
+        return line
     }
 }

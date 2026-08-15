@@ -2,6 +2,43 @@ import Testing
 @testable import NetworkCore
 
 struct SSEParserTests {
+    @Test("raw byte line splitter가 빈 줄을 SSE 이벤트 경계로 보존한다")
+    func preservesBlankLineBoundaries() throws {
+        var lineBuffer = SSELineBuffer()
+        var lines: [String] = []
+
+        for byte in Array("event: start\ndata: first\n\nevent: done\ndata: second\n\n".utf8) {
+            if let line = try lineBuffer.consume(byte) {
+                lines.append(line)
+            }
+        }
+
+        #expect(
+            lines == [
+                "event: start",
+                "data: first",
+                "",
+                "event: done",
+                "data: second",
+                ""
+            ]
+        )
+    }
+
+    @Test("raw byte line splitter가 CRLF를 하나의 줄바꿈으로 처리한다")
+    func treatsCRLFAsOneLineEnding() throws {
+        var lineBuffer = SSELineBuffer()
+        var lines: [String] = []
+
+        for byte in Array("data: payload\r\n\r\n".utf8) {
+            if let line = try lineBuffer.consume(byte) {
+                lines.append(line)
+            }
+        }
+
+        #expect(lines == ["data: payload", ""])
+    }
+
     @Test("빈 줄에서 표준 SSE 필드를 이벤트로 완성한다")
     func dispatchesStandardFieldsOnBlankLine() throws {
         var parser = SSEParser()

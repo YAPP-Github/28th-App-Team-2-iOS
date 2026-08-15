@@ -15,6 +15,9 @@ public enum SSEClientError: Error, Sendable {
     /// - Parameter actual: 서버가 반환한 미디어 타입입니다.
     case invalidContentType(actual: String?)
 
+    /// SSE 원문 라인이 UTF-8로 해석되지 않습니다.
+    case invalidUTF8
+
     /// 스트림 전송 계층에서 오류가 발생했습니다.
     ///
     /// - Parameters:
