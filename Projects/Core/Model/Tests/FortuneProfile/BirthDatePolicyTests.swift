@@ -82,24 +82,48 @@ struct BirthDatePolicyTests {
         #expect(BirthDatePolicy.validateNotInFuture(for: todayDate, asOf: referenceDate, calendar: testCalendar) == nil)
 
         let futureDate = BirthDate(year: 2026, month: 8, day: 16)
-        #expect(BirthDatePolicy.validateNotInFuture(for: futureDate, asOf: referenceDate, calendar: testCalendar) == BirthDatePolicy.futureDateMessage)
+        #expect(
+            BirthDatePolicy.validateNotInFuture(for: futureDate, asOf: referenceDate, calendar: testCalendar)
+                == BirthDatePolicy.futureDateMessage
+        )
 
         let invalidDate = BirthDate(year: 2023, month: 2, day: 29)
-        #expect(BirthDatePolicy.validateNotInFuture(for: invalidDate, asOf: referenceDate, calendar: testCalendar) == BirthDatePolicy.invalidDateMessage)
+        #expect(
+            BirthDatePolicy.validateNotInFuture(for: invalidDate, asOf: referenceDate, calendar: testCalendar)
+                == BirthDatePolicy.invalidDateMessage
+        )
     }
 
     @Test("만 14세 미만 유효성 검증")
     func testValidateMinimumAge() {
-        #expect(BirthDatePolicy.validateMinimumAge(for: nil, minimumAge: 14, asOf: referenceDate, calendar: testCalendar) == nil)
+        #expect(
+            BirthDatePolicy.validateMinimumAge(for: nil, minimumAge: 14, asOf: referenceDate, calendar: testCalendar)
+                == nil
+        )
 
         let eligibleDate = BirthDate(year: 2012, month: 8, day: 15)
-        #expect(BirthDatePolicy.validateMinimumAge(for: eligibleDate, minimumAge: 14, asOf: referenceDate, calendar: testCalendar) == nil)
+        #expect(
+            BirthDatePolicy.validateMinimumAge(
+                for: eligibleDate, minimumAge: 14, asOf: referenceDate, calendar: testCalendar
+            )
+                == nil
+        )
 
         let underAgeDate = BirthDate(year: 2012, month: 8, day: 16)
-        #expect(BirthDatePolicy.validateMinimumAge(for: underAgeDate, minimumAge: 14, asOf: referenceDate, calendar: testCalendar) == BirthDatePolicy.minimumAgeMessage)
+        #expect(
+            BirthDatePolicy.validateMinimumAge(
+                for: underAgeDate, minimumAge: 14, asOf: referenceDate, calendar: testCalendar
+            )
+                == BirthDatePolicy.minimumAgeMessage
+        )
 
         let futureDate = BirthDate(year: 2027, month: 1, day: 1)
-        #expect(BirthDatePolicy.validateMinimumAge(for: futureDate, minimumAge: 14, asOf: referenceDate, calendar: testCalendar) == BirthDatePolicy.futureDateMessage)
+        #expect(
+            BirthDatePolicy.validateMinimumAge(
+                for: futureDate, minimumAge: 14, asOf: referenceDate, calendar: testCalendar
+            )
+                == BirthDatePolicy.futureDateMessage
+        )
     }
 
     @Test("BirthDate Date 변환 및 Comparable 검증")

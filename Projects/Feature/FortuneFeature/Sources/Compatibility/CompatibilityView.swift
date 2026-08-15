@@ -287,7 +287,10 @@ private struct PartnerRegistrationView: View {
                             birthDate: $store.birthDate.sending(\.birthDateChanged),
                             birthTime: $store.birthTime.sending(\.birthTimeChanged),
                             isBirthTimeUnknown: $store.isBirthTimeUnknown.sending(\.birthTimeUnknownChanged),
-                            birthDateValidationMessage: BirthDatePolicy.validateNotInFuture(for: store.birthDate, asOf: Date()),
+                            birthDateValidationMessage: BirthDatePolicy.validateNotInFuture(
+                                for: store.birthDate,
+                                asOf: Date()
+                            ),
                             spacing: 32
                         )
 

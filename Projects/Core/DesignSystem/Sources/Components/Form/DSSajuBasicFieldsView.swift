@@ -142,7 +142,12 @@ public struct DSSajuBasicFieldsView: View {
     }
 
     private var birthDayItems: [DSWheelPickerItem] {
-        let maxDay = BirthDatePolicy.maximumDay(forYear: pickerYear, month: pickerMonth, asOf: Date(), calendar: calendar)
+        let maxDay = BirthDatePolicy.maximumDay(
+            forYear: pickerYear,
+            month: pickerMonth,
+            asOf: Date(),
+            calendar: calendar
+        )
         return (1...maxDay).map { DSWheelPickerItem(value: $0, title: "\($0)일") }
     }
 

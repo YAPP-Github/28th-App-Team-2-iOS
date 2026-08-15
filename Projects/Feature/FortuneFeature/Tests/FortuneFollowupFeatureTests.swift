@@ -3,9 +3,8 @@ import Foundation
 import Model
 import Testing
 @testable import FortuneFeature
-
 @MainActor
-struct FortuneFollowupFeatureTests {
+struct FortuneFollowupFeatureTests { // swiftlint:disable:this type_body_length
     @Test("선택 카테고리로 리포트에 진입하면 상세 조회 후 바텀시트를 연다")
     func reportLoadsAndPresentsRequestedCategory() async {
         let dailyID = UUID(10)
@@ -184,11 +183,23 @@ struct FortuneFollowupFeatureTests {
     @Test("택일 운세 생성 시 점수 순으로 상위 3개를 선별하여 저장한다")
     func dayFortuneCreatesAndSelectsTop3Results() async {
         let now = Date(timeIntervalSince1970: 1_788_969_600)
-        let r1 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now, score: 60, title: "보통", content: "내용1", categories: [])
-        let r2 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(86_400), score: 95, title: "대길", content: "내용2", categories: [])
-        let r3 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(172_800), score: 80, title: "길", content: "내용3", categories: [])
-        let r4 = DayFortuneResult(id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(259_200), score: 40, title: "소흉", content: "내용4", categories: [])
-        let results = [r1, r2, r3, r4]
+        let firstResult = DayFortuneResult(
+            id: UUID(), purpose: .travel, targetDate: now, score: 60,
+            title: "보통", content: "내용1", categories: []
+        )
+        let secondResult = DayFortuneResult(
+            id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(86_400), score: 95,
+            title: "대길", content: "내용2", categories: []
+        )
+        let thirdResult = DayFortuneResult(
+            id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(172_800), score: 80,
+            title: "길", content: "내용3", categories: []
+        )
+        let fourthResult = DayFortuneResult(
+            id: UUID(), purpose: .travel, targetDate: now.addingTimeInterval(259_200), score: 40,
+            title: "소흉", content: "내용4", categories: []
+        )
+        let results = [firstResult, secondResult, thirdResult, fourthResult]
 
         var state = DayFortuneFeature.State()
         state.selectedDates = [now, now.addingTimeInterval(86_400)]
@@ -203,8 +214,8 @@ struct FortuneFollowupFeatureTests {
         }
         await store.receive(\.response.success) {
             $0.isSubmitting = false
-            $0.results = [r2, r3, r1] // 95, 80, 60
-            $0.selectedResultID = r2.id
+            $0.results = [secondResult, thirdResult, firstResult] // 95, 80, 60
+            $0.selectedResultID = secondResult.id
         }
     }
 
@@ -340,29 +351,29 @@ struct FortuneFollowupFeatureTests {
 
     @Test("상대방 변경 시 이전 사주를 초기화하고 새로운 상대방 사주를 조회한다")
     func compatibilityPartnerSelectionUpdatesSaju() async {
-        let p1 = FortunePartner(id: UUID(34), name: "영희", relationship: .partner)
-        let p2 = FortunePartner(id: UUID(35), name: "철수", relationship: .friend)
-        let chart2 = makeSajuChart(id: p2.id, name: "철수")
+        let firstPartner = FortunePartner(id: UUID(34), name: "영희", relationship: .partner)
+        let secondPartner = FortunePartner(id: UUID(35), name: "철수", relationship: .friend)
+        let secondChart = makeSajuChart(id: secondPartner.id, name: "철수")
 
         var state = CompatibilityFeature.State()
-        state.partners = [p1, p2]
-        state.selectedPartnerID = p1.id
-        state.selectedPartnerSaju = makeSajuChart(id: p1.id, name: "영희")
+        state.partners = [firstPartner, secondPartner]
+        state.selectedPartnerID = firstPartner.id
+        state.selectedPartnerSaju = makeSajuChart(id: firstPartner.id, name: "영희")
         state.isPartnerPickerPresented = true
 
         let store = TestStore(initialState: state) {
             CompatibilityFeature()
         } withDependencies: {
-            $0.fortuneClient.fetchPartnerSaju = { _ in chart2 }
+            $0.fortuneClient.fetchPartnerSaju = { _ in secondChart }
         }
 
-        await store.send(.partnerSelected(p2.id)) {
-            $0.selectedPartnerID = p2.id
+        await store.send(.partnerSelected(secondPartner.id)) {
+            $0.selectedPartnerID = secondPartner.id
             $0.selectedPartnerSaju = nil
             $0.isPartnerPickerPresented = false
         }
-        await store.receive(.partnerSajuResponse(p2.id, .success(chart2))) {
-            $0.selectedPartnerSaju = chart2
+        await store.receive(.partnerSajuResponse(secondPartner.id, .success(secondChart))) {
+            $0.selectedPartnerSaju = secondChart
             $0.errorMessage = nil
         }
     }

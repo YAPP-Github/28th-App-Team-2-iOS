@@ -3,7 +3,6 @@ import DesignSystem
 import Model
 import SwiftUI
 
-// swiftlint:disable file_length
 struct MyPageSajuManagementView: View {
     @Bindable private var store: StoreOf<MyPageFeature>
     @State private var menuButtonFrames: [String: CGRect] = [:]
@@ -233,7 +232,10 @@ private struct MyPagePartnerFormView: View {
                         birthDate: birthDateBinding,
                         birthTime: birthTimeBinding,
                         isBirthTimeUnknown: birthTimeUnknownBinding,
-                        birthDateValidationMessage: BirthDatePolicy.validateNotInFuture(for: form?.birthDate, asOf: Date()),
+                        birthDateValidationMessage: BirthDatePolicy.validateNotInFuture(
+                            for: form?.birthDate,
+                            asOf: Date()
+                        ),
                         spacing: 40
                     )
                     relationshipField

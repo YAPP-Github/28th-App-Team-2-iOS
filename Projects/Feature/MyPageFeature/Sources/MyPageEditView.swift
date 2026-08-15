@@ -29,7 +29,10 @@ public struct MyPageEditView: View {
                         birthDate: birthDateBinding,
                         birthTime: birthTimeBinding,
                         isBirthTimeUnknown: birthTimeUnknownBinding,
-                        birthDateValidationMessage: BirthDatePolicy.validateMinimumAge(for: store.edit?.birthDate, asOf: Date()),
+                        birthDateValidationMessage: BirthDatePolicy.validateMinimumAge(
+                            for: store.edit?.birthDate,
+                            asOf: Date()
+                        ),
                         spacing: 40
                     )
 
