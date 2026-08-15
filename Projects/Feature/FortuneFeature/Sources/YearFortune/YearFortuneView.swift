@@ -34,7 +34,7 @@ private struct YearFortuneFormContent: View {
             Color.ds.white.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                YearFortuneHeaderView(title: "연도별 운세", isDark: false, action: backAction)
+                FortuneHeaderView(title: "연도별 운세", isDark: false, action: backAction)
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {
@@ -43,7 +43,7 @@ private struct YearFortuneFormContent: View {
                         yearSelectionSection
 
                         if let errorMessage = store.errorMessage {
-                            YearFortuneErrorBanner(message: errorMessage)
+                            FortuneErrorBanner(message: errorMessage)
                         }
 
                         submitButton
@@ -288,56 +288,5 @@ private struct YearFortuneResultContent: View {
 
     private var shareIconAsset: Image {
         FortuneFeatureAsset.fortuneShare.swiftUIImage
-    }
-}
-
-// MARK: - 공용 뷰
-
-private struct YearFortuneHeaderView: View {
-    let title: String
-    let isDark: Bool
-    let action: () -> Void
-
-    var body: some View {
-        HStack {
-            Button(action: action) {
-                DSIcon(.chevronLeftNarrow, width: 24, height: 24)
-                    .foregroundStyle(isDark ? Color.ds.white : Color.ds.gray975)
-                    .frame(width: 44, height: 44)
-            }
-            .dsIconButtonStyle(.chevronLeftNarrow, width: 24, height: 24)
-
-            Spacer()
-
-            Text(title)
-                .dsBody2SemiBold
-                .foregroundStyle(isDark ? Color.ds.white : Color.ds.gray975)
-
-            Spacer()
-
-            Color.clear.frame(width: 44, height: 44)
-        }
-        .padding(.horizontal, 10)
-        .frame(height: 52)
-    }
-}
-
-private struct YearFortuneErrorBanner: View {
-    let message: String
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(Color.ds.red500)
-
-            Text(message)
-                .dsBody3Medium
-                .foregroundStyle(Color.ds.red500)
-
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.ds.red500.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }

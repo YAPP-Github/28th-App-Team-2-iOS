@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Foundation
+import Model
 import Testing
 @testable import FortuneFeature
 
@@ -197,10 +198,10 @@ struct FortuneFollowupFeatureTests {
         await store.receive(.delegate(.myInfoEditRequested))
     }
 
-    @Test("궁합 화면에서 상대방 사주를 성공적으로 등록하면 폼을 닫고 목록을 새로고침한다")
+    @Test("궁합 화면에서 상대방 사주를 성공적으로 등록하면 폼을닫고 목록을 새로고침한다")
     func compatibilityRegistersPartnerSuccessfully() async {
         let partnerID = UUID(30)
-        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .lover)
+        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .partner)
         let chart = makeSajuChart(id: partnerID, name: "영희")
 
         var state = CompatibilityFeature.State()
@@ -211,7 +212,7 @@ struct FortuneFollowupFeatureTests {
         state.birthDate = BirthDate(year: 2000, month: 1, day: 1)
         state.birthTime = .inTime
         state.isBirthTimeUnknown = false
-        state.relationship = .lover
+        state.relationship = .partner
 
         #expect(state.canRegister)
 
@@ -227,9 +228,10 @@ struct FortuneFollowupFeatureTests {
             $0.isSubmitting = true
             $0.errorMessage = nil
         }
-        await store.receive(.registrationResponse(.success(partnerID))) {
+        await store.receive(\.registrationResponse.success) {
             $0.isSubmitting = false
             $0.isRegistrationPresented = false
+            $0.selectedPartnerID = partnerID
             $0.name = ""
             $0.gender = nil
             $0.calendarType = .solar
@@ -239,9 +241,8 @@ struct FortuneFollowupFeatureTests {
             $0.relationship = nil
             $0.errorMessage = nil
         }
-        await store.receive(.partnersResponse(.success([partner]))) {
+        await store.receive(\.partnersResponse.success) {
             $0.partners = [partner]
-            $0.selectedPartnerID = partnerID
         }
         await store.receive(.partnerSajuResponse(partnerID, .success(chart))) {
             $0.selectedPartnerSaju = chart
@@ -251,13 +252,24 @@ struct FortuneFollowupFeatureTests {
     @Test("궁합 화면에서 궁합 보기 탭 시 궁합 결과를 생성하고 상태를 갱신한다")
     func compatibilityCreatesResultSuccessfully() async {
         let partnerID = UUID(31)
-        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .lover)
+        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .partner)
         let result = CompatibilityResult(
             id: UUID(32),
+            partnerName: "영희",
+            relationship: .partner,
             score: 90,
-            title: "천생연분",
-            content: "궁합 총평",
-            categories: [.init(category: .love, score: 95)]
+            headline: "천생연분",
+            subheadline: "완벽한 조화",
+            summary: "궁합 총평",
+            totalAnalysis: "궁합 전체 분석 내용입니다.",
+            analysisBasis: "오행 및 십신 분석 근거입니다.",
+            elements: [
+                FortuneElementScore(element: .wood, percentage: 30),
+                FortuneElementScore(element: .fire, percentage: 25),
+                FortuneElementScore(element: .earth, percentage: 20),
+                FortuneElementScore(element: .metal, percentage: 15),
+                FortuneElementScore(element: .water, percentage: 10)
+            ]
         )
 
         var state = CompatibilityFeature.State()
@@ -274,7 +286,7 @@ struct FortuneFollowupFeatureTests {
             $0.isSubmitting = true
             $0.errorMessage = nil
         }
-        await store.receive(.compatibilityResponse(.success(result))) {
+        await store.receive(\.compatibilityResponse.success) {
             $0.isSubmitting = false
             $0.result = result
         }
@@ -283,7 +295,7 @@ struct FortuneFollowupFeatureTests {
     @Test("궁합 생성 실패 시 에러 메시지를 표시하고 제출 상태를 해제한다")
     func compatibilityHandlesCreationFailure() async {
         let partnerID = UUID(33)
-        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .lover)
+        let partner = FortunePartner(id: partnerID, name: "영희", relationship: .partner)
 
         var state = CompatibilityFeature.State()
         state.partners = [partner]
@@ -299,7 +311,7 @@ struct FortuneFollowupFeatureTests {
             $0.isSubmitting = true
             $0.errorMessage = nil
         }
-        await store.receive(.compatibilityResponse(.failure(.transport))) {
+        await store.receive(\.compatibilityResponse.failure) {
             $0.isSubmitting = false
             $0.errorMessage = FortuneClientError.transport.userMessage
         }
@@ -307,7 +319,7 @@ struct FortuneFollowupFeatureTests {
 
     @Test("상대방 변경 시 이전 사주를 초기화하고 새로운 상대방 사주를 조회한다")
     func compatibilityPartnerSelectionUpdatesSaju() async {
-        let p1 = FortunePartner(id: UUID(34), name: "영희", relationship: .lover)
+        let p1 = FortunePartner(id: UUID(34), name: "영희", relationship: .partner)
         let p2 = FortunePartner(id: UUID(35), name: "철수", relationship: .friend)
         let chart2 = makeSajuChart(id: p2.id, name: "철수")
 

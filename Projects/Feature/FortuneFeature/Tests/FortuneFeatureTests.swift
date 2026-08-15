@@ -376,7 +376,13 @@ private extension FortuneHomeContent {
             fortuneDate: Date(timeIntervalSince1970: 0),
             score: 72,
             title: "오늘의 운세",
-            categoryScores: []
+            categoryScores: FortuneCategory.allCases.enumerated().map { index, category in
+                FortuneCategoryScore(
+                    luckActionID: UUID(UInt8(10 + index)),
+                    category: category,
+                    score: 70 + index * 5
+                )
+            }
         )
     }
 }

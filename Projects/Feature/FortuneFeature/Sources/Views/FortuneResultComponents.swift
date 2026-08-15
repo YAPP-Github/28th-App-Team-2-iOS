@@ -52,16 +52,6 @@ struct FortuneTodakInquiryBar: View {
         .padding(.horizontal, 20)
         .padding(.top, 12)
         .padding(.bottom, 8)
-        .background(
-            LinearGradient(
-                colors: [
-                    Color.fortuneSpaceBase.opacity(0),
-                    Color.fortuneSpaceBase.opacity(0.85),
-                    Color.fortuneSpaceBase
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
+        .background(Color.fortuneSpaceBase)
     }
 }

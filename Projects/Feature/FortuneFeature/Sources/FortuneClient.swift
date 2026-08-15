@@ -45,6 +45,17 @@ public enum FortuneClientError: Error, Equatable, Sendable {
     case invalidResponse
     case unsupportedCategory(String)
     case transport
+
+    public var userMessage: String {
+        switch self {
+        case .notConfigured:
+            "운세 서비스를 사용할 수 없어요."
+        case .server, .httpStatus, .invalidResponse, .unsupportedCategory:
+            "운세 정보를 불러오지 못했어요."
+        case .transport:
+            "네트워크 연결 상태를 확인해주세요."
+        }
+    }
 }
 
 extension FortuneClient: DependencyKey {

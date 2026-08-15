@@ -86,16 +86,3 @@ public struct FortuneCategoryDetailFeature {
         }
     }
 }
-
-extension FortuneClientError {
-    var userMessage: String {
-        switch self {
-        case .notConfigured:
-            "서비스를 사용할 수 없어요."
-        case .server, .httpStatus, .invalidResponse, .unsupportedCategory:
-            "정보를 불러오지 못했어요."
-        case .transport:
-            "네트워크 연결 상태를 확인해주세요."
-        }
-    }
-}
