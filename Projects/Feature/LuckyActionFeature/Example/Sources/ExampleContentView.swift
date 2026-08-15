@@ -1,19 +1,21 @@
-import SwiftUI
+import ComposableArchitecture
 import LuckyActionFeature
+import LuckyActionFeatureTesting
+import SwiftUI
 
 struct ExampleContentView: View {
-    var body: some View {
-        NavigationStack {
-            VStack {
-                Text("LuckyActionFeature Example")
-                    .font(.largeTitle)
-                    .bold()
-                Spacer()
-                Text("This is a standalone sample app.")
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("LuckyActionFeature")
+    private let store: StoreOf<LuckyActionFeature>
+
+    init() {
+        let repository = LuckyActionMock()
+        store = Store(initialState: LuckyActionFeature.State()) {
+            LuckyActionFeature()
+        } withDependencies: {
+            $0.luckyActionClient = .mock(repository: repository)
         }
+    }
+
+    var body: some View {
+        LuckyActionView(store: store)
     }
 }

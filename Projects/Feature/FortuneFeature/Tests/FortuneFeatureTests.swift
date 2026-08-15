@@ -339,7 +339,7 @@ extension FortuneFeatureTests {
         }
 
         await store.send(.view(.luckyActionBannerTapped))
-        await store.receive(.delegate(.luckyActionRequested))
+        await store.receive(.delegate(.luckyActionTabRequested))
     }
 
     @Test("궁합 화면의 내 정보 변경 요청을 상위 myInfoEditRequested delegate로 전파한다")

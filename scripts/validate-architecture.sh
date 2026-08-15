@@ -250,7 +250,7 @@ check_graph_edge() {
   fi
 
   if [[ "$from" == "$app_name" ]]; then
-    if contains_name "$to" "${feature_names[@]}" || contains_name "$to" "${core_names[@]}"; then
+    if contains_name "$to" "${feature_names[@]}" || contains_name "$to" "${feature_interface_names[@]}" || contains_name "$to" "${core_names[@]}"; then
       return
     fi
 

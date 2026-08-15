@@ -2,6 +2,7 @@ import ComposableArchitecture
 import DesignSystem
 import FortuneFeature
 import Foundation
+import LuckyActionFeature
 import MyPageFeature
 import SwiftUI
 
@@ -16,15 +17,15 @@ struct MainTabView: View {
         ZStack {
             switch store.selectedTab {
             case .fortune:
-                FortuneView(
-                    store: store.scope(state: \.fortune, action: \.fortune)
-                )
+                fortuneTab
 
             case .todak:
                 UnavailableTabView(title: "토닥이")
 
             case .luckyAction:
-                UnavailableTabView(title: "행운 액션")
+                LuckyActionView(
+                    store: store.scope(state: \.luckyAction, action: \.luckyAction)
+                )
 
             case .myPage:
                 MyPageView(
@@ -64,7 +65,35 @@ struct MainTabView: View {
             && store.myPage.withdrawal == nil
             && store.myPage.sajuManagement == nil
         )
-        return fortuneShowing && myPageShowing && !isMyInfoEditPresented
+        return fortuneShowing
+            && myPageShowing
+            && !isMyInfoEditPresented
+            && store.pushedLuckyAction == nil
+    }
+
+    private var fortuneTab: some View {
+        FortuneNavigationView(
+            store: store.scope(state: \.fortune, action: \.fortune),
+            isLuckyActionPresented: Binding(
+                get: { store.pushedLuckyAction != nil },
+                set: { isPresented in
+                    store.send(.pushedLuckyActionPresentationChanged(isPresented))
+                }
+            ),
+            luckyActionDestination: AnyView(pushedLuckyActionDestination)
+        )
+    }
+
+    @ViewBuilder
+    private var pushedLuckyActionDestination: some View {
+        if let luckyActionStore = store.scope(
+            state: \.pushedLuckyAction,
+            action: \.pushedLuckyAction.presented
+        ) {
+            LuckyActionView(store: luckyActionStore)
+        } else {
+            EmptyView()
+        }
     }
 
     private var isMyInfoEditPresented: Bool {

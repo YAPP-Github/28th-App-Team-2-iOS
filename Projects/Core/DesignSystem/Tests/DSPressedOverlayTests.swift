@@ -22,5 +22,6 @@ struct DSPressedOverlayTests {
 
         _ = button.dsSurfaceButtonStyle(shape: .roundedRectangle(cornerRadius: 16))
         _ = button.dsIconButtonStyle(.bell, width: 24, height: 24)
+        _ = button.dsIconButtonStyle(width: 24, height: 24)
     }
 }

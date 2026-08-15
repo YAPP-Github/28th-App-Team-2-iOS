@@ -60,7 +60,8 @@ public struct FortuneFeature {
 
         public enum Delegate: Equatable, Sendable {
             case todakRequested
-            case luckyActionRequested
+            case luckyActionTabRequested
+            case luckyActionPushRequested
             case myPageRequested
             case myInfoEditRequested
         }
@@ -141,7 +142,7 @@ public struct FortuneFeature {
                 return .none
 
             case .view(.luckyActionBannerTapped):
-                return .send(.delegate(.luckyActionRequested))
+                return .send(.delegate(.luckyActionTabRequested))
 
             case .path(.element(id: _, action: .report(.delegate(.todakRequested)))),
                  .path(.element(id: _, action: .compatibility(.delegate(.todakRequested)))),
@@ -152,7 +153,7 @@ public struct FortuneFeature {
 
             case .path(.element(id: _, action: .report(.delegate(.luckyActionRequested)))),
                  .categoryDetail(.presented(.delegate(.luckyActionRequested))):
-                return .send(.delegate(.luckyActionRequested))
+                return .send(.delegate(.luckyActionPushRequested))
 
             case .path(.element(id: _, action: .compatibility(.delegate(.myInfoEditRequested)))):
                 return .send(.delegate(.myInfoEditRequested))

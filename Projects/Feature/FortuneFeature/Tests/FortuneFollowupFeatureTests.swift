@@ -6,6 +6,33 @@ import Testing
 @MainActor
 // swiftlint:disable file_length
 struct FortuneFollowupFeatureTests { // swiftlint:disable:this type_body_length
+    @Test("로드된 리포트가 재노출되어도 다시 조회하지 않는다")
+    func loadedReportTaskDoesNotRefresh() async {
+        let dailyID = UUID(9)
+        let detail = FortuneDetailContent(
+            dailyFortuneID: dailyID,
+            fortuneDate: Date(timeIntervalSince1970: 0),
+            score: 72,
+            title: "좋은 하루",
+            content: "서버 종합 운세",
+            luckyItems: [],
+            cautionaryItems: [],
+            categoryScores: []
+        )
+        var state = FortuneReportFeature.State(dailyFortuneID: dailyID)
+        state.viewState = .loaded(detail)
+        let store = TestStore(initialState: state) {
+            FortuneReportFeature()
+        } withDependencies: {
+            $0.fortuneClient.fetchDetail = { _ in
+                Issue.record("로드 완료 리포트의 task는 재조회하면 안 됩니다.")
+                return detail
+            }
+        }
+
+        await store.send(.task)
+    }
+
     @Test("선택 카테고리로 리포트에 진입하면 상세 조회 후 바텀시트를 연다")
     func reportLoadsAndPresentsRequestedCategory() async {
         let dailyID = UUID(10)

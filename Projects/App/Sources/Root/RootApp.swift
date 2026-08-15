@@ -5,6 +5,8 @@ import FortuneFeature
 import GoogleSignIn
 import KakaoSDKAuth
 import KakaoSDKCommon
+import LuckyActionFeature
+import LuckyActionFeatureInterface
 import MyPageFeature
 import NetworkCore
 import OnboardingFeature
@@ -26,6 +28,7 @@ struct TodakunApp: App {
         let authSession = AuthSessionClient.live
         let authClient: AuthClient
         let fortuneClient: FortuneClient
+        let luckyActionClient: LuckyActionClient
         let myPageClient: MyPageClient
 
         if let baseURL = configuration.apiBaseURL {
@@ -47,10 +50,12 @@ struct TodakunApp: App {
                 }
             )
             fortuneClient = FortuneClient.live(httpClient: authenticatedHTTPClient)
+            luckyActionClient = LuckyActionClient.live(httpClient: authenticatedHTTPClient)
             myPageClient = MyPageClient.live(httpClient: authenticatedHTTPClient)
         } else {
             authClient = .unavailable
             fortuneClient = .unavailable
+            luckyActionClient = .unavailable
             myPageClient = .unavailable
         }
 
@@ -66,6 +71,7 @@ struct TodakunApp: App {
             $0.authClient = authClient
             $0.authSession = authSession
             $0.fortuneClient = fortuneClient
+            $0.luckyActionClient = luckyActionClient
             $0.myPageClient = myPageClient
             $0.socialLoginClient = .live(configuration: configuration)
         }
