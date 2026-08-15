@@ -148,7 +148,8 @@ public struct CompatibilityFeature {
                 state.mySaju = mySaju
                 return .none
 
-            case .mySajuRefreshResponse(.failure):
+            case let .mySajuRefreshResponse(.failure(error)):
+                state.errorMessage = error.userMessage
                 return .none
 
             case let .partnersResponse(.success(partners)):

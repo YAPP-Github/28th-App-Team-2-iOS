@@ -4,6 +4,7 @@ import Model
 import Testing
 @testable import FortuneFeature
 @MainActor
+// swiftlint:disable file_length
 struct FortuneFollowupFeatureTests { // swiftlint:disable:this type_body_length
     @Test("선택 카테고리로 리포트에 진입하면 상세 조회 후 바텀시트를 연다")
     func reportLoadsAndPresentsRequestedCategory() async {
@@ -178,6 +179,26 @@ struct FortuneFollowupFeatureTests { // swiftlint:disable:this type_body_length
         await store.receive(.mySajuRefreshResponse(.success(refreshedChart))) {
             $0.mySaju = refreshedChart
         }
+    }
+
+    @Test("내 사주 갱신 실패 시 기존 정보는 유지하고 오류를 표시한다")
+    func compatibilityShowsErrorWhenMySajuRefreshFails() async {
+        let previousChart = makeSajuChart(id: UUID(24), name: "이전 정보")
+        var state = CompatibilityFeature.State()
+        state.viewState = .loaded
+        state.mySaju = previousChart
+
+        let store = TestStore(initialState: state) {
+            CompatibilityFeature()
+        } withDependencies: {
+            $0.fortuneClient.fetchMySaju = { throw FortuneClientError.transport }
+        }
+
+        await store.send(.mySajuRefreshRequested)
+        await store.receive(.mySajuRefreshResponse(.failure(.transport))) {
+            $0.errorMessage = FortuneClientError.transport.userMessage
+        }
+        #expect(store.state.mySaju == previousChart)
     }
 
     @Test("택일 운세 생성 시 점수 순으로 상위 3개를 선별하여 저장한다")
