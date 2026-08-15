@@ -305,6 +305,7 @@ final class MyPageFeatureTests: XCTestCase {
 
     func testEditStateValidationPolicies() {
         let profile = MyPageProfile(
+            memberID: "member-id",
             name: "토닥이",
             gender: "FEMALE",
             birthDate: "1999-05-15",
@@ -317,24 +318,24 @@ final class MyPageFeatureTests: XCTestCase {
         var edit = MyPageFeature.EditState(profile: profile)
         XCTAssertTrue(edit.isValid)
 
-        // Under 14 years old
+        // 만 14세 미만
         edit.birthDate = BirthDate(year: 2020, month: 1, day: 1)
         XCTAssertFalse(edit.isValid)
 
-        // Future date
+        // 미래 날짜
         edit.birthDate = BirthDate(year: 2030, month: 1, day: 1)
         XCTAssertFalse(edit.isValid)
 
-        // Valid date
+        // 유효한 날짜
         edit.birthDate = BirthDate(year: 1999, month: 5, day: 15)
         XCTAssertTrue(edit.isValid)
 
-        // Missing job
+        // 직업 미선택
         edit.job = nil
         XCTAssertFalse(edit.isValid)
         edit.job = .student
 
-        // Unknown birth time
+        // 출생 시각 모름
         edit.birthTime = nil
         edit.isBirthTimeUnknown = true
         XCTAssertTrue(edit.isValid)
@@ -353,12 +354,12 @@ final class MyPageFeatureTests: XCTestCase {
         form.relationship = .friend
         XCTAssertTrue(form.isValid)
 
-        // Unknown time resets birthTime
+        // 출생 시각 모름
         form.isBirthTimeUnknown = true
         form.birthTime = nil
         XCTAssertTrue(form.isValid)
 
-        // Future date is invalid
+        // 미래 날짜는 유효하지 않음
         form.birthDate = BirthDate(year: 2030, month: 1, day: 1)
         XCTAssertFalse(form.isValid)
     }
