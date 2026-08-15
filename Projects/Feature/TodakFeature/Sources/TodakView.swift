@@ -180,53 +180,70 @@ public struct TodakView: View {
 }
 
 private struct TodakTypingIndicator: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isAnimating = false
-
     private let dotSize: CGFloat = 4
     private let dotSpacing: CGFloat = 3
-    private let dotTravel: CGFloat = 3
 
     var body: some View {
         HStack(spacing: 9) {
             HStack(spacing: dotSpacing) {
                 ForEach(0..<3, id: \.self) { index in
-                    Circle()
-                        .fill(DesignSystemAsset.Colors.primary600.swiftUIColor)
-                        .frame(width: dotSize, height: dotSize)
-                        .offset(y: dotOffset(for: index))
-                        .animation(dotAnimation(for: index), value: isAnimating)
-                        .accessibilityHidden(true)
+                    TodakTypingDot(
+                        color: index == 2
+                            ? DesignSystemAsset.Colors.primary300.swiftUIColor
+                            : DesignSystemAsset.Colors.primary700.swiftUIColor,
+                        delay: Double(index) * 0.12,
+                        size: dotSize
+                    )
                 }
             }
             .frame(width: 18, height: 7, alignment: .bottom)
 
             Text("생각 중")
                 .dsBody2Regular
-                .foregroundStyle(DesignSystemAsset.Colors.primary600.swiftUIColor)
-        }
-        .onAppear {
-            guard !reduceMotion else { return }
-            isAnimating = true
-        }
-        .onChange(of: reduceMotion) { _, shouldReduceMotion in
-            isAnimating = !shouldReduceMotion
+                .foregroundStyle(DesignSystemAsset.Colors.primary700.swiftUIColor)
         }
     }
+}
 
-    private func dotOffset(for index: Int) -> CGFloat {
-        guard isAnimating && !reduceMotion else {
-            return index == 1 ? -dotTravel : 0
-        }
+private struct TodakTypingDot: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isRaised = false
 
-        return -dotTravel
+    let color: Color
+    let delay: TimeInterval
+    let size: CGFloat
+
+    private let travel: CGFloat = 3
+
+    var body: some View {
+        Circle()
+            .fill(color)
+            .frame(width: size, height: size)
+            .offset(y: isRaised ? -travel : 0)
+            .accessibilityHidden(true)
+            .onAppear(perform: updateAnimation)
+            .onChange(of: reduceMotion) { _, _ in
+                updateAnimation()
+            }
     }
 
-    private func dotAnimation(for index: Int) -> Animation? {
-        guard !reduceMotion else { return nil }
+    private func updateAnimation() {
+        guard !reduceMotion else {
+            withAnimation(.none) {
+                isRaised = false
+            }
+            return
+        }
 
-        return .easeInOut(duration: 0.3)
-            .repeatForever(autoreverses: true)
-            .delay(Double(index) * 0.12)
+        withAnimation(.none) {
+            isRaised = false
+        }
+        withAnimation(
+            .easeInOut(duration: 0.3)
+                .repeatForever(autoreverses: true)
+                .delay(delay)
+        ) {
+            isRaised = true
+        }
     }
 }
