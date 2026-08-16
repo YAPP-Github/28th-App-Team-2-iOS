@@ -48,20 +48,15 @@ public struct FortuneReportFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .task, .retryTapped:
+            case .task:
+                guard case .loading = state.viewState else { return .none }
+                let dailyFortuneID = state.dailyFortuneID
+                return fetchDetail(dailyFortuneID)
+
+            case .retryTapped:
                 state.viewState = .loading
                 let dailyFortuneID = state.dailyFortuneID
-                return .run { send in
-                    do {
-                        await send(.response(.success(try await fortuneClient.fetchDetail(dailyFortuneID))))
-                    } catch is CancellationError {
-                        return
-                    } catch let error as FortuneClientError {
-                        await send(.response(.failure(error)))
-                    } catch {
-                        await send(.response(.failure(.transport)))
-                    }
-                }
+                return fetchDetail(dailyFortuneID)
 
             case let .response(.success(content)):
                 state.viewState = .loaded(content)
@@ -108,5 +103,19 @@ public struct FortuneReportFeature {
     private func loadedContent(from state: State) -> FortuneDetailContent? {
         guard case let .loaded(content) = state.viewState else { return nil }
         return content
+    }
+
+    private func fetchDetail(_ dailyFortuneID: UUID) -> Effect<Action> {
+        .run { send in
+            do {
+                await send(.response(.success(try await fortuneClient.fetchDetail(dailyFortuneID))))
+            } catch is CancellationError {
+                return
+            } catch let error as FortuneClientError {
+                await send(.response(.failure(error)))
+            } catch {
+                await send(.response(.failure(.transport)))
+            }
+        }
     }
 }

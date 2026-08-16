@@ -30,7 +30,7 @@ final class MyPageFeatureTests: XCTestCase {
                 gender: "FEMALE",
                 birthDate: "1999-02-13",
                 calendarType: "SOLAR",
-                birthTime: "15:00",
+                birthTime: "JASI",
                 isTimeUnknown: false,
                 job: "WORKER",
                 relationshipStatus: "SOLO"
@@ -310,10 +310,10 @@ final class MyPageFeatureTests: XCTestCase {
             gender: "FEMALE",
             birthDate: "1999-05-15",
             calendarType: "SOLAR",
-            birthTime: "09:30",
+            birthTime: "JASI",
             isTimeUnknown: false,
             job: "STUDENT",
-            relationshipStatus: "SINGLE"
+            relationshipStatus: "SOLO"
         )
         var edit = MyPageFeature.EditState(profile: profile)
         XCTAssertTrue(edit.isValid)

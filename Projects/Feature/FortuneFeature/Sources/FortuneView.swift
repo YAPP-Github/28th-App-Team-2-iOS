@@ -10,6 +10,30 @@ public struct FortuneView: View {
     }
 
     public var body: some View {
+        FortuneNavigationView(
+            store: store,
+            isLuckyActionPresented: .constant(false),
+            luckyActionDestination: AnyView(EmptyView())
+        )
+    }
+}
+
+public struct FortuneNavigationView: View {
+    @Bindable private var store: StoreOf<FortuneFeature>
+    @Binding private var isLuckyActionPresented: Bool
+    private let luckyActionDestination: AnyView
+
+    public init(
+        store: StoreOf<FortuneFeature>,
+        isLuckyActionPresented: Binding<Bool>,
+        luckyActionDestination: AnyView
+    ) {
+        self.store = store
+        self._isLuckyActionPresented = isLuckyActionPresented
+        self.luckyActionDestination = luckyActionDestination
+    }
+
+    public var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ZStack {
                 rootBackgroundColor.ignoresSafeArea()
@@ -21,10 +45,7 @@ public struct FortuneView: View {
                 case let .loaded(content):
                     FortuneHomeView(
                         content: content,
-                        action: { store.send(.view($0)) },
-                        onRefresh: {
-                            await store.send(.view(.refresh)).finish()
-                        }
+                        action: { store.send(.view($0)) }
                     )
 
                 case let .failed(message):
@@ -41,6 +62,9 @@ public struct FortuneView: View {
             case let .report(store):
                 FortuneReportView(store: store) {
                     popLastDestination()
+                }
+                .navigationDestination(isPresented: $isLuckyActionPresented) {
+                    luckyActionDestination
                 }
 
             case let .compatibility(store):

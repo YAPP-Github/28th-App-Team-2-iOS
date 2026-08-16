@@ -1,5 +1,7 @@
 import ComposableArchitecture
 import FortuneFeature
+import Foundation
+import LuckyActionFeature
 import Testing
 import TodakFeature
 @testable import Todakun
@@ -32,13 +34,93 @@ struct MainTabFeatureTests {
     }
 
     @Test
-    func fortuneDelegateLuckyActionRequestedSwitchesTab() async {
+    func fortuneDelegateLuckyActionTabRequestedSwitchesTab() async {
         let store = TestStore(initialState: MainTabFeature.State()) {
             MainTabFeature()
         }
 
-        await store.send(.fortune(.delegate(.luckyActionRequested))) {
+        await store.send(.fortune(.delegate(.luckyActionTabRequested))) {
             $0.selectedTab = .luckyAction
+        }
+    }
+
+    @Test
+    func fortuneDelegateLuckyActionPushRequestedPresentsLuckyAction() async {
+        let now = Date(timeIntervalSince1970: 1_786_762_800)
+        let store = TestStore(initialState: MainTabFeature.State()) {
+            MainTabFeature()
+        } withDependencies: {
+            $0.date.now = now
+        }
+
+        await store.send(.fortune(.delegate(.luckyActionPushRequested))) {
+            $0.pushedLuckyAction = LuckyActionFeature.State(
+                presentationStyle: .pushed,
+                today: now
+            )
+        }
+    }
+
+    @Test
+    func dismissingPushedLuckyActionPreservesFortuneReportPath() async {
+        var state = MainTabFeature.State()
+        state.fortune.path.append(.report(.init(dailyFortuneID: UUID())))
+        state.pushedLuckyAction = .init(presentationStyle: .pushed)
+        let store = TestStore(initialState: state) {
+            MainTabFeature()
+        }
+
+        await store.send(.pushedLuckyAction(.presented(.delegate(.dismissRequested)))) {
+            $0.pushedLuckyAction = nil
+        }
+
+        #expect(store.state.fortune.path.count == 1)
+    }
+
+    @Test
+    func backFromPushedLuckyActionDismissesPresentationAndPreservesReportPath() async {
+        var state = MainTabFeature.State()
+        state.fortune.path.append(.report(.init(dailyFortuneID: UUID())))
+        state.pushedLuckyAction = .init(presentationStyle: .pushed)
+        let store = TestStore(initialState: state) {
+            MainTabFeature()
+        }
+
+        await store.send(.pushedLuckyAction(.presented(.view(.backButtonTapped))))
+        await store.receive(.pushedLuckyAction(.presented(.delegate(.dismissRequested)))) {
+            $0.pushedLuckyAction = nil
+        }
+
+        #expect(store.state.fortune.path.count == 1)
+    }
+
+    @Test
+    func reopeningPushedLuckyActionCreatesFreshState() async {
+        let now = Date(timeIntervalSince1970: 1_786_762_800)
+        var previousPresentation = LuckyActionFeature.State(
+            presentationStyle: .pushed,
+            today: now
+        )
+        previousPresentation.selectedDate = previousPresentation.today.addingTimeInterval(-86_400)
+        let store = TestStore(
+            initialState: MainTabFeature.State(
+                pushedLuckyAction: previousPresentation
+            )
+        ) {
+            MainTabFeature()
+        } withDependencies: {
+            $0.date.now = now
+        }
+
+        await store.send(.pushedLuckyAction(.presented(.delegate(.dismissRequested)))) {
+            $0.pushedLuckyAction = nil
+        }
+
+        await store.send(.fortune(.delegate(.luckyActionPushRequested))) {
+            $0.pushedLuckyAction = LuckyActionFeature.State(
+                presentationStyle: .pushed,
+                today: now
+            )
         }
     }
 

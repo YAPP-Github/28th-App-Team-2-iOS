@@ -69,6 +69,18 @@ public extension Button {
             )
         )
     }
+
+    /// Applies the shared icon-only pressed overlay to a custom icon label.
+    func dsIconButtonStyle(width: CGFloat, height: CGFloat) -> some View {
+        buttonStyle(
+            DSIconButtonStyle(
+                iconAsset: nil,
+                iconSize: CGSize(width: width, height: height),
+                pressedOverlay: .standard,
+                pressedOverlayTarget: .content
+            )
+        )
+    }
 }
 
 private struct DSSurfaceButtonStyle: ButtonStyle {
@@ -89,10 +101,11 @@ private struct DSSurfaceButtonStyle: ButtonStyle {
 enum DSIconButtonPressedOverlayTarget {
     case icon
     case button
+    case content
 }
 
 struct DSIconButtonStyle: ButtonStyle {
-    let iconAsset: DSIconAsset
+    let iconAsset: DSIconAsset?
     let iconSize: CGSize
     let pressedOverlay: DSPressedOverlay?
     let pressedOverlayTarget: DSIconButtonPressedOverlayTarget
@@ -100,7 +113,7 @@ struct DSIconButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     init(
-        iconAsset: DSIconAsset,
+        iconAsset: DSIconAsset?,
         iconSize: CGSize,
         pressedOverlay: DSPressedOverlay?,
         pressedOverlayTarget: DSIconButtonPressedOverlayTarget = .icon
@@ -119,17 +132,25 @@ struct DSIconButtonStyle: ButtonStyle {
                    let pressedOverlay {
                     switch pressedOverlayTarget {
                     case .icon:
-                        DSIcon(
-                            iconAsset,
-                            width: iconSize.width,
-                            height: iconSize.height
-                        )
-                        .foregroundColor(pressedOverlay.asset.swiftUIColor)
-                        .opacity(pressedOverlay.opacity)
+                        if let iconAsset {
+                            DSIcon(
+                                iconAsset,
+                                width: iconSize.width,
+                                height: iconSize.height
+                            )
+                            .foregroundColor(pressedOverlay.asset.swiftUIColor)
+                            .opacity(pressedOverlay.opacity)
+                        }
                     case .button:
                         Circle()
                             .fill(pressedOverlay.asset.swiftUIColor)
                             .opacity(pressedOverlay.opacity)
+                    case .content:
+                        configuration.label
+                            .dsPressedContentOverlay(
+                                isPressed: true,
+                                specification: pressedOverlay
+                            )
                     }
                 }
             }

@@ -39,7 +39,7 @@ struct DSLunarSolarSpecificationTests {
                 isSelected: false
             ) == .lunar
         )
-        #expect(BirthDateCalendar.solar.dsCalendarTitle == "양력")
-        #expect(BirthDateCalendar.lunar.dsCalendarTitle == "음력")
+        #expect(BirthDateCalendar.solar.title == "양력")
+        #expect(BirthDateCalendar.lunar.title == "음력")
     }
 }

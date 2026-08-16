@@ -2,6 +2,7 @@ import ComposableArchitecture
 import DesignSystem
 import FortuneFeature
 import Foundation
+import LuckyActionFeature
 import MyPageFeature
 import SwiftUI
 import TodakFeature
@@ -15,11 +16,27 @@ struct MainTabView: View {
 
     var body: some View {
         ZStack {
+            tabContent
+                .disabled(isLuckyActionCompletionPresented)
+                .accessibilityHidden(isLuckyActionCompletionPresented)
+
+            if let completion = activeLuckyActionCompletion {
+                LuckyActionGlobalCompletionOverlay(
+                    completion: completion,
+                    dismiss: dismissLuckyActionCompletion
+                )
+                .transition(.opacity)
+                .zIndex(1)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isLuckyActionCompletionPresented)
+    }
+
+    private var tabContent: some View {
+        ZStack {
             switch store.selectedTab {
             case .fortune:
-                FortuneView(
-                    store: store.scope(state: \.fortune, action: \.fortune)
-                )
+                fortuneTab
 
             case .todak:
                 TodakView(
@@ -27,7 +44,9 @@ struct MainTabView: View {
                 )
 
             case .luckyAction:
-                UnavailableTabView(title: "행운 액션")
+                LuckyActionView(
+                    store: store.scope(state: \.luckyAction, action: \.luckyAction)
+                )
 
             case .myPage:
                 MyPageView(
@@ -71,6 +90,32 @@ struct MainTabView: View {
             && fortuneShowing
             && myPageShowing
             && !isMyInfoEditPresented
+            && store.pushedLuckyAction == nil
+    }
+
+    private var fortuneTab: some View {
+        FortuneNavigationView(
+            store: store.scope(state: \.fortune, action: \.fortune),
+            isLuckyActionPresented: Binding(
+                get: { store.pushedLuckyAction != nil },
+                set: { isPresented in
+                    store.send(.pushedLuckyActionPresentationChanged(isPresented))
+                }
+            ),
+            luckyActionDestination: AnyView(pushedLuckyActionDestination)
+        )
+    }
+
+    @ViewBuilder
+    private var pushedLuckyActionDestination: some View {
+        if let luckyActionStore = store.scope(
+            state: \.pushedLuckyAction,
+            action: \.pushedLuckyAction.presented
+        ) {
+            LuckyActionView(store: luckyActionStore)
+        } else {
+            EmptyView()
+        }
     }
 
     private var isMyInfoEditPresented: Bool {
@@ -78,6 +123,26 @@ struct MainTabView: View {
         return store.selectedTab == .fortune
             && store.compatibilityEditSourceID == currentCompatibilityDestinationID
             && store.myPage.edit != nil
+    }
+
+    private var isLuckyActionCompletionPresented: Bool {
+        activeLuckyActionCompletion != nil
+    }
+
+    private var activeLuckyActionCompletion: LuckyActionCompletion? {
+        if store.selectedTab == .luckyAction {
+            return store.luckyAction.completion
+        }
+        guard store.selectedTab == .fortune else { return nil }
+        return store.pushedLuckyAction?.completion
+    }
+
+    private func dismissLuckyActionCompletion() {
+        if store.selectedTab == .luckyAction {
+            store.send(.luckyAction(.view(.completionDismissButtonTapped)))
+        } else {
+            store.send(.pushedLuckyAction(.presented(.view(.completionDismissButtonTapped))))
+        }
     }
 
     private var currentCompatibilityDestinationID: StackElementID? {
@@ -115,6 +180,24 @@ private extension DSBottomNavigationItem {
         case .todak: .todak
         case .luckyAction: .luckyAction
         case .myPage: .myPage
+        }
+    }
+}
+
+private struct LuckyActionGlobalCompletionOverlay: View {
+    let completion: LuckyActionCompletion
+    let dismiss: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.ds.opacity50
+                .ignoresSafeArea()
+                .accessibilityHidden(true)
+
+            LuckyActionCompletionContent(
+                completion: completion,
+                dismiss: dismiss
+            )
         }
     }
 }

@@ -67,6 +67,7 @@ graph TD
     TodakunApp --> Fortune
     TodakunApp --> Todak
     TodakunApp --> LuckyAction
+    TodakunApp --> LuckyActionIF
     TodakunApp --> MyPage
     
     %% Example of Feature Navigation via Interface

@@ -8,7 +8,7 @@
 - 디자이너가 별도로 정의한 공통 pressed 정책: pressed 상태를 제공하는 모든 DesignSystem 커스텀 인터랙티브 컨트롤은 누르는 동안 기존 시각 영역 위에 `gray975` 색상을 `16%` opacity로 덮는다.
 - 오버레이는 각 컴포넌트의 기존 시각 영역에만 적용한다. 이 정책만으로 최소 크기나 터치 영역을 일괄 변경하지 않는다.
 - 아이콘 전용 컨트롤은 별도 배경 사각형이 아니라 아이콘 이미지 자체에만 같은 오버레이를 적용한다.
-- 화면 전용 조합 버튼은 overlay의 색상·opacity를 복제하지 않고 `Button.dsSurfaceButtonStyle(shape:)` 또는 `Button.dsIconButtonStyle(_:width:height:)`로 이 정책을 선택한다.
+- 화면 전용 조합 버튼은 overlay의 색상·opacity를 복제하지 않고 `Button.dsSurfaceButtonStyle(shape:)`, `Button.dsIconButtonStyle(_:width:height:)`(DS 아이콘) 또는 `Button.dsIconButtonStyle(width:height:)`(Feature 전용 아이콘)로 이 정책을 선택한다.
 - 공통 스타일을 화면 루트에 일괄 적용하지 않는다. surface shape와 icon target을 호출부가 명시하고, 시각 영역보다 큰 hit area는 pressed style 바깥에서 확장한다.
 
 ## 🔗 피그마 전체 컴포넌트 명세
