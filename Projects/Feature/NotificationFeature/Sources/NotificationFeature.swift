@@ -54,6 +54,7 @@ public struct NotificationFeature {
         public enum Delegate: Equatable, Sendable {
             case dismissRequested
             case unreadCountUpdated(Int)
+            case deepLinkRequested(NotificationDeepLink)
         }
     }
 
@@ -105,14 +106,27 @@ public struct NotificationFeature {
 
             case let .view(.notificationTapped(notificationID)):
                 guard case let .loaded(notifications) = state.viewState,
-                      let notification = notifications.first(where: { $0.id == notificationID }),
-                      !notification.isRead,
-                      !state.pendingReadIDs.contains(notificationID)
+                      let notification = notifications.first(where: { $0.id == notificationID })
                 else {
                     return .none
                 }
-                state.pendingReadIDs.insert(notificationID)
-                return markAsReadEffect(notificationID)
+
+                let deepLinkEffect: Effect<Action>
+                if let deepLink = notification.deepLink.flatMap(NotificationDeepLink.init(url:)) {
+                    deepLinkEffect = .send(.delegate(.deepLinkRequested(deepLink)))
+                } else {
+                    deepLinkEffect = .none
+                }
+
+                let readEffect: Effect<Action>
+                if !notification.isRead, !state.pendingReadIDs.contains(notificationID) {
+                    state.pendingReadIDs.insert(notificationID)
+                    readEffect = markAsReadEffect(notificationID)
+                } else {
+                    readEffect = .none
+                }
+
+                return .merge(deepLinkEffect, readEffect)
 
             case let .markAsReadResponse(notificationID, error):
                 let wasPending = state.pendingReadIDs.remove(notificationID) != nil

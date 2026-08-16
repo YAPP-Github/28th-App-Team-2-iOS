@@ -62,6 +62,7 @@ public struct NotificationView: View {
                             isReadPending: store.pendingReadIDs.contains(notification.id),
                             action: { store.send(.view(.notificationTapped(notification.id))) }
                         )
+                        .id(notification.id)
                     }
                 }
             }

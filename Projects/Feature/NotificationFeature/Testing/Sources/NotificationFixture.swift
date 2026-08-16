@@ -7,6 +7,7 @@ public enum NotificationFixture {
         type: NotificationType = .aiComplete,
         title: String = "토닥이 답변",
         content: String = "토닥이 답변이 도착했어요.",
+        deepLink: URL? = nil,
         isRead: Bool = false,
         createdAt: Date = .now
     ) -> InAppNotification {
@@ -15,6 +16,7 @@ public enum NotificationFixture {
             type: type,
             title: title,
             content: content,
+            deepLink: deepLink,
             isRead: isRead,
             createdAt: createdAt
         )

@@ -1,9 +1,12 @@
+// swiftlint:disable file_length
 import ComposableArchitecture
 import Foundation
 import NotificationFeatureInterface
+import NotificationFeatureTesting
 import Testing
 @testable import NotificationFeature
 
+// swiftlint:disable type_body_length
 @Suite
 @MainActor
 struct NotificationFeatureTests {
@@ -274,6 +277,110 @@ struct NotificationFeatureTests {
             $0.isFetchInFlight = false
         }
         await store.receive(.delegate(.unreadCountUpdated(0)))
+    }
+    @Test("딥링크가 있는 미읽은 알림을 탭하면 delegate를 방출하고 읽음 처리를 병행한다")
+    func notificationWithDeepLinkEmitsDelegateAndMarksAsRead() async {
+        let conversationID = UUID()
+        let deepLinkedNotification = NotificationFixture.notification(
+            deepLink: URL(string: "todakun://chat/conversations/\(conversationID.uuidString.lowercased())"),
+            isRead: false
+        )
+        let store = TestStore(
+            initialState: NotificationFeature.State(
+                viewState: .loaded([deepLinkedNotification]),
+                unreadCount: 1
+            )
+        ) {
+            NotificationFeature()
+        } withDependencies: {
+            $0.notificationClient.markAsRead = { _ in }
+            $0.notificationClient.fetchNotifications = {
+                .init(unreadCount: 0, notifications: [deepLinkedNotification.markedAsRead()])
+            }
+        }
+
+        await store.send(.view(.notificationTapped(deepLinkedNotification.id))) {
+            $0.pendingReadIDs = [deepLinkedNotification.id]
+        }
+        await store.receive(.delegate(.deepLinkRequested(.chatConversation(conversationID))))
+        await store.receive(.markAsReadResponse(deepLinkedNotification.id, nil)) {
+            $0.pendingReadIDs = []
+            $0.viewState = .loaded([deepLinkedNotification.markedAsRead()])
+            $0.unreadCount = 0
+            $0.latestFetchGeneration = 1
+            $0.isFetchInFlight = true
+        }
+        await store.receive(.delegate(.unreadCountUpdated(0)))
+        await store.receive(
+            .notificationsResponse(
+                1,
+                .success(.init(unreadCount: 0, notifications: [deepLinkedNotification.markedAsRead()]))
+            )
+        ) {
+            $0.isFetchInFlight = false
+        }
+        await store.receive(.delegate(.unreadCountUpdated(0)))
+    }
+
+    @Test("이미 읽은 알림을 탭해도 딥링크가 있으면 delegate를 방출한다")
+    func alreadyReadNotificationWithDeepLinkEmitsDelegate() async {
+        let deepLinkedNotification = NotificationFixture.notification(
+            deepLink: URL(string: "todakun://lucky-action"),
+            isRead: true
+        )
+        let store = TestStore(
+            initialState: NotificationFeature.State(
+                viewState: .loaded([deepLinkedNotification]),
+                unreadCount: 0
+            )
+        ) {
+            NotificationFeature()
+        }
+
+        await store.send(.view(.notificationTapped(deepLinkedNotification.id)))
+        await store.receive(.delegate(.deepLinkRequested(.luckyAction)))
+    }
+}
+// swiftlint:enable type_body_length
+
+@Suite
+struct NotificationDeepLinkTests {
+    @Test("토닥이 대화 딥링크 URL을 정상 파싱한다")
+    func parsesChatConversationDeepLink() {
+        let uuid = UUID()
+        let url = URL(string: "todakun://chat/conversations/\(uuid.uuidString.lowercased())")!
+        #expect(NotificationDeepLink(url: url) == .chatConversation(uuid))
+    }
+
+    @Test("행운액션 딥링크 URL을 정상 파싱한다")
+    func parsesLuckyActionDeepLink() {
+        let url = URL(string: "todakun://lucky-action")!
+        #expect(NotificationDeepLink(url: url) == .luckyAction)
+
+        let invalidURL = URL(string: "todakun://lucky-action/invalid")!
+        #expect(NotificationDeepLink(url: invalidURL) == nil)
+    }
+
+    @Test("운세 딥링크 URL을 정상 파싱한다")
+    func parsesTodayFortuneDeepLink() {
+        let todayURL = URL(string: "todakun://fortune/today")!
+        #expect(NotificationDeepLink(url: todayURL) == .todayFortune)
+
+        let fortuneURL = URL(string: "todakun://fortune")!
+        #expect(NotificationDeepLink(url: fortuneURL) == .todayFortune)
+    }
+
+    @Test("공지 딥링크 URL을 정상 파싱한다")
+    func parsesNoticeDeepLink() {
+        let url = URL(string: "todakun://notice/123")!
+        #expect(NotificationDeepLink(url: url) == .notice("123"))
+    }
+
+    @Test("지원하지 않는 scheme이나 잘못된 포맷은 nil을 반환한다")
+    func returnsNilForInvalidDeepLinks() {
+        #expect(NotificationDeepLink(url: URL(string: "https://todakun.app")!) == nil)
+        #expect(NotificationDeepLink(url: URL(string: "todakun://chat/conversations/invalid-uuid")!) == nil)
+        #expect(NotificationDeepLink(url: URL(string: "todakun://unknown/action")!) == nil)
     }
 }
 

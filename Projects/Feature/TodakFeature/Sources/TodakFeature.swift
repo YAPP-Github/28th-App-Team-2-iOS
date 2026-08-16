@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Foundation
 
+// swiftlint:disable type_body_length
 @Reducer
 public struct TodakFeature {
     public init() {}
@@ -30,6 +31,8 @@ public struct TodakFeature {
         public var isLoadingHistory: Bool
         public var pendingDeletionID: UUID?
         public var toastMessage: String?
+        /// 딥링크로 열려는 대화 로드가 진행 중임을 나타낸다. 실패 시 새 채팅으로 리셋한다.
+        public var isPendingDeepLinkConversation: Bool
 
         public init(
             screen: Screen = .chat,
@@ -49,7 +52,8 @@ public struct TodakFeature {
             conversations: [TodakConversationSummary] = [],
             isLoadingHistory: Bool = false,
             pendingDeletionID: UUID? = nil,
-            toastMessage: String? = nil
+            toastMessage: String? = nil,
+            isPendingDeepLinkConversation: Bool = false
         ) {
             self.screen = screen
             self.showsSplash = showsSplash
@@ -69,6 +73,7 @@ public struct TodakFeature {
             self.isLoadingHistory = isLoadingHistory
             self.pendingDeletionID = pendingDeletionID
             self.toastMessage = toastMessage
+            self.isPendingDeepLinkConversation = isPendingDeepLinkConversation
         }
 
         public var canSend: Bool {
@@ -93,6 +98,7 @@ public struct TodakFeature {
         case guideDismissed
         case historyResponse(Result<[TodakConversationSummary], TodakClientError>)
         case conversationTapped(UUID)
+        case openConversation(UUID)
         case conversationResponse(Result<TodakConversation, TodakClientError>)
         case deleteButtonTapped(UUID)
         case deleteCancelled
@@ -228,8 +234,27 @@ public struct TodakFeature {
             case let .conversationTapped(conversationID):
                 return fetchConversationEffect(conversationID: conversationID)
 
+            case let .openConversation(conversationID):
+                state.screen = .chat
+                state.isPendingDeepLinkConversation = true
+                let shouldPresentSplash = !state.didPresentSplash
+                state.showsSplash = shouldPresentSplash
+                state.didPresentSplash = true
+                state.didCompleteSplashDelay = !shouldPresentSplash
+                state.isLoadingHistory = false
+                state.isStreaming = false
+                state.isLoadingEntry = true
+                let splashEffect = shouldPresentSplash ? splashDelayEffect() : .none
+                return .merge(
+                    .cancel(id: CancelID.stream),
+                    fetchConversationEffect(conversationID: conversationID),
+                    fetchEntryEffect(),
+                    splashEffect
+                )
+
             case let .conversationResponse(.success(conversation)):
                 state.screen = .chat
+                state.isPendingDeepLinkConversation = false
                 state.conversationID = conversation.id
                 state.messages = conversation.messages
                 state.conversations = state.conversations.map { summary in
@@ -244,7 +269,16 @@ public struct TodakFeature {
                 return .none
 
             case let .conversationResponse(.failure(error)):
-                state.toastMessage = message(for: error)
+                let wasDeepLink = state.isPendingDeepLinkConversation
+                state.isPendingDeepLinkConversation = false
+                if wasDeepLink {
+                    // 딥링크로 진입했지만 해당 채팅방이 없으면 새 채팅으로 이동 + 토스트 표시
+                    resetConversation(state: &state)
+                    state.screen = .chat
+                    state.toastMessage = deepLinkConversationErrorMessage(for: error)
+                } else {
+                    state.toastMessage = message(for: error)
+                }
                 return toastDismissEffect()
 
             case let .deleteButtonTapped(conversationID):
@@ -281,3 +315,4 @@ public struct TodakFeature {
     }
 
 }
+// swiftlint:enable type_body_length
