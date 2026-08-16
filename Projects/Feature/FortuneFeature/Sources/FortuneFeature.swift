@@ -22,11 +22,16 @@ public struct FortuneFeature {
         }
 
         public var viewState: ViewState
+        public var unreadNotificationCount: Int
         public var path = StackState<Path.State>()
         @Presents public var categoryDetail: FortuneCategoryDetailFeature.State?
 
-        public init(viewState: ViewState = .loading) {
+        public init(
+            viewState: ViewState = .loading,
+            unreadNotificationCount: Int = 0
+        ) {
             self.viewState = viewState
+            self.unreadNotificationCount = unreadNotificationCount
         }
 
         public var isShowingDetail: Bool {
@@ -36,6 +41,7 @@ public struct FortuneFeature {
 
     public enum Action: Equatable {
         case view(ViewAction)
+        case unreadNotificationCountUpdated(Int)
         case todayFortuneResponse(Result<FortuneHomeContent, FortuneClientError>)
         case path(StackActionOf<Path>)
         case delegate(Delegate)
@@ -56,6 +62,7 @@ public struct FortuneFeature {
             case todakRequested
             case luckyActionTabRequested
             case luckyActionPushRequested
+            case notificationsRequested
             case myPageRequested
             case myInfoEditRequested
         }
@@ -97,6 +104,10 @@ public struct FortuneFeature {
                 }
 
             case .view(.notificationButtonTapped):
+                return .send(.delegate(.notificationsRequested))
+
+            case let .unreadNotificationCountUpdated(count):
+                state.unreadNotificationCount = count
                 return .none
 
             case .view(.fortuneReportButtonTapped):

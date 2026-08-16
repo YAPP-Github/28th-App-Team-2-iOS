@@ -4,6 +4,7 @@ import FortuneFeature
 import Foundation
 import LuckyActionFeature
 import MyPageFeature
+import NotificationFeature
 import SwiftUI
 import TodakFeature
 
@@ -30,6 +31,7 @@ struct MainTabView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: isLuckyActionCompletionPresented)
+        .task { await store.send(.task).finish() }
     }
 
     private var tabContent: some View {
@@ -91,6 +93,7 @@ struct MainTabView: View {
             && myPageShowing
             && !isMyInfoEditPresented
             && store.pushedLuckyAction == nil
+            && !store.isNotificationPresented
     }
 
     private var fortuneTab: some View {
@@ -102,7 +105,12 @@ struct MainTabView: View {
                     store.send(.pushedLuckyActionPresentationChanged(isPresented))
                 }
             ),
-            luckyActionDestination: AnyView(pushedLuckyActionDestination)
+            luckyActionDestination: AnyView(pushedLuckyActionDestination),
+            isNotificationPresented: Binding(
+                get: { store.isNotificationPresented },
+                set: { store.send(.notificationPresentationChanged($0)) }
+            ),
+            notificationDestination: AnyView(notificationDestination)
         )
     }
 
@@ -116,6 +124,13 @@ struct MainTabView: View {
         } else {
             EmptyView()
         }
+    }
+
+    private var notificationDestination: some View {
+        NotificationView(
+            store: store.scope(state: \.notifications, action: \.notifications),
+            loadsOnAppear: false
+        )
     }
 
     private var isMyInfoEditPresented: Bool {

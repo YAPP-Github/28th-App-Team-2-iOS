@@ -166,13 +166,14 @@ extension FortuneFeatureTests {
         }
     }
 
-    @Test("범위에서 제외된 알림 버튼은 화면 전환을 만들지 않는다")
-    func notificationTapIsNoop() async {
+    @Test("알림 버튼은 App 조립을 위한 의미 기반 delegate를 전달한다")
+    func notificationTapRequestsNotifications() async {
         let store = TestStore(initialState: FortuneFeature.State()) {
             FortuneFeature()
         }
 
         await store.send(.view(.notificationButtonTapped))
+        await store.receive(.delegate(.notificationsRequested))
     }
 
     @Test("운세 리포트 버튼 탭은 Fortune 내부 경로를 추가한다")

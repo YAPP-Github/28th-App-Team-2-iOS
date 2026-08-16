@@ -44,6 +44,9 @@ struct MainTabFeatureTests {
         }
     }
 
+}
+
+extension MainTabFeatureTests {
     @Test
     func fortuneDelegateLuckyActionPushRequestedPresentsLuckyAction() async {
         let now = Date(timeIntervalSince1970: 1_786_762_800)
@@ -212,6 +215,8 @@ struct MainTabFeatureTests {
 
         let store = TestStore(initialState: initialState) {
             MainTabFeature()
+        } withDependencies: {
+            $0.notificationClient.fetchNotifications = { .init(unreadCount: 0, notifications: []) }
         }
 
         await store.send(.selectedTabChanged(.todak)) {
@@ -225,6 +230,19 @@ struct MainTabFeatureTests {
         await store.send(.selectedTabChanged(.fortune)) {
             $0.selectedTab = .fortune
         }
+        await store.receive(.notifications(.view(.refresh))) {
+            $0.notifications.viewState = .loading
+            $0.notifications.latestFetchGeneration = 1
+            $0.notifications.isFetchInFlight = true
+        }
+        await store.receive(
+            .notifications(.notificationsResponse(1, .success(.init(unreadCount: 0, notifications: []))))
+        ) {
+            $0.notifications.viewState = .loaded([])
+            $0.notifications.isFetchInFlight = false
+        }
+        await store.receive(.notifications(.delegate(.unreadCountUpdated(0))))
+        await store.receive(.fortune(.unreadNotificationCountUpdated(0)))
 
         #expect(
             store.state.fortune.viewState == .failed(message: "네트워크 오류가 발생했습니다.")

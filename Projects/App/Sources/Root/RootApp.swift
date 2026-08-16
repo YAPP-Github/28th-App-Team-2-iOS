@@ -9,6 +9,8 @@ import LuckyActionFeature
 import LuckyActionFeatureInterface
 import MyPageFeature
 import NetworkCore
+import NotificationFeature
+import NotificationFeatureInterface
 import OnboardingFeature
 import SwiftUI
 import TodakFeature
@@ -32,6 +34,7 @@ struct TodakunApp: App {
         let luckyActionClient: LuckyActionClient
         let myPageClient: MyPageClient
         let todakClient: TodakClient
+        let notificationClient: NotificationClient
 
         if let baseURL = configuration.apiBaseURL {
             let authHTTPClient = HTTPClient(baseURL: baseURL)
@@ -64,12 +67,14 @@ struct TodakunApp: App {
                 httpClient: authenticatedHTTPClient,
                 sseClient: authenticatedSSEClient
             )
+            notificationClient = NotificationClient.live(httpClient: authenticatedHTTPClient)
         } else {
             authClient = .unavailable
             fortuneClient = .unavailable
             luckyActionClient = .unavailable
             myPageClient = .unavailable
             todakClient = .unavailable
+            notificationClient = .unavailable
         }
 
         Task { @MainActor in
@@ -87,6 +92,7 @@ struct TodakunApp: App {
             $0.luckyActionClient = luckyActionClient
             $0.myPageClient = myPageClient
             $0.todakClient = todakClient
+            $0.notificationClient = notificationClient
             $0.socialLoginClient = .live(configuration: configuration)
         }
     }

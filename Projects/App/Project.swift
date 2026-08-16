@@ -18,6 +18,8 @@ let project = Project.makeApp(
         .project(target: "TodakFeature", path: .relativeToRoot("Projects/Feature/TodakFeature")),
         .project(target: "LuckyActionFeature", path: .relativeToRoot("Projects/Feature/LuckyActionFeature")),
         .project(target: "LuckyActionFeatureInterface", path: .relativeToRoot("Projects/Feature/LuckyActionFeature")),
+        .project(target: "NotificationFeature", path: .relativeToRoot("Projects/Feature/NotificationFeature")),
+        .project(target: "NotificationFeatureInterface", path: .relativeToRoot("Projects/Feature/NotificationFeature")),
         .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPageFeature"))
     ],
     hasTests: true
