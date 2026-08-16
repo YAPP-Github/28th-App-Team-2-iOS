@@ -4,6 +4,7 @@ import Foundation
 import LuckyActionFeature
 import MyPageFeature
 import NotificationFeature
+import NotificationFeatureInterface
 import TodakFeature
 
 @Reducer
@@ -162,6 +163,32 @@ struct MainTabFeature {
 
             case let .notifications(.delegate(.unreadCountUpdated(count))):
                 return .send(.fortune(.unreadNotificationCountUpdated(count)))
+
+            case let .notifications(.delegate(.deepLinkRequested(deepLink))):
+                switch deepLink {
+                case let .chatConversation(conversationID):
+                    if state.selectedTab != .todak {
+                        state.previousTab = state.selectedTab
+                    }
+                    state.selectedTab = .todak
+                    return .send(.todak(.openConversation(conversationID)))
+
+                case .luckyAction:
+                    state.pushedLuckyAction = LuckyActionFeature.State(
+                        presentationStyle: .pushed,
+                        today: now
+                    )
+                    return .none
+
+                case .todayFortune:
+                    state.isNotificationPresented = false
+                    state.fortune.path.removeAll()
+                    state.selectedTab = .fortune
+                    return .none
+
+                case .notice:
+                    return .none
+                }
 
             case .pushedLuckyAction(.presented(.delegate(.dismissRequested))),
                  .pushedLuckyActionPresentationChanged(false):

@@ -98,6 +98,7 @@ private struct NotificationResponseDTO: Decodable {
     let type: String
     let title: String
     let content: String
+    let deepLink: String?
     let isRead: Bool
     let createdAt: String
 
@@ -113,6 +114,7 @@ private struct NotificationResponseDTO: Decodable {
             type: type,
             title: title,
             content: content,
+            deepLink: deepLink.flatMap(URL.init(string:)),
             isRead: isRead,
             createdAt: createdAt
         )

@@ -17,6 +17,7 @@ public struct InAppNotification: Equatable, Identifiable, Sendable {
     public let type: NotificationType
     public let title: String
     public let content: String
+    public let deepLink: URL?
     public let isRead: Bool
     public let createdAt: Date
 
@@ -25,6 +26,7 @@ public struct InAppNotification: Equatable, Identifiable, Sendable {
         type: NotificationType,
         title: String,
         content: String,
+        deepLink: URL? = nil,
         isRead: Bool,
         createdAt: Date
     ) {
@@ -32,6 +34,7 @@ public struct InAppNotification: Equatable, Identifiable, Sendable {
         self.type = type
         self.title = title
         self.content = content
+        self.deepLink = deepLink
         self.isRead = isRead
         self.createdAt = createdAt
     }
@@ -42,9 +45,44 @@ public struct InAppNotification: Equatable, Identifiable, Sendable {
             type: type,
             title: title,
             content: content,
+            deepLink: deepLink,
             isRead: true,
             createdAt: createdAt
         )
+    }
+}
+
+public enum NotificationDeepLink: Equatable, Sendable {
+    case chatConversation(UUID)
+    case luckyAction
+    case todayFortune
+    case notice(String)
+
+    public init?(url: URL) {
+        guard url.scheme == "todakun" else { return nil }
+        guard let host = url.host else { return nil }
+        let components = url.pathComponents.filter { $0 != "/" }
+
+        switch host {
+        case "chat":
+            guard components.count == 2, components[0] == "conversations" else { return nil }
+            guard let uuid = UUID(uuidString: components[1]) else { return nil }
+            self = .chatConversation(uuid)
+
+        case "lucky-action":
+            self = .luckyAction
+
+        case "fortune":
+            guard components.isEmpty || components == ["today"] else { return nil }
+            self = .todayFortune
+
+        case "notice":
+            guard components.count == 1 else { return nil }
+            self = .notice(components[0])
+
+        default:
+            return nil
+        }
     }
 }
 

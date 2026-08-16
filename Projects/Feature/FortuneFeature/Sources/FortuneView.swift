@@ -68,6 +68,9 @@ public struct FortuneNavigationView: View {
             }
             .navigationDestination(isPresented: $isNotificationPresented) {
                 notificationDestination
+                    .navigationDestination(isPresented: $isLuckyActionPresented) {
+                        luckyActionDestination
+                    }
             }
         } destination: { pathStore in
             switch pathStore.case {
