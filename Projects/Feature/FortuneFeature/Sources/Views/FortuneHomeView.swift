@@ -11,6 +11,7 @@ struct FortuneHomeView: View {
     private static let scrollCoordinateSpaceName = "FortuneScrollView"
 
     let content: FortuneHomeContent
+    let unreadNotificationCount: Int
     let action: (FortuneFeature.Action.ViewAction) -> Void
 
     @State private var scrollMetrics = ScrollMetrics()
@@ -20,6 +21,7 @@ struct FortuneHomeView: View {
             VStack(spacing: 0) {
                 FortuneHeroSection(
                     content: content,
+                    unreadNotificationCount: unreadNotificationCount,
                     notificationAction: {
                         action(.notificationButtonTapped)
                     },

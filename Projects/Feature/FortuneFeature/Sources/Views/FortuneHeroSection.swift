@@ -5,12 +5,16 @@ struct FortuneHeroSection: View {
     static let minimumHeight: CGFloat = 319
 
     let content: FortuneHomeContent
+    let unreadNotificationCount: Int
     let notificationAction: () -> Void
     let reportAction: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
-            FortuneHomeHeader(notificationAction: notificationAction)
+            FortuneHomeHeader(
+                unreadNotificationCount: unreadNotificationCount,
+                notificationAction: notificationAction
+            )
 
             HStack(alignment: .center, spacing: 0) {
                 Text(content.title)
@@ -44,6 +48,7 @@ struct FortuneHeroSection: View {
 }
 
 private struct FortuneHomeHeader: View {
+    let unreadNotificationCount: Int
     let notificationAction: () -> Void
 
     var body: some View {
@@ -59,11 +64,20 @@ private struct FortuneHomeHeader: View {
             Button(action: notificationAction) {
                 DSIcon(.bell, width: 24, height: 24)
                     .foregroundStyle(Color.ds.white)
+                    .overlay(alignment: .topTrailing) {
+                        if unreadNotificationCount > 0 {
+                            Circle()
+                                .fill(Color.ds.red500)
+                                .frame(width: 8, height: 8)
+                                .offset(x: 2, y: -2)
+                        }
+                    }
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
             }
             .dsIconButtonStyle(.bell, width: 24, height: 24)
             .accessibilityLabel("알림")
+            .accessibilityValue(unreadNotificationCount > 0 ? "읽지 않은 알림 있음" : "읽지 않은 알림 없음")
         }
         .padding(.leading, 20)
         .padding(.trailing, 10)

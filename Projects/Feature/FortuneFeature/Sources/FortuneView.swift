@@ -13,7 +13,9 @@ public struct FortuneView: View {
         FortuneNavigationView(
             store: store,
             isLuckyActionPresented: .constant(false),
-            luckyActionDestination: AnyView(EmptyView())
+            luckyActionDestination: AnyView(EmptyView()),
+            isNotificationPresented: .constant(false),
+            notificationDestination: AnyView(EmptyView())
         )
     }
 }
@@ -22,15 +24,21 @@ public struct FortuneNavigationView: View {
     @Bindable private var store: StoreOf<FortuneFeature>
     @Binding private var isLuckyActionPresented: Bool
     private let luckyActionDestination: AnyView
+    @Binding private var isNotificationPresented: Bool
+    private let notificationDestination: AnyView
 
     public init(
         store: StoreOf<FortuneFeature>,
         isLuckyActionPresented: Binding<Bool>,
-        luckyActionDestination: AnyView
+        luckyActionDestination: AnyView,
+        isNotificationPresented: Binding<Bool>,
+        notificationDestination: AnyView
     ) {
         self.store = store
         self._isLuckyActionPresented = isLuckyActionPresented
         self.luckyActionDestination = luckyActionDestination
+        self._isNotificationPresented = isNotificationPresented
+        self.notificationDestination = notificationDestination
     }
 
     public var body: some View {
@@ -45,6 +53,7 @@ public struct FortuneNavigationView: View {
                 case let .loaded(content):
                     FortuneHomeView(
                         content: content,
+                        unreadNotificationCount: store.unreadNotificationCount,
                         action: { store.send(.view($0)) }
                     )
 
@@ -56,6 +65,9 @@ public struct FortuneNavigationView: View {
                         }
                     )
                 }
+            }
+            .navigationDestination(isPresented: $isNotificationPresented) {
+                notificationDestination
             }
         } destination: { pathStore in
             switch pathStore.case {
