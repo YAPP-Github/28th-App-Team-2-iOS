@@ -3,6 +3,7 @@ import FortuneFeature
 import Foundation
 import LuckyActionFeature
 import MyPageFeature
+import NotificationFeature
 import TodakFeature
 
 @Reducer
@@ -25,7 +26,9 @@ struct MainTabFeature {
         var fortune: FortuneFeature.State
         var todak: TodakFeature.State
         var luckyAction: LuckyActionFeature.State
+        var notifications: NotificationFeature.State
         @Presents var pushedLuckyAction: LuckyActionFeature.State?
+        var isNotificationPresented: Bool
         var myPage: MyPageFeature.State
         /// 궁합 화면에서 시작된 내 정보 편집 요청의 출처를 보관한다.
         /// 경로가 사라진 뒤 도착한 응답이 편집 화면을 표시하지 않도록 App에서 수명을 관리한다.
@@ -37,7 +40,9 @@ struct MainTabFeature {
             fortune: FortuneFeature.State = .init(),
             todak: TodakFeature.State = .init(),
             luckyAction: LuckyActionFeature.State = .init(),
+            notifications: NotificationFeature.State = .init(),
             pushedLuckyAction: LuckyActionFeature.State? = nil,
+            isNotificationPresented: Bool = false,
             myPage: MyPageFeature.State = .init()
         ) {
             self.selectedTab = selectedTab
@@ -45,17 +50,22 @@ struct MainTabFeature {
             self.fortune = fortune
             self.todak = todak
             self.luckyAction = luckyAction
+            self.notifications = notifications
             self.pushedLuckyAction = pushedLuckyAction
+            self.isNotificationPresented = isNotificationPresented
             self.myPage = myPage
         }
     }
 
     enum Action: Equatable {
         case selectedTabChanged(Tab)
+        case task
         case fortuneNavigationChanged
         case fortune(FortuneFeature.Action)
         case todak(TodakFeature.Action)
         case luckyAction(LuckyActionFeature.Action)
+        case notifications(NotificationFeature.Action)
+        case notificationPresentationChanged(Bool)
         case pushedLuckyAction(PresentationAction<LuckyActionFeature.Action>)
         case pushedLuckyActionPresentationChanged(Bool)
         case myPage(MyPageFeature.Action)
@@ -78,8 +88,15 @@ struct MainTabFeature {
             LuckyActionFeature()
         }
 
+        Scope(state: \.notifications, action: \.notifications) {
+            NotificationFeature()
+        }
+
         Reduce { state, action in
             switch action {
+            case .task:
+                return .send(.notifications(.view(.refresh)))
+
             case let .selectedTabChanged(tab):
                 if tab == .todak, state.selectedTab != .todak {
                     state.previousTab = state.selectedTab
@@ -87,6 +104,16 @@ struct MainTabFeature {
                 let shouldDiscardEditPresentation = tab != .fortune
                     && state.compatibilityEditSourceID != nil
                 state.selectedTab = tab
+                if tab == .fortune {
+                    if shouldDiscardEditPresentation {
+                        state.compatibilityEditSourceID = nil
+                        return .merge(
+                            .send(.notifications(.view(.refresh))),
+                            .send(.myPage(.discardPendingEditPresentation))
+                        )
+                    }
+                    return .send(.notifications(.view(.refresh)))
+                }
                 if shouldDiscardEditPresentation {
                     state.compatibilityEditSourceID = nil
                     return .send(.myPage(.discardPendingEditPresentation))
@@ -116,6 +143,25 @@ struct MainTabFeature {
                     today: now
                 )
                 return .none
+
+            case .fortune(.delegate(.notificationsRequested)):
+                state.isNotificationPresented = true
+                return .send(.notifications(.view(.refresh)))
+
+            case .notificationPresentationChanged(false):
+                state.isNotificationPresented = false
+                return .send(.notifications(.view(.refresh)))
+
+            case .notificationPresentationChanged(true):
+                state.isNotificationPresented = true
+                return .none
+
+            case .notifications(.delegate(.dismissRequested)):
+                state.isNotificationPresented = false
+                return .send(.notifications(.view(.refresh)))
+
+            case let .notifications(.delegate(.unreadCountUpdated(count))):
+                return .send(.fortune(.unreadNotificationCountUpdated(count)))
 
             case .pushedLuckyAction(.presented(.delegate(.dismissRequested))),
                  .pushedLuckyActionPresentationChanged(false):
@@ -157,7 +203,7 @@ struct MainTabFeature {
                 )
             )
 
-            case .fortune, .todak, .luckyAction, .pushedLuckyAction,
+            case .fortune, .todak, .luckyAction, .notifications, .pushedLuckyAction,
                  .pushedLuckyActionPresentationChanged, .myPage:
                 return .none
             }
