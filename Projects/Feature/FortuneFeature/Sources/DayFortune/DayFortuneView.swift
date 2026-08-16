@@ -39,7 +39,10 @@ struct DayFortuneView: View {
     private var calendarEventDraftBinding: Binding<CalendarEventDraft?> {
         Binding(
             get: { store.calendarEventDraft },
-            set: { _ in }
+            set: { draft in
+                guard draft == nil else { return }
+                store.send(.calendarEventEditorCompleted(.cancelled))
+            }
         )
     }
 }

@@ -268,7 +268,7 @@ struct FortuneFollowupFeatureTests { // swiftlint:disable:this type_body_length
     }
 
     @Test("선택한 택일 결과를 제목만 포함한 종일 캘린더 초안으로 내보낸다")
-    func dayFortuneExportsSelectedResultToCalendar() async {
+    func dayFortuneExportsSelectedResultToCalendar() async throws {
         let date = Date(timeIntervalSince1970: 1_788_969_600)
         let result = DayFortuneResult(
             id: UUID(40), purpose: .travel, targetDate: date, score: 90,
@@ -284,6 +284,12 @@ struct FortuneFollowupFeatureTests { // swiftlint:disable:this type_body_length
         await store.send(.calendarExportTapped) {
             $0.calendarEventDraft = CalendarEventDraft(dayFortuneResult: result)
         }
+
+        let draft = try #require(store.state.calendarEventDraft)
+        #expect(draft.title == DayFortunePurpose.travel.title)
+        #expect(draft.date == result.targetDate)
+        #expect(draft.isAllDay)
+        #expect(draft.notes == nil)
     }
 
     @Test("캘린더 편집기 저장 시 완료 토스트를 표시하고 취소 시 표시하지 않는다")
