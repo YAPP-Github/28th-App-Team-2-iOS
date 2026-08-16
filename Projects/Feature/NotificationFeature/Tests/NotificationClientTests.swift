@@ -79,6 +79,7 @@ struct NotificationClientTests {
         #expect(list.unreadCount == 1)
         #expect(list.notifications.first?.type == .notice)
         #expect(list.notifications.first?.title == "테스트")
+        #expect(list.notifications.first?.deepLink == URL(string: "todakun://notice/1"))
     }
 
     @Test("탭한 알림만 PATCH 읽음 처리한다")

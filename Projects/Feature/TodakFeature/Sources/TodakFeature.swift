@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Foundation
 
+// swiftlint:disable type_body_length
 @Reducer
 public struct TodakFeature {
     public init() {}
@@ -314,3 +315,4 @@ public struct TodakFeature {
     }
 
 }
+// swiftlint:enable type_body_length

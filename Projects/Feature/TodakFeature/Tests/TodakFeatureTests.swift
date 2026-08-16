@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import ComposableArchitecture
 import Foundation
 import Testing
@@ -173,6 +174,7 @@ struct TodakFeatureTests {
     }
 }
 
+// swiftlint:disable type_body_length
 @Suite
 @MainActor
 struct TodakFeatureRegressionTests {
@@ -359,7 +361,126 @@ struct TodakFeatureRegressionTests {
             $0.conversations = [newer, older, undated]
         }
     }
+
+    @Test("세션 최초 딥링크 진입 시 스플래시를 1.5초 노출하고 대화방 및 entry/quota를 로드한다")
+    func openConversationShowsSplashOnFirstSessionEntry() async {
+        let clock = TestClock()
+        let conversationID = UUID(uuidString: "00000000-0000-0000-0000-000000000099")!
+        let conversation = TodakConversation(
+            id: conversationID,
+            title: "딥링크 대화",
+            messages: [
+                TodakMessage(
+                    id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+                    role: .assistant,
+                    content: "도착한 답변",
+                    status: .completed,
+                    createdAt: Date(timeIntervalSince1970: 1_800_000_000)
+                )
+            ]
+        )
+        let serverEntry = TodakEntry(
+            greeting: "서버 인사말",
+            suggestions: [],
+            quota: .init(used: 1, limit: 3)
+        )
+        let store = TestStore(initialState: TodakFeature.State()) {
+            TodakFeature()
+        } withDependencies: {
+            $0.continuousClock = clock
+            $0.todakClient = TodakClient(
+                fetchEntry: { serverEntry },
+                fetchConversations: { [] },
+                fetchConversation: { fetchedID in
+                    #expect(fetchedID == conversationID)
+                    return conversation
+                },
+                deleteConversation: { _ in },
+                sendMessage: { _, _ in AsyncThrowingStream { $0.finish() } }
+            )
+        }
+
+        await store.send(.openConversation(conversationID)) {
+            $0.screen = .chat
+            $0.isPendingDeepLinkConversation = true
+            $0.showsSplash = true
+            $0.didPresentSplash = true
+            $0.didCompleteSplashDelay = false
+            $0.isLoadingHistory = false
+            $0.isStreaming = false
+            $0.isLoadingEntry = true
+        }
+        await store.receive(.entryResponse(.success(serverEntry))) {
+            $0.entry = serverEntry
+            $0.quota = serverEntry.quota
+            $0.isLoadingEntry = false
+        }
+        await store.receive(.conversationResponse(.success(conversation))) {
+            $0.isPendingDeepLinkConversation = false
+            $0.conversationID = conversationID
+            $0.messages = conversation.messages
+        }
+        await clock.advance(by: .milliseconds(1_500))
+        await store.receive(.splashElapsed) {
+            $0.didCompleteSplashDelay = true
+            $0.showsSplash = false
+        }
+    }
+
+    @Test("세션 내에서 이미 스플래시를 본 경우 딥링크 진입 시 스플래시 없이 즉시 열린다")
+    func openConversationSkipsSplashIfAlreadyPresentedInSession() async {
+        let conversationID = UUID(uuidString: "00000000-0000-0000-0000-000000000099")!
+        let conversation = TodakConversation(
+            id: conversationID,
+            title: "딥링크 대화",
+            messages: []
+        )
+        let serverEntry = TodakEntry(
+            greeting: "서버 인사말",
+            suggestions: [],
+            quota: .init(used: 1, limit: 3)
+        )
+        let store = TestStore(
+            initialState: TodakFeature.State(
+                showsSplash: false,
+                didPresentSplash: true,
+                didCompleteSplashDelay: true
+            )
+        ) {
+            TodakFeature()
+        } withDependencies: {
+            $0.todakClient = TodakClient(
+                fetchEntry: { serverEntry },
+                fetchConversations: { [] },
+                fetchConversation: { _ in conversation },
+                deleteConversation: { _ in },
+                sendMessage: { _, _ in AsyncThrowingStream { $0.finish() } }
+            )
+        }
+
+        await store.send(.openConversation(conversationID)) {
+            $0.screen = .chat
+            $0.isPendingDeepLinkConversation = true
+            $0.showsSplash = false
+            $0.didPresentSplash = true
+            $0.didCompleteSplashDelay = true
+            $0.isLoadingHistory = false
+            $0.isStreaming = false
+            $0.isLoadingEntry = true
+        }
+        await store.receive(.entryResponse(.success(serverEntry))) {
+            $0.entry = serverEntry
+            $0.quota = serverEntry.quota
+            $0.isLoadingEntry = false
+        }
+        await store.receive(.conversationResponse(.success(conversation))) {
+            $0.isPendingDeepLinkConversation = false
+            $0.conversationID = conversationID
+            $0.messages = conversation.messages
+        }
+    }
 }
+// swiftlint:enable type_body_length
 
 private func makeClient(
     fetchEntry: @escaping @Sendable () async throws -> TodakEntry = { .initial },

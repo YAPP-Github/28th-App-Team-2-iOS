@@ -59,27 +59,22 @@ public enum NotificationDeepLink: Equatable, Sendable {
     case notice(String)
 
     public init?(url: URL) {
-        guard url.scheme == "todakun" else { return nil }
-        guard let host = url.host else { return nil }
+        guard url.scheme == "todakun", let host = url.host else { return nil }
         let components = url.pathComponents.filter { $0 != "/" }
 
         switch host {
         case "chat":
-            guard components.count == 2, components[0] == "conversations" else { return nil }
-            guard let uuid = UUID(uuidString: components[1]) else { return nil }
+            guard components.count == 2, components[0] == "conversations",
+                  let uuid = UUID(uuidString: components[1]) else { return nil }
             self = .chatConversation(uuid)
-
         case "lucky-action":
             self = .luckyAction
-
         case "fortune":
             guard components.isEmpty || components == ["today"] else { return nil }
             self = .todayFortune
-
         case "notice":
-            guard components.count == 1 else { return nil }
-            self = .notice(components[0])
-
+            guard let noticeID = components.first, components.count == 1 else { return nil }
+            self = .notice(noticeID)
         default:
             return nil
         }
