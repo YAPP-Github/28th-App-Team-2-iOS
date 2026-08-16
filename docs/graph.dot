@@ -85,6 +85,7 @@ digraph {
   Todakun -> DesignSystem
   Todakun -> FortuneFeature
   Todakun -> LuckyActionFeature
+  Todakun -> LuckyActionFeatureInterface
   Todakun -> MyPageFeature
   Todakun -> NetworkCore
   Todakun -> OnboardingFeature

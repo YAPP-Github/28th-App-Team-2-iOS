@@ -1,10 +1,13 @@
 import ComposableArchitecture
 import FortuneFeature
 import Foundation
+import LuckyActionFeature
 import MyPageFeature
 
 @Reducer
 struct MainTabFeature {
+    @Dependency(\.date.now) private var now
+
     init() {}
 
     enum Tab: Equatable, Sendable {
@@ -18,6 +21,8 @@ struct MainTabFeature {
     struct State: Equatable {
         var selectedTab: Tab
         var fortune: FortuneFeature.State
+        var luckyAction: LuckyActionFeature.State
+        @Presents var pushedLuckyAction: LuckyActionFeature.State?
         var myPage: MyPageFeature.State
         /// 궁합 화면에서 시작된 내 정보 편집 요청의 출처를 보관한다.
         /// 경로가 사라진 뒤 도착한 응답이 편집 화면을 표시하지 않도록 App에서 수명을 관리한다.
@@ -26,10 +31,14 @@ struct MainTabFeature {
         init(
             selectedTab: Tab = .fortune,
             fortune: FortuneFeature.State = .init(),
+            luckyAction: LuckyActionFeature.State = .init(),
+            pushedLuckyAction: LuckyActionFeature.State? = nil,
             myPage: MyPageFeature.State = .init()
         ) {
             self.selectedTab = selectedTab
             self.fortune = fortune
+            self.luckyAction = luckyAction
+            self.pushedLuckyAction = pushedLuckyAction
             self.myPage = myPage
         }
     }
@@ -38,6 +47,9 @@ struct MainTabFeature {
         case selectedTabChanged(Tab)
         case fortuneNavigationChanged
         case fortune(FortuneFeature.Action)
+        case luckyAction(LuckyActionFeature.Action)
+        case pushedLuckyAction(PresentationAction<LuckyActionFeature.Action>)
+        case pushedLuckyActionPresentationChanged(Bool)
         case myPage(MyPageFeature.Action)
     }
 
@@ -48,6 +60,10 @@ struct MainTabFeature {
 
         Scope(state: \.myPage, action: \.myPage) {
             MyPageFeature()
+        }
+
+        Scope(state: \.luckyAction, action: \.luckyAction) {
+            LuckyActionFeature()
         }
 
         Reduce { state, action in
@@ -71,8 +87,20 @@ struct MainTabFeature {
                 state.compatibilityEditSourceID = nil
                 return .send(.myPage(.discardPendingEditPresentation))
 
-            case .fortune(.delegate(.luckyActionRequested)):
+            case .fortune(.delegate(.luckyActionTabRequested)):
                 state.selectedTab = .luckyAction
+                return .none
+
+            case .fortune(.delegate(.luckyActionPushRequested)):
+                state.pushedLuckyAction = LuckyActionFeature.State(
+                    presentationStyle: .pushed,
+                    today: now
+                )
+                return .none
+
+            case .pushedLuckyAction(.presented(.delegate(.dismissRequested))),
+                 .pushedLuckyActionPresentationChanged(false):
+                state.pushedLuckyAction = nil
                 return .none
 
             case .fortune(.delegate(.todakRequested)):
@@ -110,9 +138,12 @@ struct MainTabFeature {
                     )
                 )
 
-            case .fortune, .myPage:
+            case .fortune, .luckyAction, .pushedLuckyAction, .pushedLuckyActionPresentationChanged, .myPage:
                 return .none
             }
+        }
+        .ifLet(\.$pushedLuckyAction, action: \.pushedLuckyAction) {
+            LuckyActionFeature()
         }
     }
 

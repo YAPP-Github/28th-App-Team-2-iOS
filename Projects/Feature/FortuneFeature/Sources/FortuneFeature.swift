@@ -22,16 +22,11 @@ public struct FortuneFeature {
         }
 
         public var viewState: ViewState
-        public var isRefreshing: Bool
         public var path = StackState<Path.State>()
         @Presents public var categoryDetail: FortuneCategoryDetailFeature.State?
 
-        public init(
-            viewState: ViewState = .loading,
-            isRefreshing: Bool = false
-        ) {
+        public init(viewState: ViewState = .loading) {
             self.viewState = viewState
-            self.isRefreshing = isRefreshing
         }
 
         public var isShowingDetail: Bool {
@@ -48,7 +43,6 @@ public struct FortuneFeature {
 
         public enum ViewAction: Equatable, Sendable {
             case task
-            case refresh
             case retryButtonTapped
             case requestCancelled
             case notificationButtonTapped
@@ -60,7 +54,8 @@ public struct FortuneFeature {
 
         public enum Delegate: Equatable, Sendable {
             case todakRequested
-            case luckyActionRequested
+            case luckyActionTabRequested
+            case luckyActionPushRequested
             case myPageRequested
             case myInfoEditRequested
         }
@@ -76,29 +71,19 @@ public struct FortuneFeature {
         Reduce { state, action in
             switch action {
             case .view(.task):
-                guard case .loading = state.viewState, !state.isRefreshing else {
+                guard case .loading = state.viewState else {
                     return .none
                 }
                 return fetchTodayFortuneEffect()
 
             case .view(.retryButtonTapped):
                 state.viewState = .loading
-                state.isRefreshing = false
-                return fetchTodayFortuneEffect()
-
-            case .view(.refresh):
-                guard case .loaded = state.viewState, !state.isRefreshing else {
-                    return .none
-                }
-                state.isRefreshing = true
                 return fetchTodayFortuneEffect()
 
             case .view(.requestCancelled):
-                state.isRefreshing = false
                 return .cancel(id: CancelID.fetchTodayFortune)
 
             case let .todayFortuneResponse(result):
-                state.isRefreshing = false
                 switch result {
                 case let .success(content):
                     state.viewState = .loaded(content)
@@ -141,7 +126,7 @@ public struct FortuneFeature {
                 return .none
 
             case .view(.luckyActionBannerTapped):
-                return .send(.delegate(.luckyActionRequested))
+                return .send(.delegate(.luckyActionTabRequested))
 
             case .path(.element(id: _, action: .report(.delegate(.todakRequested)))),
                  .path(.element(id: _, action: .compatibility(.delegate(.todakRequested)))),
@@ -152,7 +137,7 @@ public struct FortuneFeature {
 
             case .path(.element(id: _, action: .report(.delegate(.luckyActionRequested)))),
                  .categoryDetail(.presented(.delegate(.luckyActionRequested))):
-                return .send(.delegate(.luckyActionRequested))
+                return .send(.delegate(.luckyActionPushRequested))
 
             case .path(.element(id: _, action: .compatibility(.delegate(.myInfoEditRequested)))):
                 return .send(.delegate(.myInfoEditRequested))

@@ -39,7 +39,7 @@ struct DSSelectGenderSpecificationTests {
                 isSelected: false
             ) == .male
         )
-        #expect(Gender.male.dsGenderTitle == "남성")
-        #expect(Gender.female.dsGenderTitle == "여성")
+        #expect(Gender.male.title == "남성")
+        #expect(Gender.female.title == "여성")
     }
 }
