@@ -43,12 +43,84 @@ struct MainTabFeatureTests {
     }
 
     @Test
-    func otherFortuneDelegateDoesNotChangeTab() async {
+    func fortuneDelegateTodakRequestedSwitchesTab() async {
         let store = TestStore(initialState: MainTabFeature.State()) {
             MainTabFeature()
         }
 
-        await store.send(.fortune(.delegate(.notificationRequested)))
+        await store.send(.fortune(.delegate(.todakRequested))) {
+            $0.selectedTab = .todak
+        }
+    }
+
+    @Test
+    func fortuneDelegateMyPageRequestedSwitchesTab() async {
+        let store = TestStore(initialState: MainTabFeature.State()) {
+            MainTabFeature()
+        }
+
+        await store.send(.fortune(.delegate(.myPageRequested))) {
+            $0.selectedTab = .myPage
+        }
+    }
+
+    @Test
+    func fortuneDelegateMyInfoEditRequestedPresentsEditWithoutSwitchingTab() async {
+        var state = MainTabFeature.State()
+        state.fortune.path.append(.compatibility(.init()))
+        let store = TestStore(initialState: state) {
+            MainTabFeature()
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fortune(.delegate(.myInfoEditRequested))) {
+            $0.compatibilityEditSourceID = 0
+        }
+        await store.receive(.myPage(.presentEdit))
+
+        #expect(store.state.selectedTab == .fortune)
+    }
+
+    @Test
+    func poppedCompatibilityDiscardsPendingMyInfoEditPresentation() async {
+        var state = MainTabFeature.State()
+        state.fortune.path.append(.compatibility(.init()))
+        state.compatibilityEditSourceID = 0
+        state.myPage.isPendingEditPresentation = true
+        state.fortune.path.removeLast()
+
+        let store = TestStore(initialState: state) {
+            MainTabFeature()
+        }
+
+        await store.send(.fortuneNavigationChanged) {
+            $0.compatibilityEditSourceID = nil
+        }
+        await store.receive(.myPage(.discardPendingEditPresentation)) {
+            $0.myPage.isPendingEditPresentation = false
+        }
+    }
+
+    @Test
+    func profileUpdateRefreshesMySajuInCurrentCompatibilityScreen() async {
+        var state = MainTabFeature.State()
+        state.fortune.path.append(.compatibility(.init()))
+        let store = TestStore(initialState: state) {
+            MainTabFeature()
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.myPage(.delegate(.profileUpdated)))
+        await store.receive(
+            .fortune(
+                .path(
+                    .element(
+                        id: 0,
+                        action: .compatibility(.mySajuRefreshRequested)
+                    )
+                )
+            )
+        )
     }
 
     @Test

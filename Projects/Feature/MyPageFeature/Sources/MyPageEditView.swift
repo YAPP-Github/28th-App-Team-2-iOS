@@ -3,51 +3,39 @@ import DesignSystem
 import Model
 import SwiftUI
 
-struct MyPageEditView: View {
+public struct MyPageEditView: View {
     @Bindable private var store: StoreOf<MyPageFeature>
-    @State private var isBirthDatePickerPresented = false
-    @State private var isBirthTimePickerPresented = false
-    @State private var pickerYear = 1999
-    @State private var pickerMonth = 1
-    @State private var pickerDay = 1
-    @State private var pickerBirthTimeRawValue = BirthTimePeriod.inTime.rawValue
 
-    private let calendar = Calendar(identifier: .gregorian)
-
-    init(store: StoreOf<MyPageFeature>) {
+    public init(store: StoreOf<MyPageFeature>) {
         self.store = store
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             DSHeaderSub(
                 title: "내 정보 수정",
                 leftItem: DSHeaderActionItem(
                     identifier: "back",
-                    icon: .chevronLeftPlain,
+                    icon: .chevronLeftNarrow,
                     action: { store.send(.editDismissButtonTapped) }
                 )
             )
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 40) {
-                    DSSelectGender(selection: genderBinding)
-                    DSSelectLunarOrSolarCalendar(selection: calendarBinding)
-                    DSEnterDateOfBirth(
-                        selection: birthDateBinding,
-                        isFocused: isBirthDatePickerPresented
-                    ) {
-                        prepareBirthDatePicker()
-                        isBirthDatePickerPresented = true
-                    }
-                    DSEnterTimeOfBirth(
-                        selection: birthTimeBinding,
-                        isFocused: isBirthTimePickerPresented,
-                        isTimeUnknown: birthTimeUnknownBinding
-                    ) {
-                        prepareBirthTimePicker()
-                        isBirthTimePickerPresented = true
-                    }
+                    DSSajuBasicFieldsView(
+                        gender: genderBinding,
+                        calendarType: calendarBinding,
+                        birthDate: birthDateBinding,
+                        birthTime: birthTimeBinding,
+                        isBirthTimeUnknown: birthTimeUnknownBinding,
+                        birthDateValidationMessage: BirthDatePolicy.validateMinimumAge(
+                            for: store.edit?.birthDate,
+                            asOf: Date()
+                        ),
+                        spacing: 40
+                    )
+
                     currentStatusField
                 }
                 .padding(.horizontal, 20)
@@ -71,66 +59,29 @@ struct MyPageEditView: View {
             .padding(.bottom, 14)
         }
         .background(Color.ds.white)
-        .dsWheelPickerSheet(
-            isPresented: $isBirthDatePickerPresented,
-            layout: .date,
-            title: "생년월일 입력",
-            onSave: saveBirthDate
-        ) {
-            DSMultiWheelPicker(
-                layout: .date,
-                columns: [
-                    DSWheelPickerColumn(items: birthYearItems, selection: $pickerYear, accessibilityLabel: "연도"),
-                    DSWheelPickerColumn(
-                        items: birthMonthItems,
-                        selection: $pickerMonth,
-                        accessibilityLabel: "월",
-                        isCircular: true
-                    ),
-                    DSWheelPickerColumn(items: birthDayItems, selection: $pickerDay, accessibilityLabel: "일")
-                ]
-            )
-        }
-        .dsWheelPickerSheet(
-            isPresented: $isBirthTimePickerPresented,
-            layout: .single,
-            title: "태어난 시각 선택",
-            onSave: saveBirthTime
-        ) {
-            DSSingleWheelPicker(
-                items: BirthTimePeriod.allCases.map {
-                    DSWheelPickerItem(value: $0.rawValue, title: DSEnterTimeOfBirth.pickerTitle(for: $0))
-                },
-                selection: $pickerBirthTimeRawValue,
-                accessibilityLabel: "태어난 시각"
-            )
-        }
         .sheet(isPresented: isStatusSheetPresented) {
             MyPageCurrentStatusSheet(store: store)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
         }
-        .onChange(of: pickerYear) { _, _ in normalizeBirthDatePicker() }
-        .onChange(of: pickerMonth) { _, _ in normalizeBirthDatePicker() }
     }
 
     private var currentStatusField: some View {
-        DSSelectField(
-            selection: Binding(
-                get: { currentStatusText },
-                set: { _ in }
-            ),
-            placeholder: "현재 상황 선택",
-            action: { store.send(.editStatusSheetPresented(true)) }
-        )
-        .overlay(alignment: .topLeading) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("현재 상황")
                 .dsBody1Bold
                 .foregroundStyle(Color.ds.black)
-                .offset(y: -42)
+
+            DSSelectField(
+                selection: Binding(
+                    get: { currentStatusText },
+                    set: { _ in }
+                ),
+                placeholder: "현재 상황 선택",
+                action: { store.send(.editStatusSheetPresented(true)) }
+            )
         }
-        .padding(.top, 42)
     }
 
     private var currentStatusText: String? {
@@ -163,53 +114,6 @@ struct MyPageEditView: View {
             get: { store.edit?.isStatusSheetPresented ?? false },
             set: { store.send(.editStatusSheetPresented($0)) }
         )
-    }
-
-    private var currentDateComponents: DateComponents {
-        calendar.dateComponents([.year, .month, .day], from: Date())
-    }
-
-    private var birthYearItems: [DSWheelPickerItem] {
-        (1900...(currentDateComponents.year ?? 1900)).map { DSWheelPickerItem(value: $0, title: "\($0)년") }
-    }
-
-    private var birthMonthItems: [DSWheelPickerItem] {
-        let maximum = pickerYear == currentDateComponents.year ? currentDateComponents.month ?? 12 : 12
-        return (1...maximum).map { DSWheelPickerItem(value: $0, title: "\($0)월") }
-    }
-
-    private var birthDayItems: [DSWheelPickerItem] {
-        let date = calendar.date(from: DateComponents(year: pickerYear, month: pickerMonth)) ?? Date()
-        let monthDays = calendar.range(of: .day, in: .month, for: date)?.count ?? 28
-        let maximum = pickerYear == currentDateComponents.year && pickerMonth == currentDateComponents.month
-            ? min(monthDays, currentDateComponents.day ?? monthDays) : monthDays
-        return (1...maximum).map { DSWheelPickerItem(value: $0, title: "\($0)일") }
-    }
-
-    private func prepareBirthDatePicker() {
-        pickerYear = store.edit?.birthDate?.year ?? 1999
-        pickerMonth = store.edit?.birthDate?.month ?? 1
-        pickerDay = store.edit?.birthDate?.day ?? 1
-        normalizeBirthDatePicker()
-    }
-
-    private func prepareBirthTimePicker() {
-        pickerBirthTimeRawValue = (store.edit?.birthTime ?? .inTime).rawValue
-    }
-
-    private func saveBirthDate() {
-        store.send(.editBirthDateChanged(BirthDate(year: pickerYear, month: pickerMonth, day: pickerDay)))
-        isBirthDatePickerPresented = false
-    }
-
-    private func saveBirthTime() {
-        store.send(.editBirthTimeChanged(BirthTimePeriod(rawValue: pickerBirthTimeRawValue)))
-        isBirthTimePickerPresented = false
-    }
-
-    private func normalizeBirthDatePicker() {
-        pickerMonth = min(max(pickerMonth, 1), birthMonthItems.last?.value ?? 12)
-        pickerDay = min(max(pickerDay, 1), birthDayItems.last?.value ?? 28)
     }
 }
 

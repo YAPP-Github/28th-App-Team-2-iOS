@@ -34,6 +34,18 @@ struct MainTabView: View {
                     store: store.scope(state: \.myPage, action: \.myPage)
                 )
             }
+
+            if isMyInfoEditPresented {
+                MyPageEditView(
+                    store: store.scope(state: \.myPage, action: \.myPage)
+                )
+                .transition(.move(edge: .trailing))
+                .zIndex(1)
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: isMyInfoEditPresented)
+        .onChange(of: currentCompatibilityDestinationID) { _, _ in
+            store.send(.fortuneNavigationChanged)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -46,13 +58,35 @@ struct MainTabView: View {
     }
 
     private var shouldShowBottomNavigation: Bool {
-        store.selectedTab != .todak
-            && store.myPage.edit == nil
+        let fortuneShowing = store.selectedTab != .fortune || !store.fortune.isShowingDetail
+        let myPageShowing = store.selectedTab != .myPage || (
+            store.myPage.edit == nil
             && store.myPage.sajuDetail == nil
             && store.myPage.notificationSettings == nil
             && store.myPage.appSettings == nil
             && store.myPage.withdrawal == nil
             && store.myPage.sajuManagement == nil
+        )
+        return store.selectedTab != .todak
+            && fortuneShowing
+            && myPageShowing
+            && !isMyInfoEditPresented
+    }
+
+    private var isMyInfoEditPresented: Bool {
+        guard let currentCompatibilityDestinationID else { return false }
+        return store.selectedTab == .fortune
+            && store.compatibilityEditSourceID == currentCompatibilityDestinationID
+            && store.myPage.edit != nil
+    }
+
+    private var currentCompatibilityDestinationID: StackElementID? {
+        guard let destinationID = store.fortune.path.ids.last,
+              case .compatibility = store.fortune.path[id: destinationID]
+        else {
+            return nil
+        }
+        return destinationID
     }
 
     private var bottomNavigationBinding: Binding<DSBottomNavigationItem> {

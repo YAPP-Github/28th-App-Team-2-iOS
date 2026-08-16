@@ -43,7 +43,7 @@ public struct DSSelectLunarOrSolarCalendar: View {
             HStack(spacing: specification.optionSpacing) {
                 ForEach(BirthDateCalendar.allCases, id: \.self) { option in
                     DSSelectBox(
-                        option.dsCalendarTitle,
+                        option.title,
                         isSelected: selectionBinding(for: option)
                     )
                     .frame(maxWidth: .infinity)
@@ -66,14 +66,5 @@ public struct DSSelectLunarOrSolarCalendar: View {
                 )
             }
         )
-    }
-}
-
-extension BirthDateCalendar {
-    var dsCalendarTitle: String {
-        switch self {
-        case .solar: "양력"
-        case .lunar: "음력"
-        }
     }
 }

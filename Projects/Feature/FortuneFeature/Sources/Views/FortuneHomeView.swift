@@ -48,7 +48,7 @@ struct FortuneHomeView: View {
                     .padding(.top, 28)
                 }
                 .padding(.top, 36)
-                .padding(.bottom, 40)
+                .padding(.bottom, 100)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.ds.white)
                 .clipShape(
@@ -100,7 +100,7 @@ struct FortuneHomeView: View {
     }
 }
 
-private struct FortuneSpaceBackground: View {
+struct FortuneSpaceBackground: View {
     private static let sourceAspectRatio = CGFloat(393.0 / 850.0)
 
     var body: some View {
@@ -122,7 +122,7 @@ private struct FortuneSpaceBackground: View {
     }
 }
 
-private extension Color {
+extension Color {
     static let fortuneSpaceBase = Color(
         red: 0,
         green: 1.0 / 255.0,

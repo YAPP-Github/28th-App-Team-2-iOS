@@ -27,6 +27,7 @@ extension MyPageFeature {
     }
 
     public enum Delegate: Equatable {
+        case profileUpdated
         case sessionEnded
     }
 

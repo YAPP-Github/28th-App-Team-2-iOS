@@ -158,10 +158,10 @@ struct MyPageSajuOriginalCard: View {
             rowTitle(title)
             HStack(spacing: 24) {
                 ForEach(pillars) { pillar in
-                    MyPageSajuPillarCell(
+                    DSSajuPillarCell(
                         hanja: isHeavenly ? pillar.heavenlyStem : pillar.earthlyBranch,
                         reading: isHeavenly ? pillar.heavenlyReading : pillar.earthlyReading,
-                        element: isHeavenly ? pillar.heavenlyElement : pillar.earthlyElement
+                        element: (isHeavenly ? pillar.heavenlyElement : pillar.earthlyElement).toDSSajuElement
                     )
                 }
             }
@@ -194,31 +194,15 @@ struct MyPageSajuOriginalCard: View {
     }
 }
 
-private struct MyPageSajuPillarCell: View {
-    let hanja: String
-    let reading: String
-    let element: MyPageElement
-
-    var body: some View {
-        VStack(spacing: 1) {
-            Text(hanja)
-                .font(.system(size: 18, weight: .bold))
-            Text("-\(reading)")
-                .dsCaption3Regular
-        }
-        .foregroundStyle(Color.ds.gray975)
-        .frame(width: 48, height: 48)
-        .background(backgroundColor, in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var backgroundColor: Color {
-        switch element {
-        case .wood: .ds.teal200
-        case .fire: .ds.red200
-        case .earth: .ds.orange200
-        case .metal: .ds.coolGray300
-        case .water: .ds.sky200
-        case .unknown: .ds.gray100
+private extension MyPageElement {
+    var toDSSajuElement: DSSajuElement {
+        switch self {
+        case .wood: .wood
+        case .fire: .fire
+        case .earth: .earth
+        case .metal: .metal
+        case .water: .water
+        case .unknown: .unknown
         }
     }
 }
