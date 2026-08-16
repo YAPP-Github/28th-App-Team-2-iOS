@@ -68,6 +68,7 @@ public enum NotificationDeepLink: Equatable, Sendable {
                   let uuid = UUID(uuidString: components[1]) else { return nil }
             self = .chatConversation(uuid)
         case "lucky-action":
+            guard components.isEmpty else { return nil }
             self = .luckyAction
         case "fortune":
             guard components.isEmpty || components == ["today"] else { return nil }

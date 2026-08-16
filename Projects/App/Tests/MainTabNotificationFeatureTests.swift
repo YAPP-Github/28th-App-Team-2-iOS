@@ -217,6 +217,7 @@ struct MainTabNotificationFeatureTests {
         }
         await store.receive(.todak(.openConversation(conversationID))) {
             $0.todak.screen = .chat
+            $0.todak.isPendingDeepLinkConversation = true
             $0.todak.showsSplash = true
             $0.todak.didPresentSplash = true
             $0.todak.didCompleteSplashDelay = false
@@ -228,6 +229,7 @@ struct MainTabNotificationFeatureTests {
             $0.todak.isLoadingEntry = false
         }
         await store.receive(.todak(.conversationResponse(.success(conversation)))) {
+            $0.todak.isPendingDeepLinkConversation = false
             $0.todak.conversationID = conversationID
             $0.todak.messages = conversation.messages
         }
@@ -276,17 +278,19 @@ struct MainTabNotificationFeatureTests {
 
     @Test("오늘의 운세 딥링크를 수신하면 알림 화면을 닫고 운세 탭으로 전환하며 경로를 초기화한다")
     func todayFortuneDeepLinkResetsPathAndSwitchesToFortuneTab() async {
-        let store = TestStore(
-            initialState: MainTabFeature.State(
-                selectedTab: .myPage,
-                isNotificationPresented: true
-            )
-        ) {
+        var initialState = MainTabFeature.State(
+            selectedTab: .myPage,
+            isNotificationPresented: true
+        )
+        initialState.fortune.path.append(.report(.init(dailyFortuneID: UUID())))
+
+        let store = TestStore(initialState: initialState) {
             MainTabFeature()
         }
 
         await store.send(.notifications(.delegate(.deepLinkRequested(.todayFortune)))) {
             $0.isNotificationPresented = false
+            $0.fortune.path.removeAll()
             $0.selectedTab = .fortune
         }
     }

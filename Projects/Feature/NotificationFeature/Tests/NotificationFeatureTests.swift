@@ -356,6 +356,9 @@ struct NotificationDeepLinkTests {
     func parsesLuckyActionDeepLink() {
         let url = URL(string: "todakun://lucky-action")!
         #expect(NotificationDeepLink(url: url) == .luckyAction)
+
+        let invalidURL = URL(string: "todakun://lucky-action/invalid")!
+        #expect(NotificationDeepLink(url: invalidURL) == nil)
     }
 
     @Test("운세 딥링크 URL을 정상 파싱한다")

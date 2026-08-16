@@ -479,6 +479,61 @@ struct TodakFeatureRegressionTests {
             $0.messages = conversation.messages
         }
     }
+
+    @Test("딥링크 대화 조회 실패 시(404) 새 채팅 상태로 리셋하고 안내 토스트를 표시한다")
+    func openConversation404ErrorResetsStateAndShowsToast() async {
+        let clock = TestClock()
+        let missingID = UUID(uuidString: "00000000-0000-0000-0000-000000000404")!
+        let serverEntry = TodakEntry(
+            greeting: "서버 인사말",
+            suggestions: [],
+            quota: .init(used: 1, limit: 3)
+        )
+        let store = TestStore(initialState: TodakFeature.State()) {
+            TodakFeature()
+        } withDependencies: {
+            $0.continuousClock = clock
+            $0.todakClient = TodakClient(
+                fetchEntry: { serverEntry },
+                fetchConversations: { [] },
+                fetchConversation: { _ in throw TodakClientError.httpStatus(404) },
+                deleteConversation: { _ in },
+                sendMessage: { _, _ in AsyncThrowingStream { $0.finish() } }
+            )
+        }
+
+        await store.send(.openConversation(missingID)) {
+            $0.screen = .chat
+            $0.isPendingDeepLinkConversation = true
+            $0.showsSplash = true
+            $0.didPresentSplash = true
+            $0.didCompleteSplashDelay = false
+            $0.isLoadingHistory = false
+            $0.isStreaming = false
+            $0.isLoadingEntry = true
+        }
+        await store.receive(.entryResponse(.success(serverEntry))) {
+            $0.entry = serverEntry
+            $0.quota = serverEntry.quota
+            $0.isLoadingEntry = false
+        }
+        await store.receive(.conversationResponse(.failure(.httpStatus(404)))) {
+            $0.isPendingDeepLinkConversation = false
+            $0.conversationID = nil
+            $0.messages = []
+            $0.screen = .chat
+            $0.toastMessage = "대화를 찾을 수 없어요."
+        }
+        await clock.advance(by: .milliseconds(1_500))
+        await store.receive(.splashElapsed) {
+            $0.didCompleteSplashDelay = true
+            $0.showsSplash = false
+        }
+        await clock.advance(by: .milliseconds(1_500))
+        await store.receive(.toastDismissed) {
+            $0.toastMessage = nil
+        }
+    }
 }
 // swiftlint:enable type_body_length
 
