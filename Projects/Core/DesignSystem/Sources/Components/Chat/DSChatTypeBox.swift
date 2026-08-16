@@ -251,7 +251,7 @@ private struct DSChatTextEditor: UIViewRepresentable {
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.showsVerticalScrollIndicator = false
-        textView.alwaysBounceVertical = true
+        textView.alwaysBounceVertical = false
         textView.onContentHeightChange = { measuredHeight in
             guard abs(contentHeight - measuredHeight) > 0.5 else { return }
             contentHeight = measuredHeight
@@ -264,8 +264,6 @@ private struct DSChatTextEditor: UIViewRepresentable {
         if textView.text != text {
             textView.text = text
         }
-        configure(textView)
-        textView.setNeedsLayout()
     }
 
     private func configure(_ textView: DSChatTextView) {
@@ -293,25 +291,6 @@ private struct DSChatTextEditor: UIViewRepresentable {
 
         func textViewDidChange(_ textView: UITextView) {
             text = textView.text
-            textView.setNeedsLayout()
-
-            DispatchQueue.main.async {
-                guard let chatTextView = textView as? DSChatTextView else { return }
-
-                let textLength = (textView.text as NSString).length
-                let contentOverflows = chatTextView.resolvedContentHeight() > textView.bounds.height
-
-                if contentOverflows {
-                    textView.scrollRangeToVisible(
-                        NSRange(location: textLength, length: 0)
-                    )
-                } else {
-                    textView.setContentOffset(
-                        CGPoint(x: textView.contentOffset.x, y: 0),
-                        animated: false
-                    )
-                }
-            }
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
@@ -335,13 +314,6 @@ final class DSChatTextView: UITextView {
         guard bounds.width > 0 else { return }
 
         let contentHeight = resolvedContentHeight()
-
-        if contentHeight <= bounds.height {
-            setContentOffset(
-                CGPoint(x: contentOffset.x, y: 0),
-                animated: false
-            )
-        }
 
         guard abs(lastReportedContentHeight - contentHeight) > 0.5 else { return }
         lastReportedContentHeight = contentHeight

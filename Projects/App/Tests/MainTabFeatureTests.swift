@@ -3,6 +3,7 @@ import FortuneFeature
 import Foundation
 import LuckyActionFeature
 import Testing
+import TodakFeature
 @testable import Todakun
 
 @Suite
@@ -228,5 +229,23 @@ struct MainTabFeatureTests {
         #expect(
             store.state.fortune.viewState == .failed(message: "네트워크 오류가 발생했습니다.")
         )
+    }
+
+    @Test
+    func closingTodakReturnsToPreviousTab() async {
+        let store = TestStore(initialState: MainTabFeature.State()) {
+            MainTabFeature()
+        }
+
+        await store.send(.selectedTabChanged(.myPage)) {
+            $0.selectedTab = .myPage
+        }
+        await store.send(.selectedTabChanged(.todak)) {
+            $0.previousTab = .myPage
+            $0.selectedTab = .todak
+        }
+        await store.send(.todak(.delegate(.closeRequested))) {
+            $0.selectedTab = .myPage
+        }
     }
 }

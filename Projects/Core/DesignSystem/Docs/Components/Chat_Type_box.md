@@ -11,6 +11,7 @@
 - **긴 텍스트 처리:** 3줄 초과 시 텍스트 박스 내에서 위로 스크롤되며 가려짐. 가려지는 부분에 `#FFFFFF` 60% 레이어 씌움.
 - **긴 텍스트 페이드:** 상단에 배경색 60% 불투명도 레이어를 16px 높이로 표시.
 - **그림자:** black 6%, blur 20pt, y 4pt
+- **커서·스크롤:** UIKit 기본 커서를 사용한다. 최대 높이 전에는 `UITextView`의 content offset을 직접 조정하지 않으며, 최대 높이 초과 시 기본 caret 스크롤을 사용한다. 입력 중에는 SwiftUI 갱신마다 `UITextView`의 font·typing attributes를 재설정하지 않는다.
 
 ## 🏗️ Structure & Layout
 

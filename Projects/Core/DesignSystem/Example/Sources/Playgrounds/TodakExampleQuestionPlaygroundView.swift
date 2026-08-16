@@ -22,7 +22,6 @@ struct TodakExampleQuestionPlaygroundView: View {
                         .init(trailingText)
                     ]
                 )
-                    .frame(maxWidth: 329)
             }
 
             Form {

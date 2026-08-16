@@ -3,6 +3,7 @@ import FortuneFeature
 import Foundation
 import LuckyActionFeature
 import MyPageFeature
+import TodakFeature
 
 @Reducer
 struct MainTabFeature {
@@ -20,7 +21,9 @@ struct MainTabFeature {
     @ObservableState
     struct State: Equatable {
         var selectedTab: Tab
+        var previousTab: Tab
         var fortune: FortuneFeature.State
+        var todak: TodakFeature.State
         var luckyAction: LuckyActionFeature.State
         @Presents var pushedLuckyAction: LuckyActionFeature.State?
         var myPage: MyPageFeature.State
@@ -30,13 +33,17 @@ struct MainTabFeature {
 
         init(
             selectedTab: Tab = .fortune,
+            previousTab: Tab = .fortune,
             fortune: FortuneFeature.State = .init(),
+            todak: TodakFeature.State = .init(),
             luckyAction: LuckyActionFeature.State = .init(),
             pushedLuckyAction: LuckyActionFeature.State? = nil,
             myPage: MyPageFeature.State = .init()
         ) {
             self.selectedTab = selectedTab
+            self.previousTab = previousTab
             self.fortune = fortune
+            self.todak = todak
             self.luckyAction = luckyAction
             self.pushedLuckyAction = pushedLuckyAction
             self.myPage = myPage
@@ -47,6 +54,7 @@ struct MainTabFeature {
         case selectedTabChanged(Tab)
         case fortuneNavigationChanged
         case fortune(FortuneFeature.Action)
+        case todak(TodakFeature.Action)
         case luckyAction(LuckyActionFeature.Action)
         case pushedLuckyAction(PresentationAction<LuckyActionFeature.Action>)
         case pushedLuckyActionPresentationChanged(Bool)
@@ -62,6 +70,10 @@ struct MainTabFeature {
             MyPageFeature()
         }
 
+        Scope(state: \.todak, action: \.todak) {
+            TodakFeature()
+        }
+
         Scope(state: \.luckyAction, action: \.luckyAction) {
             LuckyActionFeature()
         }
@@ -69,6 +81,9 @@ struct MainTabFeature {
         Reduce { state, action in
             switch action {
             case let .selectedTabChanged(tab):
+                if tab == .todak, state.selectedTab != .todak {
+                    state.previousTab = state.selectedTab
+                }
                 let shouldDiscardEditPresentation = tab != .fortune
                     && state.compatibilityEditSourceID != nil
                 state.selectedTab = tab
@@ -89,6 +104,10 @@ struct MainTabFeature {
 
             case .fortune(.delegate(.luckyActionTabRequested)):
                 state.selectedTab = .luckyAction
+                return .none
+
+            case .todak(.delegate(.closeRequested)):
+                state.selectedTab = state.previousTab == .todak ? .fortune : state.previousTab
                 return .none
 
             case .fortune(.delegate(.luckyActionPushRequested)):
@@ -135,10 +154,11 @@ struct MainTabFeature {
                                 action: .compatibility(.mySajuRefreshRequested)
                             )
                         )
-                    )
                 )
+            )
 
-            case .fortune, .luckyAction, .pushedLuckyAction, .pushedLuckyActionPresentationChanged, .myPage:
+            case .fortune, .todak, .luckyAction, .pushedLuckyAction,
+                 .pushedLuckyActionPresentationChanged, .myPage:
                 return .none
             }
         }

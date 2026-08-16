@@ -35,7 +35,6 @@ struct ConversationHistoryListPlaygroundView: View {
                 }
 
                 Section(header: Text("Figma Specification Check")) {
-                    DSSpecificationRow(title: "Content Width", value: specification.contentWidth.ptDescription)
                     DSSpecificationRow(
                         title: "Horizontal Padding",
                         value: specification.horizontalPadding.ptDescription
@@ -48,10 +47,6 @@ struct ConversationHistoryListPlaygroundView: View {
                     DSSpecificationRow(
                         title: "Title Truncation Mode",
                         value: String(describing: specification.titleTruncationMode)
-                    )
-                    DSSpecificationRow(
-                        title: "Title Indicator Width",
-                        value: specification.titleIndicatorWidth.ptDescription
                     )
                     DSSpecificationRow(title: "Unread Indicator Size", value: specification.indicatorSize.ptDescription)
                     DSSpecificationRow(

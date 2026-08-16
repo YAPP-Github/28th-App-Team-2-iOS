@@ -5,6 +5,7 @@ import Foundation
 import LuckyActionFeature
 import MyPageFeature
 import SwiftUI
+import TodakFeature
 
 struct MainTabView: View {
     @Bindable var store: StoreOf<MainTabFeature>
@@ -38,7 +39,9 @@ struct MainTabView: View {
                 fortuneTab
 
             case .todak:
-                UnavailableTabView(title: "토닥이")
+                TodakView(
+                    store: store.scope(state: \.todak, action: \.todak)
+                )
 
             case .luckyAction:
                 LuckyActionView(
@@ -83,7 +86,8 @@ struct MainTabView: View {
             && store.myPage.withdrawal == nil
             && store.myPage.sajuManagement == nil
         )
-        return fortuneShowing
+        return store.selectedTab != .todak
+            && fortuneShowing
             && myPageShowing
             && !isMyInfoEditPresented
             && store.pushedLuckyAction == nil

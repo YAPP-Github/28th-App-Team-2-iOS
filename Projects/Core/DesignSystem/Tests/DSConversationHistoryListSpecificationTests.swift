@@ -6,7 +6,6 @@ struct DSConversationHistoryListSpecTests {
     func testSpecification() {
         let specification = DSConversationHistoryList.specification
 
-        #expect(specification.contentWidth == 353)
         #expect(specification.horizontalPadding == 20)
         #expect(specification.topPadding == 20)
         #expect(specification.bottomPadding == 20)
@@ -14,7 +13,6 @@ struct DSConversationHistoryListSpecTests {
         expectColorEqual(specification.titleColorAsset, DesignSystemAsset.Colors.black)
         #expect(specification.titleLineLimit == 1)
         #expect(specification.titleTruncationMode == .tail)
-        #expect(specification.titleIndicatorWidth == 320)
         #expect(specification.indicatorSize == 6)
         expectColorEqual(specification.indicatorColorAsset, DesignSystemAsset.Colors.red400)
         #expect(specification.titleIndicatorSpacing == 6)

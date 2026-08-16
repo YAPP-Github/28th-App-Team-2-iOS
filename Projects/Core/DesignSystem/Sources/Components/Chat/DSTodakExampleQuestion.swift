@@ -50,7 +50,6 @@ public struct DSTodakExampleQuestion: View {
 
         questionText(specification: specification)
             .dsFont(specification.fontStyle)
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, specification.horizontalPadding)
             .padding(.vertical, specification.verticalPadding)
             .frame(minHeight: specification.height)
