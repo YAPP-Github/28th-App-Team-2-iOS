@@ -51,6 +51,21 @@ digraph {
   MyPageFeatureTesting -> Utils
   MyPageFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
   NetworkCore [fillcolor=coral1 shape=cylinder style=filled]
+  NotificationFeature -> AuthSession
+  NotificationFeature -> DesignSystem
+  NotificationFeature -> Model
+  NotificationFeature -> NetworkCore
+  NotificationFeature -> NotificationFeatureInterface
+  NotificationFeature -> Utils
+  NotificationFeature [fillcolor=coral1 shape=cylinder style=filled]
+  NotificationFeatureExample -> NotificationFeature
+  NotificationFeatureExample -> NotificationFeatureTesting
+  NotificationFeatureExample [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]
+  NotificationFeatureInterface [fillcolor=coral1 shape=cylinder style=filled]
+  NotificationFeatureTesting -> Model
+  NotificationFeatureTesting -> NotificationFeatureInterface
+  NotificationFeatureTesting -> Utils
+  NotificationFeatureTesting [fillcolor=coral1 shape=cylinder style=filled]
   OnboardingFeature -> AuthSession
   OnboardingFeature -> DesignSystem
   OnboardingFeature -> Model
@@ -88,6 +103,8 @@ digraph {
   Todakun -> LuckyActionFeatureInterface
   Todakun -> MyPageFeature
   Todakun -> NetworkCore
+  Todakun -> NotificationFeature
+  Todakun -> NotificationFeatureInterface
   Todakun -> OnboardingFeature
   Todakun -> TodakFeature
   Todakun [fillcolor=deepskyblue penwidth="1.5" shape=box3d style=filled]

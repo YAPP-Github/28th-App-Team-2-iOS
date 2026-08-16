@@ -37,6 +37,8 @@ graph TD
         TodakIF[TodakFeatureInterface]
         LuckyAction[LuckyActionFeature]
         LuckyActionIF[LuckyActionFeatureInterface]
+        Notification[NotificationFeature]
+        NotificationIF[NotificationFeatureInterface]
         MyPage[MyPageFeature]
         MyPageIF[MyPageFeatureInterface]
 
@@ -44,6 +46,7 @@ graph TD
         Fortune -.-> FortuneIF
         Todak -.-> TodakIF
         LuckyAction -.-> LuckyActionIF
+        Notification -.-> NotificationIF
         MyPage -.-> MyPageIF
     end
 
@@ -68,6 +71,8 @@ graph TD
     TodakunApp --> Todak
     TodakunApp --> LuckyAction
     TodakunApp --> LuckyActionIF
+    TodakunApp --> Notification
+    TodakunApp --> NotificationIF
     TodakunApp --> MyPage
     
     %% Example of Feature Navigation via Interface
@@ -82,6 +87,8 @@ graph TD
     Todak --> LowerCore
     LuckyAction --> UpperCore
     LuckyAction --> LowerCore
+    Notification --> UpperCore
+    Notification --> LowerCore
     MyPage --> UpperCore
     MyPage --> LowerCore
 
@@ -95,8 +102,8 @@ graph TD
     classDef core fill:#99ff99,stroke:#333,stroke-width:2px;
     
     class TodakunApp app;
-    class Onboarding,Fortune,Todak,LuckyAction,MyPage feature;
-    class OnboardingIF,FortuneIF,TodakIF,LuckyActionIF,MyPageIF interface;
+    class Onboarding,Fortune,Todak,LuckyAction,Notification,MyPage feature;
+    class OnboardingIF,FortuneIF,TodakIF,LuckyActionIF,NotificationIF,MyPageIF interface;
     class DesignSystem,NetworkCore,AuthSession,Model,Utils core;
 ```
 
@@ -106,6 +113,7 @@ graph TD
   - `FortuneFeature`: 운세 리포트, 행운 액션 (운세 탭)
   - `TodakFeature`: 고민 결정 도우미 (토닥이 탭)
   - `LuckyActionFeature`: 오늘의 행동 추천 및 실행 (행운 액션 탭)
+  - `NotificationFeature`: 인앱 알림 목록 및 읽음 상태 처리
   - `MyPageFeature`: 설정 및 프로필 (마이 탭)
 - **Projects/Core**: 앱 전반에 걸쳐 사용되는 공통 모듈 (상위 Core가 하위 Core를 단방향으로 참조 가능)
   - `DesignSystem` (상위 Core): 컬러, 폰트, 공통 UI 컴포넌트 및 에셋 (단독 실행 데모용 Example 앱 포함)
