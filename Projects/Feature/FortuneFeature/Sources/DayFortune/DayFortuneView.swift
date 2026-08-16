@@ -29,6 +29,18 @@ struct DayFortuneView: View {
                 .presentationDragIndicator(.hidden)
                 .presentationCornerRadius(28)
         }
+        .sheet(item: calendarEventDraftBinding) { draft in
+            CalendarEventEditor(draft: draft) { result in
+                store.send(.calendarEventEditorCompleted(result))
+            }
+        }
+    }
+
+    private var calendarEventDraftBinding: Binding<CalendarEventDraft?> {
+        Binding(
+            get: { store.calendarEventDraft },
+            set: { _ in }
+        )
     }
 }
 
@@ -313,6 +325,14 @@ private struct DayFortuneResultContent: View {
                 store.send(.todakTapped)
             }
         }
+        .overlay(alignment: .bottom) {
+            if store.isCalendarExportSuccessToastPresented {
+                DSToast(compact: "캘린더에 일정을 추가했어요.")
+                    .padding(.bottom, 84)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: store.isCalendarExportSuccessToastPresented)
     }
 
     private var resultHeader: some View {

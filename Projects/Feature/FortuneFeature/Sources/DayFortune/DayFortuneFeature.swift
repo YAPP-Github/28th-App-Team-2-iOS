@@ -13,6 +13,8 @@ public struct DayFortuneFeature {
         public var showLimitToast = false
         public var results: [DayFortuneResult] = []
         public var selectedResultID: UUID?
+        public var calendarEventDraft: CalendarEventDraft?
+        public var isCalendarExportSuccessToastPresented = false
 
         public init() {}
 
@@ -38,6 +40,8 @@ public struct DayFortuneFeature {
         case resultBackTapped
         case shareTapped
         case calendarExportTapped
+        case calendarEventEditorCompleted(CalendarEventEditorResult)
+        case calendarExportSuccessToastDismissed
         case todakTapped
         case delegate(Delegate)
 
@@ -46,7 +50,10 @@ public struct DayFortuneFeature {
         }
     }
 
-    private enum ToastCancelID { case toast }
+    private enum ToastCancelID {
+        case selectionLimit
+        case calendarExportSuccess
+    }
 
     @Dependency(\.fortuneClient) private var fortuneClient
     @Dependency(\.date.now) private var now
@@ -65,7 +72,7 @@ public struct DayFortuneFeature {
                 state.isCalendarPresented = isPresented
                 state.errorMessage = nil
                 state.showLimitToast = false
-                return .cancel(id: ToastCancelID.toast)
+                return .cancel(id: ToastCancelID.selectionLimit)
 
             case let .dateTapped(date):
                 let calendar = Calendar.current
@@ -78,7 +85,7 @@ public struct DayFortuneFeature {
                     state.selectedDates.remove(at: index)
                     state.errorMessage = nil
                     state.showLimitToast = false
-                    return .cancel(id: ToastCancelID.toast)
+                    return .cancel(id: ToastCancelID.selectionLimit)
                 } else if state.selectedDates.count >= 5 {
                     state.showLimitToast = true
                     state.errorMessage = nil
@@ -86,20 +93,20 @@ public struct DayFortuneFeature {
                         try await clock.sleep(for: .seconds(2))
                         await send(.hideToast)
                     }
-                    .cancellable(id: ToastCancelID.toast, cancelInFlight: true)
+                    .cancellable(id: ToastCancelID.selectionLimit, cancelInFlight: true)
                 } else {
                     state.selectedDates.append(day)
                     state.selectedDates.sort()
                     state.errorMessage = nil
                     state.showLimitToast = false
-                    return .cancel(id: ToastCancelID.toast)
+                    return .cancel(id: ToastCancelID.selectionLimit)
                 }
 
             case .resetDatesTapped:
                 state.selectedDates.removeAll()
                 state.errorMessage = nil
                 state.showLimitToast = false
-                return .cancel(id: ToastCancelID.toast)
+                return .cancel(id: ToastCancelID.selectionLimit)
 
             case .hideToast:
                 state.showLimitToast = false
@@ -147,12 +154,34 @@ public struct DayFortuneFeature {
             case .resultBackTapped:
                 state.results = []
                 state.selectedResultID = nil
+                state.calendarEventDraft = nil
+                state.isCalendarExportSuccessToastPresented = false
+                return .cancel(id: ToastCancelID.calendarExportSuccess)
+
+            case .calendarExportTapped:
+                guard let selectedResult = state.selectedResult else { return .none }
+                state.calendarEventDraft = CalendarEventDraft(dayFortuneResult: selectedResult)
+                state.isCalendarExportSuccessToastPresented = false
+                return .cancel(id: ToastCancelID.calendarExportSuccess)
+
+            case let .calendarEventEditorCompleted(result):
+                state.calendarEventDraft = nil
+                guard result == .saved else { return .none }
+                state.isCalendarExportSuccessToastPresented = true
+                return .run { send in
+                    try await clock.sleep(for: .seconds(2))
+                    await send(.calendarExportSuccessToastDismissed)
+                }
+                .cancellable(id: ToastCancelID.calendarExportSuccess, cancelInFlight: true)
+
+            case .calendarExportSuccessToastDismissed:
+                state.isCalendarExportSuccessToastPresented = false
                 return .none
 
             case .todakTapped:
                 return .send(.delegate(.todakRequested))
 
-            case .shareTapped, .calendarExportTapped, .delegate:
+            case .shareTapped, .delegate:
                 return .none
             }
         }

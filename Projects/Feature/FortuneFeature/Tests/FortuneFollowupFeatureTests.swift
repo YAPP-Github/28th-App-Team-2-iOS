@@ -267,6 +267,56 @@ struct FortuneFollowupFeatureTests { // swiftlint:disable:this type_body_length
         }
     }
 
+    @Test("선택한 택일 결과를 제목만 포함한 종일 캘린더 초안으로 내보낸다")
+    func dayFortuneExportsSelectedResultToCalendar() async {
+        let date = Date(timeIntervalSince1970: 1_788_969_600)
+        let result = DayFortuneResult(
+            id: UUID(40), purpose: .travel, targetDate: date, score: 90,
+            title: "여행에 좋은 날", content: "긴 운세 설명", categories: []
+        )
+        var state = DayFortuneFeature.State()
+        state.results = [result]
+        state.selectedResultID = result.id
+        let store = TestStore(initialState: state) {
+            DayFortuneFeature()
+        }
+
+        await store.send(.calendarExportTapped) {
+            $0.calendarEventDraft = CalendarEventDraft(dayFortuneResult: result)
+        }
+    }
+
+    @Test("캘린더 편집기 저장 시 완료 토스트를 표시하고 취소 시 표시하지 않는다")
+    func dayFortuneHandlesCalendarEditorCompletion() async {
+        let clock = TestClock()
+        let draft = CalendarEventDraft(title: "여행", date: Date(timeIntervalSince1970: 1_788_969_600))
+        var state = DayFortuneFeature.State()
+        state.calendarEventDraft = draft
+        let store = TestStore(initialState: state) {
+            DayFortuneFeature()
+        } withDependencies: {
+            $0.continuousClock = clock
+        }
+
+        await store.send(.calendarEventEditorCompleted(.saved)) {
+            $0.calendarEventDraft = nil
+            $0.isCalendarExportSuccessToastPresented = true
+        }
+        await clock.advance(by: .seconds(2))
+        await store.receive(.calendarExportSuccessToastDismissed) {
+            $0.isCalendarExportSuccessToastPresented = false
+        }
+
+        var cancellationState = DayFortuneFeature.State()
+        cancellationState.calendarEventDraft = draft
+        let cancellationStore = TestStore(initialState: cancellationState) {
+            DayFortuneFeature()
+        }
+        await cancellationStore.send(.calendarEventEditorCompleted(.cancelled)) {
+            $0.calendarEventDraft = nil
+        }
+    }
+
     @Test("궁합 화면에서 내 정보 수정을 탭하면 myInfoEditRequested delegate가 전송된다")
     func compatibilityMyInfoEditDelegates() async {
         let store = TestStore(initialState: CompatibilityFeature.State()) {
