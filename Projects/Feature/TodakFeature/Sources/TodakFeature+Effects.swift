@@ -229,4 +229,11 @@ extension TodakFeature {
             "네트워크 상태를 확인해 주세요."
         }
     }
+
+    func deepLinkConversationErrorMessage(for error: TodakClientError) -> String {
+        if case .httpStatus(404) = error {
+            return "대화를 찾을 수 없어요."
+        }
+        return message(for: error)
+    }
 }
