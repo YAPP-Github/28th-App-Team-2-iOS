@@ -5,6 +5,10 @@ import SwiftUI
 public struct TodakView: View {
     @Bindable var store: StoreOf<TodakFeature>
 
+    private enum ScrollAnchor {
+        static let entry = "todak-entry"
+    }
+
     public init(store: StoreOf<TodakFeature>) {
         self.store = store
     }
@@ -73,6 +77,7 @@ public struct TodakView: View {
                     LazyVStack(alignment: .leading, spacing: 16) {
                         if store.messages.isEmpty {
                             entryContent
+                                .id(ScrollAnchor.entry)
                         } else {
                             TodakChatAvatar(category: store.activeCategory)
 
@@ -95,12 +100,14 @@ public struct TodakView: View {
                     .padding(.top, store.messages.isEmpty ? 16 : 20)
                     .padding(.bottom, 20)
                 }
-                .defaultScrollAnchor(.bottom)
-                .onChange(of: store.messages) { _, messages in
-                    guard let messageID = messages.last?.id else { return }
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        proxy.scrollTo(messageID, anchor: .bottom)
-                    }
+                // 새 채팅은 이전 대화의 ScrollView offset을 재사용하지 않도록 뷰포트를 새로 만든다.
+                .id(chatScrollViewportID)
+                .defaultScrollAnchor(.top)
+                .onAppear {
+                    scroll(to: store.chatScrollTarget, using: proxy, animated: false)
+                }
+                .onChange(of: store.chatScrollRequestID) { _, _ in
+                    scroll(to: store.chatScrollTarget, using: proxy, animated: true)
                 }
             }
         }
@@ -178,6 +185,40 @@ public struct TodakView: View {
         store.quota.remaining == 0 ? "오늘 무료 채팅을 모두 사용했어요" : "토닥이에게 운세 물어보기"
     }
 
+    private var chatScrollViewportID: String {
+        switch store.chatScrollTarget {
+        case .entry:
+            "todak-entry-\(store.chatScrollRequestID)"
+        case .message:
+            "todak-conversation"
+        }
+    }
+
+    private func scroll(
+        to target: TodakFeature.ChatScrollTarget,
+        using proxy: ScrollViewProxy,
+        animated: Bool
+    ) {
+        if animated {
+            withAnimation(.easeOut(duration: 0.2)) {
+                performScroll(to: target, using: proxy)
+            }
+        } else {
+            performScroll(to: target, using: proxy)
+        }
+    }
+
+    private func performScroll(
+        to target: TodakFeature.ChatScrollTarget,
+        using proxy: ScrollViewProxy
+    ) {
+        switch target {
+        case .entry:
+            proxy.scrollTo(ScrollAnchor.entry, anchor: .top)
+        case let .message(messageID):
+            proxy.scrollTo(messageID, anchor: .bottom)
+        }
+    }
 }
 
 private struct TodakTypingIndicator: View {

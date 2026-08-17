@@ -32,15 +32,17 @@ extension TodakFeature {
         state.draft = ""
         state.isStreaming = true
         state.assistantMessageID = nil
+        let messageID = uuid()
         state.messages.append(
             TodakMessage(
-                id: uuid(),
+                id: messageID,
                 role: .user,
                 content: content,
                 status: .completed,
                 createdAt: now
             )
         )
+        requestChatScroll(to: .message(messageID), state: &state)
         let conversationID = state.conversationID
 
         return .run { send in
@@ -63,22 +65,25 @@ extension TodakFeature {
     func showInitialReply(state: inout State, for suggestion: TodakSuggestion) -> Effect<Action> {
         let category = suggestion.category ?? .other
 
+        let userMessageID = uuid()
+        let assistantMessageID = uuid()
         state.messages = [
             TodakMessage(
-                id: uuid(),
+                id: userMessageID,
                 role: .user,
                 content: suggestion.seedPrompt,
                 status: .completed,
                 createdAt: now
             ),
             TodakMessage(
-                id: uuid(),
+                id: assistantMessageID,
                 role: .assistant,
                 content: TodakInitialReply.content(for: category),
                 status: .completed,
                 createdAt: now
             )
         ]
+        requestChatScroll(to: .message(assistantMessageID), state: &state)
 
         guard state.guideCategory != nil else { return .none }
         return guideDismissEffect()
@@ -108,6 +113,7 @@ extension TodakFeature {
                     createdAt: now
                 )
             )
+            requestChatScroll(to: .message(assistantMessageID), state: &state)
             return .none
 
         case let .delta(text):
@@ -116,6 +122,7 @@ extension TodakFeature {
                 return .none
             }
             state.messages[index].content += text
+            requestChatScroll(to: .message(assistantMessageID), state: &state)
             return .none
 
         case let .action(action):
@@ -125,6 +132,7 @@ extension TodakFeature {
                 return .none
             }
             state.messages[index].action = action
+            requestChatScroll(to: .message(assistantMessageID), state: &state)
             return .none
 
         case let .done(assistantMessageID):
@@ -208,6 +216,20 @@ extension TodakFeature {
         state.activeCategory = nil
         state.guideCategory = nil
         state.assistantMessageID = nil
+        requestChatScroll(to: .entry, state: &state)
+    }
+
+    func requestScrollToLatestContent(state: inout State) {
+        guard let messageID = state.messages.last?.id else {
+            requestChatScroll(to: .entry, state: &state)
+            return
+        }
+        requestChatScroll(to: .message(messageID), state: &state)
+    }
+
+    func requestChatScroll(to target: ChatScrollTarget, state: inout State) {
+        state.chatScrollTarget = target
+        state.chatScrollRequestID &+= 1
     }
 
     func markAssistantMessageFailed(state: inout State) {
