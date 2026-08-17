@@ -95,7 +95,7 @@ public struct TodakView: View {
                     .padding(.top, store.messages.isEmpty ? 16 : 20)
                     .padding(.bottom, 20)
                 }
-                .defaultScrollAnchor(.bottom)
+                .defaultScrollAnchor(.top)
                 .onChange(of: store.messages) { _, messages in
                     guard let messageID = messages.last?.id else { return }
                     withAnimation(.easeOut(duration: 0.2)) {
