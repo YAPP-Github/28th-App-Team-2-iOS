@@ -86,8 +86,14 @@ private struct NotificationRow: View {
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .center, spacing: 8) {
+                HStack(alignment: .center, spacing: 6) {
                     DSBadge(notification.type.label, variant: .gray)
+
+                    if !notification.isRead {
+                        Circle()
+                            .fill(Color.ds.red500)
+                            .frame(width: 5, height: 5)
+                    }
 
                     Spacer(minLength: 0)
 
