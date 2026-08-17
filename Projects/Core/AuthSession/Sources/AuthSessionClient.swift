@@ -29,6 +29,12 @@ public struct AuthSessionClient: Sendable {
     /// 세션이 없으면 빈 dictionary를 반환하며 raw access token은 노출하지 않습니다.
     public var authorizationHeaders: @Sendable () async -> [String: String]
 
+    /// 인증 만료로 세션이 종료될 때 전달되는 이벤트 스트림입니다.
+    public var expirationEvents: @Sendable () async -> AsyncStream<Void>
+
+    /// 인증 만료로 메모리와 영구 저장소의 세션을 정리하고 종료 이벤트를 전달합니다.
+    public var invalidate: @Sendable () async -> Void
+
     /// 저장된 refresh token으로 token 쌍을 갱신합니다.
     ///
     /// 여러 호출이 동시에 들어오면 하나의 refresh 작업을 공유합니다.
@@ -39,12 +45,16 @@ public struct AuthSessionClient: Sendable {
         save: @escaping @Sendable (SessionTokens) async throws -> Void,
         clear: @escaping @Sendable () async throws -> Void,
         authorizationHeaders: @escaping @Sendable () async -> [String: String],
+        expirationEvents: @escaping @Sendable () async -> AsyncStream<Void>,
+        invalidate: @escaping @Sendable () async -> Void,
         refresh: @escaping @Sendable (SessionRefreshOperation) async throws -> SessionTokens
     ) {
         self.restore = restore
         self.save = save
         self.clear = clear
         self.authorizationHeaders = authorizationHeaders
+        self.expirationEvents = expirationEvents
+        self.invalidate = invalidate
         self.performRefresh = refresh
     }
 
@@ -75,6 +85,8 @@ public extension AuthSessionClient {
         save: { _ in },
         clear: {},
         authorizationHeaders: { [:] },
+        expirationEvents: { AsyncStream { _ in } },
+        invalidate: {},
         refresh: { _ in throw AuthSessionError.sessionNotFound }
     )
 }
@@ -88,6 +100,8 @@ extension AuthSessionClient {
             save: { try await session.save($0) },
             clear: { try await session.clear() },
             authorizationHeaders: { await session.authorizationHeaders() },
+            expirationEvents: { await session.expirationEvents() },
+            invalidate: { await session.invalidate() },
             refresh: { try await session.refresh(using: $0) }
         )
     }
@@ -109,7 +123,9 @@ private actor AuthSession {
     private let storage: SessionTokenStorage
     private var cachedTokens: SessionTokens?
     private var didRestore = false
+    private var isInvalidated = false
     private var refreshTask: Task<SessionTokens, Error>?
+    private var expirationContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
 
     init(storage: SessionTokenStorage) {
         self.storage = storage
@@ -135,12 +151,14 @@ private actor AuthSession {
         try storage.save(tokens)
         cachedTokens = tokens
         didRestore = true
+        isInvalidated = false
     }
 
     func clear() throws {
         try storage.clear()
         cachedTokens = nil
         didRestore = true
+        isInvalidated = false
     }
 
     func authorizationHeaders() -> [String: String] {
@@ -148,6 +166,27 @@ private actor AuthSession {
             return [:]
         }
         return ["Authorization": "Bearer \(accessToken)"]
+    }
+
+    func expirationEvents() -> AsyncStream<Void> {
+        let continuationID = UUID()
+        let (stream, continuation) = AsyncStream<Void>.makeStream()
+        expirationContinuations[continuationID] = continuation
+        continuation.onTermination = { [weak self] _ in
+            Task {
+                await self?.removeExpirationContinuation(continuationID)
+            }
+        }
+        return stream
+    }
+
+    func invalidate() {
+        guard !isInvalidated else { return }
+        isInvalidated = true
+        try? storage.clear()
+        cachedTokens = nil
+        didRestore = true
+        expirationContinuations.values.forEach { $0.yield() }
     }
 
     func refresh(using operation: SessionRefreshOperation) async throws -> SessionTokens {
@@ -194,5 +233,9 @@ private actor AuthSession {
             refreshTask = nil
             throw error
         }
+    }
+
+    private func removeExpirationContinuation(_ continuationID: UUID) {
+        expirationContinuations[continuationID] = nil
     }
 }

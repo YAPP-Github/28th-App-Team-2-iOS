@@ -30,6 +30,20 @@ struct AuthSessionClientTests {
         #expect(try storage.load() == nil)
     }
 
+    @Test("인증 만료 시 세션을 삭제하고 종료 이벤트를 전달한다")
+    func invalidatesSessionAndEmitsExpirationEvent() async throws {
+        let tokens = SessionTokens(accessToken: "access-token", refreshToken: "refresh-token")
+        let storage = InMemorySessionStorage(tokens: tokens)
+        let client = AuthSessionClient.live(storage: storage.client)
+        var events = (await client.expirationEvents()).makeAsyncIterator()
+
+        await client.invalidate()
+
+        #expect(await client.authorizationHeaders().isEmpty)
+        #expect(try storage.load() == nil)
+        #expect(await events.next() != nil)
+    }
+
     @Test("빈 token으로 구성된 저장 세션은 복원하지 않는다")
     func rejectsStoredSessionWithEmptyToken() async throws {
         let storage = InMemorySessionStorage(

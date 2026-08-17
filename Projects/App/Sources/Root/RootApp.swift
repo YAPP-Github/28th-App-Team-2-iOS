@@ -49,6 +49,9 @@ struct TodakunApp: App {
                     do {
                         _ = try await authSession.refresh(using: authClient.refresh)
                         return true
+                    } catch let error as AuthClientError where error == .expired {
+                        await authSession.invalidate()
+                        return false
                     } catch {
                         return false
                     }
@@ -118,6 +121,8 @@ private struct RootView: View {
     @Bindable var store: StoreOf<RootFeature>
     let onAuthenticated: () -> Void
 
+    @Dependency(\.authSession) private var authSession
+
     var body: some View {
         Group {
             switch store.route {
@@ -136,6 +141,11 @@ private struct RootView: View {
             }
         }
         .task { store.send(.task) }
+        .task {
+            for await _ in await authSession.expirationEvents() {
+                store.send(.sessionExpired)
+            }
+        }
         .onChange(of: store.route) { _, route in
             if route == .authenticated {
                 onAuthenticated()

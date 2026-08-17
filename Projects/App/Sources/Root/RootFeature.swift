@@ -21,6 +21,7 @@ struct RootFeature {
     enum Action: Equatable {
         case task
         case sessionRestored(Result<Bool, AuthSessionError>)
+        case sessionExpired
         case sessionCleared
         case onboarding(OnboardingFeature.Action)
         case mainTab(MainTabFeature.Action)
@@ -68,7 +69,7 @@ struct RootFeature {
                     await send(.sessionCleared)
                 }
 
-            case .sessionCleared:
+            case .sessionExpired, .sessionCleared:
                 state.mainTab = MainTabFeature.State()
                 state.onboarding = OnboardingFeature.State()
                 state.route = .unauthenticated

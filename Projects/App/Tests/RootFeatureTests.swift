@@ -102,6 +102,23 @@ struct RootFeatureTests {
             $0.route = .unauthenticated
         }
     }
+
+    @Test
+    func expiredSessionShowsOnboarding() async {
+        var state = RootFeature.State()
+        state.route = .authenticated
+        state.onboarding.route = .home
+        state.mainTab.selectedTab = .myPage
+        let store = TestStore(initialState: state) {
+            RootFeature()
+        }
+
+        await store.send(.sessionExpired) {
+            $0.mainTab = MainTabFeature.State()
+            $0.onboarding = OnboardingFeature.State()
+            $0.route = .unauthenticated
+        }
+    }
 }
 
 private actor RestoreCounter {
