@@ -102,13 +102,10 @@ public struct TodakView: View {
                 }
                 .defaultScrollAnchor(.top)
                 .onAppear {
-                    scrollToCurrentContent(using: proxy, animated: false)
+                    scroll(to: store.chatScrollTarget, using: proxy, animated: false)
                 }
-                .onChange(of: store.messages) { _, _ in
-                    scrollToCurrentContent(
-                        using: proxy,
-                        animated: !store.messages.isEmpty
-                    )
+                .onChange(of: store.chatScrollRequestID) { _, _ in
+                    scroll(to: store.chatScrollTarget, using: proxy, animated: true)
                 }
             }
         }
@@ -186,24 +183,29 @@ public struct TodakView: View {
         store.quota.remaining == 0 ? "오늘 무료 채팅을 모두 사용했어요" : "토닥이에게 운세 물어보기"
     }
 
-    private func scrollToCurrentContent(
+    private func scroll(
+        to target: TodakFeature.ChatScrollTarget,
         using proxy: ScrollViewProxy,
         animated: Bool
     ) {
-        let destination: (id: AnyHashable, alignment: UnitPoint)
-
-        if let messageID = store.messages.last?.id {
-            destination = (AnyHashable(messageID), .bottom)
-        } else {
-            destination = (AnyHashable(ScrollAnchor.entry), .top)
-        }
-
         if animated {
             withAnimation(.easeOut(duration: 0.2)) {
-                proxy.scrollTo(destination.id, anchor: destination.alignment)
+                performScroll(to: target, using: proxy)
             }
         } else {
-            proxy.scrollTo(destination.id, anchor: destination.alignment)
+            performScroll(to: target, using: proxy)
+        }
+    }
+
+    private func performScroll(
+        to target: TodakFeature.ChatScrollTarget,
+        using proxy: ScrollViewProxy
+    ) {
+        switch target {
+        case .entry:
+            proxy.scrollTo(ScrollAnchor.entry, anchor: .top)
+        case let .message(messageID):
+            proxy.scrollTo(messageID, anchor: .bottom)
         }
     }
 }

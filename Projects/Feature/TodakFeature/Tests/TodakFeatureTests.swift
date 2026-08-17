@@ -55,6 +55,8 @@ struct TodakFeatureTests {
                     createdAt: now
                 )
             ]
+            $0.chatScrollTarget = .message(localMessageID)
+            $0.chatScrollRequestID = 1
         }
         await store.receive(
             .streamEvent(
@@ -78,9 +80,12 @@ struct TodakFeatureTests {
                     createdAt: now
                 )
             )
+            $0.chatScrollTarget = .message(assistantMessageID)
+            $0.chatScrollRequestID = 2
         }
         await store.receive(.streamEvent(.delta("좋은 흐름이에요."))) {
             $0.messages[1].content = "좋은 흐름이에요."
+            $0.chatScrollRequestID = 3
         }
         await store.receive(.streamEvent(.done(assistantMessageID: assistantMessageID))) {
             $0.messages[1].status = .completed
@@ -167,6 +172,8 @@ struct TodakFeatureTests {
                     createdAt: now
                 )
             ]
+            $0.chatScrollTarget = .message(assistantMessageID)
+            $0.chatScrollRequestID = 1
         }
         await store.send(.guideDismissed) {
             $0.guideCategory = nil
@@ -298,6 +305,8 @@ struct TodakFeatureRegressionTests {
             $0.conversations = []
             $0.conversationID = nil
             $0.messages = []
+            $0.chatScrollTarget = .entry
+            $0.chatScrollRequestID = 1
             $0.toastMessage = "대화가 삭제되었어요."
         }
         await store.send(.toastDismissed) {
@@ -327,6 +336,28 @@ struct TodakFeatureRegressionTests {
             $0.pendingDeletionID = nil
         }
         #expect(store.state.conversations == [summary])
+    }
+
+    @Test("새 채팅은 엔트리의 시작점으로 스크롤을 요청한다")
+    func newChatRequestsEntryScroll() async {
+        let messageID = UUID(uuidString: "00000000-0000-0000-0000-000000000010")!
+        let store = TestStore(
+            initialState: TodakFeature.State(
+                conversationID: UUID(),
+                messages: [TodakMessage(id: messageID, role: .user, content: "이전 질문", status: .completed)],
+                chatScrollTarget: .message(messageID),
+                chatScrollRequestID: 7
+            )
+        ) {
+            TodakFeature()
+        }
+
+        await store.send(.newChatButtonTapped) {
+            $0.conversationID = nil
+            $0.messages = []
+            $0.chatScrollTarget = .entry
+            $0.chatScrollRequestID = 8
+        }
     }
 
     @Test("대화 히스토리는 최근 메시지 순으로 정렬한다")
@@ -419,6 +450,8 @@ struct TodakFeatureRegressionTests {
             $0.isPendingDeepLinkConversation = false
             $0.conversationID = conversationID
             $0.messages = conversation.messages
+            $0.chatScrollTarget = .message(conversation.messages[0].id)
+            $0.chatScrollRequestID = 1
         }
         await clock.advance(by: .milliseconds(1_500))
         await store.receive(.splashElapsed) {
@@ -477,6 +510,8 @@ struct TodakFeatureRegressionTests {
             $0.isPendingDeepLinkConversation = false
             $0.conversationID = conversationID
             $0.messages = conversation.messages
+            $0.chatScrollTarget = .entry
+            $0.chatScrollRequestID = 1
         }
     }
 
@@ -522,6 +557,8 @@ struct TodakFeatureRegressionTests {
             $0.conversationID = nil
             $0.messages = []
             $0.screen = .chat
+            $0.chatScrollTarget = .entry
+            $0.chatScrollRequestID = 1
             $0.toastMessage = "대화를 찾을 수 없어요."
         }
         await clock.advance(by: .milliseconds(1_500))

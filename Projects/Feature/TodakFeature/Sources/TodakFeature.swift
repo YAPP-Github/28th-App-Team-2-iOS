@@ -6,6 +6,13 @@ import Foundation
 public struct TodakFeature {
     public init() {}
 
+    /// 채팅 화면이 표시될 때 복원할 콘텐츠 위치다.
+    /// 새 채팅은 엔트리의 시작점, 기존 대화는 마지막 메시지를 가리킨다.
+    public enum ChatScrollTarget: Equatable, Sendable {
+        case entry
+        case message(UUID)
+    }
+
     @ObservableState
     public struct State: Equatable, Sendable {
         public enum Screen: Equatable, Sendable {
@@ -22,6 +29,9 @@ public struct TodakFeature {
         public var quota: TodakQuota
         public var conversationID: UUID?
         public var messages: [TodakMessage]
+        public var chatScrollTarget: ChatScrollTarget
+        /// 동일한 메시지가 스트리밍으로 갱신될 때도 스크롤 요청을 전달하기 위한 식별자다.
+        public var chatScrollRequestID: Int
         public var draft: String
         public var isStreaming: Bool
         public var assistantMessageID: UUID?
@@ -44,6 +54,8 @@ public struct TodakFeature {
             quota: TodakQuota = TodakEntry.initial.quota,
             conversationID: UUID? = nil,
             messages: [TodakMessage] = [],
+            chatScrollTarget: ChatScrollTarget = .entry,
+            chatScrollRequestID: Int = 0,
             draft: String = "",
             isStreaming: Bool = false,
             assistantMessageID: UUID? = nil,
@@ -64,6 +76,8 @@ public struct TodakFeature {
             self.quota = quota
             self.conversationID = conversationID
             self.messages = messages
+            self.chatScrollTarget = chatScrollTarget
+            self.chatScrollRequestID = chatScrollRequestID
             self.draft = draft
             self.isStreaming = isStreaming
             self.assistantMessageID = assistantMessageID
@@ -257,6 +271,7 @@ public struct TodakFeature {
                 state.isPendingDeepLinkConversation = false
                 state.conversationID = conversation.id
                 state.messages = conversation.messages
+                requestScrollToLatestContent(state: &state)
                 state.conversations = state.conversations.map { summary in
                     guard summary.id == conversation.id else { return summary }
                     return TodakConversationSummary(
