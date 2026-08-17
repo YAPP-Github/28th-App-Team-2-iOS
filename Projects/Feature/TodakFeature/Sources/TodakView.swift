@@ -5,6 +5,10 @@ import SwiftUI
 public struct TodakView: View {
     @Bindable var store: StoreOf<TodakFeature>
 
+    private enum ScrollAnchor {
+        static let entry = "todak-entry"
+    }
+
     public init(store: StoreOf<TodakFeature>) {
         self.store = store
     }
@@ -73,6 +77,7 @@ public struct TodakView: View {
                     LazyVStack(alignment: .leading, spacing: 16) {
                         if store.messages.isEmpty {
                             entryContent
+                                .id(ScrollAnchor.entry)
                         } else {
                             TodakChatAvatar(category: store.activeCategory)
 
@@ -97,10 +102,13 @@ public struct TodakView: View {
                 }
                 .defaultScrollAnchor(.top)
                 .onAppear {
-                    scrollToLatestMessage(using: proxy, animated: false)
+                    scrollToCurrentContent(using: proxy, animated: false)
                 }
                 .onChange(of: store.messages) { _, _ in
-                    scrollToLatestMessage(using: proxy, animated: true)
+                    scrollToCurrentContent(
+                        using: proxy,
+                        animated: !store.messages.isEmpty
+                    )
                 }
             }
         }
@@ -178,18 +186,24 @@ public struct TodakView: View {
         store.quota.remaining == 0 ? "오늘 무료 채팅을 모두 사용했어요" : "토닥이에게 운세 물어보기"
     }
 
-    private func scrollToLatestMessage(
+    private func scrollToCurrentContent(
         using proxy: ScrollViewProxy,
         animated: Bool
     ) {
-        guard let messageID = store.messages.last?.id else { return }
+        let destination: (id: AnyHashable, alignment: UnitPoint)
+
+        if let messageID = store.messages.last?.id {
+            destination = (AnyHashable(messageID), .bottom)
+        } else {
+            destination = (AnyHashable(ScrollAnchor.entry), .top)
+        }
 
         if animated {
             withAnimation(.easeOut(duration: 0.2)) {
-                proxy.scrollTo(messageID, anchor: .bottom)
+                proxy.scrollTo(destination.id, anchor: destination.alignment)
             }
         } else {
-            proxy.scrollTo(messageID, anchor: .bottom)
+            proxy.scrollTo(destination.id, anchor: destination.alignment)
         }
     }
 }
