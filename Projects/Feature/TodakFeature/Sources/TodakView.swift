@@ -96,11 +96,11 @@ public struct TodakView: View {
                     .padding(.bottom, 20)
                 }
                 .defaultScrollAnchor(.top)
-                .onChange(of: store.messages) { _, messages in
-                    guard let messageID = messages.last?.id else { return }
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        proxy.scrollTo(messageID, anchor: .bottom)
-                    }
+                .onAppear {
+                    scrollToLatestMessage(using: proxy, animated: false)
+                }
+                .onChange(of: store.messages) { _, _ in
+                    scrollToLatestMessage(using: proxy, animated: true)
                 }
             }
         }
@@ -178,6 +178,20 @@ public struct TodakView: View {
         store.quota.remaining == 0 ? "오늘 무료 채팅을 모두 사용했어요" : "토닥이에게 운세 물어보기"
     }
 
+    private func scrollToLatestMessage(
+        using proxy: ScrollViewProxy,
+        animated: Bool
+    ) {
+        guard let messageID = store.messages.last?.id else { return }
+
+        if animated {
+            withAnimation(.easeOut(duration: 0.2)) {
+                proxy.scrollTo(messageID, anchor: .bottom)
+            }
+        } else {
+            proxy.scrollTo(messageID, anchor: .bottom)
+        }
+    }
 }
 
 private struct TodakTypingIndicator: View {
