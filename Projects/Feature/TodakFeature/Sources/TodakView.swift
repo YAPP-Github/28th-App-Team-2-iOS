@@ -100,6 +100,8 @@ public struct TodakView: View {
                     .padding(.top, store.messages.isEmpty ? 16 : 20)
                     .padding(.bottom, 20)
                 }
+                // 새 채팅은 이전 대화의 ScrollView offset을 재사용하지 않도록 뷰포트를 새로 만든다.
+                .id(chatScrollViewportID)
                 .defaultScrollAnchor(.top)
                 .onAppear {
                     scroll(to: store.chatScrollTarget, using: proxy, animated: false)
@@ -181,6 +183,15 @@ public struct TodakView: View {
 
     private var inputPlaceholder: String {
         store.quota.remaining == 0 ? "오늘 무료 채팅을 모두 사용했어요" : "토닥이에게 운세 물어보기"
+    }
+
+    private var chatScrollViewportID: String {
+        switch store.chatScrollTarget {
+        case .entry:
+            "todak-entry-\(store.chatScrollRequestID)"
+        case .message:
+            "todak-conversation"
+        }
     }
 
     private func scroll(
