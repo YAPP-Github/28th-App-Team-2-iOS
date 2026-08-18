@@ -97,6 +97,9 @@ public extension Project {
                 deploymentTargets: .iOS("17.0"),
                 infoPlist: .extendingDefault(with: [
                     "CFBundleDisplayName": "토닥운",
+                    "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                    "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
+                    "LSApplicationCategoryType": "public.app-category.lifestyle",
                     "UILaunchStoryboardName": "LaunchScreen",
                     "UIUserInterfaceStyle": "Light",
                     "API_BASE_URL": "$(API_BASE_URL)",
@@ -118,7 +121,9 @@ public extension Project {
                     base: [
                         // GoogleSignIn의 AppAuth는 Objective-C category로 iOS authorization
                         // presenter를 제공합니다. 정적 링크 시 category object가 제거되지 않도록 합니다.
-                        "OTHER_LDFLAGS": "$(inherited) -ObjC"
+                        "OTHER_LDFLAGS": "$(inherited) -ObjC",
+                        "MARKETING_VERSION": "1.0.0",
+                        "CURRENT_PROJECT_VERSION": "1.0.0"
                     ],
                     configurations: [
                         .debug(
