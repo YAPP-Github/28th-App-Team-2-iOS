@@ -304,7 +304,7 @@ private struct DayFortuneResultContent: View {
             VStack(spacing: 0) {
                 resultHeader
 
-                ScrollView {
+                ScrollView(.vertical) {
                     VStack(spacing: 20) {
                         resultIntroduction
 
@@ -319,6 +319,7 @@ private struct DayFortuneResultContent: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
                     .padding(.bottom, 32)
+                    .containerRelativeFrame(.horizontal)
                 }
                 .scrollIndicators(.hidden)
             }
