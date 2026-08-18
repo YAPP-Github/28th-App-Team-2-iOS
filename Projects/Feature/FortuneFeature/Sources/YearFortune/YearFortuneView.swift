@@ -178,18 +178,8 @@ private struct YearFortuneResultContent: View {
 
             Spacer()
 
-            Button {
-                store.send(.shareTapped)
-            } label: {
-                shareIconAsset
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(Color.ds.white)
-                    .frame(width: 44, height: 44)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("공유하기")
+            Color.clear
+                .frame(width: 44, height: 44)
         }
         .padding(.horizontal, 10)
         .frame(height: 52)
@@ -285,7 +275,4 @@ private struct YearFortuneResultContent: View {
         .ignoresSafeArea(edges: .top)
     }
 
-    private var shareIconAsset: Image {
-        FortuneFeatureAsset.fortuneShare.swiftUIImage
-    }
 }

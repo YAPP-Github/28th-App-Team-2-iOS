@@ -370,18 +370,6 @@ private struct DayFortuneResultContent: View {
             .buttonStyle(.plain)
             .accessibilityLabel("캘린더 내보내기")
 
-            Button {
-                store.send(.shareTapped)
-            } label: {
-                shareIconAsset
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(Color.ds.white)
-                    .frame(width: 36, height: 44)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("공유하기")
         }
         .padding(.horizontal, 10)
         .frame(height: 52)
@@ -523,10 +511,6 @@ private struct DayFortuneResultContent: View {
                 .frame(height: proxy.size.width / (393.0 / 850.0))
         }
         .ignoresSafeArea(edges: .top)
-    }
-
-    private var shareIconAsset: Image {
-        FortuneFeatureAsset.fortuneShare.swiftUIImage
     }
 
     private var calendarExportIconAsset: Image {
