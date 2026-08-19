@@ -122,6 +122,8 @@ public extension Project {
                         // GoogleSignIn의 AppAuth는 Objective-C category로 iOS authorization
                         // presenter를 제공합니다. 정적 링크 시 category object가 제거되지 않도록 합니다.
                         "OTHER_LDFLAGS": "$(inherited) -ObjC",
+                        // App Store에는 iPhone 전용 앱으로 제공하고 iPad는 명시적으로 지원하지 않습니다.
+                        "TARGETED_DEVICE_FAMILY": "1",
                         "MARKETING_VERSION": "1.0.0",
                         "CURRENT_PROJECT_VERSION": "1.0.0"
                     ],
