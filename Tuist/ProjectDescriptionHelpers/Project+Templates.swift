@@ -105,6 +105,9 @@ public extension Project {
                     "API_BASE_URL": "$(API_BASE_URL)",
                     "GOOGLE_IOS_CLIENT_ID": "$(GOOGLE_IOS_CLIENT_ID)",
                     "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
+                    "LSApplicationQueriesSchemes": [
+                        "kakaokompassauth"
+                    ],
                     "CFBundleURLTypes": [
                         [
                             "CFBundleURLSchemes": [
@@ -125,7 +128,7 @@ public extension Project {
                         // App Store에는 iPhone 전용 앱으로 제공하고 iPad는 명시적으로 지원하지 않습니다.
                         "TARGETED_DEVICE_FAMILY": "1",
                         "MARKETING_VERSION": "1.0.0",
-                        "CURRENT_PROJECT_VERSION": "1.0.0"
+                        "CURRENT_PROJECT_VERSION": "1.0.1"
                     ],
                     configurations: [
                         .debug(
