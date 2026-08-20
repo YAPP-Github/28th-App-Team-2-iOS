@@ -413,7 +413,7 @@ private struct CompatibilityResultContent: View {
                     .foregroundStyle(Color.ds.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 4)
-                    .background(Color.ds.primary600)
+                    .background(Color.ds.primary700)
                     .clipShape(Capsule())
 
                 Text("\(result.partnerName)님과 나의")
@@ -422,7 +422,7 @@ private struct CompatibilityResultContent: View {
             }
 
             Text(result.headline)
-                .dsHeading1Bold
+                .dsBody1Bold
                 .foregroundStyle(Color.ds.white)
                 .multilineTextAlignment(.center)
         }
@@ -436,11 +436,11 @@ private struct CompatibilityResultContent: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 Text(result.subheadline)
-                    .dsHeading2Bold
+                    .dsHeading4Bold
                     .foregroundStyle(Color.ds.white)
 
                 Text(result.summary)
-                    .dsBody3Regular
+                    .dsBody2Regular
                     .foregroundStyle(Color.ds.whiteOpacity80)
                     .lineSpacing(6)
             }
@@ -587,8 +587,8 @@ private struct CompatibilityResultContent: View {
                 .foregroundStyle(Color.ds.white)
 
             Text(result.totalAnalysis)
-                .dsBody3Regular
-                .foregroundStyle(Color.ds.whiteOpacity80)
+                .dsBody2Regular
+                .foregroundStyle(Color.ds.white)
                 .lineSpacing(6)
 
             if !result.analysisBasis.isEmpty {

@@ -385,11 +385,11 @@ private struct DayFortuneResultContent: View {
                     .foregroundStyle(Color.ds.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
-                    .background(Color.ds.primary600)
+                    .background(Color.ds.primary700)
                     .clipShape(Capsule())
 
                 Text("선택하신 후보 일자 중\n최고의 기운을 찾아봤어요")
-                    .dsHeading2Bold
+                    .dsBody1Bold
                     .foregroundStyle(Color.ds.white)
                     .multilineTextAlignment(.center)
             }
@@ -404,7 +404,7 @@ private struct DayFortuneResultContent: View {
                     store.send(.resultSelected(result.id))
                 } label: {
                     Text(DayFortuneDateFormatter.tabDate(result.targetDate))
-                        .dsBody2Medium
+                        .dsBody1Medium
                         .foregroundStyle(isSelected ? Color.ds.white : Color.ds.whiteOpacity80)
                         .padding(.horizontal, 12)
                         .frame(maxWidth: .infinity)
@@ -437,7 +437,7 @@ private struct DayFortuneResultContent: View {
             FortuneResultScoreRing(score: result.score, caption: "운세 점수")
 
             Text(result.title)
-                .dsHeading2Bold
+                .dsHeading4Bold
                 .foregroundStyle(Color.ds.white)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -496,8 +496,8 @@ private struct DayFortuneResultContent: View {
                 .foregroundStyle(Color.ds.white)
 
             Text(result.content)
-                .dsBody3Regular
-                .foregroundStyle(Color.ds.whiteOpacity80)
+                .dsBody2Regular
+                .foregroundStyle(Color.ds.white)
                 .lineSpacing(6)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
