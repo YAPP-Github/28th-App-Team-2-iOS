@@ -109,7 +109,11 @@ private func performSignup(
 ) async throws -> SessionTokens {
     authDebugLog("회원가입 요청 시작")
 
-    let endpoint = try Endpoint.post("/api/v1/auth/signup", body: SignupRequestDTO(input: input))
+    let endpoint = try Endpoint.post(
+        "/api/v1/auth/signup",
+        body: SignupRequestDTO(input: input),
+        retriesAfterUnauthorized: false
+    )
 
     do {
         let response: CommonResponseDTO<SignupResponseDTO> = try await httpClient.request(endpoint)

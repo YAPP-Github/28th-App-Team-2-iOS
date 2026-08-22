@@ -72,7 +72,7 @@ struct UserStatusView: View {
             .padding(.bottom, 14)
         }
         .overlay {
-            if store.signupPhase.isLoading {
+            if store.signupPhase.showsSignupLoading {
                 OnboardingSignupLoadingView()
             }
         }

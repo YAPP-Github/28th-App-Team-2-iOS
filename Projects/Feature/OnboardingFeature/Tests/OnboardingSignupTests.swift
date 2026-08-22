@@ -75,6 +75,77 @@ final class OnboardingSignupTests: XCTestCase {
         await store.receive(.delegate(.authenticationCompleted))
     }
 
+    func testExpiredSignupPresentsDialogThenReturnsToLoginAfterConfirmation() async {
+        var initialState = OnboardingFeature.State()
+        initialState.route = .onboarding
+        initialState.signupPhase = .signingUp
+        initialState.onboardingStep = .userStatus
+        initialState.onboardingToken = "expired-onboarding-token"
+        initialState.terms[0].isAgreed = true
+        initialState.selectedTermDetail = initialState.terms[0]
+        initialState.onboardingName = "홍길동"
+        initialState.gender = .female
+        initialState.birthDateCalendar = .lunar
+        initialState.birthDate = BirthDate(year: 2000, month: 1, day: 2)
+        initialState.isBirthTimeUnknown = true
+        initialState.dailyRoutine = .employed
+        initialState.romanticRelationshipStatus = .dating
+
+        let store = TestStore(initialState: initialState) {
+            OnboardingFeature()
+        }
+
+        // 만료 응답만으로는 로그인 화면으로 이동하지 않는다.
+        await store.send(.signupResponse(.failure(.expired))) {
+            $0.onboardingToken = nil
+            $0.signupPhase = .idle
+            $0.isSignupExpirationDialogPresented = true
+        }
+
+        XCTAssertEqual(store.state.route, .onboarding)
+        XCTAssertFalse(store.state.signupPhase.showsSignupLoading)
+
+        // 사용자가 만료 안내를 확인한 뒤 초기 로그인으로 이동한다.
+        await store.send(.signupExpirationDialogConfirmed) {
+            $0.route = .login
+            $0.isSignupExpirationDialogPresented = false
+            $0.onboardingStep = .terms
+            $0.terms = OnboardingTerm.defaultTerms
+            $0.selectedTermDetail = nil
+            $0.onboardingName = ""
+            $0.gender = nil
+            $0.birthDateCalendar = nil
+            $0.birthDate = nil
+            $0.isBirthTimeUnknown = false
+            $0.dailyRoutine = nil
+            $0.romanticRelationshipStatus = nil
+        }
+    }
+
+    func testNonExpiredSignupFailureRemainsRetryable() async {
+        var initialState = OnboardingFeature.State()
+        initialState.route = .onboarding
+        initialState.signupPhase = .signingUp
+
+        let store = TestStore(initialState: initialState) {
+            OnboardingFeature()
+        }
+
+        await store.send(.signupResponse(.failure(.requestFailed))) {
+            $0.signupPhase = .failed(.signup(.requestFailed))
+        }
+
+        XCTAssertFalse(store.state.isSignupExpirationDialogPresented)
+    }
+
+    func testSignupLoadingPresentationStartsWhenRequestStarts() {
+        XCTAssertTrue(SignupPhase.signingUp.showsSignupLoading)
+        XCTAssertTrue(SignupPhase.savingSession.showsSignupLoading)
+        XCTAssertTrue(SignupPhase.requestingNotificationAuthorization.showsSignupLoading)
+        XCTAssertFalse(SignupPhase.idle.showsSignupLoading)
+        XCTAssertFalse(SignupPhase.failed(.signup(.requestFailed)).showsSignupLoading)
+    }
+
     func testLiveSignupClientEncodesSwaggerSchema() async throws {
         let recorder = RequestRecorder()
         let httpClient = HTTPClient(
@@ -106,6 +177,38 @@ final class OnboardingSignupTests: XCTestCase {
 
         let payload = try JSONDecoder().decode(SignupRequestBody.self, from: try XCTUnwrap(request?.httpBody))
         XCTAssertEqual(payload, SignupRequestBody(input: expectedSignupInput))
+    }
+
+    func testLiveSignupClientDoesNotRetryUnauthorizedResponse() async throws {
+        let counter = UnauthorizedHandlerCounter()
+        let httpClient = HTTPClient(
+            baseURL: try XCTUnwrap(URL(string: "https://api-dev.todakun.com")),
+            transport: { request in
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(fileURLWithPath: "/"),
+                    statusCode: 401,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (Data(), response)
+            },
+            onUnauthorized: {
+                await counter.increment()
+                return true
+            }
+        )
+
+        do {
+            _ = try await AuthClient.live(httpClient: httpClient).signup(expectedSignupInput)
+            XCTFail("signup endpoint의 401은 갱신 처리기를 호출하면 안 됩니다.")
+        } catch let error as AuthClientError {
+            XCTAssertEqual(error, .expired)
+        } catch {
+            XCTFail("예상하지 못한 오류: \(error)")
+        }
+
+        let invocationCount = await counter.value
+        XCTAssertEqual(invocationCount, 0)
     }
 
     func testLiveRefreshClientRotatesSessionTokens() async throws {
