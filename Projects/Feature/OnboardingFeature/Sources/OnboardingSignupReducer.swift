@@ -23,7 +23,23 @@ extension OnboardingFeature {
 
         case let .signupResponse(.failure(error)):
             guard state.signupPhase == .signingUp else { return .none }
+
+            if error == .expired {
+                state.onboardingToken = nil
+                state.pendingSignupTokens = nil
+                state.signupPhase = .idle
+                state.isSignupExpirationDialogPresented = true
+                return .none
+            }
+
             state.signupPhase = .failed(.signup(error))
+            return .none
+
+        case .signupExpirationDialogConfirmed:
+            guard state.isSignupExpirationDialogPresented else { return .none }
+
+            state.discardOnboardingState()
+            state.route = .login
             return .none
 
         case .signupTokenStorageSucceeded:
@@ -100,6 +116,26 @@ extension OnboardingFeature {
 }
 
 extension OnboardingFeature.State {
+    mutating func discardOnboardingState() {
+        onboardingToken = nil
+        pendingSignupTokens = nil
+        signupPhase = .idle
+        onboardingStep = .terms
+        terms = OnboardingTerm.defaultTerms
+        selectedTermDetail = nil
+        isSignupExpirationDialogPresented = false
+        isOnboardingExitConfirmationPresented = false
+        onboardingName = ""
+        gender = nil
+        birthDateCalendar = nil
+        birthDate = nil
+        birthDateAgeValidationMessage = nil
+        birthTimePeriod = nil
+        isBirthTimeUnknown = false
+        dailyRoutine = nil
+        romanticRelationshipStatus = nil
+    }
+
     public var signupInput: SignupInput? {
         guard let onboardingToken,
               !onboardingToken.isEmpty,

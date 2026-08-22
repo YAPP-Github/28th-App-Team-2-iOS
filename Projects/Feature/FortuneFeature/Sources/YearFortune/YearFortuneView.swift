@@ -193,11 +193,11 @@ private struct YearFortuneResultContent: View {
                     .foregroundStyle(Color.ds.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
-                    .background(Color.ds.primary600)
+                    .background(Color.ds.primary700)
                     .clipShape(Capsule())
 
                 Text("\(String(result.year))년의 운세")
-                    .dsHeading2Bold
+                    .dsBody1Bold
                     .foregroundStyle(Color.ds.white)
             }
 
@@ -205,7 +205,7 @@ private struct YearFortuneResultContent: View {
                 FortuneResultScoreRing(score: result.score, caption: "연간 종합 점수")
 
                 Text(result.title)
-                    .dsBody1Bold
+                    .dsHeading4Bold
                     .foregroundStyle(Color.ds.white)
                     .multilineTextAlignment(.center)
                     .padding(.top, 4)
@@ -257,8 +257,8 @@ private struct YearFortuneResultContent: View {
                 .foregroundStyle(Color.ds.white)
 
             Text(result.content)
-                .dsBody3Regular
-                .foregroundStyle(Color.ds.whiteOpacity80)
+                .dsBody2Regular
+                .foregroundStyle(Color.ds.white)
                 .lineSpacing(6)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

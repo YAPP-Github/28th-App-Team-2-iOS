@@ -17,6 +17,7 @@ public struct OnboardingFeature {
         public var terms = OnboardingTerm.defaultTerms
         public var selectedTermDetail: OnboardingTerm?
         public var isOnboardingExitConfirmationPresented = false
+        public var isSignupExpirationDialogPresented = false
         public var onboardingName = ""
         public var gender: Gender?
         public var birthDateCalendar: BirthDateCalendar?
@@ -93,6 +94,7 @@ public struct OnboardingFeature {
         case dailyRoutineChanged(DailyRoutine)
         case romanticRelationshipStatusChanged(RomanticRelationshipStatus)
         case userStatusNextButtonTapped
+        case signupExpirationDialogConfirmed
         case signupResponse(Result<SessionTokens, AuthClientError>)
         case signupTokenStorageSucceeded
         case signupTokenStorageFailed(AuthSessionError)
@@ -325,22 +327,7 @@ private extension OnboardingFeature {
             // 임시 회원 삭제 API와 소셜 제공자 세션 해제 정책은 서버 계약 확인 후 연결한다.
             // 여기서는 앱에만 보관된 온보딩 상태를 폐기한다.
             state.route = .login
-            state.onboardingToken = nil
-            state.pendingSignupTokens = nil
-            state.signupPhase = .idle
-            state.onboardingStep = .terms
-            state.terms = OnboardingTerm.defaultTerms
-            state.selectedTermDetail = nil
-            state.onboardingName = ""
-            state.gender = nil
-            state.birthDateCalendar = nil
-            state.birthDate = nil
-            state.birthDateAgeValidationMessage = nil
-            state.birthTimePeriod = nil
-            state.isBirthTimeUnknown = false
-            state.dailyRoutine = nil
-            state.romanticRelationshipStatus = nil
-            state.isOnboardingExitConfirmationPresented = false
+            state.discardOnboardingState()
             return .cancel(id: OnboardingCancelID.signup)
 
         case .debugPreviewButtonTapped(.newMember):

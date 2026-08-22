@@ -39,6 +39,10 @@ public enum SignupPhase: Equatable, Sendable {
         }
     }
 
+    public var showsSignupLoading: Bool {
+        isLoading
+    }
+
     public var errorMessage: String? {
         guard case let .failed(failure) = self else { return nil }
         return failure.message

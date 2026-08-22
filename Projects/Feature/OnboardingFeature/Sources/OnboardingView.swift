@@ -17,6 +17,11 @@ public struct OnboardingView: View {
 
     public var body: some View {
         onboardingContent
+            .overlay {
+                if store.isSignupExpirationDialogPresented {
+                    signupExpirationDialog
+                }
+            }
         #if DEBUG
             .sheet(
                 isPresented: $isDebugPreviewSheetPresented,
@@ -224,6 +229,25 @@ public struct OnboardingView: View {
         }
 
         return title
+    }
+
+    private var signupExpirationDialog: some View {
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+
+            DSDialog(
+                title: "인증 정보가 만료되었어요",
+                message: "처음부터 다시 로그인해 주세요.",
+                primaryAction: DSDialog.Action(
+                    "확인",
+                    handler: {
+                        store.send(.signupExpirationDialogConfirmed)
+                    }
+                )
+            )
+        }
+        .accessibilityAddTraits(.isModal)
     }
 
 }

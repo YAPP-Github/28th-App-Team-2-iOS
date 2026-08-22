@@ -62,11 +62,12 @@ struct FortuneReportView: View {
 
         case let .loaded(detail):
             ZStack(alignment: .top) {
-                ScrollView {
+                ScrollView(.vertical) {
                     VStack(spacing: 0) {
                         Color.clear.frame(height: 52)
                         reportBody(detail)
                     }
+                    .containerRelativeFrame(.horizontal)
                 }
                 .scrollIndicators(.hidden)
 

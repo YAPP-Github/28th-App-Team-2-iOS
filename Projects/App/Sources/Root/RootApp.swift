@@ -153,9 +153,14 @@ private struct RootView: View {
         }
         .onOpenURL { callbackURL in
             _ = GIDSignIn.sharedInstance.handle(callbackURL)
+
             // 외부 SDK의 고정 API 표기(`Url`)를 그대로 호출한다.
             // swiftlint:disable:next acronym_casing
-            _ = AuthController.handleOpenUrl(url: callbackURL)
+            if AuthApi.isKakaoTalkLoginUrl(callbackURL) {
+                // 외부 SDK의 고정 API 표기(`Url`)를 그대로 호출한다.
+                // swiftlint:disable:next acronym_casing
+                _ = AuthController.handleOpenUrl(url: callbackURL)
+            }
         }
     }
 
